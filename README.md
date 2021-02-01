@@ -1,2 +1,2 @@
-# Team-12
+# Team12
 The World They Saw
