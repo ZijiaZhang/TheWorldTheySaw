@@ -26,6 +26,37 @@ namespace ECS {
 		// The ID defines an entity
 		unsigned int id;
 
+		template<class T>
+        Entity& insert(T&& t)
+        {
+            registry<T>.insert(*this, std::forward<T>(t));
+            return *this;
+        };
+
+        template<class T, class ... Args>
+        Entity & emplace(Args &&... args){
+            insert(T(std::forward<Args>(args)...));
+            return *this;
+        };
+
+        template<class T>
+        T& get()
+        {
+            return registry<T>.get(*this);
+
+        };
+
+        template<class T>
+        bool has() const{
+            return registry<T>.has(*this);
+        }
+
+        template<class T>
+        Entity& remove(){
+            registry<T>.remove(*this);
+            return *this;
+        }
+
 	private:
 		// yields ids from 1; entity 0 is the default initialization
 		static unsigned int next_id() {

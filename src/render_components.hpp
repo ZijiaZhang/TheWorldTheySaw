@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
+#include "tiny_ecs.hpp"
 
 enum GLResourceType {BUFFER, RENDER_BUFFER, SHADER, PROGRAM, TEXTURE, VERTEX_ARRAY};
 
@@ -112,6 +113,7 @@ struct Mesh
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+	ECS::Entity camera;
 };
 
 // ShadedMesh datastructure for storing mesh, shader, and texture objects

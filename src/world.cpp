@@ -6,6 +6,7 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
+#include "Camera.h"
 
 // stlib
 #include <string.h>
@@ -196,15 +197,20 @@ void WorldSystem::restart()
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
-	while (ECS::registry<Motion>.entities.size()>0)
+	while (!ECS::registry<Motion>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());
+
+
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 
 	// Create a new salmon
 	player_salmon = Salmon::createSalmon({ 100, 200 });
-
+    while (!ECS::registry<Camera>.entities.empty())
+        ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
+    ECS::Entity camera;
+    camera.insert(Camera({0,0}, player_salmon));
 	// !! TODO A3: Enable static pebbles on the ground
 	/*
 	// Create pebbles on the floor

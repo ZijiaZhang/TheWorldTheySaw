@@ -45,4 +45,6 @@ private:
 	ShadedMesh screen_sprite;
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;
 	ECS::Entity screen_state_entity;
+
+    ECS::Entity &get_camera();
 };
