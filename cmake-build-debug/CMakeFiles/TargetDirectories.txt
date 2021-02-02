@@ -1,3 +1,0 @@
-C:/Users/Gary/CLionProjects/Team12/cmake-build-debug/CMakeFiles/salmon.dir
-C:/Users/Gary/CLionProjects/Team12/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/Gary/CLionProjects/Team12/cmake-build-debug/CMakeFiles/rebuild_cache.dir
