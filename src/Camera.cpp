@@ -2,7 +2,7 @@
 // Created by Gary on 2/2/2021.
 //
 
-#include "Camera.h"
+#include "Camera.hpp"
 Camera::Camera(vec2 off){
     offset = off;
 }

@@ -2,7 +2,7 @@
 #include "render.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
-#include "Camera.h"
+#include "Camera.hpp"
 
 #include <iostream>
 

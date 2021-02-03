@@ -6,7 +6,7 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
-#include "Camera.h"
+#include "Camera.hpp"
 
 // stlib
 #include <string.h>
@@ -118,18 +118,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	
 	// Removing out of screen entities
 	auto& registry = ECS::registry<Motion>;
-
-	// Remove entities that leave the screen on the left side
-	// Iterate backwards to be able to remove without unterfering with the next object to visit
-	// (the containers exchange the last element with the current upon delete)
-	for (int i = static_cast<int>(registry.components.size())-1; i >= 0; --i)
-	{
-		auto& motion = registry.components[i];
-		if (motion.position.x + abs(motion.scale.x) < 0.f)
-		{
-			ECS::ContainerInterface::remove_all_components_of(registry.entities[i]);
-		}
-	}
 
 	// Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
@@ -284,13 +272,17 @@ bool WorldSystem::is_over() const
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
 	// Move salmon if alive
-	if (!ECS::registry<DeathTimer>.has(player_salmon))
+	if (!ECS::registry<DeathTimer>.has(player_salmon) && player_salmon.has<Motion>())
 	{
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: HANDLE SALMON MOVEMENT HERE
-		// key is of 'type' GLFW_KEY_
-		// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		if (key == GLFW_KEY_D){
+		    player_salmon.get<Motion>().velocity = vec2 {100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+		} else if (key == GLFW_KEY_A){
+            player_salmon.get<Motion>().velocity = vec2 {-100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+        } else if (key == GLFW_KEY_S){
+            player_salmon.get<Motion>().velocity = vec2 {0,100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+        } else if (key == GLFW_KEY_W){
+            player_salmon.get<Motion>().velocity = vec2 {0,-100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+        }
 	}
 
 	// Resetting game
