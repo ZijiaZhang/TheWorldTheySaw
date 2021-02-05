@@ -6,6 +6,7 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
+#include "Enemy.hpp"
 #include "Camera.hpp"
 
 // stlib
@@ -192,7 +193,7 @@ void WorldSystem::restart()
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-
+    Enemy::createEnemy(vec2{800,400});
 	// Create a new salmon
 	player_salmon = Salmon::createSalmon({ 100, 200 });
     while (!ECS::registry<Camera>.entities.empty())
@@ -316,12 +317,11 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
 	if (!ECS::registry<DeathTimer>.has(player_salmon))
 	{
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: HANDLE SALMON ROTATION HERE
-		// xpos and ypos are relative to the top-left of the window, the salmon's 
-		// default facing direction is (1, 0)
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-		(void)mouse_pos;
+
+        auto& motion =  ECS::registry<Motion>.get(player_salmon);
+        auto dir = mouse_pos - motion.position;
+        float rad = atan2(dir.y, dir.x);
+        motion.angle = rad;
 	}
 }

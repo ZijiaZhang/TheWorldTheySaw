@@ -33,8 +33,8 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-		motion.position += motion.velocity * step_seconds;
-		// !!! TODO A1: uncomment block and update motion.position based on step_seconds and motion.velocity
+        vec2 v = get_world_velocity(motion);
+        motion.position += v * step_seconds;
 	}
 
 	(void)elapsed_ms; // placeholder to silence unused warning until implemented
@@ -97,3 +97,18 @@ PhysicsSystem::Collision::Collision(ECS::Entity& other)
 {
 	this->other = other;
 }
+
+vec2 PhysicsSystem::get_world_velocity(const Motion &motion) const {
+    float ca = cos(motion.angle);
+    float sa = sin(motion.angle);
+    vec2 v = {motion.velocity.x * ca - motion.velocity.y * sa,  motion.velocity.x * sa +  motion.velocity.y * ca};
+    return v;
+}
+
+vec2 PhysicsSystem::get_local_velocity(vec2 world_velocity, const Motion &motion) const {
+    float ca = cos(-motion.angle);
+    float sa = sin(-motion.angle);
+    vec2 v = {world_velocity.x * ca - world_velocity.y * sa,  world_velocity.x * sa +  world_velocity.y * ca};
+    return v;
+}
+
