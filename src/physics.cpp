@@ -29,14 +29,14 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
-	/*
+
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-		
+		motion.position += motion.velocity * step_seconds;
 		// !!! TODO A1: uncomment block and update motion.position based on step_seconds and motion.velocity
 	}
-	*/
+
 	(void)elapsed_ms; // placeholder to silence unused warning until implemented
 	(void)window_size_in_game_units;
 

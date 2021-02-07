@@ -6,6 +6,7 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
+#include "Camera.hpp"
 
 // stlib
 #include <string.h>
@@ -118,18 +119,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// Removing out of screen entities
 	auto& registry = ECS::registry<Motion>;
 
-	// Remove entities that leave the screen on the left side
-	// Iterate backwards to be able to remove without unterfering with the next object to visit
-	// (the containers exchange the last element with the current upon delete)
-	for (int i = static_cast<int>(registry.components.size())-1; i >= 0; --i)
-	{
-		auto& motion = registry.components[i];
-		if (motion.position.x + abs(motion.scale.x) < 0.f)
-		{
-			ECS::ContainerInterface::remove_all_components_of(registry.entities[i]);
-		}
-	}
-
 	// Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
 	if (ECS::registry<Turtle>.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f)
@@ -196,15 +185,20 @@ void WorldSystem::restart()
 
 	// Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
-	while (ECS::registry<Motion>.entities.size()>0)
+	while (!ECS::registry<Motion>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());
+
+
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 
 	// Create a new salmon
 	player_salmon = Salmon::createSalmon({ 100, 200 });
-
+    while (!ECS::registry<Camera>.entities.empty())
+        ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
+    ECS::Entity camera;
+    camera.insert(Camera({0,0}, player_salmon));
 	// !! TODO A3: Enable static pebbles on the ground
 	/*
 	// Create pebbles on the floor
@@ -278,13 +272,17 @@ bool WorldSystem::is_over() const
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
 	// Move salmon if alive
-	if (!ECS::registry<DeathTimer>.has(player_salmon))
+	if (!ECS::registry<DeathTimer>.has(player_salmon) && player_salmon.has<Motion>())
 	{
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: HANDLE SALMON MOVEMENT HERE
-		// key is of 'type' GLFW_KEY_
-		// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		if (key == GLFW_KEY_D){
+		    player_salmon.get<Motion>().velocity = vec2 {100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+		} else if (key == GLFW_KEY_A){
+            player_salmon.get<Motion>().velocity = vec2 {-100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+        } else if (key == GLFW_KEY_S){
+            player_salmon.get<Motion>().velocity = vec2 {0,100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+        } else if (key == GLFW_KEY_W){
+            player_salmon.get<Motion>().velocity = vec2 {0,-100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+        }
 	}
 
 	// Resetting game

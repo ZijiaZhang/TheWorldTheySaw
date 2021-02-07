@@ -2,6 +2,7 @@
 #include "render.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
+#include "Camera.hpp"
 
 #include <iostream>
 
@@ -9,10 +10,13 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 {
 	auto& motion = ECS::registry<Motion>.get(entity);
 	auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
-	// Transformation code, see Rendering and Transformation in the template specification for more info
+    auto& screen = screen_state_entity.get<ScreenState>();
+    auto& camera = ECS::registry<Camera>.get(screen.camera);
+    // Transformation code, see Rendering and Transformation in the template specification for more info
 	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 	Transform transform;
-	transform.translate(motion.position);
+	transform.translate(motion.position - camera.get_position());
+	transform.rotate(motion.angle);
 	transform.scale(motion.scale);
 	// !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
 
@@ -182,7 +186,15 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 	float tx = -(right + left) / (right - left);
 	float ty = -(top + bottom) / (top - bottom);
 	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
+    auto& screen = screen_state_entity.get<ScreenState>();
 
+    if(ECS::registry<Camera>.size() == 0){
+        screen.camera.insert(Camera({0, 0}));
+    } else if(!screen.camera.has<Camera>()) {
+        screen.camera = ECS::registry<Camera>.entities[0];
+    }
+    auto& camera = ECS::registry<Camera>.get(screen.camera);
+    camera.set_screen_size(window_size_in_game_units);
 	// Draw all textured meshes that have a position and size component
 	for (ECS::Entity entity : ECS::registry<ShadedMeshRef>.entities)
 	{
