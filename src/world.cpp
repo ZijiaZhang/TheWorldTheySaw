@@ -6,8 +6,7 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
-#include "Enemy.hpp"
-#include "Camera.hpp"
+
 
 // stlib
 #include <string.h>
@@ -116,12 +115,14 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
-	
-	// Removing out of screen entities
-	auto& registry = ECS::registry<Motion>;
 
 	// Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
+
+	if (screen != window_size_in_game_units){
+	    screen = window_size_in_game_units;
+	}
+
 	if (ECS::registry<Turtle>.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f)
 	{
 		// Reset timer
@@ -317,11 +318,9 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
 	if (!ECS::registry<DeathTimer>.has(player_salmon))
 	{
-
-
         auto& motion =  ECS::registry<Motion>.get(player_salmon);
-        auto dir = mouse_pos - motion.position;
-        float rad = atan2(dir.y, dir.x);
+        auto dir = mouse_pos - screen / 2.f;
+        float rad = atan2(dir.y, dir.x)/2;
         motion.angle = rad;
 	}
 }
