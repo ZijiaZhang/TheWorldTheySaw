@@ -97,6 +97,7 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2){
     for(auto & j : p2.vertex){
 
         vec3 vertex2_1 = {j.position.x, j.position.y, 1.f};
+        // Calculate the vertex in global coordinates
         vec3 global2_v1 = t2.mat * vertex2_1;
 
         vec2 v2_1 = {global2_v1.x, global2_v1.y};
@@ -106,46 +107,50 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2){
         vec2 n = {0,0};
         vec2 n_l = {0,0};
 
+        // Examine if the vertex is inside the other object
         for (unsigned int i=0; i < p1.faces.size(); ++i) {
             auto edge = p1.faces[i];
             vec3 vertex1_1 = {p1.vertex[edge.first].position.x, p1.vertex[edge.first].position.y, 1.f};
             vec3 vertex1_2 = {p1.vertex[edge.second].position.x, p1.vertex[edge.second].position.y, 1.f};
             vec3 global1_v1 = t1.mat * vertex1_1;
             vec3 global1_v2 = t1.mat * vertex1_2;
-
             vec2 v1_1 = {global1_v1.x, global1_v1.y};
             vec2 v1_2 = {global1_v2.x, global1_v2.y};
+            // Normal of the face
             vec3 normal_t = {vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x, 0};
+            // Translate the normal with the matrix in global coordinates
             normal_t = inverse(transpose(t1.mat)) * normal_t;
-            normal_t /= sqrt(normal_t.x * normal_t.x + normal_t.y * normal_t.y);
+            normal_t /= sqrt(normal_t.x * normal_t.x + normal_t.y * normal_t.y); // Normalize
+            // Normal in local coordinates. I removed it from the final result. So not really useful.
             vec2 local_n =  {vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x};
 
+            // Convert to vec2
             vec2 normal1 = {normal_t.x, normal_t.y};
 
-
-            //printf("%d \t <%f, %f> \t<%f, %f> \t<%f, %f> \n", i, v1_1.x, v1_1.y,  v1_2.x, v1_2.y, normal1.x, normal1.y);
-
+            // If the projection >0 then the point is outside the bonding box
             if(dot(v2_1-v1_1, normal1) > 0 ){
                 x = false;
                 break;
             } else if(dot(v2_1-v1_1, normal1) > dist) {
+                // get smallest penitration from a edge
                 dist =  dot(v2_1-v1_1, normal1);
                 n_l = local_n;
                 n = normal1;
             }
         }
-
+        // Get smallest penitration from all the vertex // Not really sure about this
         if (x && dist > best_distance){
             best_distance = dist;
             final_normal = n;
             final_n_l = n_l;
             v = v2_1;
-
         }
     }
+
     if (best_distance != -FLT_MAX && final_normal != vec2{0,0}){
         return {best_distance, final_normal, v};
     }
+    // No collision
     return {0, {0,0}, {0,0}};
 }
 
