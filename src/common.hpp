@@ -16,6 +16,7 @@
 #include <glm/ext/vector_int2.hpp>  // ivec2
 #include <glm/vec3.hpp>             // vec3
 #include <glm/mat3x3.hpp>           // mat3
+
 using namespace glm;
 static const float PI = 3.14159265359f;
 
@@ -41,4 +42,30 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+};
+
+typedef enum
+{
+    DEFAULT,
+    PLAYER,
+    ENEMY,
+    WALL
+} CollisionObjectType;
+
+struct PhysicsVertex
+{
+    vec3 position;
+};
+
+struct PhysicsObject{
+    std::vector<PhysicsVertex> vertex = {PhysicsVertex{{-0.5, 0.5, -0.02}},
+                                         PhysicsVertex{{0.5, 0.5, -0.02}},
+                                         PhysicsVertex{{0.5, -0.5, -0.02}},
+                                         PhysicsVertex{{-0.5, -0.5, -0.02}}};
+    std::vector<std::pair<int,int>> faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
+    float mass = 10;
+    bool fixed = false;
+    bool collide = true;
+    CollisionObjectType id = DEFAULT;
+    std::vector<CollisionObjectType> ignore_collision_of_type;
 };

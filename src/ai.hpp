@@ -14,5 +14,5 @@ class AISystem
 public:
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
-    void enemy_ai_step(ECS::Entity e);
+    void enemy_ai_step(ECS::Entity e, float elapsed_ms);
 };

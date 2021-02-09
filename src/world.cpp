@@ -115,8 +115,9 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
-
-	// Spawning new turtles
+    auto& motion = player_salmon.get<Motion>();
+    motion.velocity = {100.f,0};
+    // Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
 
 	if (screen != window_size_in_game_units){
@@ -320,7 +321,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 	{
         auto& motion =  ECS::registry<Motion>.get(player_salmon);
         auto dir = mouse_pos - screen / 2.f;
-        float rad = atan2(dir.y, dir.x)/2;
+        float rad = atan2(dir.y, dir.x);
         motion.angle = rad;
 	}
 }

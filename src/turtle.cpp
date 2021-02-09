@@ -23,6 +23,11 @@ ECS::Entity Turtle::createTurtle(vec2 position)
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -0.4f, 0.4f }) * static_cast<vec2>(resource.texture.size);
 
+    PhysicsObject physicsObject;
+    physicsObject.mass = 10;
+    physicsObject.id = PLAYER;
+    ECS::registry<PhysicsObject>.insert(entity, physicsObject);
+
 	// Create and (empty) Turtle component to be able to refer to all turtles
 	ECS::registry<Turtle>.emplace(entity);
 

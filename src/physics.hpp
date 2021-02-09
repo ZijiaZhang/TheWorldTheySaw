@@ -4,6 +4,12 @@
 #include "tiny_ecs.hpp"
 
 // A simple physics system that moves rigid bodies and checks for collision
+struct CollisionResult{
+    float penitration = 0;
+    vec2 normal = vec2{0,0};
+    vec2 vertex = vec2{0,0};
+};
+
 class PhysicsSystem
 {
 public:
@@ -23,4 +29,10 @@ public:
 
     // Get local velocity from world velocity. Only rotation applied
     static vec2 get_local_velocity(vec2 world_velocity, const Motion &motion) ;
+
+    bool advanced_collision(ECS::Entity &m1, ECS::Entity &m2);
+
+    CollisionResult collision(ECS::Entity &m1, ECS::Entity &m2);
 };
+
+
