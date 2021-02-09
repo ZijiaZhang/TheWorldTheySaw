@@ -6,7 +6,7 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
-#include "Camera.hpp"
+
 
 // stlib
 #include <string.h>
@@ -115,12 +115,14 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
-	
-	// Removing out of screen entities
-	auto& registry = ECS::registry<Motion>;
 
 	// Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
+
+	if (screen != window_size_in_game_units){
+	    screen = window_size_in_game_units;
+	}
+
 	if (ECS::registry<Turtle>.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f)
 	{
 		// Reset timer
@@ -192,7 +194,7 @@ void WorldSystem::restart()
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-
+    Enemy::createEnemy(vec2{800,400});
 	// Create a new salmon
 	player_salmon = Salmon::createSalmon({ 100, 200 });
     while (!ECS::registry<Camera>.entities.empty())
@@ -316,12 +318,9 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
 	if (!ECS::registry<DeathTimer>.has(player_salmon))
 	{
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A1: HANDLE SALMON ROTATION HERE
-		// xpos and ypos are relative to the top-left of the window, the salmon's 
-		// default facing direction is (1, 0)
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-		(void)mouse_pos;
+        auto& motion =  ECS::registry<Motion>.get(player_salmon);
+        auto dir = mouse_pos - screen / 2.f;
+        float rad = atan2(dir.y, dir.x)/2;
+        motion.angle = rad;
 	}
 }

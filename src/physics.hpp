@@ -16,4 +16,11 @@ public:
 		ECS::Entity other; // the second object involved in the collision
 		Collision(ECS::Entity& other);
 	};
+
+
+	// Get world velocity from local velocity. Only rotation applied
+    static vec2 get_world_velocity(const Motion &motion) ;
+
+    // Get local velocity from world velocity. Only rotation applied
+    static vec2 get_local_velocity(vec2 world_velocity, const Motion &motion) ;
 };
