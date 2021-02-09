@@ -26,9 +26,10 @@ void AISystem::enemy_ai_step(ECS::Entity e, float elapsed_ms) {
         // Enemy will always face the player
         motion.angle = atan2(dir.y, dir.x);
         //Let enemy stop moving if the distance is close
-        motion.velocity = dot(dir, dir) < 40000 ? (motion.velocity - vec2{50*elapsed_ms/1000, motion.velocity.y*elapsed_ms/200}): (motion.velocity + vec2{50*elapsed_ms/1000, -motion.velocity.y*elapsed_ms/200});
-        motion.velocity.x = max(-70.f, min(70.f, motion.velocity.x));
-        motion.velocity.y = max(-70.f, min(70.f, motion.velocity.y));
+        vec2 desired_speed = {dot(dir, dir) > 160000? motion.max_control_speed : 0.f, 0.f};
+        motion.velocity -= (motion.velocity - desired_speed) * elapsed_ms / 1000.f;
+        motion.velocity.x = max(-motion.max_control_speed, min(motion.max_control_speed, motion.velocity.x));
+        motion.velocity.y = max(-motion.max_control_speed, min(motion.max_control_speed, motion.velocity.y));
     }
 }
 

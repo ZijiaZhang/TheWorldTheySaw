@@ -42,6 +42,8 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+	// Max speed on one axis
+	float max_control_speed = 100;
 };
 
 typedef enum

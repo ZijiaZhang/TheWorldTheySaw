@@ -158,7 +158,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	{
 		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
         vec2 v = get_world_velocity(motion);
-        printf("%f,%f\n", v.x, v.y);
         motion.position += v * step_seconds;
 	}
 
