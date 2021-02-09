@@ -29,7 +29,7 @@ ECS::Entity Enemy::createEnemy(vec2 position){
     motion.max_control_speed = 70.f;
     PhysicsObject physicsObject;
     physicsObject.mass = 10;
-    physicsObject.id = ENEMY;
+    physicsObject.object_type = ENEMY;
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 
     // Create and (empty) Salmon component to be able to refer to all turtles

@@ -30,8 +30,10 @@ public:
     // Get local velocity from world velocity. Only rotation applied
     static vec2 get_local_velocity(vec2 world_velocity, const Motion &motion) ;
 
+    // Trigger advanced collision detection on two objects
     bool advanced_collision(ECS::Entity &m1, ECS::Entity &m2);
 
+    // The collition results of two advanced physics object
     CollisionResult collision(ECS::Entity &m1, ECS::Entity &m2);
 };
 

@@ -27,7 +27,7 @@ ECS::Entity Salmon::createSalmon(vec2 position)
 
 	PhysicsObject physicsObject;
 	physicsObject.mass = 100;
-	physicsObject.id = PLAYER;
+	physicsObject.object_type = PLAYER;
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Salmon component to be able to refer to all turtles
 	ECS::registry<Salmon>.emplace(entity);

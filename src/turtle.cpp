@@ -25,7 +25,7 @@ ECS::Entity Turtle::createTurtle(vec2 position)
 
     PhysicsObject physicsObject;
     physicsObject.mass = 10;
-    physicsObject.id = PLAYER;
+    physicsObject.object_type = PLAYER;
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 
 	// Create and (empty) Turtle component to be able to refer to all turtles

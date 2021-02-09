@@ -34,7 +34,7 @@ bool PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2){
     auto& m2 = e2.get<Motion>();
     auto& p1 = e1.get<PhysicsObject>();
     auto& p2 = e2.get<PhysicsObject>();
-//    if(p1.id != PLAYER){
+//    if(p1.object_type != PLAYER){
 //        return false;
 //    }
     CollisionResult c1 = collision(e1, e2);
@@ -47,8 +47,9 @@ bool PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2){
         mul = -1;
     }
     bool ret = c1.penitration != 0 && c1.normal != vec2{0,0};
-    if (ret){
-        printf("collode\n");
+    // If both collision is on
+    if (ret && p1.collide && p2.collide){
+        // Handel collision
         vec2 col_v_1 = c1.normal * dot(get_world_velocity(m1), c1.normal);
         vec2 col_v_2 = c1.normal * dot(get_world_velocity(m2), c1.normal);
 // equation from https://courses.lumenlearning.com/boundless-physics/chapter/collisions/#:~:text=If%20two%20particles%20are%20involved,m%201%20)%20v%202%20i%20.
@@ -66,6 +67,7 @@ bool PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2){
         m1.velocity += p1.fixed? vec2{0,0} : get_local_velocity(delta_v1, m1);
         m2.velocity += p2.fixed? vec2{0,0} : get_local_velocity(delta_v2, m2);
     }
+    // If two objects overlap
     return ret;
 }
 

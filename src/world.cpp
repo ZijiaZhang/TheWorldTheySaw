@@ -118,7 +118,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
     auto& motion = player_salmon.get<Motion>();
     motion.velocity = {100.f,0};
     // Spawning new turtles
-	// next_turtle_spawn -= elapsed_ms * current_speed;
+	next_turtle_spawn -= elapsed_ms * current_speed;
 
 	if (screen != window_size_in_game_units){
 	    screen = window_size_in_game_units;
