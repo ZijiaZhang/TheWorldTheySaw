@@ -6,6 +6,7 @@ ECS::Entity Salmon::createSalmon(vec2 position)
 {
 	auto entity = ECS::Entity();
 
+
 	std::string key = "salmon";
 	ShadedMesh& resource = cache_resource(key);
 	if (resource.mesh.vertices.size() == 0)
