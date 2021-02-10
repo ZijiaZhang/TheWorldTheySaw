@@ -234,7 +234,20 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 					}
 					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_i, entity_j);
 					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_j, entity_i);
+                    // check if the bullet hits an enemy
+                    if (true) {
+                        if (ECS::registry<Salmon>.has(entity_i)) {
+                            entity_i.pts.addPoint();
+                            entity_i.update("point", entity_i, entity_j);
+                        }
+
+                        if (ECS::registry<Salmon>.has(entity_j)) {
+                            entity_j.pts.addPoint();
+                            entity_j.update("point", entity_j, entity_i);
+                        }
+                    }
 				}
+
 			}
 		}
 	}

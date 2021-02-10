@@ -6,6 +6,7 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
+#include "Point.hpp"
 
 namespace ECS {
 	// Declare the ComponentContainer upfront, such that we can define the registry and use it in the Entity class definition
@@ -20,18 +21,22 @@ namespace ECS {
 	struct Entity
 	{
 		std::unordered_map<std::string, std::function<void(ECS::Entity, ECS::Entity)>> observerMap = {
-			{"collision", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n"; }}
+			{"collision", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n"; }},
+            {"point", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "The entity gains " << e1.pts.getPoint() << " point \n"; }}
 		};
 
 		Entity()
 		{
 			id = next_id();
 			// Note, indices of already deleted entities arent re-used in this simple implementation.
+            pts = Points();
 		}
+        
+        Points pts;
 
 		// The ID defines an entity
 		unsigned int id;
-
+        
 		template<class T>
 		Entity& insert(T&& t)
 		{

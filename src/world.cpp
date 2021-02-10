@@ -198,7 +198,7 @@ void WorldSystem::restart()
     Enemy::createEnemy(vec2{800,400});
 	// Create a new salmon
 	player_salmon = Salmon::createSalmon({ 100, 200 });
-	
+    //player_salmon.pts = 0;
 	// player_salmon.attach("collision", colCallback);
     while (!ECS::registry<Camera>.entities.empty())
         ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());

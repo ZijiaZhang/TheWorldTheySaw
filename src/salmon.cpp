@@ -32,6 +32,5 @@ ECS::Entity Salmon::createSalmon(vec2 position)
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Salmon component to be able to refer to all turtles
 	ECS::registry<Salmon>.emplace(entity);
-
 	return entity;
 }
