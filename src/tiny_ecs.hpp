@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <algorithm>
 #include <cassert>
+#include <functional>
+#include <iostream>
 
 namespace ECS {
 	// Declare the ComponentContainer upfront, such that we can define the registry and use it in the Entity class definition
@@ -17,6 +19,10 @@ namespace ECS {
 	// Unique identifyer for all entities
 	struct Entity
 	{
+		std::unordered_map<std::string, std::function<void(ECS::Entity, ECS::Entity)>> observerMap = {
+			{"collision", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n"; }}
+		};
+
 		Entity()
 		{
 			id = next_id();
@@ -27,35 +33,39 @@ namespace ECS {
 		unsigned int id;
 
 		template<class T>
-        Entity& insert(T&& t)
-        {
-            registry<T>.insert(*this, std::forward<T>(t));
-            return *this;
-        };
+		Entity& insert(T&& t)
+		{
+			registry<T>.insert(*this, std::forward<T>(t));
+			return *this;
+		};
 
-        template<class T, class ... Args>
-        Entity & emplace(Args &&... args){
-            insert(T(std::forward<Args>(args)...));
-            return *this;
-        };
+		template<class T, class ... Args>
+		Entity& emplace(Args &&... args) {
+			insert(T(std::forward<Args>(args)...));
+			return *this;
+		};
 
-        template<class T>
-        T& get()
-        {
-            return registry<T>.get(*this);
+		template<class T>
+		T& get()
+		{
+			return registry<T>.get(*this);
 
-        };
+		};
 
-        template<class T>
-        bool has() const{
-            return registry<T>.has(*this);
-        }
+		template<class T>
+		bool has() const {
+			return registry<T>.has(*this);
+		}
 
-        template<class T>
-        Entity& remove(){
-            registry<T>.remove(*this);
-            return *this;
-        }
+		template<class T>
+		Entity& remove() {
+			registry<T>.remove(*this);
+			return *this;
+		}
+
+		void attach(std::string key, std::function<void(ECS::Entity, ECS::Entity)> callback);
+
+		void update(std::string key, ECS::Entity e1, ECS::Entity e2);
 
 	private:
 		// yields ids from 1; entity 0 is the default initialization
@@ -102,17 +112,17 @@ namespace ECS {
 			singleton.push_back(this);
 		}
 		// Destructor that frees memory from the singleton vector
-        ~ComponentContainer()
-        {
-            auto& singleton = registry_list_singleton();
-            auto it = find(begin(singleton), end(singleton), this);
-            assert(it != end(singleton));
+		~ComponentContainer()
+		{
+			auto& singleton = registry_list_singleton();
+			auto it = find(begin(singleton), end(singleton), this);
+			assert(it != end(singleton));
 			singleton.erase(it);
-        }
+		}
 
 		// Disable copy operators
-        ComponentContainer(const ComponentContainer&) = delete;
-        ComponentContainer& operator=(const ComponentContainer&) = delete;
+		ComponentContainer(const ComponentContainer&) = delete;
+		ComponentContainer& operator=(const ComponentContainer&) = delete;
 
 		// Inserting a component c associated to entity e
 		inline Component& insert(Entity e, Component c, bool check_for_duplicates = true)
@@ -146,7 +156,7 @@ namespace ECS {
 		}
 
 		// Check if entity has a component of type 'Component'
-		bool has(Entity e) override  {
+		bool has(Entity e) override {
 			return map_entity_component_index.find(e.id) != map_entity_component_index.end();
 		}
 
