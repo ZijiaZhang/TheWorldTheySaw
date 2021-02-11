@@ -5,6 +5,7 @@
 #include <tuple>
 #include <vector>
 #include <stdexcept>
+#include <map>
 
 // glfw (OpenGL)
 #define NOMINMAX
@@ -41,4 +42,13 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+    int zValue = 0;
+};
+
+// For the order of drawing
+static std::map<std::string, int> ZValuesMap = {
+    {"Salmon", 10},
+    {"Turtle", 9},
+    {"Fish", 8},
+    {"Enemy", 7}
 };

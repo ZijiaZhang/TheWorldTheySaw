@@ -24,6 +24,7 @@ ECS::Entity Salmon::createSalmon(vec2 position)
 	motion.velocity = { 100.f, 0.f };
 	motion.scale = resource.mesh.original_size * 150.f;
 	motion.scale.x *= -1; // point front to the right
+    motion.zValue = ZValuesMap["Salmon"];
 
 	// Create and (empty) Salmon component to be able to refer to all turtles
 	ECS::registry<Salmon>.emplace(entity);

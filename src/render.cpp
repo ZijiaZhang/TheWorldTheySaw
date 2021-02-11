@@ -197,7 +197,14 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     camera.set_screen_size(window_size_in_game_units);
 	// Draw all textured meshes that have a position and size component
-	for (ECS::Entity entity : ECS::registry<ShadedMeshRef>.entities)
+    // Draw by the order of motion zValue, the smaller zValue, draw earlier
+    auto entities = ECS::registry<ShadedMeshRef>.entities;
+    sort(entities.begin(), entities.end(), [](const ECS::Entity& e1, const ECS::Entity& e2)
+    {
+        return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
+    });
+    
+	for (ECS::Entity entity : entities)
 	{
 		if (!ECS::registry<Motion>.has(entity))
 			continue;
