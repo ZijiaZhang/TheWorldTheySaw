@@ -214,24 +214,28 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	for (unsigned int i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
-		ECS::Entity entity_i = motion_container.entities[i];
+		ECS::Entity& entity_i = motion_container.entities[i];
+		// std::cout << "entity i addr: " << &entity_i << "\n";
 		for (unsigned int j = i + 1; j < motion_container.components.size(); j++)
 		{
 			Motion& motion_j = motion_container.components[j];
-			ECS::Entity entity_j = motion_container.entities[j];
+			ECS::Entity& entity_j = motion_container.entities[j];
 
 			if (collides(motion_i, motion_j))
 			{
+				if (ECS::registry<Salmon>.has(entity_i)) {
+					// std::cout << "entity i addr: " << &entity_i << "\n";
+					entity_i.update("collision", entity_i, entity_j);
+				}
+
+				if (ECS::registry<Salmon>.has(entity_j)) {
+					// std::cout << "entity j addr: " << &entity_j << "\n";
+					entity_j.update("collision", entity_j, entity_i);
+				}
 				// Create a collision event
 				// Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
 				if (advanced_collision(entity_i, entity_j)) {
-					if (ECS::registry<Salmon>.has(entity_i)) {
-						entity_i.update("collision", entity_i, entity_j);
-					}
-
-					if (ECS::registry<Salmon>.has(entity_j)) {
-						entity_j.update("collision", entity_i, entity_j);
-					}
+					
 					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_i, entity_j);
 					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_j, entity_i);
                     // check if the bullet hits an enemy

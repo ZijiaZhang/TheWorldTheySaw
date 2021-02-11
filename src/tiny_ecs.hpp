@@ -20,23 +20,26 @@ namespace ECS {
 	// Unique identifyer for all entities
 	struct Entity
 	{
-		std::unordered_map<std::string, std::function<void(ECS::Entity, ECS::Entity)>> observerMap = {
-			{"collision", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n"; }},
-            {"point", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "The entity gains " << e1.pts.getPoint() << " point \n"; }}
-		};
-
 		Entity()
 		{
 			id = next_id();
 			// Note, indices of already deleted entities arent re-used in this simple implementation.
-            pts = Points();
+			pts = Points();
+
+			observerMap = {
+				{"collision", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n"; }},
+				{"point", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "The entity gains " << e1.pts.getPoint() << " point \n"; }}
+			};
 		}
-        
-        Points pts;
+
+
+		Points pts;
+
+		std::unordered_map<std::string, std::function<void(ECS::Entity, ECS::Entity)>> observerMap;
 
 		// The ID defines an entity
 		unsigned int id;
-        
+
 		template<class T>
 		Entity& insert(T&& t)
 		{
@@ -68,9 +71,15 @@ namespace ECS {
 			return *this;
 		}
 
-		void attach(std::string key, std::function<void(ECS::Entity, ECS::Entity)> callback);
+		void attach(std::string key, std::function<void(ECS::Entity, ECS::Entity)> callback) {
+			this->observerMap.insert({ key, callback });
+		};
 
-		void update(std::string key, ECS::Entity e1, ECS::Entity e2);
+		void update(std::string key, ECS::Entity e1, ECS::Entity e2) {
+			std::cout << "update\n";
+			// if (observerMap[key] != NULL)
+			this->observerMap[key](e1, e2);
+		};
 
 	private:
 		// yields ids from 1; entity 0 is the default initialization
@@ -215,4 +224,7 @@ namespace ECS {
 			return components.size();
 		}
 	};
+
+	static std::function<void(ECS::Entity, ECS::Entity)> colCallback = [](ECS::Entity e1, ECS::Entity e2) {std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n"; };
+	static std::function<void(ECS::Entity, ECS::Entity)> ptsCallback = [](ECS::Entity e1, ECS::Entity e2) {std::cout << "The entity gains " << e1.pts.getPoint() << " point \n"; };
 }
