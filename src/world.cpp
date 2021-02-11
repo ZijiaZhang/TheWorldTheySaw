@@ -4,6 +4,7 @@
 #include "debug.hpp"
 #include "turtle.hpp"
 #include "fish.hpp"
+#include "shield.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
@@ -20,6 +21,8 @@ const size_t MAX_TURTLES = 15;
 const size_t MAX_FISH = 5;
 const size_t TURTLE_DELAY_MS = 2000;
 const size_t FISH_DELAY_MS = 5000;
+bool SHIELDUP = false;
+bool hasShield = false;
 
 // Create the fish world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
@@ -296,6 +299,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
 	}
 
+	//Shield up
+	if (action == GLFW_RELEASE && key == GLFW_KEY_S)
+	{
+		SHIELDUP = true;
+	}
+
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
@@ -327,9 +336,26 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
 	if (!ECS::registry<DeathTimer>.has(player_salmon))
 	{
-        auto& motion =  ECS::registry<Motion>.get(player_salmon);
-        auto dir = mouse_pos - screen / 2.f;
-        float rad = atan2(dir.y, dir.x);
-        motion.angle = rad;
+		auto& motion = ECS::registry<Motion>.get(player_salmon);
+		float disY = mouse_pos.y - motion.position.y;
+		float disX = mouse_pos.x - motion.position.x;
+		float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
+
+		float sinV = asin(disY / longestL);
+		float cosV = acos(disX / longestL);
+
+		float rad = atan2(mouse_pos.y - motion.position.y, mouse_pos.x - motion.position.x);
+		motion.angle = rad;
+
+		if (SHIELDUP && !hasShield) {
+			shield = Shield::createShield({ motion.position.x + 300 * cosV, motion.position.y + 300 * sinV });
+			hasShield = true;
+		}
+
+		if (SHIELDUP) {
+			auto& motionSh = ECS::registry<Motion>.get(shield);
+			motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
+			motionSh.angle = rad;
+		}
 	}
 }
