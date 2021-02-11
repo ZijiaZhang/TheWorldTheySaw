@@ -17,7 +17,6 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	Transform transform;
 	transform.translate(motion.position - camera.get_position());
 	transform.rotate(motion.angle);
-	transform.rotate(motion.angle);
 	transform.scale(motion.scale);
 	// !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
 

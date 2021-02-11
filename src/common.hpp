@@ -17,6 +17,7 @@
 #include <glm/ext/vector_int2.hpp>  // ivec2
 #include <glm/vec3.hpp>             // vec3
 #include <glm/mat3x3.hpp>           // mat3
+
 using namespace glm;
 static const float PI = 3.14159265359f;
 
@@ -42,7 +43,10 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
-    int zValue = 0;
+  int zValue = 0;
+  
+	// Max speed on one axis
+	float max_control_speed = 100;
 };
 
 // For the order of drawing
@@ -51,4 +55,40 @@ static std::map<std::string, int> ZValuesMap = {
     {"Turtle", 9},
     {"Fish", 8},
     {"Enemy", 7}
+
+};
+
+typedef enum
+{
+    DEFAULT,
+    PLAYER,
+    ENEMY,
+    WALL
+} CollisionObjectType;
+
+struct PhysicsVertex
+{
+    vec3 position;
+};
+
+struct PhysicsObject{
+    // The convec bonding box of a object
+    std::vector<PhysicsVertex> vertex = {PhysicsVertex{{-0.5, 0.5, -0.02}},
+                                         PhysicsVertex{{0.5, 0.5, -0.02}},
+                                         PhysicsVertex{{0.5, -0.5, -0.02}},
+                                         PhysicsVertex{{-0.5, -0.5, -0.02}}};
+
+    // The edges of connecting the vertex tha forms a bonding box
+    std::vector<std::pair<int,int>> faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
+    // The mass of the object
+    float mass = 10;
+    // Is object fixed in a location
+    bool fixed = false;
+    // If collision is enabled
+    bool collide = true;
+    // Object type
+    CollisionObjectType object_type = DEFAULT;
+    // Which object type is ignored
+    std::vector<CollisionObjectType> ignore_collision_of_type;
+
 };

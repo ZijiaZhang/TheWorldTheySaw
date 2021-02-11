@@ -24,6 +24,11 @@ ECS::Entity Turtle::createTurtle(vec2 position)
 	motion.scale = vec2({ -0.4f, 0.4f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Turtle"];
 
+    PhysicsObject physicsObject;
+    physicsObject.mass = 10;
+    physicsObject.object_type = PLAYER;
+    ECS::registry<PhysicsObject>.insert(entity, physicsObject);
+
 	// Create and (empty) Turtle component to be able to refer to all turtles
 	ECS::registry<Turtle>.emplace(entity);
 
