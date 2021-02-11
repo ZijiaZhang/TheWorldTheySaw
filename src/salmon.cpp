@@ -6,6 +6,7 @@ ECS::Entity Salmon::createSalmon(vec2 position)
 {
 	auto entity = ECS::Entity();
 
+
 	std::string key = "salmon";
 	ShadedMesh& resource = cache_resource(key);
 	if (resource.mesh.vertices.size() == 0)
@@ -31,6 +32,5 @@ ECS::Entity Salmon::createSalmon(vec2 position)
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Salmon component to be able to refer to all turtles
 	ECS::registry<Salmon>.emplace(entity);
-
 	return entity;
 }

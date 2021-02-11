@@ -6,6 +6,7 @@
 #include "fish.hpp"
 #include "pebbles.hpp"
 #include "render_components.hpp"
+#include "tiny_ecs.hpp"
 
 
 // stlib
@@ -198,6 +199,13 @@ void WorldSystem::restart()
     Enemy::createEnemy(vec2{800,400});
 	// Create a new salmon
 	player_salmon = Salmon::createSalmon({ 100, 200 });
+
+    // player_salmon.pts = 0;
+	std::cout << "salmon addr: " << &player_salmon << "\n";
+
+	player_salmon.attach("collision", ECS::colCallback);
+	player_salmon.attach("point", ECS::ptsCallback);
+
     while (!ECS::registry<Camera>.entities.empty())
         ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
     ECS::Entity camera;
