@@ -15,6 +15,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <deque>
 
 // Game configuration
 const size_t MAX_TURTLES = 15;
@@ -23,6 +24,79 @@ const size_t TURTLE_DELAY_MS = 2000;
 const size_t FISH_DELAY_MS = 5000;
 bool SHIELDUP = false;
 bool hasShield = false;
+std::deque<vec2> mouse_points;
+int MOUSE_POINTS_COUNT = 80;
+int NUM_EACH_Q = 10;
+int LOW_RANGE = 25;
+int HIGH_RANGE = 200;
+
+static float getDist(vec2 p1, vec2 p2)
+{
+    float dist = std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
+    printf("dist: %f \n", dist);
+    return dist;
+}
+
+/*
+ Dummy way
+  check each quadrant have at least # of NUM_EACH_Q points,
+ and these points are in the range between LOW_RANGE and HIGH_RANGE from salmon position.
+ */
+static bool checkCircle(ECS::Entity player_salmon)
+{
+    auto motion = ECS::registry<Motion>.get(player_salmon);
+    vec2 salmonPos = motion.position;
+    
+    // basically check 10 for each section
+    int q1 = 0;
+    int q2 = 0;
+    int q3 = 0;
+    int q4 = 0;
+    for (vec2 p : mouse_points)
+    {
+        float ox = salmonPos.x;
+        float oy = salmonPos.y;
+        float px = p.x;
+        float py = p.y;
+        if (px <= ox && py <= oy)
+        {
+            float dist = getDist(p, salmonPos);
+            if ( dist >= LOW_RANGE && dist <= HIGH_RANGE)
+            {
+                q1 += 1;
+            }
+        }
+        else if (px > ox && py < oy)
+        {
+            float dist = getDist(p, salmonPos);
+            if ( dist >= LOW_RANGE && dist <= HIGH_RANGE)
+            {
+                q2 += 1;
+            }
+        }
+        else if (px > ox && py > oy)
+        {
+            float dist = getDist(p, salmonPos);
+            if ( dist >= LOW_RANGE && dist <= HIGH_RANGE)
+            {
+                q3 += 1;
+            }
+        }
+        else
+        {
+            float dist = getDist(p, salmonPos);
+            if ( dist >= LOW_RANGE && dist <= HIGH_RANGE)
+            {
+                q4 += 1;
+            }
+        }
+    }
+    if (q1 >= NUM_EACH_Q && q2 >= NUM_EACH_Q && q3 >= NUM_EACH_Q && q4 >= NUM_EACH_Q)
+    {
+        return true;
+    }
+    return false;
+}
 
 // Create the fish world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
@@ -358,4 +432,16 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 			motionSh.angle = rad;
 		}
 	}
+    
+    if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
+        mouse_points.pop_front();
+    } else {
+        mouse_points.push_back(mouse_pos);
+    }
+    // check mouse_points
+    if (checkCircle(player_salmon))
+    {
+        SHIELDUP = true;
+    }
+//    printf("points: %d\n", mouse_points.size());
 }
