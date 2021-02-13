@@ -29,9 +29,9 @@ bool SHIELDUP = false;
 bool hasShield = false;
 bool fired = false;
 std::deque<vec2> mouse_points;
-int MOUSE_POINTS_COUNT = 60;
-int LOW_RANGE = 100;
-int HIGH_RANGE = 150;
+int MOUSE_POINTS_COUNT = 600;
+int LOW_RANGE = 0;
+int HIGH_RANGE = 1000;
 bool DRAWING = false;
 int DEGREE_SIZE = 45;
 int SECTION_POINT_NUM = 3;
@@ -76,9 +76,13 @@ static bool checkCircle(ECS::Entity& player_salmon)
         float dist = getDist(p, salmonPos);
         if (dist >= LOW_RANGE && dist <= HIGH_RANGE)
         {
-            float angle = getAngle(ori, p - salmonPos);
+            float angle = atan2(p.y, p.x);
             float degree = angle * 180 / M_PI + 180.0; // shift range from [-180, 180] to [0,360]
             int num = int(degree) / DEGREE_SIZE;
+            // prevent overflow
+            if (num == 360 / DEGREE_SIZE){
+                num --;
+            }
             bucket[num] += 1;
         }
     }
@@ -131,8 +135,10 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
+    auto mouse_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse(_0, _1, _2); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
 	glfwSetKeyCallback(window, key_redirect);
+	glfwSetMouseButtonCallback(window, mouse_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
 	// Playing background music indefinitely
@@ -291,6 +297,7 @@ void WorldSystem::restart()
         ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
     ECS::Entity camera;
     camera.insert(Camera({0,0}, player_soldier));
+
 	// !! TODO A3: Enable static pebbles on the ground
 	/*
 	// Create pebbles on the floor
@@ -383,14 +390,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
 	}
 
-    if (action == GLFW_PRESS && key == GLFW_KEY_SPACE)
-    {
-        DRAWING = true;
-        mouse_points.clear();
-    } else if (action == GLFW_RELEASE && key == GLFW_KEY_SPACE)
-    {
-        DRAWING = false;
-    }
 
 	//Shield up
 	if (action == GLFW_RELEASE && key == GLFW_KEY_S)
@@ -428,19 +427,43 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	current_speed = std::max(0.f, current_speed);
 }
 
+void WorldSystem::on_mouse(int key, int action, int mod){
+    if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        DRAWING = true;
+        mouse_points.clear();
+    } else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        DRAWING = false;
+        if (checkCircle(player_soldier))
+        {
+            SHIELDUP = true;
+        }
+    }
+}
+
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
 	if (!ECS::registry<DeathTimer>.has(player_soldier))
 	{
 		auto& motion = ECS::registry<Motion>.get(player_soldier);
+		// Get world mouse position
+        if(!ECS::registry<Camera>.entities.empty()){
+            auto& camera = ECS::registry<Camera>.entities[0];
+            if(camera.has<Camera>()){
+                vec2 camera_pos = camera.get<Camera>().get_position();
+                mouse_pos += camera_pos;
+            }
+        }
 		float disY = mouse_pos.y - motion.position.y;
 		float disX = mouse_pos.x - motion.position.x;
 		float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
 
 		float sinV = asin(disY / longestL);
 		float cosV = acos(disX / longestL);
-
-		float rad = atan2(mouse_pos.y - motion.position.y, mouse_pos.x - motion.position.x);
+        auto dir = mouse_pos - motion.position;
+        printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
+        float rad = atan2(dir.y, dir.x);
 		motion.angle = rad;
 
 		if (SHIELDUP && !hasShield) {
@@ -453,18 +476,13 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 			motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
 			motionSh.angle = rad;
 		}
+        if (DRAWING) {
+            if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
+                mouse_points.pop_front();
+            }
+            mouse_points.push_back(mouse_pos - motion.position);
+        }
 	}
     
-    if (DRAWING) {
-        if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
-            mouse_points.pop_front();
-        } else {
-            mouse_points.push_back(mouse_pos);
-        }
-        // check mouse_points
-        if (mouse_points.size() == MOUSE_POINTS_COUNT && checkCircle(player_soldier))
-        {
-            SHIELDUP = true;
-        }
-    }
+
 }
