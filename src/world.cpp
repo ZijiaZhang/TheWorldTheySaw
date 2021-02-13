@@ -274,6 +274,13 @@ void WorldSystem::restart()
 	while (!ECS::registry<Motion>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());
 
+
+	SHIELDUP = false;
+	hasShield = false;
+	while (!ECS::registry<Shield>.entities.empty())
+		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Shield>.entities.back());
+
+
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
     Enemy::createEnemy(vec2{800,400});
@@ -394,12 +401,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{
-
-		bool SHIELDUP = false;
-		bool hasShield = false;
-		while (!ECS::registry<Shield>.entities.empty())
-			ECS::ContainerInterface::remove_all_components_of(ECS::registry<Shield>.entities.back());
-
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
