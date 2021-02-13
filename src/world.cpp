@@ -134,7 +134,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 
 	// Playing background music indefinitely
 	init_audio();
-	//Mix_PlayMusic(background_music, -1);
+	Mix_PlayMusic(background_music, -1);
 	std::cout << "Loaded music\n";
 }
 
@@ -205,28 +205,20 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		motion.velocity = vec2(-100.f, 0.f );
 	}
 
-	// Spawning new fish
-	next_fish_spawn -= elapsed_ms * current_speed;
-	if (ECS::registry<Fish>.components.size() <= MAX_FISH && next_fish_spawn < 0.f)
-	{
-		// !!! TODO A1: Create new fish with Fish::createFish({0,0}), as for the Turtles above
-		if(false) // dummy to silence warning about unused function until implemented
-			Fish::createFish({ 0,0 });
-	}
 
-	next_gunfire_spawn -= elapsed_ms * current_speed;
-	if (fired && next_gunfire_spawn < 0.f)
-	{
-		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
-		Mix_PlayChannel(-1, gun_reload, 0);
-		fired = false;
-	}
-	else if (!fired && next_gunfire_spawn < 0.f)
-	{
-		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
-		Mix_PlayChannel(-1, gun_fire, 0);
-		fired = true;
-	}
+//	next_gunfire_spawn -= elapsed_ms * current_speed;
+//	if (fired && next_gunfire_spawn < 0.f)
+//	{
+//		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
+//		Mix_PlayChannel(-1, gun_reload, 0);
+//		fired = false;
+//	}
+//	else if (!fired && next_gunfire_spawn < 0.f)
+//	{
+//		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
+//		Mix_PlayChannel(-1, gun_fire, 0);
+//		fired = true;
+//	}
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A3: HANDLE PEBBLE SPAWN/UPDATES HERE
