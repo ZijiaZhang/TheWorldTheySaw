@@ -28,7 +28,7 @@ ECS::Entity Bullet::createBullet(vec2 position)
     motion.velocity = { 380.f, 0 };
     motion.position = position;
     // Setting initial values, scale is negative to make it face the opposite way
-    motion.scale = vec2({ -0.4f, 0.4f }) * static_cast<vec2>(resource.texture.size);
+    motion.scale = vec2({ -0.1f, 0.1f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Fish"];
 
     // Create and (empty) Fish component to be able to refer to all fish
