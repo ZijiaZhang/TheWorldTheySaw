@@ -300,10 +300,11 @@ void WorldSystem::restart()
 		Pebble::createPebble({ m_dist(m_rng) * w, h - m_dist(m_rng) * 20 }, { radius, radius });
 	}
 	*/
-    Wall::createWall(vec2{2000,1000}, {20, 2000}, 0);
-    Wall::createWall(vec2{0,1000}, {20, 2000}, 0);
-    Wall::createWall(vec2{1000,0}, {2000, 20}, 0);
-    Wall::createWall(vec2{2000,1000}, {2000, 20}, 0);
+	int size = 1000;
+    Wall::createWall(vec2{size,size/2}, {20, size}, 0);
+    Wall::createWall(vec2{0,size/2}, {20, size}, 0);
+    Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
+    Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
 
 }
 
