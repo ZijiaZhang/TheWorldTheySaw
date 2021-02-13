@@ -133,7 +133,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
 	// Playing background music indefinitely
-	//init_audio();
+	init_audio();
 	//Mix_PlayMusic(background_music, -1);
 	std::cout << "Loaded music\n";
 }
