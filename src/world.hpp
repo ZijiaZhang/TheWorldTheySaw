@@ -2,7 +2,7 @@
 
 // internal
 #include "common.hpp"
-#include "salmon.hpp"
+#include "soldier.hpp"
 #include "Enemy.hpp"
 #include "Camera.hpp"
 
@@ -57,13 +57,14 @@ private:
 	float current_speed;
 	float next_turtle_spawn;
 	float next_fish_spawn;
-	ECS::Entity player_salmon;
+	float next_gunfire_spawn;
+	ECS::Entity player_soldier;
 	ECS::Entity shield;
 	
 	// music references
 	Mix_Music* background_music;
-	Mix_Chunk* salmon_dead_sound;
-	Mix_Chunk* salmon_eat_sound;
+	Mix_Chunk* gun_fire;
+	Mix_Chunk* gun_reload;
 
 	// C++ random number generator
 	std::default_random_engine rng;

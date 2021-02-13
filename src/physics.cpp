@@ -3,7 +3,7 @@
 #include "tiny_ecs.hpp"
 #include "debug.hpp"
 #include "float.h"
-#include <salmon.hpp>
+#include <soldier.hpp>
 #include <iostream>
 
 // Returns the local bounding coordinates scaled by the current size of the entity 
@@ -53,13 +53,13 @@ bool PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2) {
 	// If both collision is on
 	if (ret && p1.collide && p2.collide) {
 		/*
-		if (ECS::registry<Salmon>.has(e2)) {
+		if (ECS::registry<Soldier>.has(e2)) {
 			std::cout << "e2 address: " << &e2 << "\n";
 			e2.update("collision", e1, e2);
 		}
 
-		if (ECS::registry<Salmon>.has(e1)) {
-			std::cout << "salmon address: " << &e1 << "\n";
+		if (ECS::registry<Soldier>.has(e1)) {
+			std::cout << "soldier address: " << &e1 << "\n";
 			e1.update("collision", e1, e2);
 		}
 		*/
@@ -223,12 +223,12 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 			if (collides(motion_i, motion_j))
 			{
-				if (ECS::registry<Salmon>.has(entity_i)) {
+				if (ECS::registry<Soldier>.has(entity_i)) {
 					// std::cout << "entity i addr: " << &entity_i << "\n";
 					entity_i.update("collision", entity_i, entity_j);
 				}
 
-				if (ECS::registry<Salmon>.has(entity_j)) {
+				if (ECS::registry<Soldier>.has(entity_j)) {
 					// std::cout << "entity j addr: " << &entity_j << "\n";
 					entity_j.update("collision", entity_j, entity_i);
 				}
@@ -240,12 +240,12 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_j, entity_i);
                     // check if the bullet hits an enemy
                     if (true) {
-                        if (ECS::registry<Salmon>.has(entity_i)) {
+                        if (ECS::registry<Soldier>.has(entity_i)) {
                             entity_i.pts.addPoint();
                             entity_i.update("point", entity_i, entity_j);
                         }
 
-                        if (ECS::registry<Salmon>.has(entity_j)) {
+                        if (ECS::registry<Soldier>.has(entity_j)) {
                             entity_j.pts.addPoint();
                             entity_j.update("point", entity_j, entity_i);
                         }
