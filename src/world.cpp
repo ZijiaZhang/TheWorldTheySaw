@@ -8,6 +8,7 @@
 #include "pebbles.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
+#include "Bullet.hpp"
 
 
 // stlib
@@ -302,7 +303,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	//Shield up
 	if (action == GLFW_RELEASE && key == GLFW_KEY_S)
 	{
-		SHIELDUP = true;
+		Bullet::createBullet(player_salmon.get<Motion>().position);
 	}
 
 	// Resetting game

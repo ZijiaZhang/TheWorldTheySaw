@@ -40,10 +40,12 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	gl_has_errors();
 
 	// Input data location as in the vertex buffer
+    GLuint time_uloc       = glGetUniformLocation(texmesh.effect.program, "time");
 	GLint in_position_loc = glGetAttribLocation(texmesh.effect.program, "in_position");
 	GLint in_texcoord_loc = glGetAttribLocation(texmesh.effect.program, "in_texcoord");
 	GLint in_color_loc = glGetAttribLocation(texmesh.effect.program, "in_color");
-	if (in_texcoord_loc >= 0)
+    glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
+    if (in_texcoord_loc >= 0)
 	{
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
