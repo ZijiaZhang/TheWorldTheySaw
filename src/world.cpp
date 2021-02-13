@@ -133,7 +133,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
 	// Playing background music indefinitely
-	//init_audio();
+	// init_audio();
 	//Mix_PlayMusic(background_music, -1);
 	std::cout << "Loaded music\n";
 }
@@ -218,13 +218,13 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	if (fired && next_gunfire_spawn < 0.f)
 	{
 		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
-		Mix_PlayChannel(-1, gun_reload, 0);
+		//Mix_PlayChannel(-1, gun_reload, 0);
 		fired = false;
 	}
 	else if (!fired && next_gunfire_spawn < 0.f)
 	{
 		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
-		Mix_PlayChannel(-1, gun_fire, 0);
+		//Mix_PlayChannel(-1, gun_fire, 0);
 		fired = true;
 	}
 
