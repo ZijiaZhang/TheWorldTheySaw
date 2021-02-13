@@ -2,7 +2,7 @@
 #include "ai.hpp"
 #include "tiny_ecs.hpp"
 #include "Enemy.hpp"
-#include "salmon.hpp"
+#include "soldier.hpp"
 
 void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
@@ -19,10 +19,10 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 void AISystem::enemy_ai_step(ECS::Entity e, float elapsed_ms) {
     auto& motion = ECS::registry<Motion>.get(e);
-    for (auto& salmon: ECS::registry<Salmon>.entities){
-        auto& salmon_motion = ECS::registry<Motion>.get(salmon);
+    for (auto& soldier: ECS::registry<Soldier>.entities){
+        auto& soldier_motion = ECS::registry<Motion>.get(soldier);
         // Get delta position
-        auto dir = salmon_motion.position - motion.position;
+        auto dir = soldier_motion.position - motion.position;
         // Enemy will always face the player
         motion.angle = atan2(dir.y, dir.x);
         //Let enemy stop moving if the distance is close

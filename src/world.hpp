@@ -2,7 +2,7 @@
 
 // internal
 #include "common.hpp"
-#include "salmon.hpp"
+#include "soldier.hpp"
 #include "Enemy.hpp"
 #include "Camera.hpp"
 
@@ -58,7 +58,7 @@ private:
 	float next_turtle_spawn;
 	float next_fish_spawn;
 	float next_gunfire_spawn;
-	ECS::Entity player_salmon;
+	ECS::Entity player_soldier;
 	ECS::Entity shield;
 	
 	// music references

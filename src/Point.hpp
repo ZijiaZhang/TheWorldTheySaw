@@ -1,6 +1,6 @@
 //
 //  Point.hpp
-//  salmon
+//  soldier
 //
 //  Created by Haofeng Winter Feng on 2021-02-11.
 //

@@ -12,8 +12,8 @@ ECS::Entity Enemy::createEnemy(vec2 position){
     ShadedMesh& resource = cache_resource(key);
     if (resource.mesh.vertices.size() == 0)
     {
-        resource.mesh.loadFromOBJFile(mesh_path("salmon.obj"));
-        RenderSystem::createColoredMesh(resource, "salmon");
+        resource = ShadedMesh();
+        RenderSystem::createSprite(resource, textures_path("enemy.png"), "textured");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

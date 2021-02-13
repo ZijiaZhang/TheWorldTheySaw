@@ -119,7 +119,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(window_size_px.x, window_size_px.y, "Salmon Game Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(window_size_px.x, window_size_px.y, "Game Project", nullptr, nullptr);
 	if (window == nullptr)
 		throw std::runtime_error("Failed to glfwCreateWindow");
 
@@ -184,7 +184,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
-    auto& motion = player_salmon.get<Motion>();
+    auto& motion = player_soldier.get<Motion>();
     motion.velocity = {100.f,0};
     // Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
@@ -233,7 +233,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	// Processing the salmon state
+	// Processing the soldier state
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
 
@@ -243,7 +243,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		auto& counter = ECS::registry<DeathTimer>.get(entity);
 		counter.counter_ms -= elapsed_ms;
 
-		// Reduce window brightness if any of the present salmons is dying
+		// Reduce window brightness if any of the present soldiers is dying
 		screen.darken_screen_factor = 1-counter.counter_ms/3000.f;
 
 		// Restart the game once the death timer expired
@@ -284,19 +284,18 @@ void WorldSystem::restart()
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
     Enemy::createEnemy(vec2{800,400});
-	// Create a new salmon
-	player_salmon = Salmon::createSalmon({ 100, 200 });
+	// Create a new soldier
+	player_soldier = Soldier::createSoldier({ 100, 200 });
 
-    // player_salmon.pts = 0;
-	std::cout << "salmon addr: " << &player_salmon << "\n";
+	std::cout << "soldier addr: " << &player_soldier << "\n";
 
-	player_salmon.attach("collision", ECS::colCallback);
-	player_salmon.attach("point", ECS::ptsCallback);
+	player_soldier.attach("collision", ECS::colCallback);
+	player_soldier.attach("point", ECS::ptsCallback);
 
     while (!ECS::registry<Camera>.entities.empty())
         ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
     ECS::Entity camera;
-    camera.insert(Camera({0,0}, player_salmon));
+    camera.insert(Camera({0,0}, player_soldier));
 	// !! TODO A3: Enable static pebbles on the ground
 	/*
 	// Create pebbles on the floor
@@ -321,16 +320,16 @@ void WorldSystem::handle_collisions()
 		auto entity = registry.entities[i];
 		auto entity_other = registry.components[i].other;
 
-		// For now, we are only interested in collisions that involve the salmon
-		if (ECS::registry<Salmon>.has(entity))
+		// For now, we are only interested in collisions that involve the soldier
+		if (ECS::registry<Soldier>.has(entity))
 		{
-			// Checking Salmon - Turtle collisions
+			// Checking Soldier - Turtle collisions
 			if (ECS::registry<Turtle>.has(entity_other))
 			{
 				// initiate death unless already dying
 				if (!ECS::registry<DeathTimer>.has(entity))
 				{
-					// Scream, reset timer, and make the salmon sink
+					// Scream, reset timer, and make the soldier sink
 					ECS::registry<DeathTimer>.emplace(entity);
 
 
@@ -339,7 +338,7 @@ void WorldSystem::handle_collisions()
 					// !!! TODO A1: change the salmon color
 				}
 			}
-			// Checking Salmon - Fish collisions
+			// Checking Soldier - Fish collisions
 			else if (ECS::registry<Fish>.has(entity_other))
 			{
 				if (!ECS::registry<DeathTimer>.has(entity))
@@ -369,17 +368,17 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-	// Move salmon if alive
-	if (!ECS::registry<DeathTimer>.has(player_salmon) && player_salmon.has<Motion>())
+	// Move soldier if alive
+	if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>())
 	{
 		if (key == GLFW_KEY_D){
-		    player_salmon.get<Motion>().velocity = vec2 {100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+		    player_soldier.get<Motion>().velocity = vec2 {100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
 		} else if (key == GLFW_KEY_A){
-            player_salmon.get<Motion>().velocity = vec2 {-100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+            player_soldier.get<Motion>().velocity = vec2 {-100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
         } else if (key == GLFW_KEY_S){
-            player_salmon.get<Motion>().velocity = vec2 {0,100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+            player_soldier.get<Motion>().velocity = vec2 {0,100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
         } else if (key == GLFW_KEY_W){
-            player_salmon.get<Motion>().velocity = vec2 {0,-100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+            player_soldier.get<Motion>().velocity = vec2 {0,-100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
         }
 	}
 
@@ -427,9 +426,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
-	if (!ECS::registry<DeathTimer>.has(player_salmon))
+	if (!ECS::registry<DeathTimer>.has(player_soldier))
 	{
-		auto& motion = ECS::registry<Motion>.get(player_salmon);
+		auto& motion = ECS::registry<Motion>.get(player_soldier);
 		float disY = mouse_pos.y - motion.position.y;
 		float disX = mouse_pos.x - motion.position.x;
 		float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
