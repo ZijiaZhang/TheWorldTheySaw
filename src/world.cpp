@@ -94,8 +94,9 @@ static bool checkCircle(ECS::Entity& player_salmon)
 WorldSystem::WorldSystem(ivec2 window_size_px) :
 	points(0),
 	next_turtle_spawn(0.f),
-	next_gunfire_spawn(0.f),
-	next_fish_spawn(0.f)
+	next_fish_spawn(0.f),
+    next_gunfire_spawn(0.f)
+
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -387,7 +388,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	//Shield up
 	if (action == GLFW_RELEASE && key == GLFW_KEY_S)
 	{
-		Bullet::createBullet(player_salmon.get<Motion>().position);
+		Bullet::createBullet(player_soldier.get<Motion>().position);
 	}
 
 	// Resetting game
