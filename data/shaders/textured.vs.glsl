@@ -4,13 +4,14 @@
 in vec3 in_position;
 in vec2 in_texcoord;
 
+
 // Passed to fragment shader
 out vec2 texcoord;
 
 // Application data
 uniform mat3 transform;
 uniform mat3 projection;
-
+uniform float time;
 void main()
 {
 	texcoord = in_texcoord;

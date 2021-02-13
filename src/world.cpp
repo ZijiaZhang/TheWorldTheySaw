@@ -8,6 +8,7 @@
 #include "pebbles.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
+#include "Bullet.hpp"
 #include "Wall.hpp"
 
 
@@ -94,8 +95,9 @@ static bool checkCircle(ECS::Entity& player_salmon)
 WorldSystem::WorldSystem(ivec2 window_size_px) :
 	points(0),
 	next_turtle_spawn(0.f),
-	next_gunfire_spawn(0.f),
-	next_fish_spawn(0.f)
+	next_fish_spawn(0.f),
+    next_gunfire_spawn(0.f)
+
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -393,7 +395,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	//Shield up
 	if (action == GLFW_RELEASE && key == GLFW_KEY_S)
 	{
-		SHIELDUP = true;
+        auto& motion = ECS::registry<Motion>.get(player_soldier);
+		auto bullet = Bullet::createBullet(player_soldier.get<Motion>().position);
+        auto& motionBu = ECS::registry<Motion>.get(bullet);
+        motionBu.angle = motion.angle;
 	}
 
 	// Resetting game

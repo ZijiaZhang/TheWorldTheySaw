@@ -47,4 +47,7 @@ private:
 	ECS::Entity screen_state_entity;
 
     ECS::Entity &get_camera();
+
+    void createSpriteAnimation(ShadedMesh &sprite, std::string texture_path, std::string shader_name,
+                               std::vector<vec2> texture_coords);
 };
