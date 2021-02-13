@@ -8,6 +8,7 @@
 #include "pebbles.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
+#include "Wall.hpp"
 
 
 // stlib
@@ -193,17 +194,17 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	    screen = window_size_in_game_units;
 	}
 
-	if (ECS::registry<Turtle>.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f)
-	{
-		// Reset timer
-		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
-		// Create turtle
-		ECS::Entity entity = Turtle::createTurtle({0, 0});
-		// Setting random initial position and constant velocity
-		auto& motion = ECS::registry<Motion>.get(entity);
-		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
-		motion.velocity = vec2(-100.f, 0.f );
-	}
+//	if (ECS::registry<Turtle>.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f)
+//	{
+//		// Reset timer
+//		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
+//		// Create turtle
+//		ECS::Entity entity = Turtle::createTurtle({0, 0});
+//		// Setting random initial position and constant velocity
+//		auto& motion = ECS::registry<Motion>.get(entity);
+//		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
+//		motion.velocity = vec2(-100.f, 0.f );
+//	}
 
 
 //	next_gunfire_spawn -= elapsed_ms * current_speed;
@@ -299,6 +300,12 @@ void WorldSystem::restart()
 		Pebble::createPebble({ m_dist(m_rng) * w, h - m_dist(m_rng) * 20 }, { radius, radius });
 	}
 	*/
+	int size = 1000;
+    Wall::createWall(vec2{size,size/2}, {20, size}, 0);
+    Wall::createWall(vec2{0,size/2}, {20, size}, 0);
+    Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
+    Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
+
 }
 
 // Compute collisions between entities
