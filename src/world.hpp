@@ -70,4 +70,6 @@ private:
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 	vec2 screen;
+
+    void on_mouse(int key, int action, int mod);
 };
