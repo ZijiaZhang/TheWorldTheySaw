@@ -25,6 +25,7 @@ ECS::Entity Salmon::createSalmon(vec2 position)
 	motion.velocity = { 100.f, 0.f };
 	motion.scale = resource.mesh.original_size * 150.f;
 	motion.scale.x *= -1; // point front to the right
+    motion.zValue = ZValuesMap["Salmon"];
 
 	PhysicsObject physicsObject;
 	physicsObject.mass = 100;
