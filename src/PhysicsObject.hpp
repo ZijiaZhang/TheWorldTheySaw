@@ -27,6 +27,6 @@ public:
 
 
 // Which object type is ignored
-template<CollisionObjectType T>
-static std::set<CollisionObjectType> ignore_collision_of_type;
+
+static std::map<CollisionObjectType, std::set<CollisionObjectType>> ignore_collision_of_type;
 };

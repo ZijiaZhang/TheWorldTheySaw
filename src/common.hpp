@@ -63,7 +63,8 @@ typedef enum
     DEFAULT,
     PLAYER,
     ENEMY,
-    WALL
+    WALL,
+    LAST //USELESS, used for indicating the last one of the enum
 } CollisionObjectType;
 
 struct PhysicsVertex

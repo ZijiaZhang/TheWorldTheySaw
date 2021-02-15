@@ -16,7 +16,7 @@
 #include "debug.hpp"
 
 using Clock = std::chrono::high_resolution_clock;
-
+int ai_count = 0;
 const ivec2 window_size_in_px = {1200, 800};
 const vec2 window_size_in_game_units = { 1200, 800 };
 // Note, here the window will show a width x height part of the game world, measured in px. 
@@ -42,6 +42,7 @@ int main()
 	// Variable timestep loop
 	while (!world.is_over())
 	{
+	    ai_count++;
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
@@ -53,8 +54,11 @@ int main()
 		DebugSystem::clearDebugComponents();
 		auto debug_time = Clock::now();
 		printf("Debug: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(debug_time - t)).count()) / 1000.f);
-		ai.step(elapsed_ms, window_size_in_game_units);
-        auto ai_time = Clock::now();
+		if (ai_count> 10) {
+            ai.step(elapsed_ms, window_size_in_game_units);
+            ai_count = 0;
+		}
+		auto ai_time = Clock::now();
         printf("AI: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(ai_time - debug_time)).count()) / 1000.f);
 		world.step(elapsed_ms, window_size_in_game_units);
         auto world_time = Clock::now();

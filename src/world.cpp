@@ -315,6 +315,8 @@ void WorldSystem::restart()
     Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
     Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
 
+    Wall::createWall(vec2{500,500}, {30, 20}, 30);
+
 }
 
 // Compute collisions between entities
@@ -351,7 +353,7 @@ void WorldSystem::handle_collisions()
 			{
 				if (!ECS::registry<DeathTimer>.has(entity))
 				{
-					// chew, count points, and set the LightUp timer
+					// chew, ai_count points, and set the LightUp timer
 					ECS::ContainerInterface::remove_all_components_of(entity_other);
 					Mix_PlayChannel(-1, gun_reload, 0);
 					++points;

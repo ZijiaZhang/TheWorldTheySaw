@@ -4,12 +4,6 @@
 
 #include "PhysicsObject.hpp"
 
-template<>
-std::set<CollisionObjectType> PhysicsObject::ignore_collision_of_type<PLAYER>{};
+std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::ignore_collision_of_type{{WALL,{WALL}} };
 
-template<>
-std::set<CollisionObjectType> PhysicsObject::ignore_collision_of_type<ENEMY>{};
-
-template<>
-std::set<CollisionObjectType> PhysicsObject::ignore_collision_of_type<WALL>{WALL};
 
