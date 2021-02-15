@@ -3,6 +3,7 @@
 #include "tiny_ecs.hpp"
 #include "debug.hpp"
 #include "float.h"
+#include "PhysicsObject.hpp"
 #include <soldier.hpp>
 #include <iostream>
 
@@ -100,15 +101,9 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 	vec2 final_normal = { 0,0 };
 	vec2 final_n_l = { 0,0 };
 	vec2 v = { 0,0 };
-	Transform t1{};
-	t1.translate(m1.position);
-	t1.rotate(m1.angle);
-	t1.scale(m1.scale);
+    Transform t1 = getTransform(m1);
 
-	Transform t2{};
-	t2.translate(m2.position);
-	t2.rotate(m2.angle);
-	t2.scale(m2.scale);
+    Transform t2 = getTransform(m2);
 
 	for (auto& j : p2.vertex) {
 
@@ -173,6 +168,7 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 
 
 
+
 void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	// Move entities based on how much time has passed, this is to (partially) avoid
@@ -209,33 +205,33 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	// Check for collisions between all moving entities
-	auto& motion_container = ECS::registry<Motion>;
+	auto& physics_object_container = ECS::registry<PhysicsObject>;
 	// for (auto [i, motion_i] : enumerate(motion_container.components)) // in c++ 17 we will be able to do this instead of the next three lines
-	for (unsigned int i = 0; i < motion_container.components.size(); i++)
+	for (unsigned int i = 0; i < physics_object_container.components.size(); i++)
 	{
-		Motion& motion_i = motion_container.components[i];
-		ECS::Entity& entity_i = motion_container.entities[i];
+	    ECS::Entity& entity_i = physics_object_container.entities[i];
+		auto& motion_i = entity_i.get<Motion>();
 		// std::cout << "entity i addr: " << &entity_i << "\n";
-		for (unsigned int j = i + 1; j < motion_container.components.size(); j++)
+		for (unsigned int j = i + 1; j < physics_object_container.components.size(); j++)
 		{
-			Motion& motion_j = motion_container.components[j];
-			ECS::Entity& entity_j = motion_container.entities[j];
 
+			ECS::Entity& entity_j = physics_object_container.entities[j];
+            auto& motion_j = entity_j.get<Motion>();
 			if (collides(motion_i, motion_j))
 			{
-				if (ECS::registry<Soldier>.has(entity_i)) {
-					// std::cout << "entity i addr: " << &entity_i << "\n";
-					entity_i.update("collision", entity_i, entity_j);
-				}
-
-				if (ECS::registry<Soldier>.has(entity_j)) {
-					// std::cout << "entity j addr: " << &entity_j << "\n";
-					entity_j.update("collision", entity_j, entity_i);
-				}
+//				if (ECS::registry<Soldier>.has(entity_i)) {
+//					// std::cout << "entity i addr: " << &entity_i << "\n";
+//					entity_i.update("collision", entity_i, entity_j);
+//				}
+//
+//				if (ECS::registry<Soldier>.has(entity_j)) {
+//					// std::cout << "entity j addr: " << &entity_j << "\n";
+//					entity_j.update("collision", entity_j, entity_i);
+//				}
 				// Create a collision event
-				// Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
+				 // Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
 				if (advanced_collision(entity_i, entity_j)) {
-					
+
 					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_i, entity_j);
 					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_j, entity_i);
                     // check if the bullet hits an enemy

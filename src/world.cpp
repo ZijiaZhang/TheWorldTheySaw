@@ -462,7 +462,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 		float sinV = asin(disY / longestL);
 		float cosV = acos(disX / longestL);
         auto dir = mouse_pos - motion.position;
-        printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
+        // printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
         float rad = atan2(dir.y, dir.x);
 		motion.angle = rad;
 

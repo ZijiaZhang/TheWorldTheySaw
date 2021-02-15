@@ -1,6 +1,7 @@
 // Header
 #include "soldier.hpp"
 #include "render.hpp"
+#include "PhysicsObject.hpp"
 
 ECS::Entity Soldier::createSoldier(vec2 position)
 {
