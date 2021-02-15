@@ -10,6 +10,7 @@
 #include "tiny_ecs.hpp"
 #include "Bullet.hpp"
 #include "Wall.hpp"
+#include "MoveableWall.hpp"
 
 
 // stlib
@@ -315,7 +316,7 @@ void WorldSystem::restart()
     Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
     Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
 
-    Wall::createWall(vec2{500,500}, {30, 20}, 30);
+    MoveableWall::createMoveableWall(vec2{500,500}, {300, 100}, 30);
 
 }
 

@@ -64,6 +64,7 @@ typedef enum
     PLAYER,
     ENEMY,
     WALL,
+    MOVEABLEWALL,
     LAST //USELESS, used for indicating the last one of the enum
 } CollisionObjectType;
 

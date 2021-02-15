@@ -41,6 +41,7 @@ void AISystem::enemy_ai_step(ECS::Entity e, float elapsed_ms) {
 //                enemy_motion.velocity.y = max(-enemy_motion.max_control_speed, min(enemy_motion.max_control_speed, enemy_motion.velocity.y));
                 build_grids_for_type<PLAYER>();
                 build_grids_for_type<WALL>();
+                build_grids_for_type<MOVEABLEWALL>();
 
                 printf("p: %f, %f \n", soldier_motion.position.x, soldier_motion.position.y);
                 if (abs(soldier_motion.position.x) > 10000 || abs(soldier_motion.position.y) > 10000){
@@ -95,16 +96,17 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
             DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, cur_grid.second * GRID_SIZE}, scale_horizontal_line);
         }
     }
-    while(!front.empty()) {
+    std::set<std::pair<int,int>> visited;
+    int counter = 200;
+    while(!front.empty() && counter > 0) {
         auto path = front.top();
         front.pop();
-//        if (path.path.size() > 10){
-//            continue;
-//        }
         auto last_node = path.path.back();
         if (get_dist(last_node, dest_grid) <= radius){
             return path;
         }
+        counter --;
+        visited.insert(last_node);
         for (auto n: neighbors){
             std::pair<int, int> next_node {last_node.first + n.first, last_node.second + n.second};
             if (collisions.find(next_node) == collisions.end()){
@@ -115,16 +117,17 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
         }
         for (auto n: neighbors2){
             std::pair<int, int> next_node {last_node.first + n.first, last_node.second + n.second};
-            if (collisions.find(next_node) == collisions.end()){
+            if (collisions.find(next_node) == collisions.end() && visited.find(next_node) == visited.end() ){
                 auto v = path.path;
                 v.emplace_back(next_node);
                 front.push(Path_with_heuristics{std::move(v), static_cast<float>(path.cost + GRID_SIZE * sqrt(2)), get_dist(next_node, dest_grid)});
             }
         }
     }
-
-
-    return Path_with_heuristics{};
+    if (front.empty()) {
+        return Path_with_heuristics{};
+    }
+    return front.top();
 }
 
 float AISystem::get_dist(const std::pair<int, int> &cur_grid,
