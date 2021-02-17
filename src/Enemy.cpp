@@ -25,7 +25,7 @@ ECS::Entity Enemy::createEnemy(vec2 position){
     motion.position = position;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = resource.mesh.original_size * 150.f;
+    motion.scale = resource.mesh.original_size *50.f;
     motion.scale.x *= -1; // point front to the right
     motion.zValue = ZValuesMap["Enemy"];
 

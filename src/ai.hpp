@@ -36,6 +36,8 @@ public:
     static std::pair<int, int> get_grid_from_loc(vec2 vec);
 
     float get_dist(const std::pair<int, int> &cur_grid, const std::pair<int, int> &dest_grid) const;
+
+    vec2 get_grid_location(std::pair<int, int> grid);
 };
 
 

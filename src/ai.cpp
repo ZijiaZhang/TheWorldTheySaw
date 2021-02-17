@@ -6,7 +6,7 @@
 
 #include <set>
 #include <queue>
-const int GRID_SIZE = 100;
+const int GRID_SIZE = 50;
 
 std::map<CollisionObjectType, std::set<std::pair<int,int>>> AISystem::occupied_grids_Enemy;
 
@@ -26,19 +26,11 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 void AISystem::enemy_ai_step(ECS::Entity e, float elapsed_ms) {
     for (auto& enemy: ECS::registry<Enemy>.entities){
         auto& enemy_motion = ECS::registry<Motion>.get(enemy);
+        auto& enemy_object = ECS::registry<Enemy>.get(e);
         if(!ECS::registry<Soldier>.components.empty()) {
             auto soldier = ECS::registry<Soldier>.entities[0];
             auto& soldier_motion = soldier.get<Motion>();
             if(soldier.has<Motion>()) {
-                // Get delta position
-//                auto dir = enemy_motion.position - soldier_motion.position;
-//                // Enemy will always face the player
-//                enemy_motion.angle = atan2(dir.y, dir.x);
-//                //Let enemy stop moving if the distance is close
-//                vec2 desired_speed = {dot(dir, dir) > 160000? enemy_motion.max_control_speed : 0.f, 0.f};
-//                enemy_motion.velocity -= (enemy_motion.velocity - desired_speed) * elapsed_ms / 1000.f;
-//                enemy_motion.velocity.x = max(-enemy_motion.max_control_speed, min(enemy_motion.max_control_speed, enemy_motion.velocity.x));
-//                enemy_motion.velocity.y = max(-enemy_motion.max_control_speed, min(enemy_motion.max_control_speed, enemy_motion.velocity.y));
                 build_grids_for_type<PLAYER>();
                 build_grids_for_type<WALL>();
                 build_grids_for_type<MOVEABLEWALL>();
@@ -48,19 +40,39 @@ void AISystem::enemy_ai_step(ECS::Entity e, float elapsed_ms) {
                     return;
                 }
                 auto path = find_path_to_location(enemy, soldier_motion.position, 200.f);
-
+                enemy_object.path = path;
                 for (auto &grid : path.path) {
                     // draw a cross at the position of all objects
                     auto scale_vertical_line = vec2{10.f, 10.f};
-                    DebugSystem::createLine(
-                            {grid.first * GRID_SIZE + GRID_SIZE / 2, grid.second * GRID_SIZE + GRID_SIZE / 2},
-                            scale_vertical_line);
+//                    DebugSystem::createLine(
+//                            {grid.first * GRID_SIZE + GRID_SIZE / 2, grid.second * GRID_SIZE + GRID_SIZE / 2},
+//                            scale_vertical_line);
                 }
             }
         }
+        if (enemy_object.path.path.size() > 1) {
+            auto target = enemy_object.path.path[1];
+            auto cur_grid = target;
+            auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
+            auto scale_vertical_line = vec2{10.f, GRID_SIZE};
+//            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
+//            DebugSystem::createLine(vec2{(cur_grid.first +1) * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
+//            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, (cur_grid.second + 1) * GRID_SIZE }, scale_horizontal_line);
+//            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, cur_grid.second * GRID_SIZE}, scale_horizontal_line);
+            auto dir = get_grid_location(target) -  enemy_motion.position;
+            // Enemy will always face the player
+            enemy_motion.angle = atan2(dir.y, dir.x);
+            enemy_object.desired_speed = {100.f, 0.f};
+        } else {
+            enemy_object.desired_speed = {0.f, 0.f};
+        }
+        enemy_motion.velocity -= (enemy_motion.velocity - enemy_object.desired_speed) * elapsed_ms / 1000.f;
     }
 }
 
+vec2 AISystem::get_grid_location(std::pair<int,int> grid){
+    return {grid.first * GRID_SIZE + GRID_SIZE / 2, grid.second * GRID_SIZE + GRID_SIZE / 2};
+}
 
 Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, vec2 position, float radius){
     auto& agent_motion = agent.get<Motion>();
@@ -83,19 +95,19 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
     std::pair<int, int> neighbors[]{ {0,1}, {0, -1}, {1,0}, {-1,0}};
     std::pair<int, int> neighbors2[]{ {-1,-1}, {1, -1}, {-1,1}, {1,1}};
 
-    if (DebugSystem::in_debug_mode)
-    {
-        for (auto& cur_grid : collisions)
-        {
-            // draw a cross at the position of all objects
-            auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
-            auto scale_vertical_line = vec2{10.f, GRID_SIZE};
-            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
-            DebugSystem::createLine(vec2{(cur_grid.first +1) * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
-            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, (cur_grid.second + 1) * GRID_SIZE }, scale_horizontal_line);
-            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, cur_grid.second * GRID_SIZE}, scale_horizontal_line);
-        }
-    }
+//    if (DebugSystem::in_debug_mode)
+//    {
+//        for (auto& cur_grid : collisions)
+//        {
+//            // draw a cross at the position of all objects
+//            auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
+//            auto scale_vertical_line = vec2{10.f, GRID_SIZE};
+//            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
+//            DebugSystem::createLine(vec2{(cur_grid.first +1) * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
+//            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, (cur_grid.second + 1) * GRID_SIZE }, scale_horizontal_line);
+//            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, cur_grid.second * GRID_SIZE}, scale_horizontal_line);
+//        }
+//    }
     std::set<std::pair<int,int>> visited;
     int counter = 200;
     while(!front.empty() && counter > 0) {
@@ -153,12 +165,12 @@ void AISystem::add_grids_to_set(const Motion& motion, const PhysicsObject& obj) 
     std::transform(obj.vertex.begin(), obj.vertex.end(), std::back_inserter(world_vertex),
                    [t](PhysicsVertex v){vec3 world_pos =  t.mat * vec3{v.position.x,v.position.y, 1}; return vec2{world_pos.x, world_pos.y};});
 
-    for (auto& position : world_vertex)
-    {
-        // draw a cross at the position of all objects
-        auto scale_vertical_line = vec2{10.f, 10.f};
-        DebugSystem::createLine(position, scale_vertical_line);
-    }
+//    for (auto& position : world_vertex)
+//    {
+//        // draw a cross at the position of all objects
+//        auto scale_vertical_line = vec2{10.f, 10.f};
+//        DebugSystem::createLine(position, scale_vertical_line);
+//    }
 
     for (auto& edge : obj.faces){
         auto v1 = world_vertex[edge.first];
