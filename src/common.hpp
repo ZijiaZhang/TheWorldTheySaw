@@ -17,6 +17,7 @@
 #include <glm/ext/vector_int2.hpp>  // ivec2
 #include <glm/vec3.hpp>             // vec3
 #include <glm/mat3x3.hpp>           // mat3
+#include "tiny_ecs.hpp"
 
 using namespace glm;
 static const float PI = 3.14159265359f;
@@ -43,10 +44,17 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
-  int zValue = 0;
-  
+    int zValue = 0;
+
 	// Max speed on one axis
 	float max_control_speed = 100;
+
+	// If object is bind to parent, Will not handle collision if bind to parents
+	bool has_parent = false;
+	ECS::Entity parent;
+	// Offset will be relative to parents
+	vec2 offset = {0.f,0.f};
+	float offset_angle = 0.f;
 };
 
 // For the order of drawing
@@ -63,6 +71,7 @@ typedef enum
     DEFAULT,
     PLAYER,
     ENEMY,
+    WEAPON,
     WALL
 } CollisionObjectType;
 
