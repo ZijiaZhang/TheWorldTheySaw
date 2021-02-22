@@ -1,6 +1,7 @@
 // Header
 #include "soldier.hpp"
 #include "render.hpp"
+#include "Weapon.hpp"
 
 ECS::Entity Soldier::createSoldier(vec2 position)
 {
@@ -32,6 +33,7 @@ ECS::Entity Soldier::createSoldier(vec2 position)
 	physicsObject.object_type = PLAYER;
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Soldier component to be able to refer to all turtles
+	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,60.f}, 0, entity);
 	ECS::registry<Soldier>.emplace(entity);
 	return entity;
 }
