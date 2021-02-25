@@ -109,7 +109,7 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 	t2.translate(m2.position);
 	t2.rotate(m2.angle);
 	t2.scale(m2.scale);
-
+    vec2 delta_x = m2.position - m1.position;;
 	for (auto& j : p2.vertex) {
 
 		vec3 vertex2_1 = { j.position.x, j.position.y, 1.f };
@@ -136,19 +136,19 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 			vec3 normal_t = { vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x, 0 };
 			// Translate the normal with the matrix in global coordinates
 			normal_t = inverse(transpose(t1.mat)) * normal_t;
+
 			normal_t /= sqrt(normal_t.x * normal_t.x + normal_t.y * normal_t.y); // Normalize
 			// Normal in local coordinates. I removed it from the final result. So not really useful.
 			vec2 local_n = { vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x };
 
 			// Convert to vec2
 			vec2 normal1 = { normal_t.x, normal_t.y };
-
 			// If the projection >0 then the point is outside the bonding box
 			if (dot(v2_1 - v1_1, normal1) > 0) {
 				x = false;
 				break;
 			}
-			else if (dot(v2_1 - v1_1, normal1) > dist) {
+			else if (dot(v2_1 - v1_1, normal1) > dist && dot(delta_x, normal1) > 0) {
 				// get smallest penitration from a edge
 				dist = dot(v2_1 - v1_1, normal1);
 				n_l = local_n;
