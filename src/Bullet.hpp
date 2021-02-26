@@ -9,7 +9,7 @@
 
 class Bullet {
 public:
-    static ECS::Entity createBullet(vec2 position);
+    static ECS::Entity createBullet(vec2 position, float angle);
 };
 
 

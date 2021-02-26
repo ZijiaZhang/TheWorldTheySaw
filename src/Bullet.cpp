@@ -5,7 +5,7 @@
 #include "Bullet.hpp"
 #include "render.hpp"
 
-ECS::Entity Bullet::createBullet(vec2 position)
+ECS::Entity Bullet::createBullet(vec2 position, float angle)
 {
     // Reserve en entity
     auto entity = ECS::Entity();
@@ -24,7 +24,7 @@ ECS::Entity Bullet::createBullet(vec2 position)
 
     // Initialize the position, scale, and physics components
     auto& motion = ECS::registry<Motion>.emplace(entity);
-    motion.angle = 0.f;
+    motion.angle = angle;
     motion.velocity = { 380.f, 0 };
     motion.position = position;
     // Setting initial values, scale is negative to make it face the opposite way
