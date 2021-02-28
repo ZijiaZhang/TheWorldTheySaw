@@ -25,12 +25,7 @@
 using json = nlohmann::json;
 
 // Game configuration
-//const size_t MAX_TURTLES = 15;
-//const size_t MAX_FISH = 5;
-//const size_t TURTLE_DELAY_MS = 2000;
-//const size_t FISH_DELAY_MS = 5000;
-levelLoader level_loader;
-int level = 1;
+LevelLoader level_loader;
 const size_t GUNFIRE_DELAY_MS = 1500;
 bool SHIELDUP = false;
 bool hasShield = false;
@@ -152,30 +147,6 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	init_audio();
 	Mix_PlayMusic(background_music, -1);
 	std::cout << "Loaded music\n";
-    json j;
-    
-    // add a number that is stored as double (note the implicit conversion of j to an object)
-    j["pi"] = 3.141;
-
-    // add a Boolean that is stored as bool
-    j["happy"] = true;
-
-    // add a string that is stored as std::string
-    j["name"] = "Niels";
-
-    // add another null object by passing nullptr
-    j["nothing"] = nullptr;
-
-    // add an object inside the object
-    j["answer"]["everything"] = 42;
-
-    // add an array that is stored as std::vector (using an initializer list)
-    j["list"] = { 1, 0, 2 };
-
-    // add another object (using an initializer list of pairs)
-    j["object"] = { {"currency", "USD"}, {"value", 42.99} };
-    j["answer"]["test"] = 1.111;
-    std::cout << "json? " << j;
 }
 
 WorldSystem::~WorldSystem(){
@@ -316,11 +287,14 @@ void WorldSystem::restart()
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
     
-    // Enemy::createEnemy(vec2{800,400});
-    // Enemy::createEnemy({500,500});
-	// Create a new soldier
-	// player_soldier = Soldier::createSoldier({ 100, 200 });
-    player_soldier = level_loader.load_level();
+    // load background, walls, enemies and player from level_loaders
+    level_loader.load_level();
+    
+    auto soliders = ECS::registry<Soldier>.entities;
+    if (soliders.size() > 1) {
+        throw std::runtime_error("Cannot have more than one solider");
+    }
+    player_soldier = soliders.front();
 
 	std::cout << "soldier addr: " << &player_soldier << "\n";
 
@@ -343,12 +317,6 @@ void WorldSystem::restart()
 		Pebble::createPebble({ m_dist(m_rng) * w, h - m_dist(m_rng) * 20 }, { radius, radius });
 	}
 	*/
-	int size = 1000;
-    Wall::createWall(vec2{size,size/2}, {20, size}, 0);
-    Wall::createWall(vec2{0,size/2}, {20, size}, 0);
-    Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
-    Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
-    Background::createBackground(vec2{500,500});
     
 }
 
@@ -445,17 +413,18 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
     
     if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-        level = 1;
-        level_loader.set_level(level);
+        level_loader.set_level(1);
         restart();
     }
     
     if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
-        level = 2;
-        level_loader.set_level(level);
+        level_loader.set_level(2);
         restart();
     }
-    
+    if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
+        level_loader.set_level(3);
+        restart();
+    }
 
 	// Debugging
 	if (key == GLFW_KEY_D)

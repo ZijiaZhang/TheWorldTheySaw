@@ -10,6 +10,7 @@
 #include "Wall.hpp"
 #include "soldier.hpp"
 #include "Enemy.hpp"
+#include "background.hpp"
 #include "tiny_ecs.hpp"
 #include <fstream>
 #include <string.h>
@@ -20,90 +21,73 @@
 
 using json = nlohmann::json;
 
-levelLoader::levelLoader() {
-    std::cout << "\n Level is loading!!!!!! \n";
-    at_level = 1;
-    make_level1();
-    make_level2();
-    levels.push_back(level1);
-    levels.push_back(level2);
-    // std::cout << level1;
+int at_level = 1;
+
+/**
+ read json content from the level files
+ */
+static json readLevelJsonFile(int level) {
+    auto file_name = "level_" + std::to_string(level) + ".json";
+    auto obj_path =level_path(file_name);
+    auto level_file = std::ifstream{obj_path};
+    if (!level_file) {
+        throw std::runtime_error("Could not open json file " + obj_path);
+    }
+    json j;
+    level_file >> j;
+
+    return j;
 }
 
-ECS::Entity levelLoader::load_level() {
-    json current = levels[at_level - 1];
-    auto soldier_pos = current["player"]["position"].get<std::vector<int>>();
-    auto enemies = current["enemy"].get<std::vector<json>>();
-    for (auto e : enemies) {
-        auto enemy_pos = e["position"].get<std::vector<int>>();
-        Enemy::createEnemy({enemy_pos[0], enemy_pos[1]});
-    }
-    auto blocks = current["map"].get<std::vector<json>>();
+static vec2 getVec2FromJson(json j) {
+    return vec2(j["x"], j["y"]);
+}
+
+static void loadPlayer(json current) {
+    auto soldier_pos = current["player"]["position"];
+    Soldier::createSoldier(getVec2FromJson(soldier_pos));
+}
+
+static void loadBackground(json current) {
+    auto background = current["background"];
+    Background::createBackground(getVec2FromJson(background["position"]));
+}
+
+static void loadWalls(json map, std::string type) {
+    auto blocks = map[type];
     for (auto b : blocks) {
-        int size = b["size"].get<int>();
-        auto block_pos = b["position"].get<std::vector<int>>();
-        Wall::createWall(vec2{block_pos[0] + size, block_pos[1] + size/2}, {size/5, size}, 0);
-        Wall::createWall(vec2{block_pos[0], block_pos[1] + size/2}, {size/5, size}, 0);
-        Wall::createWall(vec2{block_pos[0] + size/2, block_pos[1]}, {size, size/5}, 0);
-        Wall::createWall(vec2{block_pos[0] + size/2, block_pos[1] + size}, {size, size/5}, 0);
+        auto block_pos = getVec2FromJson(b["position"]);
+        auto block_size = getVec2FromJson(b["size"]);
+        auto block_rot = b["rotation"];
+        
+        Wall::createWall(block_pos, block_size, block_rot);
     }
-    return Soldier::createSoldier({soldier_pos[0],soldier_pos[1]});
 }
 
-void levelLoader::set_level(int level){
+static void loadMap(json current){
+    auto map = current["map"];
+    loadWalls(map, "borders");
+    loadWalls(map, "blocks");
+}
+
+static void loadEnemies(json current) {
+    auto enemies = current["enemy"];
+    for (auto e : enemies) {
+        auto enemy_pos = e["position"];
+        Enemy::createEnemy(getVec2FromJson(enemy_pos));
+    }
+}
+
+void LevelLoader::load_level() {
+    json current = readLevelJsonFile(at_level);
+    
+    loadPlayer(current);
+    loadBackground(current);
+    loadEnemies(current);
+    loadMap(current);
+    
+}
+
+void LevelLoader::set_level(int level){
     at_level = level;
 }
-
-void levelLoader::make_level1() {
-    json l1;
-    l1 = {
-        {"player", {
-            {"position", {100, 200}},
-                {"velocity", {100, 50}}
-        }
-        },
-        {"enemy", {
-            {{"position", {200, 500}},
-                {"velocity", {50, 50}},
-            {"ai", "basic"}
-            }}
-        },
-        {"map", {{
-            {"position", {600, 500}},
-            {"size", 88}
-        }}}
-    };
-    level1 = l1;
-}
-
-void levelLoader::make_level2() {
-    json l2;
-    l2 = {
-        {"player", {
-            {"position", {800, 600}},
-                {"velocity", {100, 50}}
-        }
-        },
-        {"enemy", {
-            {{"position", {200, 500}},
-                {"velocity", {50, 50}},
-            {"ai", "basic"}
-            },
-            {{"position", {800, 300}},
-                {"velocity", {50, 50}},
-            {"ai", "basic"}
-            },
-            {{"position", {850, 100}},
-                {"velocity", {50, 50}},
-            {"ai", "basic"}
-            }
-        }
-        },
-        {"map", {{
-            {"position", {600, 500}},
-            {"size", 88}
-        }}}
-    };
-    level2 = l2;
-}
-

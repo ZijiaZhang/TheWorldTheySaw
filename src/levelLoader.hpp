@@ -12,25 +12,12 @@
 
 using json = nlohmann::json;
 
-class levelLoader {
+class LevelLoader {
     public:
-
-        levelLoader();
-
         void set_level(int level);
-        
-
-        ECS::Entity load_level();
+        void load_level();
     
-    void make_level1();
-    
-    void make_level2();
-    
-    int at_level;
-    
-    json level1;
-    
-    json level2;
+    int at_level = 1;
     
     std::vector<json> levels;
 
