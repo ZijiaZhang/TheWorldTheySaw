@@ -11,7 +11,7 @@
 #include "Bullet.hpp"
 #include "Wall.hpp"
 #include "background.hpp"
-
+#include "levelLoader.hpp"
 
 // stlib
 #include <string.h>
@@ -29,6 +29,8 @@ using json = nlohmann::json;
 //const size_t MAX_FISH = 5;
 //const size_t TURTLE_DELAY_MS = 2000;
 //const size_t FISH_DELAY_MS = 5000;
+levelLoader level_loader;
+int level = 1;
 const size_t GUNFIRE_DELAY_MS = 1500;
 bool SHIELDUP = false;
 bool hasShield = false;
@@ -172,6 +174,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 
     // add another object (using an initializer list of pairs)
     j["object"] = { {"currency", "USD"}, {"value", 42.99} };
+    j["answer"]["test"] = 1.111;
     std::cout << "json? " << j;
 }
 
@@ -312,9 +315,12 @@ void WorldSystem::restart()
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-    Enemy::createEnemy(vec2{800,400});
+    
+    // Enemy::createEnemy(vec2{800,400});
+    // Enemy::createEnemy({500,500});
 	// Create a new soldier
-	player_soldier = Soldier::createSoldier({ 100, 200 });
+	// player_soldier = Soldier::createSoldier({ 100, 200 });
+    player_soldier = level_loader.load_level();
 
 	std::cout << "soldier addr: " << &player_soldier << "\n";
 
@@ -437,6 +443,19 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 		restart();
 	}
+    
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+        level = 1;
+        level_loader.set_level(level);
+        restart();
+    }
+    
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+        level = 2;
+        level_loader.set_level(level);
+        restart();
+    }
+    
 
 	// Debugging
 	if (key == GLFW_KEY_D)
