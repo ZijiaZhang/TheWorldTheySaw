@@ -13,7 +13,7 @@ ECS::Entity Enemy::createEnemy(vec2 position){
     if (resource.mesh.vertices.size() == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("enemy.png"), "textured");
+        RenderSystem::createSprite(resource, textures_path("/enemy/cannon/asuka_ani.png"), "animation");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -24,7 +24,7 @@ ECS::Entity Enemy::createEnemy(vec2 position){
     motion.position = position;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = resource.mesh.original_size * 150.f;
+    motion.scale = resource.mesh.original_size * 200.f;
     motion.scale.x *= -1; // point front to the right
     motion.zValue = ZValuesMap["Enemy"];
 
