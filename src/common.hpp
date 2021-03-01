@@ -28,6 +28,7 @@ inline std::string shader_path(const std::string& name) { return data_path() + "
 inline std::string textures_path(const std::string& name) { return data_path() + "/textures/" + name; };
 inline std::string audio_path(const std::string& name) { return data_path() + "/audio/" + name; };
 inline std::string mesh_path(const std::string& name) { return data_path() + "/meshes/" + name; };
+inline std::string level_path(const std::string& name) { return data_path() + "/levels/" + name; };
 
 // The 'Transform' component handles transformations passed to the Vertex shader
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
@@ -61,8 +62,11 @@ struct Motion {
 static std::map<std::string, int> ZValuesMap = {
     {"Soldier", 10},
     {"Turtle", 9},
+    {"Shield",8},
     {"Fish", 8},
-    {"Enemy", 7}
+    {"Enemy", 7},
+    {"Wall",6},
+    {"Background", 5}
 
 };
 
