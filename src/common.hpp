@@ -6,7 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <map>
-
+#include <set>
 // glfw (OpenGL)
 #define NOMINMAX
 #include <gl3w.h>
@@ -71,8 +71,12 @@ typedef enum
     DEFAULT,
     PLAYER,
     ENEMY,
+
+    WALL,
+    MOVEABLEWALL,
     WEAPON,
-    WALL
+    LAST
+
 } CollisionObjectType;
 
 struct PhysicsVertex
@@ -80,24 +84,6 @@ struct PhysicsVertex
     vec3 position;
 };
 
-struct PhysicsObject{
-    // The convec bonding box of a object
-    std::vector<PhysicsVertex> vertex = {PhysicsVertex{{-0.5, 0.5, -0.02}},
-                                         PhysicsVertex{{0.5, 0.5, -0.02}},
-                                         PhysicsVertex{{0.5, -0.5, -0.02}},
-                                         PhysicsVertex{{-0.5, -0.5, -0.02}}};
 
-    // The edges of connecting the vertex tha forms a bonding box
-    std::vector<std::pair<int,int>> faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
-    // The mass of the object
-    float mass = 10;
-    // Is object fixed in a location
-    bool fixed = false;
-    // If collision is enabled
-    bool collide = true;
-    // Object type
-    CollisionObjectType object_type = DEFAULT;
-    // Which object type is ignored
-    std::vector<CollisionObjectType> ignore_collision_of_type;
 
-};
+Transform getTransform(const Motion &m1);
