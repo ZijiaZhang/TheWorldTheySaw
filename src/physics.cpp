@@ -52,19 +52,7 @@ bool PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2) {
 	}
 	bool ret = c1.penitration != 0 && c1.normal != vec2{ 0,0 };
 	// If both collision is on
-	if (ret && p1.collide && p2.collide) {
-		/*
-		if (ECS::registry<Soldier>.has(e2)) {
-			std::cout << "e2 address: " << &e2 << "\n";
-			e2.update("collision", e1, e2);
-		}
-
-		if (ECS::registry<Soldier>.has(e1)) {
-			std::cout << "soldier address: " << &e1 << "\n";
-			e1.update("collision", e1, e2);
-		}
-		*/
-
+	if (ret && p1.collide && p2.collide && !e1.get<Motion>().has_parent  && !e2.get<Motion>().has_parent) {
 
 		// Handel collision
 		vec2 col_v_1 = c1.normal * dot(get_world_velocity(m1), c1.normal);
@@ -176,9 +164,19 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
-		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-		vec2 v = get_world_velocity(motion);
-		motion.position += v * step_seconds;
+	    if (!motion.has_parent) {
+            float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+            vec2 v = get_world_velocity(motion);
+            motion.position += v * step_seconds;
+        } else {
+	        if (motion.parent.has<Motion>()){
+	            Transform t1{};
+                t1.rotate(motion.parent.get<Motion>().angle);
+                vec3 world_translate = t1.mat * vec3{motion.offset, 0.f};
+                motion.position = motion.parent.get<Motion>().position + vec2{world_translate};
+                motion.angle = motion.offset_angle + motion.parent.get<Motion>().angle;
+	        }
+	    }
 	}
 
 	(void)elapsed_ms; // placeholder to silence unused warning until implemented

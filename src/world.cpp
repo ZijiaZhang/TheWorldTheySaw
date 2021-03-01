@@ -11,6 +11,8 @@
 #include "Bullet.hpp"
 #include "Wall.hpp"
 #include "MoveableWall.hpp"
+#include "background.hpp"
+
 
 
 // stlib
@@ -21,10 +23,10 @@
 #include <deque>
 
 // Game configuration
-const size_t MAX_TURTLES = 15;
-const size_t MAX_FISH = 5;
-const size_t TURTLE_DELAY_MS = 2000;
-const size_t FISH_DELAY_MS = 5000;
+//const size_t MAX_TURTLES = 15;
+//const size_t MAX_FISH = 5;
+//const size_t TURTLE_DELAY_MS = 2000;
+//const size_t FISH_DELAY_MS = 5000;
 const size_t GUNFIRE_DELAY_MS = 1500;
 bool SHIELDUP = false;
 bool hasShield = false;
@@ -315,9 +317,9 @@ void WorldSystem::restart()
     Wall::createWall(vec2{0,size/2}, {20, size}, 0);
     Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
     Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
-
     MoveableWall::createMoveableWall(vec2{500,500}, {300, 100}, 30);
-
+    Background::createBackground(vec2{500,500});
+    
 }
 
 // Compute collisions between entities
