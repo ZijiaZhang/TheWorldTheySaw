@@ -4,6 +4,7 @@
 
 #include "Enemy.hpp"
 #include "render.hpp"
+#include "PhysicsObject.hpp"
 
 ECS::Entity Enemy::createEnemy(vec2 position){
     auto entity = ECS::Entity();

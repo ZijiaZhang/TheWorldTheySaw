@@ -10,7 +10,9 @@
 #include "tiny_ecs.hpp"
 #include "Bullet.hpp"
 #include "Wall.hpp"
+#include "MoveableWall.hpp"
 #include "background.hpp"
+
 
 
 // stlib
@@ -315,6 +317,7 @@ void WorldSystem::restart()
     Wall::createWall(vec2{0,size/2}, {20, size}, 0);
     Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
     Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
+    MoveableWall::createMoveableWall(vec2{500,500}, {300, 100}, 30);
     Background::createBackground(vec2{500,500});
     
 }
@@ -353,7 +356,7 @@ void WorldSystem::handle_collisions()
 			{
 				if (!ECS::registry<DeathTimer>.has(entity))
 				{
-					// chew, count points, and set the LightUp timer
+					// chew, ai_count points, and set the LightUp timer
 					ECS::ContainerInterface::remove_all_components_of(entity_other);
 					Mix_PlayChannel(-1, gun_reload, 0);
 					++points;
@@ -464,7 +467,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 		float sinV = asin(disY / longestL);
 		float cosV = acos(disX / longestL);
         auto dir = mouse_pos - motion.position;
-        printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
+        // printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
         float rad = atan2(dir.y, dir.x);
 		motion.angle = rad;
 

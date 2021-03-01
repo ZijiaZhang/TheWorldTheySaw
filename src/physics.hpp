@@ -35,6 +35,7 @@ public:
 
     // The collition results of two advanced physics object
     CollisionResult collision(ECS::Entity &m1, ECS::Entity &m2);
+
 };
 
 
