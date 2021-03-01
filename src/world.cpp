@@ -10,6 +10,9 @@
 #include "tiny_ecs.hpp"
 #include "Bullet.hpp"
 #include "Wall.hpp"
+#include "MoveableWall.hpp"
+#include "background.hpp"
+#include "levelLoader.hpp"
 
 
 // stlib
@@ -18,12 +21,13 @@
 #include <sstream>
 #include <iostream>
 #include <deque>
+#include <nlohmann/json.hpp>
+
+// for convenience
+using json = nlohmann::json;
 
 // Game configuration
-const size_t MAX_TURTLES = 15;
-const size_t MAX_FISH = 5;
-const size_t TURTLE_DELAY_MS = 2000;
-const size_t FISH_DELAY_MS = 5000;
+LevelLoader level_loader;
 const size_t GUNFIRE_DELAY_MS = 1500;
 bool SHIELDUP = false;
 bool hasShield = false;
@@ -284,9 +288,15 @@ void WorldSystem::restart()
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-    Enemy::createEnemy(vec2{800,400});
-	// Create a new soldier
-	player_soldier = Soldier::createSoldier({ 100, 200 });
+    
+    // load background, walls, enemies and player from level_loaders
+    level_loader.load_level();
+    
+    auto soliders = ECS::registry<Soldier>.entities;
+    if (soliders.size() > 1) {
+        throw std::runtime_error("Cannot have more than one solider");
+    }
+    player_soldier = soliders.front();
 
 	std::cout << "soldier addr: " << &player_soldier << "\n";
 
@@ -309,12 +319,15 @@ void WorldSystem::restart()
 		Pebble::createPebble({ m_dist(m_rng) * w, h - m_dist(m_rng) * 20 }, { radius, radius });
 	}
 	*/
+
 	int size = 1000;
     Wall::createWall(vec2{size,size/2}, {20, size}, 0);
     Wall::createWall(vec2{0,size/2}, {20, size}, 0);
     Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
     Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
-
+    MoveableWall::createMoveableWall(vec2{500,500}, {300, 100}, 30);
+    Background::createBackground(vec2{500,500});
+    
 }
 
 // Compute collisions between entities
@@ -351,7 +364,7 @@ void WorldSystem::handle_collisions()
 			{
 				if (!ECS::registry<DeathTimer>.has(entity))
 				{
-					// chew, count points, and set the LightUp timer
+					// chew, ai_count points, and set the LightUp timer
 					ECS::ContainerInterface::remove_all_components_of(entity_other);
 					Mix_PlayChannel(-1, gun_reload, 0);
 					++points;
@@ -408,6 +421,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 		restart();
 	}
+    
+    if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+        level_loader.set_level(1);
+        restart();
+    }
+    
+    if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+        level_loader.set_level(2);
+        restart();
+    }
+    if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
+        level_loader.set_level(3);
+        restart();
+    }
 
 	// Debugging
 	if (key == GLFW_KEY_D)
@@ -462,7 +489,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 		float sinV = asin(disY / longestL);
 		float cosV = acos(disX / longestL);
         auto dir = mouse_pos - motion.position;
-        printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
+        // printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
         float rad = atan2(dir.y, dir.x);
 		motion.angle = rad;
 

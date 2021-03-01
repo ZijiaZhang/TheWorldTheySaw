@@ -13,7 +13,7 @@ ECS::Entity Shield::createShield(vec2 position)
 	if (resource.effect.program.resource == 0)
 	{
 		resource = ShadedMesh();
-		RenderSystem::createSprite(resource, textures_path("shield.png"), "textured");
+		RenderSystem::createSprite(resource, textures_path("/shield/shield2.png"), "textured");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -26,6 +26,7 @@ ECS::Entity Shield::createShield(vec2 position)
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -0.09f, 0.09f }) * static_cast<vec2>(resource.texture.size);
+    motion.zValue = ZValuesMap["Shield"];
 
 	// Create and (empty) Fish component to be able to refer to all fish
 	ECS::registry<Shield>.emplace(entity);

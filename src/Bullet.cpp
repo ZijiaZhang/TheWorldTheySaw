@@ -16,7 +16,7 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle)
     if (resource.effect.program.resource == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("bullet.png"), "animation");
+        RenderSystem::createSprite(resource, textures_path("/bullet/laser.png"), "textured");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

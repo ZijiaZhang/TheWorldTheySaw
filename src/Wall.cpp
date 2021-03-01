@@ -4,6 +4,7 @@
 
 #include "Wall.hpp"
 #include "render.hpp"
+#include "PhysicsObject.hpp"
 
 ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation){
     auto entity = ECS::Entity();
@@ -32,9 +33,10 @@ ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation){
     motion.angle = rotation;
     motion.velocity = { 0.f, 0.f };
     motion.scale = size;
+    motion.zValue = ZValuesMap["Wall"];
 
     PhysicsObject physicsObject;
-    physicsObject.object_type = DEFAULT;
+    physicsObject.object_type = WALL;
     physicsObject.fixed = true;
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
     //motion.box = size;

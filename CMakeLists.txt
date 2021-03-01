@@ -62,6 +62,12 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         "$<TARGET_FILE_DIR:${PROJECT_NAME}>/data"
 )
 
+# add nlohman json
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(nlohmann_json)
+# add_library(foo ...)
+target_link_libraries(${PROJECT_NAME} PUBLIC nlohmann_json::nlohmann_json)
+
 # glfw, sdl could be precompiled (on windows) or installed by a package manager (on OSX and Linux)
 if (IS_OS_LINUX OR IS_OS_MAC)
     # Try to find packages rather than to use the precompiled ones
