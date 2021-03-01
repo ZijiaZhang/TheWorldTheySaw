@@ -2,11 +2,11 @@
 // Created by Gary on 1/19/2021.
 //
 
-#include "Wall.hpp"
+#include "MoveableWall.hpp"
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 
-ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation){
+ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rotation){
     auto entity = ECS::Entity();
 
     std::string key = "wall";
@@ -33,16 +33,16 @@ ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation){
     motion.angle = rotation;
     motion.velocity = { 0.f, 0.f };
     motion.scale = size;
-    motion.zValue = ZValuesMap["Wall"];
 
     PhysicsObject physicsObject;
-    physicsObject.object_type = WALL;
-    physicsObject.fixed = true;
+    physicsObject.object_type = MOVEABLEWALL;
+    physicsObject.fixed = false;
+    physicsObject.mass = 30;
+
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
     //motion.box = size;
-    //motion.mass = 1000;
     // Create and (empty) Salmon component to be able to refer to all turtles
-    ECS::registry<Wall>.emplace(entity);
+    ECS::registry<MoveableWall>.emplace(entity);
     resource.texture.color = {1,1,1};
     return entity;
 }

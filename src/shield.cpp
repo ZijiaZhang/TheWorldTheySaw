@@ -13,7 +13,7 @@ ECS::Entity Shield::createShield(vec2 position)
 	if (resource.effect.program.resource == 0)
 	{
 		resource = ShadedMesh();
-		RenderSystem::createSprite(resource, textures_path("shield.png"), "textured");
+		RenderSystem::createSprite(resource, textures_path("/shield/shield2.png"), "textured");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

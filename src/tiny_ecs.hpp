@@ -27,8 +27,14 @@ namespace ECS {
 			pts = Points();
 
 			observerMap = {
-				{"collision", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n"; }},
-				{"point", [](ECS::Entity e1, ECS::Entity e2) {std::cout << "The entity gains " << e1.pts.getPoint() << " point \n"; }}
+				{"collision", [](ECS::Entity e1, ECS::Entity e2) {
+				    //std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n";
+				    }
+				    },
+				{"point", [](ECS::Entity e1, ECS::Entity e2) {
+				    //std::cout << "The entity gains " << e1.pts.getPoint() << " point \n";
+				    }
+				}
 			};
 		}
 
@@ -54,7 +60,7 @@ namespace ECS {
 		};
 
 		template<class T>
-		T& get()
+		T& get() const
 		{
 			return registry<T>.get(*this);
 
@@ -76,7 +82,7 @@ namespace ECS {
 		};
 
 		void update(std::string key, ECS::Entity e1, ECS::Entity e2) {
-			std::cout << "update\n";
+			// std::cout << "update\n";
 			// if (observerMap[key] != NULL)
 			this->observerMap[key](e1, e2);
 		};
