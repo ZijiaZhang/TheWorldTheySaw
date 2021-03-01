@@ -3,6 +3,7 @@
 //
 
 #include "Weapon.hpp"
+#include "PhysicsObject.hpp"
 
 #include <utility>
 #include "render_components.hpp"
@@ -17,7 +18,7 @@ ECS::Entity Weapon::createWeapon(vec2 offset, float offset_angle, ECS::Entity pa
     if (resource.mesh.vertices.size() == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("enemy_mono.png"), "textured");
+        RenderSystem::createSprite(resource, textures_path("/bullet/rocket.png"), "textured");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -26,7 +27,7 @@ ECS::Entity Weapon::createWeapon(vec2 offset, float offset_angle, ECS::Entity pa
     // Setting initial motion values
     Motion& motion = ECS::registry<Motion>.emplace(entity);
     motion.scale = resource.mesh.original_size * 30.f;
-    motion.scale.x *= -1; // point front to the right
+    motion.scale.x *= -1.5; // point front to the right
     motion.zValue = ZValuesMap["Soldier"];
     motion.has_parent = true;
     motion.parent = std::move(parent);
