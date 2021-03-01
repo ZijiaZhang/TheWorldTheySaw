@@ -85,13 +85,16 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 	auto& m2 = e2.get<Motion>();
 	auto& p1 = e1.get<PhysicsObject>();
 	auto& p2 = e2.get<PhysicsObject>();
-	float best_distance = -FLT_MAX;
+	float best_distance = 0;
 	vec2 final_normal = { 0,0 };
 	vec2 final_n_l = { 0,0 };
 	vec2 v = { 0,0 };
     Transform t1 = getTransform(m1);
 
+
     Transform t2 = getTransform(m2);
+    vec2 delta_x = m2.position - m1.position;
+
 
 	for (auto& j : p2.vertex) {
 
@@ -119,19 +122,19 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 			vec3 normal_t = { vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x, 0 };
 			// Translate the normal with the matrix in global coordinates
 			normal_t = inverse(transpose(t1.mat)) * normal_t;
+
 			normal_t /= sqrt(normal_t.x * normal_t.x + normal_t.y * normal_t.y); // Normalize
 			// Normal in local coordinates. I removed it from the final result. So not really useful.
 			vec2 local_n = { vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x };
 
 			// Convert to vec2
 			vec2 normal1 = { normal_t.x, normal_t.y };
-
 			// If the projection >0 then the point is outside the bonding box
 			if (dot(v2_1 - v1_1, normal1) > 0) {
 				x = false;
 				break;
 			}
-			else if (dot(v2_1 - v1_1, normal1) > dist) {
+			else if (dot(delta_x, normal1) > 0 && dot(v2_1 - v1_1, normal1) > dist ) {
 				// get smallest penitration from a edge
 				dist = dot(v2_1 - v1_1, normal1);
 				n_l = local_n;
@@ -139,7 +142,7 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 			}
 		}
 		// Get smallest penitration from all the vertex // Not really sure about this
-		if (x && dist > best_distance) {
+		if (x && dist < best_distance) {
 			best_distance = dist;
 			final_normal = n;
 			final_n_l = n_l;
@@ -147,7 +150,7 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 		}
 	}
 
-	if (best_distance != -FLT_MAX && final_normal != vec2{ 0,0 }) {
+	if (best_distance != 0 && final_normal != vec2{ 0,0 }) {
 		return { best_distance, final_normal, v };
 	}
 	// No collision
@@ -190,15 +193,29 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// Visualization for debugging the position and scale of objects
 	if (DebugSystem::in_debug_mode)
 	{
-		for (auto& motion : ECS::registry<Motion>.components)
+	    auto list = ECS::registry<Motion>.entities;
+		for (auto& e : list)
 		{
+		    auto& motion = e.get<Motion>();
 			// draw a cross at the position of all objects
 			auto scale_horizontal_line = motion.scale;
 			scale_horizontal_line.y *= 0.1f;
 			auto scale_vertical_line = motion.scale;
 			scale_vertical_line.x *= 0.1f;
-			DebugSystem::createLine(motion.position, scale_horizontal_line);
-			DebugSystem::createLine(motion.position, scale_vertical_line);
+			printf("%d\n", e.id);
+//			DebugSystem::createLine(motion.position, scale_horizontal_line);
+//			DebugSystem::createLine(motion.position, scale_vertical_line);
+			Transform t{};
+			t.translate(motion.position);
+			t.rotate(motion.angle);
+			t.scale(motion.scale);
+			if (e.has<PhysicsObject>()){
+			    auto p = e.get<PhysicsObject>();
+			    for(auto& v: p.vertex) {
+			        vec3 world = t.mat * vec3{v.position.x, v.position.y, 1.f };
+                    DebugSystem::createLine(vec2{world.x, world.y}, vec2{10,10});
+                }
+			}
 		}
 	}
 

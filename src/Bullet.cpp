@@ -5,7 +5,7 @@
 #include "Bullet.hpp"
 #include "render.hpp"
 
-ECS::Entity Bullet::createBullet(vec2 position)
+ECS::Entity Bullet::createBullet(vec2 position, float angle)
 {
     // Reserve en entity
     auto entity = ECS::Entity();
@@ -24,11 +24,11 @@ ECS::Entity Bullet::createBullet(vec2 position)
 
     // Initialize the position, scale, and physics components
     auto& motion = ECS::registry<Motion>.emplace(entity);
-    motion.angle = 0.f;
+    motion.angle = angle;
     motion.velocity = { 380.f, 0 };
     motion.position = position;
     // Setting initial values, scale is negative to make it face the opposite way
-    motion.scale = vec2({ -0.5f, 0.5f }) * static_cast<vec2>(resource.texture.size);
+    motion.scale = vec2({ 0.1f, 0.1f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Fish"];
 
     // Create and (empty) Fish component to be able to refer to all fish

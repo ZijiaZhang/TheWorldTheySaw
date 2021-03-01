@@ -405,12 +405,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 
 	//Shield up
-	if (action == GLFW_RELEASE && key == GLFW_KEY_S)
+	if (action == GLFW_PRESS && key == GLFW_KEY_S)
 	{
         auto& motion = ECS::registry<Motion>.get(player_soldier);
-		auto bullet = Bullet::createBullet(player_soldier.get<Motion>().position);
-        auto& motionBu = ECS::registry<Motion>.get(bullet);
-        motionBu.angle = motion.angle;
+		auto bullet = Bullet::createBullet(player_soldier.get<Motion>().position, motion.angle);
+//        auto& motionBu = bullet.get<Motion>();
+//        motionBu.angle = motion.angle;
 	}
 
 	// Resetting game
