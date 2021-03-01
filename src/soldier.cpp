@@ -15,7 +15,7 @@ ECS::Entity Soldier::createSoldier(vec2 position)
 	if (resource.mesh.vertices.size() == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("soldier.png"), "textured");
+        RenderSystem::createSprite(resource, textures_path("/soldier/soldier.png"), "textured");
     }
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
