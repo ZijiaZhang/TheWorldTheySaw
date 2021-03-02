@@ -168,6 +168,7 @@ namespace ECS {
 		// The emplace function takes the the provided arguments Args, creates a new object of type Component, and inserts it into the ECS system
 		template<typename... Args>
 		Component& emplace(Entity e, Args &&... args) {
+		    // printf("Emplace %s, current size %d\n", typeid(Component).name(), entities.size());
 			return insert(e, Component(std::forward<Args>(args)...)); // the forward ensures that arguments are moved not copied
 		};
 		template<typename... Args>

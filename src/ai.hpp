@@ -21,7 +21,7 @@ class AISystem
 public:
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
-    void enemy_ai_step(ECS::Entity e, float elapsed_ms);
+    void enemy_ai_step(ECS::Entity e, float elapsed_ms, vec2 dest);
 
     Path_with_heuristics find_path_to_location(const ECS::Entity &agent, vec2 position, float radius);
 
@@ -38,6 +38,8 @@ public:
     float get_dist(const std::pair<int, int> &cur_grid, const std::pair<int, int> &dest_grid) const;
 
     vec2 get_grid_location(std::pair<int, int> grid);
+
+    int id = 0;
 };
 
 

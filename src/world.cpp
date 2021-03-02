@@ -311,23 +311,6 @@ void WorldSystem::restart()
     camera.insert(Camera({0,0}, player_soldier));
 
 	// !! TODO A3: Enable static pebbles on the ground
-	/*
-	// Create pebbles on the floor
-	for (int i = 0; i < 20; i++)
-	{
-		int w, h;
-		glfwGetWindowSize(m_window, &w, &h);
-		float radius = 30 * (m_dist(m_rng) + 0.3f); // range 0.3 .. 1.3
-		Pebble::createPebble({ m_dist(m_rng) * w, h - m_dist(m_rng) * 20 }, { radius, radius });
-	}
-	*/
-
-	int size = 1000;
-    Wall::createWall(vec2{size,size/2}, {20, size}, 0);
-    Wall::createWall(vec2{0,size/2}, {20, size}, 0);
-    Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
-    Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
-    MoveableWall::createMoveableWall(vec2{500,500}, {300, 100}, 30);
     Background::createBackground(vec2{500,500});
     
 }

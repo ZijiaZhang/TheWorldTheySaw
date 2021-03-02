@@ -187,40 +187,34 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	    }
 	}
 
-	(void)elapsed_ms; // placeholder to silence unused warning until implemented
-	(void)window_size_in_game_units;
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	// Visualization for debugging the position and scale of objects
 	if (DebugSystem::in_debug_mode)
 	{
-	    auto list = ECS::registry<Motion>.entities;
-		for (auto& e : list)
+        printf("%d\n", ECS::registry<Motion>.entities.size());
+		for (int i =  static_cast<int>(ECS::registry<PhysicsObject>.entities.size() - 1); i >=0; i--)
 		{
+		    auto e = ECS::registry<PhysicsObject>.entities[i];
+		    if(!e.has<Motion>()){
+		        continue;
+		    }
 		    auto& motion = e.get<Motion>();
 			// draw a cross at the position of all objects
 			auto scale_horizontal_line = motion.scale;
 			scale_horizontal_line.y *= 0.1f;
 			auto scale_vertical_line = motion.scale;
 			scale_vertical_line.x *= 0.1f;
-
-//			DebugSystem::createLine(motion.position, scale_horizontal_line);
-//			DebugSystem::createLine(motion.position, scale_vertical_line);
 			Transform t{};
 			t.translate(motion.position);
 			t.rotate(motion.angle);
 			t.scale(motion.scale);
-			if (e.has<PhysicsObject>()){
-			    auto p = e.get<PhysicsObject>();
-			    for(auto& v: p.vertex) {
-			        vec3 world = t.mat * vec3{v.position.x, v.position.y, 1.f };
-                    DebugSystem::createLine(vec2{world.x, world.y}, vec2{10,10});
-                }
-			}
+
+            auto p = e.get<PhysicsObject>();
+            for(auto& v: p.vertex) {
+                vec3 world = t.mat * vec3{v.position.x, v.position.y, 1.f };
+                // printf("%d\n", ECS::registry<Motion>.entities.size());
+                DebugSystem::createLine(vec2{world.x, world.y}, vec2{10,10});
+            }
+
 		}
 	}
 

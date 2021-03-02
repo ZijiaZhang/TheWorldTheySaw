@@ -71,5 +71,5 @@ namespace DebugSystem
 	}
 
 	bool in_debug_mode = false;
-	bool in_profile_mode = false;
+	bool in_profile_mode = true;
 }
