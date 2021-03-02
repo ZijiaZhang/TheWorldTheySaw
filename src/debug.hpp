@@ -5,6 +5,7 @@
 // Data structure for pebble-specific information
 namespace DebugSystem {
 	extern bool in_debug_mode;
+	extern bool in_profile_mode;
 
 	// draw a red line for debugging purposes
 	void createLine(vec2 position, vec2 size);

@@ -5,9 +5,16 @@
 #include "Enemy.hpp"
 #include "render.hpp"
 #include "PhysicsObject.hpp"
+#include "Bullet.hpp"
 
 ECS::Entity Enemy::createEnemy(vec2 position){
     auto entity = ECS::Entity();
+    auto overlap = [=](const ECS::Entity &e) mutable {
+        if (e.has<Bullet>()){
+            entity.emplace<DeathTimer>();
+        }
+    };
+    entity.attach(Overlap, overlap);
 
     std::string key = "enemy";
     ShadedMesh& resource = cache_resource(key);
@@ -25,7 +32,7 @@ ECS::Entity Enemy::createEnemy(vec2 position){
     motion.position = position;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = resource.mesh.original_size * 200.f;
+    motion.scale = resource.mesh.original_size * 50.f;
     motion.scale.x *= -1; // point front to the right
     motion.zValue = ZValuesMap["Enemy"];
 

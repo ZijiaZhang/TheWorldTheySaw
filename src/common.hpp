@@ -75,7 +75,7 @@ typedef enum
     DEFAULT,
     PLAYER,
     ENEMY,
-
+    BULLET,
     WALL,
     MOVEABLEWALL,
     WEAPON,

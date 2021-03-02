@@ -29,4 +29,15 @@ public:
 // Which object type is ignored
 
 static std::map<CollisionObjectType, std::set<CollisionObjectType>> ignore_collision_of_type;
+static std::map<CollisionObjectType, std::set<CollisionObjectType>> only_overlap_of_type;
+
+static CollisionType getCollisionType(CollisionObjectType c1, CollisionObjectType c2){
+    if (PhysicsObject::ignore_collision_of_type[c1].find(c2) != PhysicsObject::ignore_collision_of_type[c1].end()){
+        return NoCollision;
+    }
+    if (PhysicsObject::only_overlap_of_type[c1].find(c2) != PhysicsObject::only_overlap_of_type[c1].end()){
+        return Overlap;
+    }
+    return Hit;
+}
 };

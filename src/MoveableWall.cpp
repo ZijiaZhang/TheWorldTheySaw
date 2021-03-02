@@ -33,6 +33,7 @@ ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rot
     motion.angle = rotation;
     motion.velocity = { 0.f, 0.f };
     motion.scale = size;
+    motion.zValue = ZValuesMap["Wall"];
 
     PhysicsObject physicsObject;
     physicsObject.object_type = MOVEABLEWALL;
