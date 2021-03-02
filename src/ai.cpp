@@ -6,7 +6,8 @@
 
 #include <set>
 #include <queue>
-const int GRID_SIZE = 50;
+#include <chrono>
+
 
 std::map<CollisionObjectType, std::set<std::pair<int,int>>> AISystem::occupied_grids_Enemy;
 
@@ -15,59 +16,61 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	(void)elapsed_ms; // placeholder to silence unused warning until implemented
 	(void)window_size_in_game_units; // placeholder to silence unused warning until implemented
+    build_grids_for_type<PLAYER>();
+    build_grids_for_type<WALL>();
+    build_grids_for_type<MOVEABLEWALL>();
+    if(!ECS::registry<Soldier>.components.empty()) {
+        auto soldier = ECS::registry<Soldier>.entities[0];
+        auto &soldier_motion = soldier.get<Motion>();
+        if (soldier.has<Motion>()) {
 
-	for (auto& e: ECS::registry<Enemy>.entities){
-	    enemy_ai_step(e, elapsed_ms);
-	}
+            if (abs(soldier_motion.position.x) > 10000 || abs(soldier_motion.position.y) > 10000) {
+                return;
+            }
+            if(ECS::registry<Enemy>.entities.empty()) {
+                return;
+            }
+
+            for(auto& e: ECS::registry<Enemy>.entities) {
+                enemy_ai_step(e, elapsed_ms, soldier_motion.position);
+            }
+            // id++;
+
+        }
+    }
 
 
 }
+using Clock = std::chrono::high_resolution_clock;
 
-void AISystem::enemy_ai_step(ECS::Entity e, float elapsed_ms) {
-    for (auto& enemy: ECS::registry<Enemy>.entities){
-        auto& enemy_motion = ECS::registry<Motion>.get(enemy);
-        auto& enemy_object = ECS::registry<Enemy>.get(e);
-        if(!ECS::registry<Soldier>.components.empty()) {
-            auto soldier = ECS::registry<Soldier>.entities[0];
-            auto& soldier_motion = soldier.get<Motion>();
-            if(soldier.has<Motion>()) {
-                build_grids_for_type<PLAYER>();
-                build_grids_for_type<WALL>();
-                build_grids_for_type<MOVEABLEWALL>();
+void AISystem::enemy_ai_step(ECS::Entity& enemy, float elapsed_ms, vec2 dest) {
 
-                printf("p: %f, %f \n", soldier_motion.position.x, soldier_motion.position.y);
-                if (abs(soldier_motion.position.x) > 10000 || abs(soldier_motion.position.y) > 10000){
-                    return;
-                }
-                auto path = find_path_to_location(enemy, soldier_motion.position, 200.f);
-                enemy_object.path = path;
-                for (auto &grid : path.path) {
-                    // draw a cross at the position of all objects
-                    auto scale_vertical_line = vec2{10.f, 10.f};
-//                    DebugSystem::createLine(
-//                            {grid.first * GRID_SIZE + GRID_SIZE / 2, grid.second * GRID_SIZE + GRID_SIZE / 2},
-//                            scale_vertical_line);
-                }
-            }
-        }
-        if (enemy_object.path.path.size() > 1) {
-            auto target = enemy_object.path.path[1];
-            auto cur_grid = target;
-            auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
-            auto scale_vertical_line = vec2{10.f, GRID_SIZE};
+    if (!enemy.has<AIPath>()){
+        return;
+    }
+    auto& enemy_motion = ECS::registry<Motion>.get(enemy);
+    auto& enemy_ai_data = ECS::registry<AIPath>.get(enemy);
+    auto path = find_path_to_location(enemy, dest, 100.f);
+    // printf("D: %d\n", path.path.size());
+    enemy_ai_data.path = std::move(path);
+    if (enemy_ai_data.path.path.size() > 1) {
+        auto target = enemy_ai_data.path.path[1];
+        auto cur_grid = target;
+        auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
+        auto scale_vertical_line = vec2{10.f, GRID_SIZE};
 //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
 //            DebugSystem::createLine(vec2{(cur_grid.first +1) * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
 //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, (cur_grid.second + 1) * GRID_SIZE }, scale_horizontal_line);
 //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, cur_grid.second * GRID_SIZE}, scale_horizontal_line);
-            auto dir = get_grid_location(target) -  enemy_motion.position;
-            // Enemy will always face the player
-            enemy_motion.angle = atan2(dir.y, dir.x);
-            enemy_object.desired_speed = {100.f, 0.f};
-        } else {
-            enemy_object.desired_speed = {0.f, 0.f};
-        }
-        enemy_motion.velocity -= (enemy_motion.velocity - enemy_object.desired_speed) * elapsed_ms / 1000.f;
+        auto dir = get_grid_location(target) -  enemy_motion.position;
+        // Enemy will always face the player
+        enemy_motion.angle = atan2(dir.y, dir.x);
+        enemy_ai_data.desired_speed = {100.f, 0.f};
+    } else {
+        enemy_ai_data.desired_speed = {0.f, 0.f};
     }
+    enemy_motion.velocity -= (enemy_motion.velocity - enemy_ai_data.desired_speed) * elapsed_ms / 1000.f;
+
 }
 
 vec2 AISystem::get_grid_location(std::pair<int,int> grid){
@@ -80,7 +83,7 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
     std::set<std::pair<int,int>> collisions;
     for (int x = DEFAULT; x!=LAST; x++){
         auto c = static_cast<CollisionObjectType>(x);
-        if (PhysicsObject::ignore_collision_of_type[agent_physics.object_type].find(c) == PhysicsObject::ignore_collision_of_type[agent_physics.object_type].end()) {
+        if (PhysicsObject::getCollisionType(agent_physics.object_type, c)==Hit) {
             collisions.insert(occupied_grids_Enemy[c].begin(), occupied_grids_Enemy[c].end());
         }
     }
@@ -95,19 +98,6 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
     std::pair<int, int> neighbors[]{ {0,1}, {0, -1}, {1,0}, {-1,0}};
     std::pair<int, int> neighbors2[]{ {-1,-1}, {1, -1}, {-1,1}, {1,1}};
 
-//    if (DebugSystem::in_debug_mode)
-//    {
-//        for (auto& cur_grid : collisions)
-//        {
-//            // draw a cross at the position of all objects
-//            auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
-//            auto scale_vertical_line = vec2{10.f, GRID_SIZE};
-//            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
-//            DebugSystem::createLine(vec2{(cur_grid.first +1) * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
-//            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, (cur_grid.second + 1) * GRID_SIZE }, scale_horizontal_line);
-//            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, cur_grid.second * GRID_SIZE}, scale_horizontal_line);
-//        }
-//    }
     std::set<std::pair<int,int>> visited;
     int counter = 200;
     while(!front.empty() && counter > 0) {
@@ -121,10 +111,13 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
         visited.insert(last_node);
         for (auto n: neighbors){
             std::pair<int, int> next_node {last_node.first + n.first, last_node.second + n.second};
-            if (collisions.find(next_node) == collisions.end()){
-                auto v = path.path;
-                v.emplace_back(next_node);
-                front.push(Path_with_heuristics{std::move(v), path.cost + GRID_SIZE, get_dist(next_node, dest_grid)});
+            if (collisions.find(next_node) == collisions.end() && visited.find(next_node) == visited.end() ) {
+                if (collisions.find(next_node) == collisions.end()) {
+                    auto v = path.path;
+                    v.emplace_back(next_node);
+                    front.push(
+                            Path_with_heuristics{std::move(v), path.cost + GRID_SIZE, get_dist(next_node, dest_grid)});
+                }
             }
         }
         for (auto n: neighbors2){
@@ -179,8 +172,6 @@ void AISystem::add_grids_to_set(const Motion& motion, const PhysicsObject& obj) 
             std::swap(v1, v2);
         }
         if (v1.x != v2.x) {
-
-            printf("%f,%f \n", v1.x, v1.y);
 
             float horizontal_start = v1.x;
             float horizontal_end = v2.x;

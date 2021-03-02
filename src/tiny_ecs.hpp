@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
@@ -7,6 +8,12 @@
 #include <functional>
 #include <iostream>
 #include "Point.hpp"
+
+typedef enum{
+    NoCollision,
+    Overlap,
+    Hit
+} CollisionType;
 
 namespace ECS {
 	// Declare the ComponentContainer upfront, such that we can define the registry and use it in the Entity class definition
@@ -26,13 +33,13 @@ namespace ECS {
 			// Note, indices of already deleted entities arent re-used in this simple implementation.
 			pts = Points();
 
-			observerMap = {
-				{"collision", [](ECS::Entity e1, ECS::Entity e2) {
-				    //std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n";
+            collisionHandler = {
+				{Overlap, [](ECS::Entity& self, ECS::Entity const& e1) {
+                    (void) e1;
 				    }
 				    },
-				{"point", [](ECS::Entity e1, ECS::Entity e2) {
-				    //std::cout << "The entity gains " << e1.pts.getPoint() << " point \n";
+				{Hit, [](ECS::Entity& self, ECS::Entity const& e1) {
+                    (void) e1;
 				    }
 				}
 			};
@@ -41,7 +48,7 @@ namespace ECS {
 
 		Points pts;
 
-		std::unordered_map<std::string, std::function<void(ECS::Entity, ECS::Entity)>> observerMap;
+		std::unordered_map<CollisionType, std::function<void(ECS::Entity&, const ECS::Entity&)>> collisionHandler;
 
 		// The ID defines an entity
 		unsigned int id;
@@ -77,14 +84,14 @@ namespace ECS {
 			return *this;
 		}
 
-		void attach(std::string key, std::function<void(ECS::Entity, ECS::Entity)> callback) {
-			this->observerMap.insert({ key, callback });
+		void attach(CollisionType key,  std::function<void(ECS::Entity&, const  ECS::Entity&)> callback) {
+			this->collisionHandler[key] = std::move(callback);
 		};
 
-		void update(std::string key, ECS::Entity e1, ECS::Entity e2) {
+		void physicsEvent(CollisionType key, ECS::Entity self, ECS::Entity other_entity) {
 			// std::cout << "update\n";
-			// if (observerMap[key] != NULL)
-			this->observerMap[key](e1, e2);
+			// if (collisionHandler[key] != NULL)
+			this->collisionHandler[key](self, other_entity);
 		};
 
 	private:
@@ -161,6 +168,7 @@ namespace ECS {
 		// The emplace function takes the the provided arguments Args, creates a new object of type Component, and inserts it into the ECS system
 		template<typename... Args>
 		Component& emplace(Entity e, Args &&... args) {
+		    // printf("Emplace %s, current size %d\n", typeid(Component).name(), entities.size());
 			return insert(e, Component(std::forward<Args>(args)...)); // the forward ensures that arguments are moved not copied
 		};
 		template<typename... Args>

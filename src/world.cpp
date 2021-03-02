@@ -40,6 +40,8 @@ bool DRAWING = false;
 int DEGREE_SIZE = 45;
 int SECTION_POINT_NUM = 3;
 
+int KILL_SIZE = 3000;
+
 static float getDist(vec2 p1, vec2 p2)
 {
     float dist = std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
@@ -197,6 +199,13 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
+    for (int i = static_cast<int>(ECS::registry<Motion>.components.size())-1; i >= 0; --i)
+    {
+	    auto&m = ECS::registry<Motion>.components[i];
+	    if (abs(m.position.x) > KILL_SIZE || abs(m.position.y) > KILL_SIZE){
+	        ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities[i]);
+	    }
+	}
     auto& motion = player_soldier.get<Motion>();
     motion.velocity = {100.f,0};
     // Spawning new turtles
@@ -242,22 +251,17 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
 
-	for (auto entity : ECS::registry<DeathTimer>.entities)
+    for (int i = static_cast<int>(ECS::registry<DeathTimer>.components.size())-1; i >= 0; --i)
 	{
+        auto entity = ECS::registry<DeathTimer>.entities[i];
 		// Progress timer
 		auto& counter = ECS::registry<DeathTimer>.get(entity);
 		counter.counter_ms -= elapsed_ms;
 
-		// Reduce window brightness if any of the present soldiers is dying
-		screen.darken_screen_factor = 1-counter.counter_ms/3000.f;
-
 		// Restart the game once the death timer expired
 		if (counter.counter_ms < 0)
 		{
-			ECS::registry<DeathTimer>.remove(entity);
-			screen.darken_screen_factor = 0;
-			restart();
-			return;
+			ECS::ContainerInterface::remove_all_components_of(entity);
 		}
 	}
 
@@ -300,8 +304,6 @@ void WorldSystem::restart()
 
 	std::cout << "soldier addr: " << &player_soldier << "\n";
 
-	player_soldier.attach("collision", ECS::colCallback);
-	player_soldier.attach("point", ECS::ptsCallback);
 
     while (!ECS::registry<Camera>.entities.empty())
         ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
@@ -309,23 +311,6 @@ void WorldSystem::restart()
     camera.insert(Camera({0,0}, player_soldier));
 
 	// !! TODO A3: Enable static pebbles on the ground
-	/*
-	// Create pebbles on the floor
-	for (int i = 0; i < 20; i++)
-	{
-		int w, h;
-		glfwGetWindowSize(m_window, &w, &h);
-		float radius = 30 * (m_dist(m_rng) + 0.3f); // range 0.3 .. 1.3
-		Pebble::createPebble({ m_dist(m_rng) * w, h - m_dist(m_rng) * 20 }, { radius, radius });
-	}
-	*/
-
-	int size = 1000;
-    Wall::createWall(vec2{size,size/2}, {20, size}, 0);
-    Wall::createWall(vec2{0,size/2}, {20, size}, 0);
-    Wall::createWall(vec2{size/2,0}, {size, 20}, 0);
-    Wall::createWall(vec2{size/2,size}, {size, 20}, 0);
-    MoveableWall::createMoveableWall(vec2{500,500}, {300, 100}, 30);
     Background::createBackground(vec2{500,500});
     
 }
@@ -423,22 +408,26 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
     
     if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-        level_loader.set_level(1);
+        level_loader.set_level("level_1");
         restart();
     }
     
     if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
-        level_loader.set_level(2);
+        level_loader.set_level("level_2");
         restart();
     }
     if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
-        level_loader.set_level(3);
+        level_loader.set_level("level_3");
         restart();
     }
 
 	// Debugging
 	if (key == GLFW_KEY_D)
 		DebugSystem::in_debug_mode = (action != GLFW_RELEASE);
+
+    // Debugging
+    if (key == GLFW_KEY_P)
+        DebugSystem::in_profile_mode = (action != GLFW_RELEASE);
 
 	// Control the current speed with `<` `>`
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA)

@@ -6,7 +6,9 @@
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 
-ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rotation){
+ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rotation,
+                                             std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
+                                             std::function<void(ECS::Entity&, const  ECS::Entity&)> hit){
     auto entity = ECS::Entity();
 
     std::string key = "wall";
@@ -33,6 +35,7 @@ ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rot
     motion.angle = rotation;
     motion.velocity = { 0.f, 0.f };
     motion.scale = size;
+    motion.zValue = ZValuesMap["Wall"];
 
     PhysicsObject physicsObject;
     physicsObject.object_type = MOVEABLEWALL;

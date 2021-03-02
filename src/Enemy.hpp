@@ -10,9 +10,10 @@
 class Enemy {
 
 public:
-    static ECS::Entity createEnemy(vec2 position);
-    Path_with_heuristics path;
-    vec2 desired_speed = {0.f, 0.f};
+    static ECS::Entity createEnemy(vec2 position, std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap = [](ECS::Entity&, const ECS::Entity &e) {},
+                                   std::function<void(ECS::Entity&, const  ECS::Entity&)> hit = [](ECS::Entity&, const ECS::Entity &e) {});
+
 };
+
 
 

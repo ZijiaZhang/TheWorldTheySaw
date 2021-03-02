@@ -4,6 +4,8 @@
 #include "debug.hpp"
 #include "float.h"
 #include "PhysicsObject.hpp"
+#include "Bullet.hpp"
+#include "Enemy.hpp"
 #include <soldier.hpp>
 #include <iostream>
 
@@ -30,9 +32,10 @@ bool collides(const Motion& motion1, const Motion& motion2)
 }
 
 
-bool PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2) {
-	if (!e1.has<Motion>() || !e2.has<Motion>() || !e1.has<PhysicsObject>() || !e2.has<PhysicsObject>()) {
-		return false;
+CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2) {
+	if (!e1.has<Motion>() || !e2.has<Motion>() || !e1.has<PhysicsObject>() || !e2.has<PhysicsObject>()
+	        || PhysicsObject::getCollisionType(e1.get<PhysicsObject>().object_type, e2.get<PhysicsObject>().object_type) == NoCollision) {
+		return NoCollision;
 	}
 	auto& m1 = e1.get<Motion>();
 	auto& m2 = e2.get<Motion>();
@@ -51,8 +54,11 @@ bool PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2) {
 		mul = -1;
 	}
 	bool ret = c1.penitration != 0 && c1.normal != vec2{ 0,0 };
+	if(!ret){
+	    return NoCollision;
+	}
 	// If both collision is on
-	if (ret && p1.collide && p2.collide && !e1.get<Motion>().has_parent  && !e2.get<Motion>().has_parent) {
+	if (ret && p1.collide && p2.collide && !e1.get<Motion>().has_parent  && !e2.get<Motion>().has_parent && PhysicsObject::getCollisionType(p1.object_type, p2.object_type) == Hit) {
 
 		// Handel collision
 		vec2 col_v_1 = c1.normal * dot(get_world_velocity(m1), c1.normal);
@@ -72,8 +78,8 @@ bool PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2) {
 		m1.velocity += p1.fixed ? vec2{ 0,0 } : get_local_velocity(delta_v1, m1);
 		m2.velocity += p2.fixed ? vec2{ 0,0 } : get_local_velocity(delta_v2, m2);
 	}
-	// If two objects overlap
-	return ret;
+	// If two objects overlap / hit
+	return PhysicsObject::getCollisionType(p1.object_type, p2.object_type);
 }
 
 
@@ -182,41 +188,46 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	    }
 	}
 
-	(void)elapsed_ms; // placeholder to silence unused warning until implemented
-	(void)window_size_in_game_units;
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 	// Visualization for debugging the position and scale of objects
 	if (DebugSystem::in_debug_mode)
 	{
-	    auto list = ECS::registry<Motion>.entities;
-		for (auto& e : list)
+		for (int i =  static_cast<int>(ECS::registry<PhysicsObject>.entities.size() - 1); i >=0; i--)
 		{
+		    auto e = ECS::registry<PhysicsObject>.entities[i];
+		    if(!e.has<Motion>()){
+		        continue;
+		    }
 		    auto& motion = e.get<Motion>();
 			// draw a cross at the position of all objects
 			auto scale_horizontal_line = motion.scale;
 			scale_horizontal_line.y *= 0.1f;
 			auto scale_vertical_line = motion.scale;
 			scale_vertical_line.x *= 0.1f;
-			printf("%d\n", e.id);
-//			DebugSystem::createLine(motion.position, scale_horizontal_line);
-//			DebugSystem::createLine(motion.position, scale_vertical_line);
 			Transform t{};
 			t.translate(motion.position);
 			t.rotate(motion.angle);
 			t.scale(motion.scale);
-			if (e.has<PhysicsObject>()){
-			    auto p = e.get<PhysicsObject>();
-			    for(auto& v: p.vertex) {
-			        vec3 world = t.mat * vec3{v.position.x, v.position.y, 1.f };
-                    DebugSystem::createLine(vec2{world.x, world.y}, vec2{10,10});
-                }
-			}
+
+            auto p = e.get<PhysicsObject>();
+            for(auto& v: p.vertex) {
+                vec3 world = t.mat * vec3{v.position.x, v.position.y, 1.f };
+                DebugSystem::createLine(vec2{world.x, world.y}, vec2{10,10});
+            }
+
 		}
+
+		for(auto& e: ECS::registry<AIPath>.components) {
+
+            for (auto &grid : e.path.path) {
+                // draw a cross at the position of all objects
+                auto scale_vertical_line = vec2{10.f, 10.f};
+                DebugSystem::createLine(
+                        {grid.first * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2, grid.second * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2},
+                        scale_vertical_line);
+
+            }
+		}
+
 	}
 
 	// Check for collisions between all moving entities
@@ -234,33 +245,15 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             auto& motion_j = entity_j.get<Motion>();
 			if (collides(motion_i, motion_j))
 			{
-//				if (ECS::registry<Soldier>.has(entity_i)) {
-//					// std::cout << "entity i addr: " << &entity_i << "\n";
-//					entity_i.update("collision", entity_i, entity_j);
-//				}
-//
-//				if (ECS::registry<Soldier>.has(entity_j)) {
-//					// std::cout << "entity j addr: " << &entity_j << "\n";
-//					entity_j.update("collision", entity_j, entity_i);
-//				}
 				// Create a collision event
 				 // Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
-				if (advanced_collision(entity_i, entity_j)) {
-
-					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_i, entity_j);
-					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_j, entity_i);
-                    // check if the bullet hits an enemy
-                    if (true) {
-                        if (ECS::registry<Soldier>.has(entity_i)) {
-                            entity_i.pts.addPoint();
-                            entity_i.update("point", entity_i, entity_j);
-                        }
-
-                        if (ECS::registry<Soldier>.has(entity_j)) {
-                            entity_j.pts.addPoint();
-                            entity_j.update("point", entity_j, entity_i);
-                        }
-                    }
+                CollisionType result = advanced_collision(entity_i,entity_j);
+				if (result != NoCollision) {
+//				    if(entity_j.has<Bullet>()){
+//				        printf("Bullet collide with %d\n", entity_i.get<PhysicsObject>().object_type);
+//				    }
+                    entity_i.physicsEvent(result, entity_i, entity_j);
+                    entity_j.physicsEvent(result, entity_j, entity_i);
 				}
 
 			}

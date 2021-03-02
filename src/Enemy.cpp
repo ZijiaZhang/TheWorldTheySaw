@@ -3,11 +3,18 @@
 //
 
 #include "Enemy.hpp"
+
+#include <utility>
 #include "render.hpp"
 #include "PhysicsObject.hpp"
+#include "Bullet.hpp"
 
-ECS::Entity Enemy::createEnemy(vec2 position){
+ECS::Entity Enemy::createEnemy(vec2 position,
+                               std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
+                               std::function<void(ECS::Entity&, const  ECS::Entity&)> hit){
     auto entity = ECS::Entity();
+    entity.attach(Overlap, overlap);
+    entity.attach(Hit, std::move(hit));
 
     std::string key = "enemy";
     ShadedMesh& resource = cache_resource(key);
@@ -25,17 +32,17 @@ ECS::Entity Enemy::createEnemy(vec2 position){
     motion.position = position;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = resource.mesh.original_size * 200.f;
+    motion.scale = resource.mesh.original_size * 50.f;
     motion.scale.x *= -1; // point front to the right
     motion.zValue = ZValuesMap["Enemy"];
 
     motion.max_control_speed = 70.f;
     PhysicsObject physicsObject;
-    physicsObject.mass = 10;
+    physicsObject.mass = 30;
     physicsObject.object_type = ENEMY;
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 
-
+    entity.emplace<AIPath>();
     // Create and (empty) Salmon component to be able to refer to all turtles
     ECS::registry<Enemy>.emplace(entity);
 

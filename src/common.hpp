@@ -75,7 +75,7 @@ typedef enum
     DEFAULT,
     PLAYER,
     ENEMY,
-
+    BULLET,
     WALL,
     MOVEABLEWALL,
     WEAPON,
@@ -88,6 +88,16 @@ struct PhysicsVertex
     vec3 position;
 };
 
+struct Path_with_heuristics{
+    std::vector<std::pair<int,int>> path;
+    float cost;
+    float heuristic;
+};
+
+struct AIPath{
+    Path_with_heuristics path;
+    vec2 desired_speed = {0.f, 0.f};
+};
 
 
 Transform getTransform(const Motion &m1);

@@ -26,7 +26,7 @@ ECS::Entity Soldier::createSoldier(vec2 position)
 	motion.position = position;
 	motion.angle = 0.f;
 	motion.velocity = { 100.f, 0.f };
-	motion.scale = resource.mesh.original_size * 150.f;
+	motion.scale = resource.mesh.original_size * 70.f;
 	motion.scale.x *= -1; // point front to the right
     motion.zValue = ZValuesMap["Soldier"];
 

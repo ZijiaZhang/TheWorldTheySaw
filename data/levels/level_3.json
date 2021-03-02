@@ -1,8 +1,8 @@
 {
-	"player": {
+	"player": [{
 		"position": {"x": 100, "y": 200},
 		"velocity": {"X": 100, "y": 50}
-	},
+	}],
 	"background": {
 		"position": {"x": 500, "y": 500}
 	},
