@@ -148,7 +148,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Playing background music indefinitely
 	init_audio();
 	Mix_PlayMusic(background_music, -1);
-	std::cout << "Loaded music\n";
+	// std::cout << "Loaded music\n";
 }
 
 WorldSystem::~WorldSystem(){
@@ -269,7 +269,7 @@ void WorldSystem::restart()
 {
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-	std::cout << "Restarting\n";
+	// std::cout << "Restarting\n";
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -298,7 +298,7 @@ void WorldSystem::restart()
     }
     player_soldier = soliders.front();
 
-	std::cout << "soldier addr: " << &player_soldier << "\n";
+	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 	player_soldier.attach("collision", ECS::colCallback);
 	player_soldier.attach("point", ECS::ptsCallback);
@@ -444,12 +444,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA)
 	{
 		current_speed -= 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
+		// std::cout << "Current speed = " << current_speed << std::endl;
 	}
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
 	{
 		current_speed += 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
+		// std::cout << "Current speed = " << current_speed << std::endl;
 	}
 	current_speed = std::max(0.f, current_speed);
 }

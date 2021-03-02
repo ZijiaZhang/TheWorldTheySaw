@@ -53,19 +53,19 @@ int main()
 
 		DebugSystem::clearDebugComponents();
 		auto debug_time = Clock::now();
-		printf("Debug: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(debug_time - t)).count()) / 1000.f);
+		// printf("Debug: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(debug_time - t)).count()) / 1000.f);
 		if (ai_count> 0) {
-            ai.step(elapsed_ms, window_size_in_game_units);
+            // ai.step(elapsed_ms, window_size_in_game_units);
             ai_count = 0;
 		}
 		auto ai_time = Clock::now();
-        printf("AI: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(ai_time - debug_time)).count()) / 1000.f);
+        // printf("AI: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(ai_time - debug_time)).count()) / 1000.f);
 		world.step(elapsed_ms, window_size_in_game_units);
         auto world_time = Clock::now();
-        printf("World: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(world_time - ai_time)).count()) / 1000.f);
+        // printf("World: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(world_time - ai_time)).count()) / 1000.f);
 		physics.step(elapsed_ms, window_size_in_game_units);
         auto physics_time = Clock::now();
-        printf("Physics: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(physics_time - world_time)).count()) / 1000.f);
+        // printf("Physics: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(physics_time - world_time)).count()) / 1000.f);
 		world.handle_collisions();
 
 		renderer.draw(window_size_in_game_units);

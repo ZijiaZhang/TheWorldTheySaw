@@ -202,7 +202,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			scale_horizontal_line.y *= 0.1f;
 			auto scale_vertical_line = motion.scale;
 			scale_vertical_line.x *= 0.1f;
-			printf("%d\n", e.id);
+			// printf("%d\n", e.id);
 //			DebugSystem::createLine(motion.position, scale_horizontal_line);
 //			DebugSystem::createLine(motion.position, scale_vertical_line);
 			Transform t{};

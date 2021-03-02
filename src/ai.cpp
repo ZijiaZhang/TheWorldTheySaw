@@ -19,8 +19,6 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	for (auto& e: ECS::registry<Enemy>.entities){
 	    enemy_ai_step(e, elapsed_ms);
 	}
-
-
 }
 
 void AISystem::enemy_ai_step(ECS::Entity e, float elapsed_ms) {
@@ -35,7 +33,7 @@ void AISystem::enemy_ai_step(ECS::Entity e, float elapsed_ms) {
                 build_grids_for_type<WALL>();
                 build_grids_for_type<MOVEABLEWALL>();
 
-                printf("p: %f, %f \n", soldier_motion.position.x, soldier_motion.position.y);
+                // printf("p: %f, %f \n", soldier_motion.position.x, soldier_motion.position.y);
                 if (abs(soldier_motion.position.x) > 10000 || abs(soldier_motion.position.y) > 10000){
                     return;
                 }
@@ -180,7 +178,7 @@ void AISystem::add_grids_to_set(const Motion& motion, const PhysicsObject& obj) 
         }
         if (v1.x != v2.x) {
 
-            printf("%f,%f \n", v1.x, v1.y);
+            // printf("%f,%f \n", v1.x, v1.y);
 
             float horizontal_start = v1.x;
             float horizontal_end = v2.x;
