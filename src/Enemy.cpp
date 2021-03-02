@@ -3,18 +3,18 @@
 //
 
 #include "Enemy.hpp"
+
+#include <utility>
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 #include "Bullet.hpp"
 
-ECS::Entity Enemy::createEnemy(vec2 position){
+ECS::Entity Enemy::createEnemy(vec2 position,
+                               std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
+                               std::function<void(ECS::Entity&, const  ECS::Entity&)> hit){
     auto entity = ECS::Entity();
-    auto overlap = [=](const ECS::Entity &e) mutable {
-        if (e.has<Bullet>() && !entity.has<DeathTimer>()){
-            entity.emplace<DeathTimer>();
-        }
-    };
     entity.attach(Overlap, overlap);
+    entity.attach(Hit, std::move(hit));
 
     std::string key = "enemy";
     ShadedMesh& resource = cache_resource(key);
@@ -38,7 +38,7 @@ ECS::Entity Enemy::createEnemy(vec2 position){
 
     motion.max_control_speed = 70.f;
     PhysicsObject physicsObject;
-    physicsObject.mass = 10;
+    physicsObject.mass = 30;
     physicsObject.object_type = ENEMY;
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 

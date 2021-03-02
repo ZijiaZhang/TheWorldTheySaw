@@ -252,8 +252,8 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 //				    if(entity_j.has<Bullet>()){
 //				        printf("Bullet collide with %d\n", entity_i.get<PhysicsObject>().object_type);
 //				    }
-                    entity_i.physicsEvent(result, entity_j);
-                    entity_j.physicsEvent(result, entity_i);
+                    entity_i.physicsEvent(result, entity_i, entity_j);
+                    entity_j.physicsEvent(result, entity_j, entity_i);
 				}
 
 			}

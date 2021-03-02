@@ -18,7 +18,9 @@ class LevelLoader {
         void load_level();
     
     int at_level = 1;
-    
-    std::vector<json> levels;
 
+    std::vector<json> levels;
+    static std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Entity&)>> physics_callbacks;
+    static std::unordered_map<std::string, std::function<void(vec2 location, vec2 size, float rotation,
+                                                              std::function<void(ECS::Entity&, const  ECS::Entity&)>, std::function<void(ECS::Entity&, const  ECS::Entity&)>)>> level_objects;
 };

@@ -12,9 +12,9 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle)
     auto entity = ECS::Entity();
     // Create the rendering components
 
-    auto overlap = [=](const ECS::Entity &e) mutable {
-        if (!entity.has<DeathTimer>()) {
-            entity.emplace<DeathTimer>();
+    auto overlap = [](ECS::Entity &self,const ECS::Entity &e) mutable {
+        if (!self.has<DeathTimer>()) {
+            self.emplace<DeathTimer>();
         }
     };
     entity.attach(Overlap, overlap);

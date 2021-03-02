@@ -34,11 +34,11 @@ namespace ECS {
 			pts = Points();
 
             collisionHandler = {
-				{Overlap, [](ECS::Entity const& e1) {
+				{Overlap, [](ECS::Entity& self, ECS::Entity const& e1) {
                     (void) e1;
 				    }
 				    },
-				{Hit, [](ECS::Entity const& e1) {
+				{Hit, [](ECS::Entity& self, ECS::Entity const& e1) {
                     (void) e1;
 				    }
 				}
@@ -48,7 +48,7 @@ namespace ECS {
 
 		Points pts;
 
-		std::unordered_map<CollisionType, std::function<void(const ECS::Entity&)>> collisionHandler;
+		std::unordered_map<CollisionType, std::function<void(ECS::Entity&, const ECS::Entity&)>> collisionHandler;
 
 		// The ID defines an entity
 		unsigned int id;
@@ -84,14 +84,14 @@ namespace ECS {
 			return *this;
 		}
 
-		void attach(CollisionType key,  std::function<void(const  ECS::Entity&)> callback) {
+		void attach(CollisionType key,  std::function<void(ECS::Entity&, const  ECS::Entity&)> callback) {
 			this->collisionHandler[key] = std::move(callback);
 		};
 
-		void physicsEvent(CollisionType key, ECS::Entity other_entity) {
+		void physicsEvent(CollisionType key, ECS::Entity self, ECS::Entity other_entity) {
 			// std::cout << "update\n";
 			// if (collisionHandler[key] != NULL)
-			this->collisionHandler[key](other_entity);
+			this->collisionHandler[key](self, other_entity);
 		};
 
 	private:

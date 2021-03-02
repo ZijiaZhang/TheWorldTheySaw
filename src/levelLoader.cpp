@@ -13,21 +13,41 @@
 #include "background.hpp"
 #include "tiny_ecs.hpp"
 #include "MoveableWall.hpp"
+#include "Bullet.hpp"
+#include "render_components.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
 #include <sstream>
 #include <iostream>
 #include <unordered_map>
+#include <utility>
 
 using json = nlohmann::json;
 
 int at_level = 1;
 
-std::unordered_map<std::string, std::function<void(vec2 location, vec2 size, float rotation)>> level_objects = {
+void enemy_bullet_hit_death(ECS::Entity& self, const ECS::Entity &e) {
+    if (e.has<Bullet>() && !self.has<DeathTimer>()){
+        self.emplace<DeathTimer>();
+    }
+};
+
+std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Entity&)>> LevelLoader::physics_callbacks = {
+        {"enemy_bullet_hit_death", enemy_bullet_hit_death},
+};
+
+std::unordered_map<std::string, std::function<void(vec2 location, vec2 size, float rotation,
+        std::function<void(ECS::Entity&, const  ECS::Entity&)>, std::function<void(ECS::Entity&, const  ECS::Entity&)>)>> LevelLoader::level_objects = {
         {"blocks", Wall::createWall},
         {"borders", Wall::createWall},
-        {"movable_wall", MoveableWall::createMoveableWall}
+        {"movable_wall", MoveableWall::createMoveableWall},
+        {"player", [](vec2 location, vec2 size, float rotation,
+                std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
+                std::function<void(ECS::Entity&, const  ECS::Entity&)> hit){return Soldier::createSoldier(location);}},
+        {"enemy", [](vec2 location, vec2 size, float rotation,
+                     std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
+                     std::function<void(ECS::Entity&, const  ECS::Entity&)> hit) {return Enemy::createEnemy(location, std::move(overlap), std::move(hit));}}
 };
 
 /**
@@ -50,55 +70,20 @@ static vec2 getVec2FromJson(json j) {
     return vec2(j["x"], j["y"]);
 }
 
-static void loadPlayer(json current) {
-    auto soldier_pos = current["player"]["position"];
-    Soldier::createSoldier(getVec2FromJson(soldier_pos));
-}
-
-static void loadBackground(json current) {
-    auto background = current["background"];
-    Background::createBackground(getVec2FromJson(background["position"]));
-}
-
-static void loadWalls(json map, std::string type) {
-    auto blocks = map[type];
-    for (auto b : blocks) {
-        auto block_pos = getVec2FromJson(b["position"]);
-        auto block_size = getVec2FromJson(b["size"]);
-        auto block_rot = b["rotation"];
-        
-        Wall::createWall(block_pos, block_size, block_rot);
-    }
-}
-
-static void loadMap(json current){
-    auto map = current["map"];
-    for (auto & level_object : level_objects)
-    {
-        if(map.contains(level_object.first)){
-            for(auto b: map[level_object.first]){
-                level_object.second(getVec2FromJson(b["position"]), getVec2FromJson(b["size"]), b["rotation"]);
+void LevelLoader::load_level() {
+    json current = readLevelJsonFile(at_level);
+    for (auto & level_object : level_objects) {
+        if (current.contains(level_object.first)) {
+            for (json b: current[level_object.first]) {
+                vec2 position = b.contains("position") ? getVec2FromJson(b["position"]) : vec2{};
+                vec2 size = b.contains("size") ? getVec2FromJson(b["size"]) : vec2{};
+                float rotation = b.contains("rotation") ? static_cast<float>(b["rotation"]) : 0.f;
+                auto overlap = b.contains("overlap") ? physics_callbacks[b["overlap"]] : [](ECS::Entity&, const ECS::Entity &e) {};
+                auto hit = b.contains("hit") ? physics_callbacks[b["hit"]] : [](ECS::Entity&, const ECS::Entity &e) {};
+                level_object.second(position, size, rotation, overlap, hit);
             }
         }
     }
-}
-
-static void loadEnemies(json current) {
-    auto enemies = current["enemy"];
-    for (auto e : enemies) {
-        auto enemy_pos = e["position"];
-        Enemy::createEnemy(getVec2FromJson(enemy_pos));
-    }
-}
-
-void LevelLoader::load_level() {
-    json current = readLevelJsonFile(at_level);
-    
-    loadPlayer(current);
-    loadBackground(current);
-    loadEnemies(current);
-    loadMap(current);
-    
 }
 
 void LevelLoader::set_level(int level){
