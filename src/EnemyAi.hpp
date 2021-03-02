@@ -20,7 +20,7 @@ private:
     
     void idle(Motion& enemyMotion);
 
-    void walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyMotion);
+    void walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMotion);
 
     void walkRandom(Motion& enemyMotion);
 };

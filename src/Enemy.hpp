@@ -13,6 +13,8 @@ public:
     static ECS::Entity createEnemy(vec2 position);
     Path_with_heuristics path;
     vec2 desired_speed = {0.f, 0.f};
+
+    enum state { IDLE, WALK_BACKWARD, WALK_FORWARD } enemyState;
 };
 
 
