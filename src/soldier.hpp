@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include "tiny_ecs.hpp"
+#include <AiState.hpp>
 
 
 struct Soldier
@@ -10,5 +11,5 @@ public:
 	// Creates all the associated render resources and default transform
 	static ECS::Entity createSoldier(vec2 pos);
 
-	enum state {IDLE, WALK_BACKWARD_AND_SHOOT, WALK_FORWARD_AND_SHOOT} soldierState;
+	AiState soldierState = AiState::IDLE;
 };

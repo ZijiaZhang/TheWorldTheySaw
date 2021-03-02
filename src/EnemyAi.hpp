@@ -10,7 +10,9 @@ public:
     void step(float elapsed_ms, vec2 window_size_in_game_units);
 
 private:
+    float timeTicker = 0.f;
 
+    float enemyMovementRefresh = 2000.f;
     // Decision tree if statements
     void makeDecision(ECS::Entity enemy_entity, float elapsed_ms);
 

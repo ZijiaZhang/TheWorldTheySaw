@@ -30,8 +30,6 @@ ECS::Entity Soldier::createSoldier(vec2 position)
 	motion.scale.x *= -1; // point front to the right
     motion.zValue = ZValuesMap["Soldier"];
 
-	Soldier::state soldierState = IDLE;
-
 	PhysicsObject physicsObject;
 	physicsObject.mass = 100;
 	physicsObject.object_type = PLAYER;

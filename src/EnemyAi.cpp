@@ -3,11 +3,12 @@
 #include "soldier.hpp"
 #include "debug.hpp"
 
-void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units) 
+void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
+	timeTicker += elapsed_ms;
 	if (!ECS::registry<Enemy>.components.empty())
 	{
-		for (auto& enemy: ECS::registry<Enemy>.entities)
+		for (auto& enemy : ECS::registry<Enemy>.entities)
 		{
 			EnemyAISystem::makeDecision(enemy, elapsed_ms);
 		}
@@ -25,25 +26,29 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 		ECS::Entity& soldier = ECS::registry<Soldier>.entities[0];
 		auto& soldierMotion = ECS::registry<Motion>.get(soldier);
 
-		Enemy::state aState = enemy.enemyState;
-		if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 300) && aState == Enemy::WALK_FORWARD) {
-			enemy.enemyState = Enemy::WALK_BACKWARD;
+		AiState aState = enemy.enemyState;
+		if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 300) && aState == AiState::WALK_FORWARD) {
+			enemy.enemyState = AiState::WALK_BACKWARD;
 			EnemyAISystem::walkBackwardAndShoot(enemy_motion, soldierMotion);
 
 		}
-		else if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 400) && aState == Enemy::WALK_BACKWARD) {
-			enemy.enemyState = Enemy::WALK_BACKWARD;
+		else if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 400) && aState == AiState::WALK_BACKWARD) {
+			enemy.enemyState = AiState::WALK_BACKWARD;
 			EnemyAISystem::walkBackwardAndShoot(enemy_motion, soldierMotion);
 		}
 		else
 		{
-			enemy.enemyState = Enemy::WALK_FORWARD;
-			EnemyAISystem::walkRandom(enemy_motion);
+			if (timeTicker > enemyMovementRefresh) {
+				enemy.enemyState = AiState::WANDER;
+				EnemyAISystem::walkRandom(enemy_motion);
+				timeTicker = 0;
+			}
+
 		}
 	}
 	else
 	{
-		enemy.enemyState = Enemy::IDLE;
+		enemy.enemyState = AiState::IDLE;
 		EnemyAISystem::idle(enemy_motion);
 	}
 }
@@ -58,12 +63,12 @@ bool EnemyAISystem::isSoldierExistsInRange(Motion& enemyMotion, Motion& soldierM
 	return sqrt(pow(soldierMotion.position.x - enemyMotion.position.x, 2) + pow(soldierMotion.position.y - enemyMotion.position.y, 2)) < range;
 }
 
-void EnemyAISystem:: idle(Motion& enemyMotion)
+void EnemyAISystem::idle(Motion& enemyMotion)
 {
 	enemyMotion.velocity = vec2{ 0.f, 0.f };
 }
 
-void EnemyAISystem:: walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMotion)
+void EnemyAISystem::walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMotion)
 {
 	// std::cout << "walkBackwardAndShoot: " << &soldierMotion << "\n";
 	vec2 soldierPos = soldierMotion.position;
@@ -75,7 +80,7 @@ void EnemyAISystem:: walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMo
 	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
 
 	enemyMotion.velocity = vec2{ normalized.x * -100.f, normalized.y * -100.f };
-	std::cout << enemyMotion.velocity.x<< " ," << enemyMotion.velocity.y << "\n";
+	std::cout << enemyMotion.velocity.x << " ," << enemyMotion.velocity.y << "\n";
 
 	// soldierMotion.velocity = vec2{ -100.f, 0 };
 
@@ -90,5 +95,5 @@ void EnemyAISystem:: walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMo
 
 void EnemyAISystem::walkRandom(Motion& enemyMotion)
 {
-
+	enemyMotion.velocity = vec2{ rand() % 200 - 99, rand() % 200 - 99 };
 }

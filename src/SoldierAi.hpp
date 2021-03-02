@@ -10,7 +10,9 @@ public:
     void step(float elapsed_ms, vec2 window_size_in_game_units);
 
 private:
+    float timeTicker = 0.f;
 
+    float fireRate = 200.f;
     // Decision tree if statements
     void makeDecision(ECS::Entity& soldier_entity, float elapsed_ms);
 
