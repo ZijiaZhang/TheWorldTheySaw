@@ -10,7 +10,7 @@
 ECS::Entity Enemy::createEnemy(vec2 position){
     auto entity = ECS::Entity();
     auto overlap = [=](const ECS::Entity &e) mutable {
-        if (e.has<Bullet>()){
+        if (e.has<Bullet>() && !entity.has<DeathTimer>()){
             entity.emplace<DeathTimer>();
         }
     };

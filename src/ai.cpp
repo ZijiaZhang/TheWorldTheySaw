@@ -69,7 +69,7 @@ void AISystem::enemy_ai_step(ECS::Entity& enemy, float elapsed_ms, vec2 dest) {
     } else {
         enemy_ai_data.desired_speed = {0.f, 0.f};
     }
-        // enemy_motion.velocity -= (enemy_motion.velocity - enemy_ai_data.desired_speed) * elapsed_ms / 1000.f;
+    enemy_motion.velocity -= (enemy_motion.velocity - enemy_ai_data.desired_speed) * elapsed_ms / 1000.f;
 
 }
 

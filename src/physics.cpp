@@ -191,7 +191,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// Visualization for debugging the position and scale of objects
 	if (DebugSystem::in_debug_mode)
 	{
-        printf("%d\n", ECS::registry<Motion>.entities.size());
 		for (int i =  static_cast<int>(ECS::registry<PhysicsObject>.entities.size() - 1); i >=0; i--)
 		{
 		    auto e = ECS::registry<PhysicsObject>.entities[i];
@@ -212,14 +211,13 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             auto p = e.get<PhysicsObject>();
             for(auto& v: p.vertex) {
                 vec3 world = t.mat * vec3{v.position.x, v.position.y, 1.f };
-                // printf("%d\n", ECS::registry<Motion>.entities.size());
                 DebugSystem::createLine(vec2{world.x, world.y}, vec2{10,10});
             }
 
 		}
 
 		for(auto& e: ECS::registry<AIPath>.components) {
-		    printf("M Path length: %d\n", e.path.path.size());
+
             for (auto &grid : e.path.path) {
                 // draw a cross at the position of all objects
                 auto scale_vertical_line = vec2{10.f, 10.f};

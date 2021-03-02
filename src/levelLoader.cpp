@@ -12,6 +12,7 @@
 #include "Enemy.hpp"
 #include "background.hpp"
 #include "tiny_ecs.hpp"
+#include "MoveableWall.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -22,6 +23,12 @@
 using json = nlohmann::json;
 
 int at_level = 1;
+
+std::unordered_map<std::string, std::function<void(vec2 location, vec2 size, float rotation)>> level_objects = {
+        {"blocks", Wall::createWall},
+        {"borders", Wall::createWall},
+        {"movable_wall", MoveableWall::createMoveableWall}
+};
 
 /**
  read json content from the level files
@@ -66,8 +73,14 @@ static void loadWalls(json map, std::string type) {
 
 static void loadMap(json current){
     auto map = current["map"];
-    loadWalls(map, "borders");
-    loadWalls(map, "blocks");
+    for (auto & level_object : level_objects)
+    {
+        if(map.contains(level_object.first)){
+            for(auto b: map[level_object.first]){
+                level_object.second(getVec2FromJson(b["position"]), getVec2FromJson(b["size"]), b["rotation"]);
+            }
+        }
+    }
 }
 
 static void loadEnemies(json current) {
