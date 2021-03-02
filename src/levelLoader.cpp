@@ -25,7 +25,7 @@
 
 using json = nlohmann::json;
 
-int at_level = 1;
+std::string at_level = "level_1";
 
 void enemy_bullet_hit_death(ECS::Entity& self, const ECS::Entity &e) {
     if (e.has<Bullet>() && !self.has<DeathTimer>()){
@@ -53,8 +53,8 @@ std::unordered_map<std::string, std::function<void(vec2 location, vec2 size, flo
 /**
  read json content from the level files
  */
-static json readLevelJsonFile(int level) {
-    auto file_name = "level_" + std::to_string(level) + ".json";
+static json readLevelJsonFile(std::string level) {
+    auto file_name = level + ".json";
     auto obj_path =level_path(file_name);
     auto level_file = std::ifstream{obj_path};
     if (!level_file) {
@@ -86,6 +86,6 @@ void LevelLoader::load_level() {
     }
 }
 
-void LevelLoader::set_level(int level){
+void LevelLoader::set_level(std::string level){
     at_level = level;
 }

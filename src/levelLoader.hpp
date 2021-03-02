@@ -14,10 +14,10 @@ using json = nlohmann::json;
 
 class LevelLoader {
     public:
-        void set_level(int level);
+        void set_level(std::string level);
         void load_level();
     
-    int at_level = 1;
+    std::string at_level = "level_1";
 
     std::vector<json> levels;
     static std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Entity&)>> physics_callbacks;

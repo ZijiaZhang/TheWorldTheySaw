@@ -408,16 +408,16 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
     
     if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-        level_loader.set_level(1);
+        level_loader.set_level("level_1");
         restart();
     }
     
     if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
-        level_loader.set_level(2);
+        level_loader.set_level("level_2");
         restart();
     }
     if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
-        level_loader.set_level(3);
+        level_loader.set_level("level_3");
         restart();
     }
 
