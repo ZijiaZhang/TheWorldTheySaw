@@ -5,6 +5,7 @@
 #include "float.h"
 #include "PhysicsObject.hpp"
 #include "Bullet.hpp"
+#include "Enemy.hpp"
 #include <soldier.hpp>
 #include <iostream>
 
@@ -216,6 +217,19 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             }
 
 		}
+
+		for(auto& e: ECS::registry<AIPath>.components) {
+		    printf("M Path length: %d\n", e.path.path.size());
+            for (auto &grid : e.path.path) {
+                // draw a cross at the position of all objects
+                auto scale_vertical_line = vec2{10.f, 10.f};
+                DebugSystem::createLine(
+                        {grid.first * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2, grid.second * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2},
+                        scale_vertical_line);
+
+            }
+		}
+
 	}
 
 	// Check for collisions between all moving entities

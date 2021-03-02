@@ -8,7 +8,6 @@
 #include <queue>
 #include <chrono>
 
-const int GRID_SIZE = 50;
 
 std::map<CollisionObjectType, std::set<std::pair<int,int>>> AISystem::occupied_grids_Enemy;
 
@@ -31,11 +30,11 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             if(ECS::registry<Enemy>.entities.empty()) {
                 return;
             }
-            if (id >= ECS::registry<Enemy>.entities.size()) {
-                id = 0;
+
+            for(auto& e: ECS::registry<Enemy>.entities) {
+                enemy_ai_step(e, elapsed_ms, soldier_motion.position);
             }
-            enemy_ai_step(ECS::registry<Enemy>.entities[id], elapsed_ms, soldier_motion.position);
-            id++;
+            // id++;
 
         }
     }
@@ -44,38 +43,34 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 }
 using Clock = std::chrono::high_resolution_clock;
 
-void AISystem::enemy_ai_step(ECS::Entity e, float elapsed_ms, vec2 dest) {
-    for (auto& enemy: ECS::registry<Enemy>.entities){
-        auto& enemy_motion = ECS::registry<Motion>.get(enemy);
-        auto& enemy_object = ECS::registry<Enemy>.get(e);
-        auto path = find_path_to_location(enemy, dest, 100.f);
-        enemy_object.path = path;
-        for (auto &grid : path.path) {
-            // draw a cross at the position of all objects
-            auto scale_vertical_line = vec2{10.f, 10.f};
-            if (DebugSystem::in_debug_mode)
-                DebugSystem::createLine(
-                    {grid.first * GRID_SIZE + GRID_SIZE / 2, grid.second * GRID_SIZE + GRID_SIZE / 2},
-                    scale_vertical_line);
-        }
-        if (enemy_object.path.path.size() > 1) {
-            auto target = enemy_object.path.path[1];
-            auto cur_grid = target;
-            auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
-            auto scale_vertical_line = vec2{10.f, GRID_SIZE};
+void AISystem::enemy_ai_step(ECS::Entity& enemy, float elapsed_ms, vec2 dest) {
+
+    if (!enemy.has<AIPath>()){
+        return;
+    }
+    auto& enemy_motion = ECS::registry<Motion>.get(enemy);
+    auto& enemy_ai_data = ECS::registry<AIPath>.get(enemy);
+    auto path = find_path_to_location(enemy, dest, 100.f);
+    // printf("D: %d\n", path.path.size());
+    enemy_ai_data.path = std::move(path);
+    if (enemy_ai_data.path.path.size() > 1) {
+        auto target = enemy_ai_data.path.path[1];
+        auto cur_grid = target;
+        auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
+        auto scale_vertical_line = vec2{10.f, GRID_SIZE};
 //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
 //            DebugSystem::createLine(vec2{(cur_grid.first +1) * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
 //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, (cur_grid.second + 1) * GRID_SIZE }, scale_horizontal_line);
 //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, cur_grid.second * GRID_SIZE}, scale_horizontal_line);
-            auto dir = get_grid_location(target) -  enemy_motion.position;
-            // Enemy will always face the player
-            enemy_motion.angle = atan2(dir.y, dir.x);
-            enemy_object.desired_speed = {100.f, 0.f};
-        } else {
-            enemy_object.desired_speed = {0.f, 0.f};
-        }
-        enemy_motion.velocity -= (enemy_motion.velocity - enemy_object.desired_speed) * elapsed_ms / 1000.f;
+        auto dir = get_grid_location(target) -  enemy_motion.position;
+        // Enemy will always face the player
+        enemy_motion.angle = atan2(dir.y, dir.x);
+        enemy_ai_data.desired_speed = {100.f, 0.f};
+    } else {
+        enemy_ai_data.desired_speed = {0.f, 0.f};
     }
+        // enemy_motion.velocity -= (enemy_motion.velocity - enemy_ai_data.desired_speed) * elapsed_ms / 1000.f;
+
 }
 
 vec2 AISystem::get_grid_location(std::pair<int,int> grid){

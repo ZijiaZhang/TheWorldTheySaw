@@ -10,18 +10,13 @@
 // DON'T WORRY ABOUT THIS CLASS UNTIL ASSIGNMENT 3
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-struct Path_with_heuristics{
-    std::vector<std::pair<int,int>> path;
-    float cost;
-    float heuristic;
-};
 
 class AISystem
 {
 public:
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
-    void enemy_ai_step(ECS::Entity e, float elapsed_ms, vec2 dest);
+    void enemy_ai_step(ECS::Entity& e, float elapsed_ms, vec2 dest);
 
     Path_with_heuristics find_path_to_location(const ECS::Entity &agent, vec2 position, float radius);
 
@@ -40,6 +35,7 @@ public:
     vec2 get_grid_location(std::pair<int, int> grid);
 
     int id = 0;
+    static const int GRID_SIZE = 50;
 };
 
 

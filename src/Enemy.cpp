@@ -42,7 +42,7 @@ ECS::Entity Enemy::createEnemy(vec2 position){
     physicsObject.object_type = ENEMY;
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 
-
+    entity.emplace<AIPath>();
     // Create and (empty) Salmon component to be able to refer to all turtles
     ECS::registry<Enemy>.emplace(entity);
 
