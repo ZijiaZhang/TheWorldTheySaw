@@ -6,6 +6,7 @@
 
 struct Soldier
 {
+public:
 	// Creates all the associated render resources and default transform
 	static ECS::Entity createSoldier(vec2 pos);
 

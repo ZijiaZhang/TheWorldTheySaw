@@ -138,12 +138,16 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
+	/*
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
     auto mouse_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse(_0, _1, _2); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
 	glfwSetKeyCallback(window, key_redirect);
 	glfwSetMouseButtonCallback(window, mouse_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	*/
+	
+	
 
 	// Playing background music indefinitely
 	init_audio();
@@ -198,7 +202,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
     auto& motion = player_soldier.get<Motion>();
-    motion.velocity = {100.f,0};
+    // motion.velocity = {100.f,0};
     // Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
 

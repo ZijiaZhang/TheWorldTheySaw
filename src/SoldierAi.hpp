@@ -12,17 +12,19 @@ public:
 private:
 
     // Decision tree if statements
-    void makeDecision(ECS::Entity soldier_entity, float elapsed_ms);
+    void makeDecision(ECS::Entity& soldier_entity, float elapsed_ms);
 
     bool isEnemyExists();
+
+    ECS::Entity& getCloestEnemy(Motion& soldierMotion);
 
     bool isEnemyExistsInRange(Motion& soldierMotion, Motion& enemyMotion, float range);
 
     void idle(Motion& soldierMotion);
 
-    void walkBackwardAndShoot(Motion& soldierMotion);
+    void walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyMotion);
 
-    void walkForwardAndShoot(Motion& soldierMotion);
+    void walkForwardAndShoot(Motion& soldierMotion, Motion& enemyMotion);
 };
 
 

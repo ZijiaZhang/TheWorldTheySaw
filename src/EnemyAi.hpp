@@ -4,7 +4,7 @@
 #include "tiny_ecs.hpp"
 #include "PhysicsObject.hpp"
 
-class SoldierAISystem
+class EnemyAISystem
 {
 public:
     void step(float elapsed_ms, vec2 window_size_in_game_units);
@@ -12,15 +12,15 @@ public:
 private:
 
     // Decision tree if statements
-    void makeDecision(ECS::Entity soldier_entity, float elapsed_ms);
+    void makeDecision(ECS::Entity enemy_entity, float elapsed_ms);
 
-    bool isEnemyExists();
+    bool isSoldierExists();
+    
+    bool isSoldierExistsInRange(Motion& enemyMotion, Motion& soldierMotion, float range);
+    
+    void idle(Motion& enemyMotion);
 
-    bool isEnemyExistsInRange(Motion& enemyMotion, float range);
+    void walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyMotion);
 
-    void idle(Motion& soldierMotion);
-
-    void walkBackwardAndShoot(Motion& soldierMotion);
-
-    void walkForwardAndShoot(Motion& soldierMotion);
+    void walkRandom(Motion& enemyMotion);
 };

@@ -167,19 +167,31 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
-	    if (!motion.has_parent) {
+	   // if (!motion.has_parent) {
+
             float step_seconds = 1.0f * (elapsed_ms / 1000.f);
             vec2 v = get_world_velocity(motion);
-            motion.position += v * step_seconds;
+            // motion.position += v * step_seconds;
+			motion.position += motion.velocity * step_seconds;
+			// std::cout << "physics velocity: " << motion.velocity.x << ", " << motion.velocity.y << "\n";
+
+		/*
         } else {
 	        if (motion.parent.has<Motion>()){
 	            Transform t1{};
                 t1.rotate(motion.parent.get<Motion>().angle);
                 vec3 world_translate = t1.mat * vec3{motion.offset, 0.f};
-                motion.position = motion.parent.get<Motion>().position + vec2{world_translate};
+                // motion.position = motion.parent.get<Motion>().position + vec2{world_translate};
                 motion.angle = motion.offset_angle + motion.parent.get<Motion>().angle;
 	        }
 	    }
+		*/
+	}
+	auto& soldierList = ECS::registry<Soldier>.entities;
+	for (auto& soldier : soldierList) {
+		auto& soldierMotion = ECS::registry<Motion>.get(soldier);
+		//std::cout << "soldier velocity: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
+		// std::cout << "physics: " << &soldierMotion << "\n";
 	}
 
 	(void)elapsed_ms; // placeholder to silence unused warning until implemented

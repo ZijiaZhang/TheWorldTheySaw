@@ -14,6 +14,7 @@
 #include "physics.hpp"
 #include "ai.hpp"
 #include "debug.hpp"
+#include <SoldierAi.hpp>
 
 using Clock = std::chrono::high_resolution_clock;
 int ai_count = 0;
@@ -35,6 +36,7 @@ int main()
 	RenderSystem renderer(*world.window);
 	PhysicsSystem physics;
 	AISystem ai;
+	SoldierAISystem soldierAi;
 
 	// Set all states to default
 	world.restart();
@@ -56,6 +58,7 @@ int main()
 		// printf("Debug: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(debug_time - t)).count()) / 1000.f);
 		if (ai_count> 0) {
             // ai.step(elapsed_ms, window_size_in_game_units);
+			soldierAi.step(elapsed_ms, window_size_in_game_units);
             ai_count = 0;
 		}
 		auto ai_time = Clock::now();
