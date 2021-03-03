@@ -34,7 +34,7 @@ bool collides(const Motion& motion1, const Motion& motion2)
 
 CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2) {
 	if (!e1.has<Motion>() || !e2.has<Motion>() || !e1.has<PhysicsObject>() || !e2.has<PhysicsObject>()
-	        || PhysicsObject::getCollisionType(e1.get<PhysicsObject>().object_type, e2.get<PhysicsObject>().object_type) == NoCollision) {
+		|| PhysicsObject::getCollisionType(e1.get<PhysicsObject>().object_type, e2.get<PhysicsObject>().object_type) == NoCollision) {
 		return NoCollision;
 	}
 	auto& m1 = e1.get<Motion>();
@@ -54,11 +54,11 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2
 		mul = -1;
 	}
 	bool ret = c1.penitration != 0 && c1.normal != vec2{ 0,0 };
-	if(!ret){
-	    return NoCollision;
+	if (!ret) {
+		return NoCollision;
 	}
 	// If both collision is on
-	if (ret && p1.collide && p2.collide && !e1.get<Motion>().has_parent  && !e2.get<Motion>().has_parent && PhysicsObject::getCollisionType(p1.object_type, p2.object_type) == Hit) {
+	if (ret && p1.collide && p2.collide && !e1.get<Motion>().has_parent && !e2.get<Motion>().has_parent && PhysicsObject::getCollisionType(p1.object_type, p2.object_type) == Hit) {
 
 		// Handel collision
 		vec2 col_v_1 = c1.normal * dot(get_world_velocity(m1), c1.normal);
@@ -95,11 +95,11 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 	vec2 final_normal = { 0,0 };
 	vec2 final_n_l = { 0,0 };
 	vec2 v = { 0,0 };
-    Transform t1 = getTransform(m1);
+	Transform t1 = getTransform(m1);
 
 
-    Transform t2 = getTransform(m2);
-    vec2 delta_x = m2.position - m1.position;
+	Transform t2 = getTransform(m2);
+	vec2 delta_x = m2.position - m1.position;
 
 
 	for (auto& j : p2.vertex) {
@@ -140,7 +140,7 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 				x = false;
 				break;
 			}
-			else if (dot(delta_x, normal1) > 0 && dot(v2_1 - v1_1, normal1) > dist ) {
+			else if (dot(delta_x, normal1) > 0 && dot(v2_1 - v1_1, normal1) > dist) {
 				// get smallest penitration from a edge
 				dist = dot(v2_1 - v1_1, normal1);
 				n_l = local_n;
@@ -173,31 +173,32 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
-	    if (!motion.has_parent) {
-            float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-            vec2 v = get_world_velocity(motion);
-            motion.position += v * step_seconds;
-        } else {
-	        if (motion.parent.has<Motion>()){
-	            Transform t1{};
-                t1.rotate(motion.parent.get<Motion>().angle);
-                vec3 world_translate = t1.mat * vec3{motion.offset, 0.f};
-                motion.position = motion.parent.get<Motion>().position + vec2{world_translate};
-                motion.angle = motion.offset_angle + motion.parent.get<Motion>().angle;
-	        }
-	    }
+		if (!motion.has_parent) {
+			float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+			vec2 v = get_world_velocity(motion);
+			motion.position += v * step_seconds;
+		}
+		else {
+			if (motion.parent.has<Motion>()) {
+				Transform t1{};
+				t1.rotate(motion.parent.get<Motion>().angle);
+				vec3 world_translate = t1.mat * vec3{ motion.offset, 0.f };
+				motion.position = motion.parent.get<Motion>().position + vec2{ world_translate };
+				motion.angle = motion.offset_angle + motion.parent.get<Motion>().angle;
+			}
+		}
 	}
 
 	// Visualization for debugging the position and scale of objects
 	if (DebugSystem::in_debug_mode)
 	{
-		for (int i =  static_cast<int>(ECS::registry<PhysicsObject>.entities.size() - 1); i >=0; i--)
+		for (int i = static_cast<int>(ECS::registry<PhysicsObject>.entities.size() - 1); i >= 0; i--)
 		{
-		    auto e = ECS::registry<PhysicsObject>.entities[i];
-		    if(!e.has<Motion>()){
-		        continue;
-		    }
-		    auto& motion = e.get<Motion>();
+			auto e = ECS::registry<PhysicsObject>.entities[i];
+			if (!e.has<Motion>()) {
+				continue;
+			}
+			auto& motion = e.get<Motion>();
 			// draw a cross at the position of all objects
 			auto scale_horizontal_line = motion.scale;
 			scale_horizontal_line.y *= 0.1f;
@@ -208,24 +209,24 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			t.rotate(motion.angle);
 			t.scale(motion.scale);
 
-            auto p = e.get<PhysicsObject>();
-            for(auto& v: p.vertex) {
-                vec3 world = t.mat * vec3{v.position.x, v.position.y, 1.f };
-                DebugSystem::createLine(vec2{world.x, world.y}, vec2{10,10});
-            }
+			auto p = e.get<PhysicsObject>();
+			for (auto& v : p.vertex) {
+				vec3 world = t.mat * vec3{ v.position.x, v.position.y, 1.f };
+				DebugSystem::createLine(vec2{ world.x, world.y }, vec2{ 10,10 });
+			}
 
 		}
 
-		for(auto& e: ECS::registry<AIPath>.components) {
+		for (auto& e : ECS::registry<AIPath>.components) {
 
-            for (auto &grid : e.path.path) {
-                // draw a cross at the position of all objects
-                auto scale_vertical_line = vec2{10.f, 10.f};
-                DebugSystem::createLine(
-                        {grid.first * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2, grid.second * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2},
-                        scale_vertical_line);
+			for (auto& grid : e.path.path) {
+				// draw a cross at the position of all objects
+				auto scale_vertical_line = vec2{ 10.f, 10.f };
+				DebugSystem::createLine(
+					{ grid.first * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2, grid.second * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2 },
+					scale_vertical_line);
 
-            }
+			}
 		}
 
 	}
@@ -235,25 +236,25 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// for (auto [i, motion_i] : enumerate(motion_container.components)) // in c++ 17 we will be able to do this instead of the next three lines
 	for (unsigned int i = 0; i < physics_object_container.components.size(); i++)
 	{
-	    ECS::Entity& entity_i = physics_object_container.entities[i];
+		ECS::Entity& entity_i = physics_object_container.entities[i];
 		auto& motion_i = entity_i.get<Motion>();
 		// std::cout << "entity i addr: " << &entity_i << "\n";
 		for (unsigned int j = i + 1; j < physics_object_container.components.size(); j++)
 		{
 
 			ECS::Entity& entity_j = physics_object_container.entities[j];
-            auto& motion_j = entity_j.get<Motion>();
+			auto& motion_j = entity_j.get<Motion>();
 			if (collides(motion_i, motion_j))
 			{
 				// Create a collision event
 				 // Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
-                CollisionType result = advanced_collision(entity_i,entity_j);
+				CollisionType result = advanced_collision(entity_i, entity_j);
 				if (result != NoCollision) {
-//				    if(entity_j.has<Bullet>()){
-//				        printf("Bullet collide with %d\n", entity_i.get<PhysicsObject>().object_type);
-//				    }
-                    entity_i.physicsEvent(result, entity_i, entity_j);
-                    entity_j.physicsEvent(result, entity_j, entity_i);
+					//				    if(entity_j.has<Bullet>()){
+					//				        printf("Bullet collide with %d\n", entity_i.get<PhysicsObject>().object_type);
+					//				    }
+					entity_i.physicsEvent(result, entity_i, entity_j);
+					entity_j.physicsEvent(result, entity_j, entity_i);
 				}
 
 			}
@@ -279,4 +280,3 @@ vec2 PhysicsSystem::get_local_velocity(vec2 world_velocity, const Motion& motion
 	vec2 v = { world_velocity.x * ca - world_velocity.y * sa,  world_velocity.x * sa + world_velocity.y * ca };
 	return v;
 }
-

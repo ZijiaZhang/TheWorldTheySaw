@@ -140,17 +140,21 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
-	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
+	/*
+	
     auto mouse_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse(_0, _1, _2); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
-	glfwSetKeyCallback(window, key_redirect);
+	
 	glfwSetMouseButtonCallback(window, mouse_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	*/
+	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
+	glfwSetKeyCallback(window, key_redirect);
 
 	// Playing background music indefinitely
 	init_audio();
 	Mix_PlayMusic(background_music, -1);
-	std::cout << "Loaded music\n";
+	// std::cout << "Loaded music\n";
 }
 
 WorldSystem::~WorldSystem(){
@@ -207,7 +211,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	    }
 	}
     auto& motion = player_soldier.get<Motion>();
-    motion.velocity = {100.f,0};
+    // motion.velocity = {100.f,0};
     // Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
 
@@ -273,7 +277,7 @@ void WorldSystem::restart()
 {
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-	std::cout << "Restarting\n";
+	// std::cout << "Restarting\n";
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -302,7 +306,7 @@ void WorldSystem::restart()
     }
     player_soldier = soliders.front();
 
-	std::cout << "soldier addr: " << &player_soldier << "\n";
+	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 
     while (!ECS::registry<Camera>.entities.empty())
@@ -433,12 +437,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA)
 	{
 		current_speed -= 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
+		// std::cout << "Current speed = " << current_speed << std::endl;
 	}
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
 	{
 		current_speed += 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
+		// std::cout << "Current speed = " << current_speed << std::endl;
 	}
 	current_speed = std::max(0.f, current_speed);
 }
