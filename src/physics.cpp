@@ -52,7 +52,7 @@ bool PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2) {
 	}
 	bool ret = c1.penitration != 0 && c1.normal != vec2{ 0,0 };
 	// If both collision is on
-	if (ret && p1.collide && p2.collide && !e1.get<Motion>().has_parent  && !e2.get<Motion>().has_parent) {
+	if (ret && p1.collide && p2.collide && !e1.get<Motion>().has_parent && !e2.get<Motion>().has_parent) {
 
 		// Handel collision
 		vec2 col_v_1 = c1.normal * dot(get_world_velocity(m1), c1.normal);
@@ -89,11 +89,11 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 	vec2 final_normal = { 0,0 };
 	vec2 final_n_l = { 0,0 };
 	vec2 v = { 0,0 };
-    Transform t1 = getTransform(m1);
+	Transform t1 = getTransform(m1);
 
 
-    Transform t2 = getTransform(m2);
-    vec2 delta_x = m2.position - m1.position;
+	Transform t2 = getTransform(m2);
+	vec2 delta_x = m2.position - m1.position;
 
 
 	for (auto& j : p2.vertex) {
@@ -134,7 +134,7 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 				x = false;
 				break;
 			}
-			else if (dot(delta_x, normal1) > 0 && dot(v2_1 - v1_1, normal1) > dist ) {
+			else if (dot(delta_x, normal1) > 0 && dot(v2_1 - v1_1, normal1) > dist) {
 				// get smallest penitration from a edge
 				dist = dot(v2_1 - v1_1, normal1);
 				n_l = local_n;
@@ -167,25 +167,28 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
-	   // if (!motion.has_parent) {
-
-            float step_seconds = 1.0f * (elapsed_ms / 1000.f);
-            vec2 v = get_world_velocity(motion);
-            // motion.position += v * step_seconds;
+		/*
+		float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+			vec2 v = get_world_velocity(motion);
 			motion.position += motion.velocity * step_seconds;
 			// std::cout << "physics velocity: " << motion.velocity.x << ", " << motion.velocity.y << "\n";
-
-		/*
-        } else {
-	        if (motion.parent.has<Motion>()){
-	            Transform t1{};
-                t1.rotate(motion.parent.get<Motion>().angle);
-                vec3 world_translate = t1.mat * vec3{motion.offset, 0.f};
-                // motion.position = motion.parent.get<Motion>().position + vec2{world_translate};
-                motion.angle = motion.offset_angle + motion.parent.get<Motion>().angle;
-	        }
-	    }
 		*/
+
+		if (!motion.has_parent) {
+			float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+			vec2 v = get_world_velocity(motion);
+			motion.position += v * step_seconds;
+		}
+		else {
+			if (motion.parent.has<Motion>()) {
+				Transform t1{};
+				t1.rotate(motion.parent.get<Motion>().angle);
+				vec3 world_translate = t1.mat * vec3{ motion.offset, 0.f };
+				motion.position = motion.parent.get<Motion>().position + vec2{ world_translate };
+				motion.angle = motion.offset_angle + motion.parent.get<Motion>().angle;
+			}
+		}
+
 	}
 	auto& soldierList = ECS::registry<Soldier>.entities;
 	for (auto& soldier : soldierList) {
@@ -205,10 +208,10 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// Visualization for debugging the position and scale of objects
 	if (DebugSystem::in_debug_mode)
 	{
-	    auto list = ECS::registry<Motion>.entities;
+		auto list = ECS::registry<Motion>.entities;
 		for (auto& e : list)
 		{
-		    auto& motion = e.get<Motion>();
+			auto& motion = e.get<Motion>();
 			// draw a cross at the position of all objects
 			auto scale_horizontal_line = motion.scale;
 			scale_horizontal_line.y *= 0.1f;
@@ -221,12 +224,12 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			t.translate(motion.position);
 			t.rotate(motion.angle);
 			t.scale(motion.scale);
-			if (e.has<PhysicsObject>()){
-			    auto p = e.get<PhysicsObject>();
-			    for(auto& v: p.vertex) {
-			        vec3 world = t.mat * vec3{v.position.x, v.position.y, 1.f };
-                    DebugSystem::createLine(vec2{world.x, world.y}, vec2{10,10});
-                }
+			if (e.has<PhysicsObject>()) {
+				auto p = e.get<PhysicsObject>();
+				for (auto& v : p.vertex) {
+					vec3 world = t.mat * vec3{ v.position.x, v.position.y, 1.f };
+					DebugSystem::createLine(vec2{ world.x, world.y }, vec2{ 10,10 });
+				}
 			}
 		}
 	}
@@ -236,43 +239,43 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// for (auto [i, motion_i] : enumerate(motion_container.components)) // in c++ 17 we will be able to do this instead of the next three lines
 	for (unsigned int i = 0; i < physics_object_container.components.size(); i++)
 	{
-	    ECS::Entity& entity_i = physics_object_container.entities[i];
+		ECS::Entity& entity_i = physics_object_container.entities[i];
 		auto& motion_i = entity_i.get<Motion>();
 		// std::cout << "entity i addr: " << &entity_i << "\n";
 		for (unsigned int j = i + 1; j < physics_object_container.components.size(); j++)
 		{
 
 			ECS::Entity& entity_j = physics_object_container.entities[j];
-            auto& motion_j = entity_j.get<Motion>();
+			auto& motion_j = entity_j.get<Motion>();
 			if (collides(motion_i, motion_j))
 			{
-//				if (ECS::registry<Soldier>.has(entity_i)) {
-//					// std::cout << "entity i addr: " << &entity_i << "\n";
-//					entity_i.update("collision", entity_i, entity_j);
-//				}
-//
-//				if (ECS::registry<Soldier>.has(entity_j)) {
-//					// std::cout << "entity j addr: " << &entity_j << "\n";
-//					entity_j.update("collision", entity_j, entity_i);
-//				}
-				// Create a collision event
-				 // Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
+				//				if (ECS::registry<Soldier>.has(entity_i)) {
+				//					// std::cout << "entity i addr: " << &entity_i << "\n";
+				//					entity_i.update("collision", entity_i, entity_j);
+				//				}
+				//
+				//				if (ECS::registry<Soldier>.has(entity_j)) {
+				//					// std::cout << "entity j addr: " << &entity_j << "\n";
+				//					entity_j.update("collision", entity_j, entity_i);
+				//				}
+								// Create a collision event
+								 // Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
 				if (advanced_collision(entity_i, entity_j)) {
 
 					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_i, entity_j);
 					//                    ECS::registry<Collision>.emplace_with_duplicates(entity_j, entity_i);
-                    // check if the bullet hits an enemy
-                    if (true) {
-                        if (ECS::registry<Soldier>.has(entity_i)) {
-                            entity_i.pts.addPoint();
-                            entity_i.update("point", entity_i, entity_j);
-                        }
+					// check if the bullet hits an enemy
+					if (true) {
+						if (ECS::registry<Soldier>.has(entity_i)) {
+							entity_i.pts.addPoint();
+							entity_i.update("point", entity_i, entity_j);
+						}
 
-                        if (ECS::registry<Soldier>.has(entity_j)) {
-                            entity_j.pts.addPoint();
-                            entity_j.update("point", entity_j, entity_i);
-                        }
-                    }
+						if (ECS::registry<Soldier>.has(entity_j)) {
+							entity_j.pts.addPoint();
+							entity_j.update("point", entity_j, entity_i);
+						}
+					}
 				}
 
 			}

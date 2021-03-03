@@ -27,7 +27,8 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 		auto& soldierMotion = ECS::registry<Motion>.get(soldier);
 
 		AiState aState = enemy.enemyState;
-		if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 300) && aState == AiState::WALK_FORWARD) {
+		/*
+		if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 100) && aState == AiState::WALK_FORWARD) {
 			enemy.enemyState = AiState::WALK_BACKWARD;
 			EnemyAISystem::walkBackwardAndShoot(enemy_motion, soldierMotion);
 
@@ -45,6 +46,22 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			}
 
 		}
+		*/
+
+		if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 500.f)) {
+			enemy.enemyState = AiState::WALK_FORWARD;
+			EnemyAISystem::shortestPathToSoldier(enemy_entity, elapsed_ms, 200.f);
+		}
+		else
+		{
+			if (timeTicker > enemyMovementRefresh) {
+				enemy.enemyState = AiState::WANDER;
+				EnemyAISystem::walkRandom(enemy_motion);
+				timeTicker = 0;
+			}
+
+		}
+		
 	}
 	else
 	{
@@ -96,4 +113,9 @@ void EnemyAISystem::walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMot
 void EnemyAISystem::walkRandom(Motion& enemyMotion)
 {
 	enemyMotion.velocity = vec2{ rand() % 200 - 99, rand() % 200 - 99 };
+}
+
+void EnemyAISystem::shortestPathToSoldier(ECS::Entity e, float elapsed_ms, float radius)
+{
+	ai.enemy_ai_step(e, elapsed_ms, radius);
 }

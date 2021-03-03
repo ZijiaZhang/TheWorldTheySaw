@@ -34,7 +34,7 @@ void SoldierAISystem::makeDecision(ECS::Entity& soldier_entity, float elapsed_ms
 				timeTicker = 0.f;
 			}
 		}
-		else if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 400) && aState == AiState::WALK_BACKWARD_AND_SHOOT) {
+		else if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 500) && aState == AiState::WALK_BACKWARD_AND_SHOOT) {
 			if (timeTicker > fireRate) {
 				soldier.soldierState = AiState::WALK_BACKWARD_AND_SHOOT;
 				SoldierAISystem::walkBackwardAndShoot(soldier_motion, enemyMotion);
@@ -85,10 +85,10 @@ void SoldierAISystem::walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyM
 	float distance = sqrt(pow(enemyPos.x - soldierPos.x, 2)) + sqrt(pow(enemyPos.y - soldierPos.y, 2));
 	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
 
-	soldierMotion.velocity = vec2{ normalized.x * -100.f, normalized.y * -100.f };
+	// soldierMotion.velocity = vec2{ normalized.x * -100.f, normalized.y * -100.f };
 
 
-	// soldierMotion.velocity = vec2{ -100.f, 0 };
+	soldierMotion.velocity = vec2{ -100.f, 0 };
 
 	// std::cout << "backward: " << soldierMotion.velocity.x;
 
@@ -98,7 +98,7 @@ void SoldierAISystem::walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyM
 
 	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle);
 	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
-	bullet_motion.velocity = normalized * 380.f;
+	// bullet_motion.velocity = normalized * 380.f;
 	// std::cout << "backward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
 }
 
@@ -114,10 +114,10 @@ void SoldierAISystem::walkForwardAndShoot(Motion& soldierMotion, Motion& enemyMo
 	float distance = sqrt(pow(enemyPos.x - soldierPos.x, 2)) + sqrt(pow(enemyPos.y - soldierPos.y, 2));
 	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
 
-	soldierMotion.velocity = vec2{ normalized.x * 100.f, normalized.y * 100.f };
+	// soldierMotion.velocity = vec2{ normalized.x * 100.f, normalized.y * 100.f };
 
 
-	// soldierMotion.velocity = vec2{ 100.f, 0 };
+	soldierMotion.velocity = vec2{ 100.f, 0 };
 
 	auto dir = enemyPos - soldierPos;
 	float rad = atan2(dir.y, dir.x);
@@ -125,7 +125,7 @@ void SoldierAISystem::walkForwardAndShoot(Motion& soldierMotion, Motion& enemyMo
 
 	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle);
 	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
-	bullet_motion.velocity = normalized * 380.f;
+	// bullet_motion.velocity = normalized * 380.f;
 	// std::cout << "forward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
 }
 

@@ -19,9 +19,9 @@ struct Path_with_heuristics{
 class AISystem
 {
 public:
-	void step(float elapsed_ms, vec2 window_size_in_game_units);
+	void step(float elapsed_ms);
 
-    void enemy_ai_step(ECS::Entity e, float elapsed_ms);
+    void enemy_ai_step(ECS::Entity e, float elapsed_ms, float radius);
 
     Path_with_heuristics find_path_to_location(const ECS::Entity &agent, vec2 position, float radius);
 
