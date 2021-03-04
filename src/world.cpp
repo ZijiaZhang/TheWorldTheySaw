@@ -315,10 +315,10 @@ void WorldSystem::restart()
     
     if (level_loader.at_level == "level_1"){
         Start::createStart(vec2{300,300});
-        ButtonStart::createButtonStart(vec2{300,450});
-        ButtonSetting::createButtonSetting(vec2{300,475});
+        ButtonStart::createButtonStart(vec2{300,525});
+        ButtonSetting::createButtonSetting(vec2{300,600});
     }else if (level_loader.at_level == "level_2"){
-        
+        Loading::createLoading(vec2{100,200});
     } else {
         Background::createBackground(vec2{500,500});
     }
@@ -420,18 +420,19 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     
     if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
         level_loader.set_level("level_1");
-        level_loader.at_level = "level_1";
         restart();
     }
     
     if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
         level_loader.set_level("level_2");
-        level_loader.at_level = "level_2";
         restart();
     }
     if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
         level_loader.set_level("level_3");
-        level_loader.at_level = "level_3";
+        restart();
+    }
+    if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
+        level_loader.set_level("level_4");
         restart();
     }
 
