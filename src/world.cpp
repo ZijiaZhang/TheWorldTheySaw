@@ -13,7 +13,10 @@
 #include "MoveableWall.hpp"
 #include "background.hpp"
 #include "levelLoader.hpp"
-
+#include "start.hpp"
+#include "buttonStart.hpp"
+#include "buttonSetting.hpp"
+#include "loading.hpp"
 
 // stlib
 #include <string.h>
@@ -149,7 +152,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 
 	// Playing background music indefinitely
 	init_audio();
-	Mix_PlayMusic(background_music, -1);
+	//Mix_PlayMusic(background_music, -1);
 	std::cout << "Loaded music\n";
 }
 
@@ -309,9 +312,17 @@ void WorldSystem::restart()
         ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
     ECS::Entity camera;
     camera.insert(Camera({0,0}, player_soldier));
-
-	// !! TODO A3: Enable static pebbles on the ground
-    Background::createBackground(vec2{500,500});
+    
+    if (level_loader.at_level == "level_1"){
+        Start::createStart(vec2{300,300});
+        ButtonStart::createButtonStart(vec2{300,450});
+        ButtonSetting::createButtonSetting(vec2{300,475});
+    }else if (level_loader.at_level == "level_2"){
+        
+    } else {
+        Background::createBackground(vec2{500,500});
+    }
+    
     
 }
 
@@ -409,15 +420,18 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     
     if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
         level_loader.set_level("level_1");
+        level_loader.at_level = "level_1";
         restart();
     }
     
     if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
         level_loader.set_level("level_2");
+        level_loader.at_level = "level_2";
         restart();
     }
     if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
         level_loader.set_level("level_3");
+        level_loader.at_level = "level_3";
         restart();
     }
 

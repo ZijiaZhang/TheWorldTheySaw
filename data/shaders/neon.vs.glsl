@@ -14,7 +14,7 @@ uniform mat3 projection;
 void main()
 {
     highp int mytime = int(time);
-    texcoord = vec2((in_texcoord.x + mod(int(time), 3.0)) * 0.5, in_texcoord.y/2.0);
-    vec3 pos = projection * transform * vec3(in_position.xy, 1.0);
+    texcoord = vec2((in_texcoord.x + mod(int(time),5.0)) * 0.5,  in_texcoord.y/2.0);
+    vec3 pos = projection * transform * vec3(vec2(in_position.y, in_position.x), 1.0);
     gl_Position = vec4(pos.xy, in_position.z, 1.0);
 }
