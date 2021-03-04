@@ -12,8 +12,10 @@
 #include "Wall.hpp"
 #include "MoveableWall.hpp"
 #include "background.hpp"
-#include "levelLoader.hpp"
-
+#include "start.hpp"
+#include "buttonStart.hpp"
+#include "buttonSetting.hpp"
+#include "loading.hpp"
 
 // stlib
 #include <string.h>
@@ -44,9 +46,9 @@ int KILL_SIZE = 3000;
 
 static float getDist(vec2 p1, vec2 p2)
 {
-    float dist = std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
-//    printf("dist: %f \n", dist);
-    return dist;
+	float dist = std::sqrt(std::pow(p1.x - p2.x, 2) + std::pow(p1.y - p2.y, 2));
+	//    printf("dist: %f \n", dist);
+	return dist;
 }
 
 static float getAngle(vec2 p1, vec2 p2)
@@ -60,6 +62,13 @@ static float getAngle(vec2 p1, vec2 p2)
     float det = x1*y2 - y1*x2;
     return atan2(det, dot);
 }
+
+static std::map<std::string, bool> playableLevelMap = {
+		{"level_1", false},
+		{"level_2", false},
+		{"level_3", true},
+		{"level_4", true}
+};
 
 /*
  Dummy way
@@ -141,14 +150,13 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
 	
-	/*    
-	auto mouse_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse(_0, _1, _2); };
+    auto mouse_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse(_0, _1, _2); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
 	
 	glfwSetMouseButtonCallback(window, mouse_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
 	
-	*/
+	
 
 	
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
@@ -157,10 +165,10 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Playing background music indefinitely
 	init_audio();
 	Mix_PlayMusic(background_music, -1);
-	// std::cout << "Loaded music\n";
+	std::cout << "Loaded music\n";
 }
 
-WorldSystem::~WorldSystem(){
+WorldSystem::~WorldSystem() {
 	// Destroy music components
 	if (background_music != nullptr)
 		Mix_FreeMusic(background_music);
@@ -192,9 +200,9 @@ void WorldSystem::init_audio()
 	gun_reload = Mix_LoadWAV(audio_path("gun_reload.wav").c_str());
 
 	if (background_music == nullptr || gun_fire == nullptr || gun_reload == nullptr)
-		throw std::runtime_error("Failed to load sounds make sure the data directory is present: "+
-			audio_path("gun_background.wav")+
-			audio_path("gun_fire.wav")+
+		throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
+			audio_path("gun_background.wav") +
+			audio_path("gun_fire.wav") +
 			audio_path("gun_reload.wav"));
 
 }
@@ -206,61 +214,61 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
-    for (int i = static_cast<int>(ECS::registry<Motion>.components.size())-1; i >= 0; --i)
-    {
-	    auto&m = ECS::registry<Motion>.components[i];
-	    if (abs(m.position.x) > KILL_SIZE || abs(m.position.y) > KILL_SIZE){
-	        ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities[i]);
-	    }
+	for (int i = static_cast<int>(ECS::registry<Motion>.components.size()) - 1; i >= 0; --i)
+	{
+		auto& m = ECS::registry<Motion>.components[i];
+		if (abs(m.position.x) > KILL_SIZE || abs(m.position.y) > KILL_SIZE) {
+			ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities[i]);
+		}
 	}
     auto& motion = player_soldier.get<Motion>();
     // motion.velocity = {100.f,0};
     // Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
 
-	if (screen != window_size_in_game_units){
-	    screen = window_size_in_game_units;
+	if (screen != window_size_in_game_units) {
+		screen = window_size_in_game_units;
 	}
 
-//	if (ECS::registry<Turtle>.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f)
-//	{
-//		// Reset timer
-//		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
-//		// Create turtle
-//		ECS::Entity entity = Turtle::createTurtle({0, 0});
-//		// Setting random initial position and constant velocity
-//		auto& motion = ECS::registry<Motion>.get(entity);
-//		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
-//		motion.velocity = vec2(-100.f, 0.f );
-//	}
+	//	if (ECS::registry<Turtle>.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f)
+	//	{
+	//		// Reset timer
+	//		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
+	//		// Create turtle
+	//		ECS::Entity entity = Turtle::createTurtle({0, 0});
+	//		// Setting random initial position and constant velocity
+	//		auto& motion = ECS::registry<Motion>.get(entity);
+	//		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
+	//		motion.velocity = vec2(-100.f, 0.f );
+	//	}
 
 
-//	next_gunfire_spawn -= elapsed_ms * current_speed;
-//	if (fired && next_gunfire_spawn < 0.f)
-//	{
-//		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
-//		Mix_PlayChannel(-1, gun_reload, 0);
-//		fired = false;
-//	}
-//	else if (!fired && next_gunfire_spawn < 0.f)
-//	{
-//		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
-//		Mix_PlayChannel(-1, gun_fire, 0);
-//		fired = true;
-//	}
+	//	next_gunfire_spawn -= elapsed_ms * current_speed;
+	//	if (fired && next_gunfire_spawn < 0.f)
+	//	{
+	//		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
+	//		Mix_PlayChannel(-1, gun_reload, 0);
+	//		fired = false;
+	//	}
+	//	else if (!fired && next_gunfire_spawn < 0.f)
+	//	{
+	//		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
+	//		Mix_PlayChannel(-1, gun_fire, 0);
+	//		fired = true;
+	//	}
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A3: HANDLE PEBBLE SPAWN/UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		// TODO A3: HANDLE PEBBLE SPAWN/UPDATES HERE
+		// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
+		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	// Processing the soldier state
+		// Processing the soldier state
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 	auto& screen = ECS::registry<ScreenState>.components[0];
 
-    for (int i = static_cast<int>(ECS::registry<DeathTimer>.components.size())-1; i >= 0; --i)
+	for (int i = static_cast<int>(ECS::registry<DeathTimer>.components.size()) - 1; i >= 0; --i)
 	{
-        auto entity = ECS::registry<DeathTimer>.entities[i];
+		auto entity = ECS::registry<DeathTimer>.entities[i];
 		// Progress timer
 		auto& counter = ECS::registry<DeathTimer>.get(entity);
 		counter.counter_ms -= elapsed_ms;
@@ -272,15 +280,27 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+	aiControl = WorldSystem::isPlayableLevel(currentLevel);
+
+	endGameTimer += elapsed_ms;
+
+	buttonHandler(elapsed_ms, window_size_in_game_units);
+	runTimer(elapsed_ms);
+	checkEndGame();
+
 	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
 }
 
 // Reset the world state to its initial state
-void WorldSystem::restart()
+void WorldSystem::restart(std::string level)
 {
+	level_loader.set_level(level);
+	currentLevel = level_loader.at_level;
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 	// std::cout << "Restarting\n";
+
+	// WorldSystem::initializeCallbacks();
 
 	// Reset the game speed
 	current_speed = 1.f;
@@ -299,27 +319,121 @@ void WorldSystem::restart()
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-    
-    // load background, walls, enemies and player from level_loaders
-    level_loader.load_level();
-    
-    auto soliders = ECS::registry<Soldier>.entities;
-    if (soliders.size() > 1) {
-        throw std::runtime_error("Cannot have more than one solider");
-    }
-    player_soldier = soliders.front();
+
+	// load background, walls, enemies and player from level_loaders
+	level_loader.load_level();
+
+	auto soliders = ECS::registry<Soldier>.entities;
+	if (soliders.size() > 1) {
+		throw std::runtime_error("Cannot have more than one solider");
+	}
+	player_soldier = soliders.front();
 
 	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 
-    while (!ECS::registry<Camera>.entities.empty())
-        ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
-    ECS::Entity camera;
-    camera.insert(Camera({0,0}, player_soldier));
+	while (!ECS::registry<Camera>.entities.empty())
+		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
+	ECS::Entity camera;
+	camera.insert(Camera({ 0,0 }, player_soldier));
 
-	// !! TODO A3: Enable static pebbles on the ground
-    Background::createBackground(vec2{500,500});
-    
+	if (level_loader.at_level == "level_1") {
+		Start::createStart(vec2{ 300,300 });
+		// ButtonStart::createButtonStart(vec2{300,450});
+
+		Button::createButton(ButtonType::START, vec2{ 300,450 });
+		ButtonSetting::createButtonSetting(vec2{ 300,475 });
+	}
+	else if (level_loader.at_level == "level_2") {
+
+	}
+	else {
+		Background::createBackground(vec2{ 500,500 });
+	}
+}
+
+void WorldSystem::buttonHandler(float elapsed_ms, vec2 window_size_in_game_units)
+{
+	bool isSoldierExisting = !ECS::registry<Soldier>.components.empty();
+	bool isButtonExisting = !ECS::registry<Button>.components.empty();
+
+	if (isSoldierExisting && isButtonExisting) {
+		auto& soldier = ECS::registry<Soldier>.entities[0];
+		auto& vecOfButtons = ECS::registry<Button>.entities;
+
+		if (soldier.has<Motion>()) {
+			auto& soldierMotion = soldier.get<Motion>();
+			vec2 soldierPos = soldierMotion.position;
+			for (auto& button : vecOfButtons) {
+				if (button.has<Motion>() && button.has<Button>()) {
+					auto& buttonMotion = button.get<Motion>();
+					auto& buttonButton = button.get<Button>();
+
+					vec2 buttonPos = buttonMotion.position;
+					vec2 buttonScale = buttonMotion.scale;
+
+					vec2 yAxisBorder = vec2{ buttonPos.y + abs(buttonScale.y) / 2 * 0.1f, buttonPos.y - abs(buttonScale.y) / 2 * 0.1f };
+					vec2 xAxisBorder = vec2{ buttonPos.x + abs(buttonScale.x) / 2 * 0.1f, buttonPos.x - abs(buttonScale.x) / 2 * 0.1f };
+
+					bool xTouch = soldierPos.x < xAxisBorder.x&& soldierPos.x > xAxisBorder.y;
+					bool yTouch = soldierPos.y < yAxisBorder.x&& soldierPos.y > yAxisBorder.y;
+
+					bool pressButton = xTouch && yTouch;
+
+					if (pressButton) {
+						take_button_action(buttonButton.buttonType);
+					}
+				}
+			}
+		}
+	}
+}
+
+void WorldSystem::take_button_action(ButtonType type) {
+	switch (type) {
+	case ButtonType::START:
+		restart("level_4");
+		break;
+	DEFAULT:
+		break;
+	}
+}
+
+bool WorldSystem::isPlayableLevel(std::string level)
+{
+	return playableLevelMap[level];
+}
+
+void WorldSystem::checkEndGame()
+{
+	if (WorldSystem::isPlayableLevel(currentLevel)) {
+		if (endGameTimer > 10000.f) {
+			if (ECS::registry<Enemy>.entities.size() <= 0) {
+				resetTimer();
+				restart("level_1");
+			}
+
+			if (ECS::registry<Enemy>.entities.size() > 0) {
+				resetTimer();
+				restart("level_2");
+			}
+		}
+	}
+}
+
+void WorldSystem::runTimer(float elapsed_ms)
+{
+	if (isPlayableLevel(currentLevel)) {
+		endGameTimer += elapsed_ms;
+	}
+	else {
+		resetTimer();
+	}
+}
+
+void WorldSystem::resetTimer()
+{
+	endGameTimer = 0.f;
 }
 
 // Compute collisions between entities
@@ -327,7 +441,7 @@ void WorldSystem::handle_collisions()
 {
 	// Loop over all collisions detected by the physics system
 	auto& registry = ECS::registry<PhysicsSystem::Collision>;
-	for (unsigned int i=0; i< registry.components.size(); i++)
+	for (unsigned int i = 0; i < registry.components.size(); i++)
 	{
 		// The entity and its collider
 		auto entity = registry.entities[i];
@@ -374,7 +488,7 @@ void WorldSystem::handle_collisions()
 // Should the game be over ?
 bool WorldSystem::is_over() const
 {
-	return glfwWindowShouldClose(window)>0;
+	return glfwWindowShouldClose(window) > 0;
 }
 
 // On key callback
@@ -384,25 +498,28 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// Move soldier if alive
 	if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>())
 	{
-		if (key == GLFW_KEY_D){
-		    player_soldier.get<Motion>().velocity = vec2 {100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
-		} else if (key == GLFW_KEY_A){
-            player_soldier.get<Motion>().velocity = vec2 {-100,0} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
-        } else if (key == GLFW_KEY_S){
-            player_soldier.get<Motion>().velocity = vec2 {0,100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
-        } else if (key == GLFW_KEY_W){
-            player_soldier.get<Motion>().velocity = vec2 {0,-100} * (float)(action == GLFW_PRESS || action == GLFW_REPEAT);
-        }
+		if (key == GLFW_KEY_D) {
+			player_soldier.get<Motion>().velocity = vec2{ 100,0 } *(float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+		}
+		else if (key == GLFW_KEY_A) {
+			player_soldier.get<Motion>().velocity = vec2{ -100,0 } *(float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+		}
+		else if (key == GLFW_KEY_S) {
+			player_soldier.get<Motion>().velocity = vec2{ 0,100 } *(float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+		}
+		else if (key == GLFW_KEY_W) {
+			player_soldier.get<Motion>().velocity = vec2{ 0,-100 } *(float)(action == GLFW_PRESS || action == GLFW_REPEAT);
+		}
 	}
 
 
 	//Shield up
 	if (action == GLFW_PRESS && key == GLFW_KEY_S)
 	{
-        auto& motion = ECS::registry<Motion>.get(player_soldier);
+		auto& motion = ECS::registry<Motion>.get(player_soldier);
 		auto bullet = Bullet::createBullet(player_soldier.get<Motion>().position, motion.angle);
-//        auto& motionBu = bullet.get<Motion>();
-//        motionBu.angle = motion.angle;
+		//        auto& motionBu = bullet.get<Motion>();
+		//        motionBu.angle = motion.angle;
 	}
 
 	// Resetting game
@@ -411,30 +528,33 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
-		restart();
+		restart(currentLevel);
 	}
-    
-    if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-        level_loader.set_level("level_1");
-        restart();
-    }
-    
-    if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
-        level_loader.set_level("level_2");
-        restart();
-    }
-    if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
-        level_loader.set_level("level_3");
-        restart();
-    }
+
+	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
+		// level_loader.set_level("level_1");
+		// level_loader.at_level = "level_1";
+		restart("level_1");
+	}
+
+	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
+		// level_loader.set_level("level_2");
+		// level_loader.at_level = "level_2";
+		restart("level_2");
+	}
+	if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
+		// level_loader.set_level("level_3");
+		// level_loader.at_level = "level_3";
+		restart("level_3");
+	}
 
 	// Debugging
 	if (key == GLFW_KEY_D)
 		DebugSystem::in_debug_mode = (action != GLFW_RELEASE);
 
-    // Debugging
-    if (key == GLFW_KEY_P)
-        DebugSystem::in_profile_mode = (action != GLFW_RELEASE);
+	// Debugging
+	if (key == GLFW_KEY_P)
+		DebugSystem::in_profile_mode = (action != GLFW_RELEASE);
 
 	// Control the current speed with `<` `>`
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA)
@@ -450,19 +570,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	current_speed = std::max(0.f, current_speed);
 }
 
-void WorldSystem::on_mouse(int key, int action, int mod){
-    if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
-    {
-        DRAWING = true;
-        mouse_points.clear();
-    } else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
-    {
-        DRAWING = false;
-        if (checkCircle(player_soldier))
-        {
-            SHIELDUP = true;
-        }
-    }
+void WorldSystem::on_mouse(int key, int action, int mod) {
+	if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
+	{
+		DRAWING = true;
+		mouse_points.clear();
+	}
+	else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
+	{
+		DRAWING = false;
+		if (checkCircle(player_soldier))
+		{
+			SHIELDUP = true;
+		}
+	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
@@ -471,22 +592,22 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 	{
 		auto& motion = ECS::registry<Motion>.get(player_soldier);
 		// Get world mouse position
-        if(!ECS::registry<Camera>.entities.empty()){
-            auto& camera = ECS::registry<Camera>.entities[0];
-            if(camera.has<Camera>()){
-                vec2 camera_pos = camera.get<Camera>().get_position();
-                mouse_pos += camera_pos;
-            }
-        }
+		if (!ECS::registry<Camera>.entities.empty()) {
+			auto& camera = ECS::registry<Camera>.entities[0];
+			if (camera.has<Camera>()) {
+				vec2 camera_pos = camera.get<Camera>().get_position();
+				mouse_pos += camera_pos;
+			}
+		}
 		float disY = mouse_pos.y - motion.position.y;
 		float disX = mouse_pos.x - motion.position.x;
 		float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
 
 		float sinV = asin(disY / longestL);
 		float cosV = acos(disX / longestL);
-        auto dir = mouse_pos - motion.position;
-        // printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
-        float rad = atan2(dir.y, dir.x);
+		auto dir = mouse_pos - motion.position;
+		// printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
+		float rad = atan2(dir.y, dir.x);
 		motion.angle = rad;
 
 		if (SHIELDUP && !hasShield) {
@@ -499,13 +620,13 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 			motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
 			motionSh.angle = rad;
 		}
-        if (DRAWING) {
-            if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
-                mouse_points.pop_front();
-            }
-            mouse_points.push_back(mouse_pos - motion.position);
-        }
+		if (DRAWING) {
+			if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
+				mouse_points.pop_front();
+			}
+			mouse_points.push_back(mouse_pos - motion.position);
+		}
 	}
-    
+
 
 }

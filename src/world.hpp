@@ -5,6 +5,7 @@
 #include "soldier.hpp"
 #include "Enemy.hpp"
 #include "Camera.hpp"
+#include "button.hpp"
 
 // stlib
 #include <vector>
@@ -13,6 +14,8 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mixer.h>
+#include <levelLoader.hpp>
+#include <button.hpp>
 
 // Container for all our entities and game logic. Individual rendering / update is 
 // deferred to the relative update() methods
@@ -26,13 +29,17 @@ public:
 	~WorldSystem();
 
 	// restart level
-	void restart();
+	void restart(std::string level);
 
 	// Steps the game ahead by ms milliseconds
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
+	void WorldSystem::buttonHandler(float elapsed_ms, vec2 window_size_in_game_units);
+
 	// Check for collisions
 	void handle_collisions();
+
+	void take_button_action(ButtonType type);
 
 	// Renders our scene
 	void draw();
@@ -40,8 +47,16 @@ public:
 	// Should the game be over ?
 	bool is_over() const;
 
+	bool aiControl;
+
+	std::string currentLevel;
+
 	// OpenGL window handle
 	GLFWwindow* window;
+
+	// static std::map<ButtonType, std::function<void()>> buttonCallbacks;
+
+	// LevelLoader level_loader;
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -49,6 +64,14 @@ private:
 
 	// Loads the audio
 	void init_audio();
+
+	bool isPlayableLevel(std::string level);
+
+	void checkEndGame();
+
+	void runTimer(float elapsed_ms);
+
+	void resetTimer();
 
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
@@ -58,9 +81,10 @@ private:
 	float next_turtle_spawn;
 	float next_fish_spawn;
 	float next_gunfire_spawn;
+	float endGameTimer;
 	ECS::Entity player_soldier;
 	ECS::Entity shield;
-	
+
 	// music references
 	Mix_Music* background_music;
 	Mix_Chunk* gun_fire;
@@ -71,5 +95,5 @@ private:
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 	vec2 screen;
 
-    void on_mouse(int key, int action, int mod);
+	void on_mouse(int key, int action, int mod);
 };

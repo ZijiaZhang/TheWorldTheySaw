@@ -11,6 +11,7 @@
 #include "soldier.hpp"
 #include "Enemy.hpp"
 #include "background.hpp"
+#include "start.hpp"
 #include "tiny_ecs.hpp"
 #include "MoveableWall.hpp"
 #include "Bullet.hpp"
