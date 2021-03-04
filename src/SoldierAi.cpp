@@ -17,44 +17,61 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 void SoldierAISystem::makeDecision(ECS::Entity& soldier_entity, float elapsed_ms)
 {
-	// std::cout << "isEnemyExists\n";
-	auto& soldier_motion = ECS::registry<Motion>.get(soldier_entity);
-	auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
-	// std::cout << "makeDecision: " << &soldier_motion << "\n";
-	if (SoldierAISystem::isEnemyExists())
-	{
-		ECS::Entity& cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
-		auto& enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+	if (ECS::registry<Motion>.has(soldier_entity) && ECS::registry<Soldier>.has(soldier_entity)) {
 
-		AiState aState = soldier.soldierState;
-		if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 300) && aState == AiState::WALK_FORWARD_AND_SHOOT) {
-			if (timeTicker > fireRate) {
-				soldier.soldierState = AiState::WALK_BACKWARD_AND_SHOOT;
-				SoldierAISystem::walkBackwardAndShoot(soldier_motion, enemyMotion);
-				timeTicker = 0.f;
+		// std::cout << "isEnemyExists\n";
+		auto& soldier_motion = ECS::registry<Motion>.get(soldier_entity);
+		auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
+		// std::cout << "makeDecision: " << &soldier_motion << "\n";
+		if (SoldierAISystem::isEnemyExists())
+		{
+			/*
+			int counter = 0;
+			for (ECS::Entity e: ECS::registry<Enemy>.entities) {
+				if (ECS::registry<Motion>.has(e)) {
+					counter++;
+				}
+				// std::cout << "motion: " << ECS::registry<Motion>.entities.size() << ", " << "Enemy: " << ECS::registry<Enemy>.entities.size() << "\n";
 			}
-		}
-		else if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 500) && aState == AiState::WALK_BACKWARD_AND_SHOOT) {
-			if (timeTicker > fireRate) {
-				soldier.soldierState = AiState::WALK_BACKWARD_AND_SHOOT;
-				SoldierAISystem::walkBackwardAndShoot(soldier_motion, enemyMotion);
-				timeTicker = 0.f;
+			std::cout << "motion enemy: " << counter << "\n";
+			*/
+			
+			
+			ECS::Entity& cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+			if (ECS::registry<Motion>.has(cloestEnemy)) {
+				auto& enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+
+				AiState aState = soldier.soldierState;
+				if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 300) && aState == AiState::WALK_FORWARD_AND_SHOOT) {
+					if (timeTicker > fireRate) {
+						soldier.soldierState = AiState::WALK_BACKWARD_AND_SHOOT;
+						SoldierAISystem::walkBackwardAndShoot(soldier_motion, enemyMotion);
+						timeTicker = 0.f;
+					}
+				}
+				else if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 500) && aState == AiState::WALK_BACKWARD_AND_SHOOT) {
+					if (timeTicker > fireRate) {
+						soldier.soldierState = AiState::WALK_BACKWARD_AND_SHOOT;
+						SoldierAISystem::walkBackwardAndShoot(soldier_motion, enemyMotion);
+						timeTicker = 0.f;
+					}
+				}
+				else
+				{
+					if (timeTicker > fireRate) {
+						soldier.soldierState = AiState::WALK_FORWARD_AND_SHOOT;
+						SoldierAISystem::walkForwardAndShoot(soldier_motion, enemyMotion);
+						timeTicker = 0.f;
+					}
+
+				}
 			}
 		}
 		else
 		{
-			if (timeTicker > fireRate) {
-				soldier.soldierState = AiState::WALK_FORWARD_AND_SHOOT;
-				SoldierAISystem::walkForwardAndShoot(soldier_motion, enemyMotion);
-				timeTicker = 0.f;
-			}
-			
+			soldier.soldierState = AiState::IDLE;
+			SoldierAISystem::idle(soldier_motion);
 		}
-	}
-	else
-	{
-		soldier.soldierState = AiState::IDLE;
-		SoldierAISystem::idle(soldier_motion);
 	}
 }
 
@@ -136,12 +153,15 @@ ECS::Entity& SoldierAISystem::getCloestEnemy(Motion& soldierMotion)
 	float minDistance = FLT_MAX;
 	ECS::Entity& closestEnemy = enemyList[0];
 	for (ECS::Entity& enemyEntity : enemyList) {
-		auto& enemyMotion = ECS::registry<Motion>.get(enemyEntity);
-		float distance = pow(soldierMotion.position.x - enemyMotion.position.x, 2) + pow(soldierMotion.position.y - enemyMotion.position.y, 2);
-		if (distance < minDistance) {
-			minDistance = distance;
-			closestEnemy = enemyEntity;
+		if (ECS::registry<Motion>.has(enemyEntity)) {
+			auto& enemyMotion = ECS::registry<Motion>.get(enemyEntity);
+			float distance = pow(soldierMotion.position.x - enemyMotion.position.x, 2) + pow(soldierMotion.position.y - enemyMotion.position.y, 2);
+			if (distance < minDistance) {
+				minDistance = distance;
+				closestEnemy = enemyEntity;
+			}
 		}
 	}
+
 	return closestEnemy;
 }

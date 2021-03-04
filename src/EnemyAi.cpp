@@ -18,56 +18,60 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 {
 	// std::cout << "isEnemyExists\n";
-	auto& enemy_motion = ECS::registry<Motion>.get(enemy_entity);
-	auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
+	if (ECS::registry<Motion>.has(enemy_entity) && ECS::registry<Enemy>.has(enemy_entity)) {
+		auto& enemy_motion = ECS::registry<Motion>.get(enemy_entity);
+		auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
+		if (EnemyAISystem::isSoldierExists())
+		{
+			ECS::Entity& soldier = ECS::registry<Soldier>.entities[0];
+			auto& soldierMotion = ECS::registry<Motion>.get(soldier);
+
+			AiState aState = enemy.enemyState;
+			/*
+			if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 100) && aState == AiState::WALK_FORWARD) {
+				enemy.enemyState = AiState::WALK_BACKWARD;
+				EnemyAISystem::walkBackwardAndShoot(enemy_motion, soldierMotion);
+
+			}
+			else if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 400) && aState == AiState::WALK_BACKWARD) {
+				enemy.enemyState = AiState::WALK_BACKWARD;
+				EnemyAISystem::walkBackwardAndShoot(enemy_motion, soldierMotion);
+			}
+			else
+			{
+				if (timeTicker > enemyMovementRefresh) {
+					enemy.enemyState = AiState::WANDER;
+					EnemyAISystem::walkRandom(enemy_motion);
+					timeTicker = 0;
+				}
+
+			}
+			*/
+
+			if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 500.f)) {
+				enemy.enemyState = AiState::WALK_FORWARD;
+				EnemyAISystem::shortestPathToSoldier(enemy_entity, elapsed_ms, soldierMotion.position);
+			}
+			else
+			{
+				if (timeTicker > enemyMovementRefresh) {
+					enemy.enemyState = AiState::WANDER;
+					EnemyAISystem::walkRandom(enemy_motion);
+					timeTicker = 0;
+				}
+
+			}
+
+		}
+		else
+		{
+			enemy.enemyState = AiState::IDLE;
+			EnemyAISystem::idle(enemy_motion);
+		}
+	}
+
 	// std::cout << "makeDecision: " << &soldier_motion << "\n";
-	if (EnemyAISystem::isSoldierExists())
-	{
-		ECS::Entity& soldier = ECS::registry<Soldier>.entities[0];
-		auto& soldierMotion = ECS::registry<Motion>.get(soldier);
 
-		AiState aState = enemy.enemyState;
-		/*
-		if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 100) && aState == AiState::WALK_FORWARD) {
-			enemy.enemyState = AiState::WALK_BACKWARD;
-			EnemyAISystem::walkBackwardAndShoot(enemy_motion, soldierMotion);
-
-		}
-		else if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 400) && aState == AiState::WALK_BACKWARD) {
-			enemy.enemyState = AiState::WALK_BACKWARD;
-			EnemyAISystem::walkBackwardAndShoot(enemy_motion, soldierMotion);
-		}
-		else
-		{
-			if (timeTicker > enemyMovementRefresh) {
-				enemy.enemyState = AiState::WANDER;
-				EnemyAISystem::walkRandom(enemy_motion);
-				timeTicker = 0;
-			}
-
-		}
-		*/
-
-		if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 500.f)) {
-			enemy.enemyState = AiState::WALK_FORWARD;
-			EnemyAISystem::shortestPathToSoldier(enemy_entity, elapsed_ms, soldierMotion.position);
-		}
-		else
-		{
-			if (timeTicker > enemyMovementRefresh) {
-				enemy.enemyState = AiState::WANDER;
-				EnemyAISystem::walkRandom(enemy_motion);
-				timeTicker = 0;
-			}
-
-		}
-		
-	}
-	else
-	{
-		enemy.enemyState = AiState::IDLE;
-		EnemyAISystem::idle(enemy_motion);
-	}
 }
 
 bool EnemyAISystem::isSoldierExists()
