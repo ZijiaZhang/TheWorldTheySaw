@@ -420,6 +420,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         level_loader.set_level("level_3");
         restart();
     }
+    if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
+        level_loader.set_level("level_4");
+        restart();
+    }
 
 	// Debugging
 	if (key == GLFW_KEY_D)
