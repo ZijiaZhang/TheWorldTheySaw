@@ -24,6 +24,7 @@ ECS::Entity Start::createStart(vec2 position)
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0 };
     motion.position = position;
+
     // Setting initial values, scale is negative to make it face the opposite way
     motion.scale = vec2({ 1.0f, 1.0f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Start"];
