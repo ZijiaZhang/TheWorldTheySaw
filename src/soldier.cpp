@@ -33,6 +33,16 @@ ECS::Entity Soldier::createSoldier(vec2 position)
 	PhysicsObject physicsObject;
 	physicsObject.mass = 100;
 	physicsObject.object_type = PLAYER;
+	physicsObject.vertex = {
+            {
+                    PhysicsVertex{{-0.4, 0.2, -0.02}},
+                    PhysicsVertex{{0.3, 0.3, -0.02}},
+                    PhysicsVertex{{0.3, -0.3, -0.02}},
+                    PhysicsVertex{{-0.2, -0.2, -0.02}}
+            }
+	};
+    physicsObject.faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
+
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Soldier component to be able to refer to all turtles
 	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,60.f}, 0, entity);

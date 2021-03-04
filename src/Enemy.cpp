@@ -32,7 +32,7 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     motion.position = position;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = resource.mesh.original_size * 50.f;
+    motion.scale = resource.mesh.original_size * 150.f;
     motion.scale.x *= -1; // point front to the right
     motion.zValue = ZValuesMap["Enemy"];
 
@@ -40,6 +40,17 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     PhysicsObject physicsObject;
     physicsObject.mass = 30;
     physicsObject.object_type = ENEMY;
+    physicsObject.vertex = {
+            {
+                    PhysicsVertex{{0.1, 0.2, -0.02}},
+                    PhysicsVertex{{0.3, 0.2, -0.02}},
+                    PhysicsVertex{{0.4, 0, -0.02}},
+                    PhysicsVertex{{0.3, -0.2, -0.02}},
+                    PhysicsVertex{{0.1, -0.2, -0.02}},
+                    PhysicsVertex{{-0.2, 0, -0.02}},
+            }
+    };
+    physicsObject.faces = {{0,1}, {1,2 },{2,3 },{3,4 }, {4,5 }, {5,0}};
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 
     entity.emplace<AIPath>();
