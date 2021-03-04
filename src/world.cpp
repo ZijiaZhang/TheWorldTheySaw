@@ -320,7 +320,6 @@ void WorldSystem::restart(std::string level)
 
 	std::cout << "soldier addr: " << &player_soldier << "\n";
 
-
 	while (!ECS::registry<Camera>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
 	ECS::Entity camera;
@@ -330,8 +329,8 @@ void WorldSystem::restart(std::string level)
 		Start::createStart(vec2{ 300,300 });
 		// ButtonStart::createButtonStart(vec2{300,450});
 
-		Button::createButton(ButtonType::START, vec2{ 300,450 });
-		ButtonSetting::createButtonSetting(vec2{ 300,475 });
+		Button::createButton(ButtonType::START, vec2{ 300,525 });
+		ButtonSetting::createButtonSetting(vec2{ 300,600 });
 	}
 	else if (level_loader.at_level == "level_2") {
 

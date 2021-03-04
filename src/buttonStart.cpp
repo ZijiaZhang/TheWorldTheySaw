@@ -26,7 +26,7 @@ ECS::Entity ButtonStart::createButtonStart(vec2 position)
     motion.position = position;
     // Setting initial values, scale is negative to make it face the opposite way
     motion.scale = vec2({ 1.0f, 1.0f }) * static_cast<vec2>(resource.texture.size);
-    motion.zValue = ZValuesMap["ButtonStart"];
+    motion.zValue = ZValuesMap["Fish"];
 
     // Create and (empty) Fish component to be able to refer to all fish
     ECS::registry<ButtonStart>.emplace(entity);
