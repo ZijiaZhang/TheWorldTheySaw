@@ -178,7 +178,7 @@ namespace {
 // Very, VERY simple OBJ loader adapted from https://github.com/opengl-tutorials/ogl tutorial 7
 // (modified to also read vertex color and omit uv and normals)
 void Mesh::loadFromOBJFile(std::string obj_path) {
-    std::cout << "Loading OBJ file " << obj_path << std::endl;
+    // std::cout << "Loading OBJ file " << obj_path << std::endl;
 
 	// Note: normal and UV indices are currently not used
 	auto out_uv_indices = std::vector<uint16_t>{};
