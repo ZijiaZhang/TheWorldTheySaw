@@ -37,7 +37,7 @@ int main()
 	AISystem ai;
 
 	// Set all states to default
-	world.restart();
+	world.restart("level_1");
 	auto t = Clock::now();
 	// Variable timestep loop
 	while (!world.is_over())
