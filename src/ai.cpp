@@ -55,9 +55,9 @@ void AISystem::enemy_ai_step(ECS::Entity& enemy, float elapsed_ms, vec2 dest) {
     enemy_ai_data.path = std::move(path);
     if (enemy_ai_data.path.path.size() > 1) {
         auto target = enemy_ai_data.path.path[1];
-        auto cur_grid = target;
-        auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
-        auto scale_vertical_line = vec2{10.f, GRID_SIZE};
+//        auto cur_grid = target;
+//        auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
+//        auto scale_vertical_line = vec2{10.f, GRID_SIZE};
 //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
 //            DebugSystem::createLine(vec2{(cur_grid.first +1) * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
 //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, (cur_grid.second + 1) * GRID_SIZE }, scale_horizontal_line);

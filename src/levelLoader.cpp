@@ -45,7 +45,7 @@ std::unordered_map<std::string, std::function<void(vec2 location, vec2 size, flo
         {"movable_wall", MoveableWall::createMoveableWall},
         {"player", [](vec2 location, vec2 size, float rotation,
                 std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-                std::function<void(ECS::Entity&, const  ECS::Entity&)> hit){return Soldier::createSoldier(location);}},
+                std::function<void(ECS::Entity&, const  ECS::Entity&)> hit){return Soldier::createSoldier(SoldierType::BASIC, location);}},
         {"enemy", [](vec2 location, vec2 size, float rotation,
                      std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
                      std::function<void(ECS::Entity&, const  ECS::Entity&)> hit) {return Enemy::createEnemy(location, std::move(overlap), std::move(hit));}}

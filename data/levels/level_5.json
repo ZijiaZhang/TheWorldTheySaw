@@ -41,6 +41,13 @@
             "size": {"x" : 100, "y": 100},
             "rotation": 1.0
         }
+    ],
+    "movable_wall": [
+        {
+            "position": {"x" : 400, "y": 300},
+            "size": {"x" : 300, "y": 200},
+            "rotation": 0.3
+        }
     ]
     
 }
