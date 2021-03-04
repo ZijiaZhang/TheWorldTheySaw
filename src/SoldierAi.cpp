@@ -35,9 +35,9 @@ void SoldierAISystem::makeDecision(ECS::Entity& soldier_entity, float elapsed_ms
 			}
 			std::cout << "motion enemy: " << counter << "\n";
 			*/
-			
-			
-			ECS::Entity& cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+
+
+			ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
 			if (ECS::registry<Motion>.has(cloestEnemy)) {
 				auto& enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
 
@@ -146,12 +146,12 @@ void SoldierAISystem::walkForwardAndShoot(Motion& soldierMotion, Motion& enemyMo
 	// std::cout << "forward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
 }
 
-ECS::Entity& SoldierAISystem::getCloestEnemy(Motion& soldierMotion)
+ECS::Entity SoldierAISystem::getCloestEnemy(Motion& soldierMotion)
 {
 	// std::cout << "getCloestEnemy: " << &soldierMotion << "\n";
 	auto& enemyList = ECS::registry<Enemy>.entities;
 	float minDistance = FLT_MAX;
-	ECS::Entity& closestEnemy = enemyList[0];
+	ECS::Entity closestEnemy = enemyList[0];
 	for (ECS::Entity& enemyEntity : enemyList) {
 		if (ECS::registry<Motion>.has(enemyEntity)) {
 			auto& enemyMotion = ECS::registry<Motion>.get(enemyEntity);

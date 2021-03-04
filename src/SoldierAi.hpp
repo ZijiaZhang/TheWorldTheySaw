@@ -18,7 +18,7 @@ private:
 
     bool isEnemyExists();
 
-    ECS::Entity& getCloestEnemy(Motion& soldierMotion);
+    ECS::Entity getCloestEnemy(Motion& soldierMotion);
 
     bool isEnemyExistsInRange(Motion& soldierMotion, Motion& enemyMotion, float range);
 
