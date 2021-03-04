@@ -30,7 +30,7 @@ using json = nlohmann::json;
 
 // Game configuration
 LevelLoader level_loader;
-const size_t GUNFIRE_DELAY_MS = 1500;
+//const size_t GUNFIRE_DELAY_MS = 1500;
 bool SHIELDUP = false;
 bool hasShield = false;
 bool fired = false;
@@ -51,17 +51,17 @@ static float getDist(vec2 p1, vec2 p2)
 	return dist;
 }
 
-static float getAngle(vec2 p1, vec2 p2)
-{
-    float x1 = p1.x;
-    float y1 = p1.y;
-    float x2 = p2.x;
-    float y2 = p2.y;
-
-    float dot = x1*x2 + y1*y2;
-    float det = x1*y2 - y1*x2;
-    return atan2(det, dot);
-}
+//static float getAngle(vec2 p1, vec2 p2)
+//{
+//    float x1 = p1.x;
+//    float y1 = p1.y;
+//    float x2 = p2.x;
+//    float y2 = p2.y;
+//
+//    float dot = x1*x2 + y1*y2;
+//    float det = x1*y2 - y1*x2;
+//    return atan2(det, dot);
+//}
 
 static std::map<std::string, bool> playableLevelMap = {
 		{"level_1", false},
@@ -84,7 +84,7 @@ static bool checkCircle(ECS::Entity& player_salmon)
     vec2 salmonPos = motion.position;
     std::vector<int> bucket;
     bucket.resize(360/DEGREE_SIZE);
-    vec2 ori = {1, 0};
+//    vec2 ori = {1, 0};
 
     for (vec2 p : mouse_points)
     {
@@ -164,7 +164,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 
 	// Playing background music indefinitely
 	init_audio();
-	Mix_PlayMusic(background_music, -1);
+	//Mix_PlayMusic(background_music, -1);
 	std::cout << "Loaded music\n";
 }
 
@@ -221,7 +221,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities[i]);
 		}
 	}
-    auto& motion = player_soldier.get<Motion>();
+//    auto& motion = player_soldier.get<Motion>();
     // motion.velocity = {100.f,0};
     // Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
@@ -264,7 +264,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 		// Processing the soldier state
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
-	auto& screen = ECS::registry<ScreenState>.components[0];
+//	auto& screen = ECS::registry<ScreenState>.components[0];
 
 	for (int i = static_cast<int>(ECS::registry<DeathTimer>.components.size()) - 1; i >= 0; --i)
 	{
@@ -341,11 +341,12 @@ void WorldSystem::restart(std::string level)
 		Start::createStart(vec2{ 300,300 });
 		// ButtonStart::createButtonStart(vec2{300,450});
 
-		Button::createButton(ButtonType::START, vec2{ 300,450 });
-		ButtonSetting::createButtonSetting(vec2{ 300,475 });
+		Button::createButton(ButtonType::START, vec2{ 300,525 });
+        ButtonSetting::createButtonSetting(vec2{300,600});
+        //Button::createButton(ButtonType::LEVEL_SELECT, vec2{ 300,600 });
 	}
 	else if (level_loader.at_level == "level_2") {
-
+        Loading::createLoading(vec2{100,200});
 	}
 	else {
 		Background::createBackground(vec2{ 500,500 });
@@ -391,12 +392,16 @@ void WorldSystem::buttonHandler(float elapsed_ms, vec2 window_size_in_game_units
 
 void WorldSystem::take_button_action(ButtonType type) {
 	switch (type) {
-	case ButtonType::START:
-		restart("level_4");
-		break;
-	DEFAULT:
-		break;
-	}
+        case ButtonType::DEFAULT_BUTTON:
+            break;
+        case ButtonType::START:
+            restart("level_4");
+            break;
+        case ButtonType::LEVEL_SELECT:
+            break;
+        case ButtonType::QUIT:
+            break;
+    }
 }
 
 bool WorldSystem::isPlayableLevel(std::string level)
@@ -547,6 +552,16 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		// level_loader.at_level = "level_3";
 		restart("level_3");
 	}
+    if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
+        // level_loader.set_level("level_3");
+        // level_loader.at_level = "level_3";
+        restart("level_4");
+    }
+    if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
+        // level_loader.set_level("level_3");
+        // level_loader.at_level = "level_3";
+        restart("level_5");
+    }
 
 	// Debugging
 	if (key == GLFW_KEY_D)

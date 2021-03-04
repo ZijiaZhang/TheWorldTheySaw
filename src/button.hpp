@@ -4,7 +4,7 @@
 #include "tiny_ecs.hpp"
 #include <levelLoader.hpp>
 
-static enum class ButtonType {
+enum class ButtonType {
 	DEFAULT_BUTTON, START, LEVEL_SELECT, QUIT
 };
 

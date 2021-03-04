@@ -26,7 +26,7 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			ECS::Entity& soldier = ECS::registry<Soldier>.entities[0];
 			auto& soldierMotion = ECS::registry<Motion>.get(soldier);
 
-			AiState aState = enemy.enemyState;
+//			AiState aState = enemy.enemyState;
 			/*
 			if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 100) && aState == AiState::WALK_FORWARD) {
 				enemy.enemyState = AiState::WALK_BACKWARD;

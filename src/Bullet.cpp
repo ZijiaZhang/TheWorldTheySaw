@@ -40,7 +40,7 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle)
     // Setting initial values, scale is negative to make it face the opposite way
     motion.scale = vec2({ 0.1f, 0.1f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Fish"];
-    printf("%d\n", ECS::registry<Motion>.entities.size());
+    printf("%lu\n", ECS::registry<Motion>.entities.size());
     ECS::registry<Motion>.emplace(entity, motion);
 
     auto& physics = ECS::registry<PhysicsObject>.emplace(entity);

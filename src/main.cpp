@@ -36,7 +36,7 @@ int main()
 	WorldSystem world(window_size_in_px);
 	RenderSystem renderer(*world.window);
 	PhysicsSystem physics;
-	AISystem ai;
+//	AISystem ai;
 	SoldierAISystem soldierAi;
 	EnemyAISystem enemyAi;
 
