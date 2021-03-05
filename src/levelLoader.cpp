@@ -43,31 +43,31 @@ std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Ent
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
         std::function<void(ECS::Entity&, const  ECS::Entity&)>, std::function<void(ECS::Entity&, const  ECS::Entity&)>, json)>> LevelLoader::level_objects = {
         {"blocks", [](vec2 location, vec2 size, float rotation,
-                           std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, json) {
+                           std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, const json&) {
             Wall::createWall(location, size, rotation, overlap, hit);
         }
         },
         {"borders", [](vec2 location, vec2 size, float rotation,
-                       std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, json) {
+                       std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, const json&) {
             Wall::createWall(location, size, rotation, overlap, hit);
         }
         },
         {"movable_wall", [](vec2 location, vec2 size, float rotation,
-                            std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, json) {
+                            std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, const json&) {
             MoveableWall::createMoveableWall(location, size, rotation, overlap, hit);
         }
         },
         {"player", [](vec2 location, vec2 size, float rotation,
                 std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                std::function<void(ECS::Entity&, const  ECS::Entity&)>, json){
+                std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
             return Soldier::createSoldier(location);
         }},
         {"enemy", [](vec2 location, vec2 size, float rotation,
                      std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-                     std::function<void(ECS::Entity&, const  ECS::Entity&)> hit, json) {return Enemy::createEnemy(location, std::move(overlap), std::move(hit));}},
+                     std::function<void(ECS::Entity&, const  ECS::Entity&)> hit, const json&) {return Enemy::createEnemy(location, std::move(overlap), std::move(hit));}},
         {"button_start", [](vec2 location, vec2 size, float rotation,
                       std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                      std::function<void(ECS::Entity&, const  ECS::Entity&)>, json)
+                      std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
                       {
             return Button::createButton( ButtonType::START, location, [](ECS::Entity& self, const ECS::Entity& other){
                       if (other.has<Soldier>()){
@@ -78,7 +78,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
         }},
         {"button_setting", [](vec2 location, vec2 size, float rotation,
                             std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                            std::function<void(ECS::Entity&, const  ECS::Entity&)>, json){
+                            std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
             return Button::createButton( ButtonType::LEVEL_SELECT, location, [](ECS::Entity& self, const ECS::Entity& other){
                 if (other.has<Soldier>()){
                     WorldSystem::reload_level = true;
@@ -94,7 +94,12 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
             } else {
                 Background::createBackground(vec2{500, 500}, "background");
             }
-        }}
+        }},
+        {"title", [](vec2 location, vec2 , float ,
+                          std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                          std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+                Start::createStart(location);
+            }}
 };
 
 /**
