@@ -60,6 +60,7 @@ struct Motion {
 
 // For the order of drawing
 static std::map<std::string, int> ZValuesMap = {
+        {"Start", 6},
     {"Soldier", 10},
     {"Turtle", 9},
     {"Shield",8},
@@ -79,6 +80,8 @@ typedef enum
     WALL,
     MOVEABLEWALL,
     WEAPON,
+    BUTTON,
+    SHIELD,
     LAST
 
 } CollisionObjectType;

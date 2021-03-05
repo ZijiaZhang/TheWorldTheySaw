@@ -3,21 +3,25 @@
 		"position": {"x": 100, "y": 200},
 		"velocity": {"X": 100, "y": 50}
 	}],
-	"background": {
-		"position": {"x": 500, "y": 500}
-	},
+	"background": [{
+		"position": {"x": 500, "y": 500},
+		"additionalProperties": {"name": "background"}
+	}],
 	"enemy": [
 		{
 			"position": {"x" : 400, "y": 500},
-			"velocity": {"x" : 50, "y": 50}
+			"velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
 		},
 		{
 			"position": {"x" : 600, "y": 500},
-			"velocity": {"x" : 50, "y": 50}
+			"velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
 		},
 		{
 			"position": {"x" : 800, "y": 500},
-			"velocity": {"x" : 50, "y": 50}
+			"velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
 		}
 	],
 

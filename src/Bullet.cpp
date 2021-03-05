@@ -3,21 +3,16 @@
 //
 
 #include "Bullet.hpp"
-#include "render.hpp"
 #include "PhysicsObject.hpp"
 
-ECS::Entity Bullet::createBullet(vec2 position, float angle)
+ECS::Entity Bullet::createBullet(vec2 position, float angle, int teamID)
 {
     // Reserve en entity
     auto entity = ECS::Entity();
     // Create the rendering components
 
-    auto overlap = [](ECS::Entity &self,const ECS::Entity &e) mutable {
-        if (!self.has<DeathTimer>()) {
-            self.emplace<DeathTimer>();
-        }
-    };
-    entity.attach(Overlap, overlap);
+    entity.attach(Hit, destroy_on_hit);
+    entity.attach(Overlap, destroy_on_hit);
 
     std::string key = "bullet";
     ShadedMesh& resource = cache_resource(key);
@@ -40,7 +35,7 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle)
     // Setting initial values, scale is negative to make it face the opposite way
     motion.scale = vec2({ 0.1f, 0.1f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Fish"];
-    printf("%d\n", ECS::registry<Motion>.entities.size());
+    // printf("%lu\n", ECS::registry<Motion>.entities.size());
     ECS::registry<Motion>.emplace(entity, motion);
 
     auto& physics = ECS::registry<PhysicsObject>.emplace(entity);
@@ -55,7 +50,7 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle)
     physics.faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
     physics.object_type = BULLET;
     // Create and (empty) Fish component to be able to refer to all fish
-    ECS::registry<Bullet>.emplace(entity);
-
+    auto& bullet = ECS::registry<Bullet>.emplace(entity);
+    bullet.teamID = teamID;
     return entity;
 }

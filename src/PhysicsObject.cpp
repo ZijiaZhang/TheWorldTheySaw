@@ -5,27 +5,37 @@
 #include "PhysicsObject.hpp"
 
 std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::ignore_collision_of_type{
-    {WALL,{WALL, BULLET}},
+    {WALL,{WALL, SHIELD}},
         {BULLET,{DEFAULT,
                  PLAYER,
                  BULLET,
-                 WALL,
-                 MOVEABLEWALL,
-                 WEAPON},
+                WEAPON},
          },
-    {PLAYER, {BULLET}},
-     {MOVEABLEWALL, {BULLET}},
+    {PLAYER, {BULLET, SHIELD}},
+     {MOVEABLEWALL, {BULLET, SHIELD}},
+    {SHIELD, {DEFAULT,
+                     PLAYER,
+                     ENEMY,
+                     WALL,
+                     MOVEABLEWALL,
+                     WEAPON,
+                     BUTTON,
+                     SHIELD}},
+    {BUTTON, {BUTTON, SHIELD}},
 };
 std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::only_overlap_of_type{
     {BULLET,{DEFAULT,
                     // PLAYER,
                     ENEMY,
                     BULLET,
-                    WALL,
-                    MOVEABLEWALL,
+                    SHIELD,
+
                     WEAPON}},
     {ENEMY,{BULLET}},
-    // {PLAYER,{BULLET}},
+    {BUTTON, {PLAYER}},
+    {PLAYER, {BUTTON}},
+    {SHIELD, {BULLET
+                     }}
     };
 
 

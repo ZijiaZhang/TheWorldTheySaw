@@ -4,6 +4,9 @@
 #include "tiny_ecs.hpp"
 #include <AiState.hpp>
 
+enum class SoldierType {
+    BASIC, MEDIUM, HEAVY
+};
 
 struct Soldier
 {

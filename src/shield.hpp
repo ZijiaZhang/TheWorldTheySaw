@@ -7,5 +7,6 @@
 struct Shield
 {
 	// Creates all the associated render resources and default transform
-	static ECS::Entity createShield(vec2 position);
+	static ECS::Entity createShield(vec2 position, int teamID);
+	int teamID = 0;
 };

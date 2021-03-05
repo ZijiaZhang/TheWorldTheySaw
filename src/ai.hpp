@@ -36,4 +36,6 @@ public:
 
     int id = 0;
     static const int GRID_SIZE = 50;
+
+    void build_grid();
 };

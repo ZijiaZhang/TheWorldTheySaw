@@ -3,6 +3,7 @@
 #include "soldier.hpp"
 #include "debug.hpp"
 #include <Bullet.hpp>
+#include <float.h>
 
 void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
@@ -98,9 +99,9 @@ void SoldierAISystem::walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyM
 	vec2 enemyPos = enemyMotion.position;
 
 
-	vec2 posDiff = vec2{ enemyPos.x - soldierPos.x, enemyPos.y - soldierPos.y };
-	float distance = sqrt(pow(enemyPos.x - soldierPos.x, 2)) + sqrt(pow(enemyPos.y - soldierPos.y, 2));
-	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
+//	vec2 posDiff = vec2{ enemyPos.x - soldierPos.x, enemyPos.y - soldierPos.y };
+//	float distance = sqrt(pow(enemyPos.x - soldierPos.x, 2)) + sqrt(pow(enemyPos.y - soldierPos.y, 2));
+//	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
 
 	// soldierMotion.velocity = vec2{ normalized.x * -100.f, normalized.y * -100.f };
 
@@ -113,8 +114,8 @@ void SoldierAISystem::walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyM
 	float rad = atan2(dir.y, dir.x);
 	soldierMotion.angle = rad;
 
-	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle);
-	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
+	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle, 0);
+//	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
 	// bullet_motion.velocity = normalized * 380.f;
 	// std::cout << "backward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
 }
@@ -127,9 +128,9 @@ void SoldierAISystem::walkForwardAndShoot(Motion& soldierMotion, Motion& enemyMo
 
 
 
-	vec2 posDiff = vec2{ enemyPos.x - soldierPos.x, enemyPos.y - soldierPos.y };
-	float distance = sqrt(pow(enemyPos.x - soldierPos.x, 2)) + sqrt(pow(enemyPos.y - soldierPos.y, 2));
-	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
+//	vec2 posDiff = vec2{ enemyPos.x - soldierPos.x, enemyPos.y - soldierPos.y };
+//	float distance = sqrt(pow(enemyPos.x - soldierPos.x, 2)) + sqrt(pow(enemyPos.y - soldierPos.y, 2));
+//	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
 
 	// soldierMotion.velocity = vec2{ normalized.x * 100.f, normalized.y * 100.f };
 
@@ -140,8 +141,8 @@ void SoldierAISystem::walkForwardAndShoot(Motion& soldierMotion, Motion& enemyMo
 	float rad = atan2(dir.y, dir.x);
 	soldierMotion.angle = rad;
 
-	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle);
-	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
+	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle, 0);
+//	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
 	// bullet_motion.velocity = normalized * 380.f;
 	// std::cout << "forward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
 }

@@ -5,17 +5,17 @@
 #include "Weapon.hpp"
 
 
+
 ECS::Entity Soldier::createSoldier(vec2 position)
 {
 	auto entity = ECS::Entity();
 
-
-	std::string key = "soldier";
-	ShadedMesh& resource = cache_resource(key);
-	if (resource.mesh.vertices.size() == 0)
+    std::string key = "soldier";
+    ShadedMesh& resource = cache_resource(key);
+    if (resource.effect.program.resource == 0)
     {
-        resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("/soldier/soldier.png"), "textured");
+
+        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "textured");
     }
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

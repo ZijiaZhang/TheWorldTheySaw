@@ -41,11 +41,15 @@ int main()
 	EnemyAISystem enemyAi;
 
 	// Set all states to default
-	world.restart();
+	world.restart("menu");
 	auto t = Clock::now();
 	// Variable timestep loop
 	while (!world.is_over())
 	{
+	    if(WorldSystem::reload_level){
+	        WorldSystem::reload_level = false;
+	        world.restart(WorldSystem::level_name);
+	    }
 	    ai_count++;
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
@@ -59,12 +63,21 @@ int main()
 		auto debug_time = Clock::now();
 		if(DebugSystem::in_profile_mode)
 		    printf("Debug: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(debug_time - t)).count()) / 1000.f);
+
+		/*
 		if (ai_count> 0) {
             // ai.step(elapsed_ms, window_size_in_game_units);
-			soldierAi.step(elapsed_ms, window_size_in_game_units);
-			enemyAi.step(elapsed_ms, window_size_in_game_units);
+		
             ai_count = 0;
 		}
+		*/
+		
+		if (world.aiControl) {
+		    ai.build_grid();
+			soldierAi.step(elapsed_ms, window_size_in_game_units);
+			enemyAi.step(elapsed_ms, window_size_in_game_units);
+		}
+
 		auto ai_time = Clock::now();
         if(DebugSystem::in_profile_mode)
             printf("AI: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(ai_time - debug_time)).count()) / 1000.f);

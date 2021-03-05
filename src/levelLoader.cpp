@@ -11,10 +11,14 @@
 #include "soldier.hpp"
 #include "Enemy.hpp"
 #include "background.hpp"
+#include "start.hpp"
 #include "tiny_ecs.hpp"
 #include "MoveableWall.hpp"
 #include "Bullet.hpp"
 #include "render_components.hpp"
+#include "button.hpp"
+#include "world.hpp"
+#include "loading.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -28,7 +32,7 @@ using json = nlohmann::json;
 std::string at_level = "level_1";
 
 void enemy_bullet_hit_death(ECS::Entity& self, const ECS::Entity &e) {
-    if (e.has<Bullet>() && !self.has<DeathTimer>()){
+    if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()){
         self.emplace<DeathTimer>();
     }
 };
@@ -37,17 +41,71 @@ std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Ent
         {"enemy_bullet_hit_death", enemy_bullet_hit_death},
 };
 
-std::unordered_map<std::string, std::function<void(vec2 location, vec2 size, float rotation,
-        std::function<void(ECS::Entity&, const  ECS::Entity&)>, std::function<void(ECS::Entity&, const  ECS::Entity&)>)>> LevelLoader::level_objects = {
-        {"blocks", Wall::createWall},
-        {"borders", Wall::createWall},
-        {"movable_wall", MoveableWall::createMoveableWall},
+std::unordered_map<std::string, std::function<void(vec2, vec2, float,
+        std::function<void(ECS::Entity&, const  ECS::Entity&)>, std::function<void(ECS::Entity&, const  ECS::Entity&)>, json)>> LevelLoader::level_objects = {
+        {"blocks", [](vec2 location, vec2 size, float rotation,
+                           std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, const json&) {
+            Wall::createWall(location, size, rotation, overlap, hit);
+        }
+        },
+        {"borders", [](vec2 location, vec2 size, float rotation,
+                       std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, const json&) {
+            Wall::createWall(location, size, rotation, overlap, hit);
+        }
+        },
+        {"movable_wall", [](vec2 location, vec2 size, float rotation,
+                            std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, const json&) {
+            MoveableWall::createMoveableWall(location, size, rotation, overlap, hit);
+        }
+        },
         {"player", [](vec2 location, vec2 size, float rotation,
-                std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-                std::function<void(ECS::Entity&, const  ECS::Entity&)> hit){return Soldier::createSoldier(location);}},
+                std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Soldier::createSoldier(location);
+        }},
         {"enemy", [](vec2 location, vec2 size, float rotation,
                      std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-                     std::function<void(ECS::Entity&, const  ECS::Entity&)> hit) {return Enemy::createEnemy(location, std::move(overlap), std::move(hit));}}
+                     std::function<void(ECS::Entity&, const  ECS::Entity&)> hit, const json&) {return Enemy::createEnemy(location, std::move(overlap), std::move(hit));}},
+        {"button_start", [](vec2 location, vec2 size, float rotation,
+                      std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                      std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+                      {
+            return Button::createButton( ButtonType::START, location, [](ECS::Entity& self, const ECS::Entity& other){
+                      if (other.has<Soldier>()){
+                          WorldSystem::reload_level = true;
+                          WorldSystem::level_name = "level_3";
+                      }
+            });
+        }},
+        {"button_setting", [](vec2 location, vec2 size, float rotation,
+                            std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                            std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Button::createButton( ButtonType::LEVEL_SELECT, location, [](ECS::Entity& self, const ECS::Entity& other){
+                if (other.has<Soldier>()){
+                    WorldSystem::reload_level = true;
+                    WorldSystem::level_name = "level_2";
+                }
+        });
+        }},
+        {"background", [](vec2 location, vec2 size, float rotation,
+                std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                        std::function<void(ECS::Entity&, const  ECS::Entity&)>, json additional){
+            if(additional.contains("name")) {
+                Background::createBackground(vec2{500, 500}, additional["name"]);
+            } else {
+                Background::createBackground(vec2{500, 500}, "background");
+            }
+        }},
+        {"title", [](vec2 location, vec2 , float ,
+                          std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                          std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+                Start::createStart(location);
+            }},
+        {"weapon", [](vec2 location, vec2 , float ,
+                      std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                      std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            Loading::createLoading(location);
+        }}
 };
 
 /**
@@ -80,7 +138,8 @@ void LevelLoader::load_level() {
                 float rotation = b.contains("rotation") ? static_cast<float>(b["rotation"]) : 0.f;
                 auto overlap = b.contains("overlap") ? physics_callbacks[b["overlap"]] : [](ECS::Entity&, const ECS::Entity &e) {};
                 auto hit = b.contains("hit") ? physics_callbacks[b["hit"]] : [](ECS::Entity&, const ECS::Entity &e) {};
-                level_object.second(position, size, rotation, overlap, hit);
+                auto additional = b.contains("additionalProperties") ? b["additionalProperties"] : json{};
+                level_object.second(position, size, rotation, overlap, hit, additional);
             }
         }
     }
