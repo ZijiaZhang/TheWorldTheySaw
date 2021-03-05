@@ -41,7 +41,7 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 }
 
 void AISystem::build_grid() {
-    build_grids_for_type<PLAYER>();
+    // build_grids_for_type<PLAYER>();
     build_grids_for_type<WALL>();
     build_grids_for_type<MOVEABLEWALL>();
 }
@@ -58,25 +58,6 @@ void AISystem::enemy_ai_step(ECS::Entity& enemy, float elapsed_ms, vec2 dest) {
     auto path = find_path_to_location(enemy, dest, 100.f);
     // printf("D: %d\n", path.path.size());
     enemy_ai_data.path = std::move(path);
-    if (enemy_ai_data.path.path.size() > 1) {
-        auto target = enemy_ai_data.path.path[1];
-//        auto cur_grid = target;
-//        auto scale_horizontal_line = vec2{GRID_SIZE, 10.f};
-//        auto scale_vertical_line = vec2{10.f, GRID_SIZE};
-        //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
-        //            DebugSystem::createLine(vec2{(cur_grid.first +1) * GRID_SIZE, cur_grid.second * GRID_SIZE + GRID_SIZE/ 2}, scale_vertical_line);
-        //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, (cur_grid.second + 1) * GRID_SIZE }, scale_horizontal_line);
-        //            DebugSystem::createLine(vec2{cur_grid.first * GRID_SIZE + GRID_SIZE/ 2, cur_grid.second * GRID_SIZE}, scale_horizontal_line);
-        auto dir = get_grid_location(target) - enemy_motion.position;
-        // Enemy will always face the player
-        enemy_motion.angle = atan2(dir.y, dir.x);
-        enemy_ai_data.desired_speed = { 100.f, 0.f };
-    }
-    else {
-        enemy_ai_data.desired_speed = { 0.f, 0.f };
-    }
-    enemy_motion.velocity -= (enemy_motion.velocity - enemy_ai_data.desired_speed) * elapsed_ms / 1000.f;
-
 }
 
 vec2 AISystem::get_grid_location(std::pair<int, int> grid) {
@@ -94,7 +75,14 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
         }
     }
 
-    auto comp = [](Path_with_heuristics a, Path_with_heuristics b) { return a.cost + a.heuristic > b.cost + b.heuristic; };
+    auto comp = [](Path_with_heuristics a, Path_with_heuristics b) {
+        if (a.cost+ a.heuristic == b.cost + b.heuristic) {
+            if (a.path.back().first == b.path.back().first)
+                return a.path.back().second > b.path.back().second;
+            return a.path.back().first > b.path.back().first;
+        }
+        return a.cost + a.heuristic > b.cost + b.heuristic;
+    };
     std::priority_queue<Path_with_heuristics, std::vector<Path_with_heuristics>, decltype(comp)> front(comp);
     std::pair<int, int> cur_grid = get_grid_from_loc(agent_motion.position);
     std::pair<int, int> dest_grid = get_grid_from_loc(position);
@@ -142,7 +130,7 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
 }
 
 float AISystem::get_dist(const std::pair<int, int>& cur_grid,
-    const std::pair<int, int>& dest_grid) const {
+    const std::pair<int, int>& dest_grid) {
     return static_cast<float>(sqrt(pow(cur_grid.first - dest_grid.first, 2) + pow(cur_grid.second - dest_grid.second, 2)) * GRID_SIZE);
 }
 

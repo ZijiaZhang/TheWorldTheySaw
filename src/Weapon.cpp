@@ -38,7 +38,6 @@ ECS::Entity Weapon::createWeapon(vec2 offset, float offset_angle, ECS::Entity pa
     physicsObject.mass = 100;
     physicsObject.object_type = WEAPON;
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
-    // Create and (empty) Soldier component to be able to refer to all turtles
     ECS::registry<Weapon>.emplace(entity);
     return entity;
 }

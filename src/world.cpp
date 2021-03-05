@@ -278,7 +278,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
-	std::cout << "current level: " << currentLevel << " ai control: " << aiControl << "\n";
 
 	endGameTimer += elapsed_ms;
 

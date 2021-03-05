@@ -6,6 +6,7 @@
 #include "PhysicsObject.hpp"
 #include "Bullet.hpp"
 #include "Enemy.hpp"
+#include "Weapon.hpp"
 #include <soldier.hpp>
 #include <iostream>
 
@@ -168,6 +169,26 @@ CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
 
 void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
+    for(auto& entity: ECS::registry<AIPath>.entities){
+        if(entity.has<Motion>()){
+
+            auto& motion = entity.get<Motion>();
+            auto& aiPath = entity.get<AIPath>();
+            if (aiPath.path.path.size() > 1) {
+                auto target = aiPath.path.path[1];
+                auto target_position = AISystem::get_grid_location(target);
+                auto dir =  target_position - motion.position;
+                // Enemy will always face the player
+                motion.angle = atan2(dir.y, dir.x);
+                aiPath.desired_speed = { 100.f, 0.f };
+            }
+            else {
+                aiPath.desired_speed = { 0.f, 0.f };
+            }
+            motion.velocity -= (motion.velocity - aiPath.desired_speed) * elapsed_ms / 1000.f;
+        }
+    }
+
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
 
@@ -214,8 +235,10 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				vec3 world = t.mat * vec3{ v.position.x, v.position.y, 1.f };
 				DebugSystem::createLine(vec2{ world.x, world.y }, vec2{ 10,10 });
 			}
-
 		}
+        for (auto& e : ECS::registry<Weapon>.entities) {
+            DebugSystem::createLine(e.get<Motion>().position, {10.f, 10.f});
+        }
 
 		for (auto& e : ECS::registry<AIPath>.components) {
 
@@ -230,6 +253,8 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 
 	}
+
+
 
 	// Check for collisions between all moving entities
 	auto& physics_object_container = ECS::registry<PhysicsObject>;
