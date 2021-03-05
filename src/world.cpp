@@ -64,8 +64,8 @@ static float getDist(vec2 p1, vec2 p2)
 //}
 
 static std::map<std::string, bool> playableLevelMap = {
-		{"level_1", false},
-		{"level_2", false},
+		{"menu", false},
+		{"loadout", false},
 		{"level_3", true},
 		{"level_4", true}
 };
@@ -345,12 +345,12 @@ void WorldSystem::checkEndGame()
 	if (WorldSystem::isPlayableLevel(currentLevel)) {
         if (ECS::registry<Enemy>.entities.size() <= 0) {
             resetTimer();
-            restart("menu");
+            restart("menu"); // TODO: Change to level selection
         }
 		if (endGameTimer > 1000000.f) {
 			if (ECS::registry<Enemy>.entities.size() > 0) {
 				resetTimer();
-				restart("level_2");
+				restart("loadout");
 			}
 		}
 	}
@@ -463,7 +463,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
 		// level_loader.set_level("level_2");
 		// level_loader.at_level = "level_2";
-		restart("level_2");
+		restart("loadout");
 	}
 	if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
 		// level_loader.set_level("level_3");

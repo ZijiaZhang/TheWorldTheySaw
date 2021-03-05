@@ -83,7 +83,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
             return Button::createButton( ButtonType::LEVEL_SELECT, location, [](ECS::Entity& self, const ECS::Entity& other){
                 if (other.has<Soldier>()){
                     WorldSystem::reload_level = true;
-                    WorldSystem::level_name = "level_2";
+                    WorldSystem::level_name = "loadout";
                 }
         });
         }},
