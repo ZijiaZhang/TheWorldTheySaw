@@ -1,8 +1,9 @@
 // Header
 #include "shield.hpp"
 #include "render.hpp"
+#include "PhysicsObject.hpp"
 
-ECS::Entity Shield::createShield(vec2 position)
+ECS::Entity Shield::createShield(vec2 position,  int teamID)
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();
@@ -28,8 +29,11 @@ ECS::Entity Shield::createShield(vec2 position)
 	motion.scale = vec2({ -0.09f, 0.09f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Shield"];
 
-	// Create and (empty) Fish component to be able to refer to all fish
-	ECS::registry<Shield>.emplace(entity);
+    auto& physics = entity.emplace<PhysicsObject>();
+    physics.object_type = SHIELD;
 
+	// Create and (empty) Fish component to be able to refer to all fish
+	auto& shield = ECS::registry<Shield>.emplace(entity);
+    shield.teamID = teamID;
 	return entity;
 }

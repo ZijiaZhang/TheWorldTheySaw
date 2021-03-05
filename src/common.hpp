@@ -81,6 +81,7 @@ typedef enum
     MOVEABLEWALL,
     WEAPON,
     BUTTON,
+    SHIELD,
     LAST
 
 } CollisionObjectType;

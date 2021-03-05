@@ -11,7 +11,7 @@
 
 ECS::Entity Enemy::createEnemy(vec2 position,
                                std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-                               std::function<void(ECS::Entity&, const  ECS::Entity&)> hit){
+                               std::function<void(ECS::Entity&, const  ECS::Entity&)> hit, int teamID){
     auto entity = ECS::Entity();
     entity.attach(Overlap, overlap);
     entity.attach(Hit, std::move(hit));
@@ -55,7 +55,7 @@ ECS::Entity Enemy::createEnemy(vec2 position,
 
     entity.emplace<AIPath>();
     // Create and (empty) Salmon component to be able to refer to all turtles
-    ECS::registry<Enemy>.emplace(entity);
-
+    auto& e =ECS::registry<Enemy>.emplace(entity);
+    e.teamID = teamID;
     return entity;
 }

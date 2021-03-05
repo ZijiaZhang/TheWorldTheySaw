@@ -31,7 +31,7 @@ using json = nlohmann::json;
 std::string at_level = "level_1";
 
 void enemy_bullet_hit_death(ECS::Entity& self, const ECS::Entity &e) {
-    if (e.has<Bullet>() && !self.has<DeathTimer>()){
+    if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()){
         self.emplace<DeathTimer>();
     }
 };

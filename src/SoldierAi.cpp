@@ -114,7 +114,7 @@ void SoldierAISystem::walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyM
 	float rad = atan2(dir.y, dir.x);
 	soldierMotion.angle = rad;
 
-	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle);
+	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle, 0);
 //	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
 	// bullet_motion.velocity = normalized * 380.f;
 	// std::cout << "backward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
@@ -141,7 +141,7 @@ void SoldierAISystem::walkForwardAndShoot(Motion& soldierMotion, Motion& enemyMo
 	float rad = atan2(dir.y, dir.x);
 	soldierMotion.angle = rad;
 
-	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle);
+	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle, 0);
 //	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
 	// bullet_motion.velocity = normalized * 380.f;
 	// std::cout << "forward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";

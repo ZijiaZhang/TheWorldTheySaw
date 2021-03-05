@@ -448,7 +448,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_PRESS && key == GLFW_KEY_S)
 	{
 		auto& motion = ECS::registry<Motion>.get(player_soldier);
-		auto bullet = Bullet::createBullet(player_soldier.get<Motion>().position, motion.angle);
+		auto bullet = Bullet::createBullet(player_soldier.get<Motion>().position, motion.angle, 0);
 		//        auto& motionBu = bullet.get<Motion>();
 		//        motionBu.angle = motion.angle;
 	}
@@ -512,66 +512,66 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
-	if (!aiControl) {
-		if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
-		{
-			DRAWING = true;
-			mouse_points.clear();
-		}
-		else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
-		{
-			DRAWING = false;
-			if (checkCircle(player_soldier))
-			{
-				SHIELDUP = true;
-			}
-		}
-	}
+
+    if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        DRAWING = true;
+        mouse_points.clear();
+    }
+    else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        DRAWING = false;
+        if (checkCircle(player_soldier))
+        {
+            SHIELDUP = true;
+        }
+    }
+
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
-	if (!aiControl) {
-		if (!ECS::registry<DeathTimer>.has(player_soldier))
-		{
-			auto& motion = ECS::registry<Motion>.get(player_soldier);
-			// Get world mouse position
-			if (!ECS::registry<Camera>.entities.empty()) {
-				auto& camera = ECS::registry<Camera>.entities[0];
-				if (camera.has<Camera>()) {
-					vec2 camera_pos = camera.get<Camera>().get_position();
-					mouse_pos += camera_pos;
-				}
-			}
-			float disY = mouse_pos.y - motion.position.y;
-			float disX = mouse_pos.x - motion.position.x;
-			float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
 
-			float sinV = asin(disY / longestL);
-			float cosV = acos(disX / longestL);
-			auto dir = mouse_pos - motion.position;
-			// printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
-			float rad = atan2(dir.y, dir.x);
-			motion.angle = rad;
+    if (!ECS::registry<DeathTimer>.has(player_soldier))
+    {
+        auto& motion = ECS::registry<Motion>.get(player_soldier);
+        // Get world mouse position
+        if (!ECS::registry<Camera>.entities.empty()) {
+            auto& camera = ECS::registry<Camera>.entities[0];
+            if (camera.has<Camera>()) {
+                vec2 camera_pos = camera.get<Camera>().get_position();
+                mouse_pos += camera_pos;
+            }
+        }
+        float disY = mouse_pos.y - motion.position.y;
+        float disX = mouse_pos.x - motion.position.x;
+        float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
 
-			if (SHIELDUP && !hasShield) {
-				shield = Shield::createShield({ motion.position.x + 300 * cosV, motion.position.y + 300 * sinV });
-				hasShield = true;
-			}
+        float sinV = asin(disY / longestL);
+        float cosV = acos(disX / longestL);
+        auto dir = mouse_pos - motion.position;
+        // printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
+        float rad = atan2(dir.y, dir.x);
+        if (!aiControl) {
+            motion.angle = rad;
+        }
+        if (SHIELDUP && !hasShield) {
+            shield = Shield::createShield({ motion.position.x + 300 * cosV, motion.position.y + 300 * sinV }, 0);
+            hasShield = true;
+        }
 
-			if (SHIELDUP) {
-				auto& motionSh = ECS::registry<Motion>.get(shield);
-				motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
-				motionSh.angle = rad;
-			}
-			if (DRAWING) {
-				if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
-					mouse_points.pop_front();
-				}
-				mouse_points.push_back(mouse_pos - motion.position);
-			}
-		}
-	}
+        if (SHIELDUP) {
+            auto& motionSh = ECS::registry<Motion>.get(shield);
+            motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
+            motionSh.angle = rad;
+        }
+        if (DRAWING) {
+            if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
+                mouse_points.pop_front();
+            }
+            mouse_points.push_back(mouse_pos - motion.position);
+        }
+    }
 }
 
 bool WorldSystem::reload_level = false;
