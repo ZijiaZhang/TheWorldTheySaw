@@ -16,12 +16,12 @@ std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::igno
     {SHIELD, {DEFAULT,
                      PLAYER,
                      ENEMY,
-
                      WALL,
                      MOVEABLEWALL,
                      WEAPON,
                      BUTTON,
-                     SHIELD}}
+                     SHIELD}},
+    {BUTTON, {BUTTON, SHIELD}},
 };
 std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::only_overlap_of_type{
     {BULLET,{DEFAULT,

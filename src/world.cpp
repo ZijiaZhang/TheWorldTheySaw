@@ -426,32 +426,24 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-	// Move soldier if alive
-	if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>())
-	{
-		if (key == GLFW_KEY_D) {
-			player_soldier.get<Motion>().velocity = vec2{ 100,0 } *(float)(action == GLFW_PRESS || action == GLFW_REPEAT);
-		}
-		else if (key == GLFW_KEY_A) {
-			player_soldier.get<Motion>().velocity = vec2{ -100,0 } *(float)(action == GLFW_PRESS || action == GLFW_REPEAT);
-		}
-		else if (key == GLFW_KEY_S) {
-			player_soldier.get<Motion>().velocity = vec2{ 0,100 } *(float)(action == GLFW_PRESS || action == GLFW_REPEAT);
-		}
-		else if (key == GLFW_KEY_W) {
-			player_soldier.get<Motion>().velocity = vec2{ 0,-100 } *(float)(action == GLFW_PRESS || action == GLFW_REPEAT);
-		}
-	}
-
-
-	//Shield up
-	if (action == GLFW_PRESS && key == GLFW_KEY_S)
-	{
-		auto& motion = ECS::registry<Motion>.get(player_soldier);
-		auto bullet = Bullet::createBullet(player_soldier.get<Motion>().position, motion.angle, 0);
-		//        auto& motionBu = bullet.get<Motion>();
-		//        motionBu.angle = motion.angle;
-	}
+    if (!aiControl) {
+        // Move soldier if alive
+        if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
+            if (key == GLFW_KEY_D) {
+                player_soldier.get<Motion>().velocity =
+                        vec2{100, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+            } else if (key == GLFW_KEY_A) {
+                player_soldier.get<Motion>().velocity =
+                        vec2{-100, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+            } else if (key == GLFW_KEY_S) {
+                player_soldier.get<Motion>().velocity =
+                        vec2{0, 100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+            } else if (key == GLFW_KEY_W) {
+                player_soldier.get<Motion>().velocity =
+                        vec2{0, -100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+            }
+        }
+    }
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
@@ -496,19 +488,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// Debugging
 	if (key == GLFW_KEY_P)
 		DebugSystem::in_profile_mode = (action != GLFW_RELEASE);
-
-	// Control the current speed with `<` `>`
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA)
-	{
-		current_speed -= 0.1f;
-		// std::cout << "Current speed = " << current_speed << std::endl;
-	}
-	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
-	{
-		current_speed += 0.1f;
-		// std::cout << "Current speed = " << current_speed << std::endl;
-	}
-	current_speed = std::max(0.f, current_speed);
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
