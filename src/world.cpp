@@ -326,12 +326,12 @@ void WorldSystem::checkEndGame()
 	if (WorldSystem::isPlayableLevel(currentLevel)) {
         if (ECS::registry<Enemy>.entities.size() <= 0) {
             resetTimer();
-            restart("menu"); // TODO: Change to level selection
+            restart("level_select");
         }
 		if (endGameTimer > 1000000.f) {
 			if (ECS::registry<Enemy>.entities.size() > 0) {
 				resetTimer();
-				restart("loadout");
+				restart("menu");
 			}
 		}
 	}

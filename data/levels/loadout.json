@@ -1,33 +1,66 @@
 {
-    "player": [{
-        "position": {"x": 100, "y": 200}
-    }],
-    "weapon": [{
-        "position": {"x": 100, "y": 200}
-    }],
+    "player": [
+        {
+            "position": {
+                "x": 100,
+                "y": 200
+            }
+        }
+    ],
+    "weapon": [
+        {
+            "position": {
+                "x": 100,
+                "y": 200
+            }
+        }
+    ],
     "button_select_bullet": [
         {
-            "position": {"x": -100, "y":  0}
+            "position": {
+                "x": -100,
+                "y": 0
+            }
         }
     ],
     "button_select_rocket": [
         {
-            "position": {"x": 300, "y":  0}
+            "position": {
+                "x": 300,
+                "y": 0
+            }
         }
     ],
     "button_select_direct": [
         {
-            "position": {"x": -100, "y":  200}
+            "position": {
+                "x": -100,
+                "y": 200
+            }
         }
     ],
     "button_select_a_star": [
         {
-            "position": {"x": 300, "y":  200}
+            "position": {
+                "x": 300,
+                "y": 200
+            }
         }
     ],
     "button_enter_level": [
         {
-            "position": {"x": 100, "y":  300}
+            "position": {
+                "x": 100,
+                "y": 300
+            }
+        }
+    ],
+    "return_to_level_select": [
+        {
+            "position": {
+                "x": 100,
+                "y": 400
+            }
         }
     ]
 }
