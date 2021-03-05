@@ -12,8 +12,10 @@ std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity&, float)>> Soldie
 };
 
 std::unordered_map<WeaponType , std::function<void(ECS::Entity&, float)>> SoldierAISystem::weaponMap = {
-        {W_BULLET, shoot_bullet},
-        {W_ROCKET, shoot_rocket}
+        {W_ROCKET, shoot_rocket},
+        {W_AMMO, shoot_ammo},
+        {W_LASER, shoot_laser},
+        {W_BULLET, shoot_bullet}
 };
 
 float SoldierAISystem::pathTicker = 0.f;
@@ -45,7 +47,7 @@ void SoldierAISystem::shoot_bullet(ECS::Entity& soldier_entity, float elapsed_ms
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {380, 0}, 0, "laser");
+                Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
             }
         }
 
@@ -72,6 +74,48 @@ void SoldierAISystem::shoot_rocket(ECS::Entity& soldier_entity, float elapsed_ms
         weaponTicker = 0;
     }
 }
+
+void SoldierAISystem::shoot_laser(ECS::Entity& soldier_entity, float elapsed_ms) {
+    if(weaponTicker > 100.f) {
+        auto& weapon = soldier_entity.get<Soldier>().weapon;
+        auto& soldier_motion = soldier_entity.get<Motion>();
+        ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+        if (ECS::registry<Motion>.has(cloestEnemy)) {
+            auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+            if (weapon.has<Motion>()) {
+                auto &motion = weapon.get<Motion>();
+                auto dir = enemyMotion.position - motion.position;
+                float rad = atan2(dir.y, dir.x);
+                motion.offset_angle = rad - soldier_motion.angle;
+                Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
+            }
+        }
+
+        weaponTicker = 0;
+    }
+}
+
+void SoldierAISystem::shoot_ammo(ECS::Entity& soldier_entity, float elapsed_ms) {
+    if(weaponTicker > 250.f) {
+        auto& weapon = soldier_entity.get<Soldier>().weapon;
+        auto& soldier_motion = soldier_entity.get<Motion>();
+        ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+        if (ECS::registry<Motion>.has(cloestEnemy)) {
+            auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+            if (weapon.has<Motion>()) {
+                auto &motion = weapon.get<Motion>();
+                auto dir = enemyMotion.position - motion.position;
+                float rad = atan2(dir.y, dir.x);
+                motion.offset_angle = rad - soldier_motion.angle;
+                Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
+            }
+        }
+
+        weaponTicker = 0;
+    }
+}
+
+
 void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity& soldier_entity, float elapsed_ms){
     if (ECS::registry<Motion>.has(soldier_entity) && ECS::registry<Soldier>.has(soldier_entity)) {
         auto& soldier_motion = ECS::registry<Motion>.get(soldier_entity);

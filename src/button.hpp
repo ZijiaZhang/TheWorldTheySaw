@@ -10,9 +10,11 @@ enum class ButtonType {
 	LEVEL_SELECT,
 	QUIT,
 	SELECT_ROCKET,
+    SELECT_AMMO,
     SELECT_BULLET,
-    SELECT_A_STAR,
+    SELECT_LASER,
     SELECT_DIRECT,
+    SELECT_A_STAR
 };
 
 struct Button {
