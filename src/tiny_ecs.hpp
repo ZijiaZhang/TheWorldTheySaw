@@ -36,10 +36,12 @@ namespace ECS {
             collisionHandler = {
 				{Overlap, [](ECS::Entity& self, ECS::Entity const& e1) {
                     (void) e1;
+                    (void) self;
 				    }
 				    },
 				{Hit, [](ECS::Entity& self, ECS::Entity const& e1) {
                     (void) e1;
+                    (void) self;
 				    }
 				}
 			};
@@ -54,16 +56,14 @@ namespace ECS {
 		unsigned int id;
 
 		template<class T>
-		Entity& insert(T&& t)
+		T& insert(T&& t)
 		{
-			registry<T>.insert(*this, std::forward<T>(t));
-			return *this;
+			return registry<T>.insert(*this, std::forward<T>(t));
 		};
 
 		template<class T, class ... Args>
-		Entity& emplace(Args &&... args) {
-			insert(T(std::forward<Args>(args)...));
-			return *this;
+		T& emplace(Args &&... args) {
+            return insert(T(std::forward<Args>(args)...));
 		};
 
 		template<class T>

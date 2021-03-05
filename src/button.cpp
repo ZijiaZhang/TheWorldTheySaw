@@ -2,6 +2,7 @@
 #include "buttonStart.hpp"
 #include "render.hpp"
 #include "button.hpp"
+#include "PhysicsObject.hpp"
 #include <soldier.hpp>
 
 std::map<ButtonType, std::string> Button::buttonNames = {
@@ -11,14 +12,15 @@ std::map<ButtonType, std::string> Button::buttonNames = {
 	{ButtonType::QUIT, "quit"}
 };
 
-ECS::Entity Button::createButton(ButtonType buttonType, vec2 position)
+ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap)
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();
-
+    entity.attach(Overlap, overlap);
 	// Create the rendering components
 	std::string key = buttonNames[buttonType];
 	ShadedMesh& resource = cache_resource(key);
+
 	if (resource.effect.program.resource == 0)
 	{
 		std::string path = "/main scene/button_";
@@ -42,8 +44,14 @@ ECS::Entity Button::createButton(ButtonType buttonType, vec2 position)
 	// Update ZValuesMap in common
 	motion.zValue = ZValuesMap["Fish"];
 
+	auto& physics = entity.emplace<PhysicsObject>();
+    physics.object_type = BUTTON;
+
+
 	// Create and (empty) Fish component to be able to refer to all fish
 	auto& button = ECS::registry<Button>.emplace(entity);
+
+
 	button.buttonType = buttonType;
 
 	return entity;

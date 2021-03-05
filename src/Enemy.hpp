@@ -10,8 +10,8 @@
 class Enemy {
 
 public:
-    static ECS::Entity createEnemy(vec2 position, std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap = [](ECS::Entity&, const ECS::Entity &e) {},
-                                   std::function<void(ECS::Entity&, const  ECS::Entity&)> hit = [](ECS::Entity&, const ECS::Entity &e) {});
+    static ECS::Entity createEnemy(vec2 position, std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap = [](ECS::Entity&, const ECS::Entity &) {},
+                                   std::function<void(ECS::Entity&, const  ECS::Entity&)> hit = [](ECS::Entity&, const ECS::Entity &) {});
 
 };
 

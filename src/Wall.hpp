@@ -11,7 +11,7 @@
 class Wall {
 public:
     static ECS::Entity createWall(vec2 location, vec2 size, float rotation,
-                                  std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap = [](ECS::Entity&, const ECS::Entity &e) {},
-                                  std::function<void(ECS::Entity&, const  ECS::Entity&)> hit = [](ECS::Entity&, const ECS::Entity &e) {});
+                                  std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap = [](ECS::Entity&, const ECS::Entity &) {},
+                                  std::function<void(ECS::Entity&, const  ECS::Entity&)> hit = [](ECS::Entity&, const ECS::Entity &) {});
 };
 

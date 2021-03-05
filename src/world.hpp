@@ -34,12 +34,11 @@ public:
 	// Steps the game ahead by ms milliseconds
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
-	void buttonHandler(float elapsed_ms, vec2 window_size_in_game_units);
+
 
 	// Check for collisions
 	void handle_collisions();
 
-	void take_button_action(ButtonType type);
 
 	// Renders our scene
 	void draw();
@@ -53,7 +52,8 @@ public:
 	GLFWwindow* window;
 
 	static std::map<ButtonType, std::function<void()>> buttonCallbacks;
-
+    static bool reload_level;
+    static std::string level_name;
 	// LevelLoader level_loader;
 private:
 	// Input callback functions

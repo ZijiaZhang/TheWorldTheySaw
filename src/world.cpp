@@ -197,14 +197,6 @@ void WorldSystem::init_audio()
 // Update our game world
 void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
-	/*
-	std::string level = level_loader.at_level;
-	if (level != currentLevel) {
-		restart();
-	}
-	*/
-	
-
 	// Updating window title with points
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
@@ -275,7 +267,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
-	buttonHandler(elapsed_ms, window_size_in_game_units);
 
 	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
 }
@@ -325,72 +316,6 @@ void WorldSystem::restart(std::string level)
 	ECS::Entity camera;
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
-	if (level_loader.at_level == "level_1") {
-		Start::createStart(vec2{ 300,300 });
-		// ButtonStart::createButtonStart(vec2{300,450});
-
-		Button::createButton(ButtonType::START, vec2{ 300,525 });
-        Button::createButton(ButtonType::LEVEL_SELECT, vec2{ 300,600 });
-		//ButtonSetting::createButtonSetting(vec2{ 300,600 });
-	}
-	else if (level_loader.at_level == "level_2") {
-        Loading::createLoading(vec2{100,200});
-	}
-	else {
-		Background::createBackground(vec2{ 500,500 });
-	}
-}
-
-void WorldSystem::buttonHandler(float elapsed_ms, vec2 window_size_in_game_units)
-{
-	bool isSoldierExisting = !ECS::registry<Soldier>.components.empty();
-	bool isButtonExisting = !ECS::registry<Button>.components.empty();
-
-	if (isSoldierExisting && isButtonExisting) {
-		auto& soldier = ECS::registry<Soldier>.entities[0];
-		auto& vecOfButtons = ECS::registry<Button>.entities;
-
-		if (soldier.has<Motion>()) {
-			auto& soldierMotion = soldier.get<Motion>();
-			vec2 soldierPos = soldierMotion.position;
-			for (auto& button : vecOfButtons) {
-				if (button.has<Motion>() && button.has<Button>()) {
-					auto& buttonMotion = button.get<Motion>();
-					auto& buttonButton = button.get<Button>();
-
-					vec2 buttonPos = buttonMotion.position;
-					vec2 buttonScale = buttonMotion.scale;
-
-					vec2 yAxisBorder = vec2{ buttonPos.y + abs(buttonScale.y) / 2 * 0.1f, buttonPos.y - abs(buttonScale.y) / 2 * 0.1f };
-					vec2 xAxisBorder = vec2{ buttonPos.x + abs(buttonScale.x) / 2 * 0.1f, buttonPos.x - abs(buttonScale.x) / 2 * 0.1f };
-
-					bool xTouch = soldierPos.x < xAxisBorder.x&& soldierPos.x > xAxisBorder.y;
-					bool yTouch = soldierPos.y < yAxisBorder.x&& soldierPos.y > yAxisBorder.y;
-
-					bool pressButton = xTouch && yTouch;
-
-					if (pressButton) {
-						take_button_action(buttonButton.buttonType);
-					}
-				}
-			}
-		}
-	}
-}
-
-void WorldSystem::take_button_action(ButtonType type) {
-	switch (type) {
-        case ButtonType::DEFAULT_BUTTON:
-            break;
-        case ButtonType::START:
-            restart("level_3");
-            break;
-        case ButtonType::LEVEL_SELECT:
-            restart("level_2");
-            break;
-        case ButtonType::QUIT:
-            break;
-    }
 }
 
 // Compute collisions between entities
@@ -416,10 +341,6 @@ void WorldSystem::handle_collisions()
 					// Scream, reset timer, and make the soldier sink
 					ECS::registry<DeathTimer>.emplace(entity);
 
-
-					// !!! TODO A1: change the salmon motion to float down up-side down
-
-					// !!! TODO A1: change the salmon color
 				}
 			}
 			// Checking Soldier - Fish collisions
@@ -597,3 +518,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 
 
 }
+
+bool WorldSystem::reload_level = false;
+std::string WorldSystem::level_name = "menu";

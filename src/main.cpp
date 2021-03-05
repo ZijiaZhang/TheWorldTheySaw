@@ -37,11 +37,15 @@ int main()
 	AISystem ai;
 
 	// Set all states to default
-	world.restart("level_1");
+	world.restart("menu");
 	auto t = Clock::now();
 	// Variable timestep loop
 	while (!world.is_over())
 	{
+	    if(WorldSystem::reload_level){
+	        WorldSystem::reload_level = false;
+	        world.restart(WorldSystem::level_name);
+	    }
 	    ai_count++;
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();

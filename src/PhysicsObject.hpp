@@ -8,6 +8,7 @@
 
 class PhysicsObject{
 public:
+    PhysicsObject() = default;
     // The convec bonding box of a object
     std::vector<PhysicsVertex> vertex = {PhysicsVertex{{-0.5, 0.5, -0.02}},
                                          PhysicsVertex{{0.5, 0.5, -0.02}},
