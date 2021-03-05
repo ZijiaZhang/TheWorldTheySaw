@@ -60,7 +60,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
         {"player", [](vec2 location, vec2 size, float rotation,
                 std::function<void(ECS::Entity&, const  ECS::Entity&)>,
                 std::function<void(ECS::Entity&, const  ECS::Entity&)>, json){
-            return Soldier::createSoldier(SoldierType::BASIC, location);
+            return Soldier::createSoldier(location);
         }},
         {"enemy", [](vec2 location, vec2 size, float rotation,
                      std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,

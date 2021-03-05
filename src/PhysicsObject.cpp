@@ -5,13 +5,11 @@
 #include "PhysicsObject.hpp"
 
 std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::ignore_collision_of_type{
-    {WALL,{WALL, BULLET}},
+    {WALL,{WALL}},
         {BULLET,{DEFAULT,
                  PLAYER,
                  BULLET,
-                 WALL,
-                 MOVEABLEWALL,
-                 WEAPON},
+                WEAPON},
          },
     {PLAYER, {BULLET}},
      {MOVEABLEWALL, {BULLET}},
@@ -21,8 +19,8 @@ std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::only
                     // PLAYER,
                     ENEMY,
                     BULLET,
-                    WALL,
-                    MOVEABLEWALL,
+
+
                     WEAPON}},
     {ENEMY,{BULLET}},
     {BUTTON, {PLAYER}},

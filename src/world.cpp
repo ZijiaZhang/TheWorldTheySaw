@@ -343,12 +343,11 @@ bool WorldSystem::isPlayableLevel(std::string level)
 void WorldSystem::checkEndGame()
 {
 	if (WorldSystem::isPlayableLevel(currentLevel)) {
-		if (endGameTimer > 10000.f) {
-			if (ECS::registry<Enemy>.entities.size() <= 0) {
-				resetTimer();
-				restart("level_1");
-			}
-
+        if (ECS::registry<Enemy>.entities.size() <= 0) {
+            resetTimer();
+            restart("menu");
+        }
+		if (endGameTimer > 1000000.f) {
 			if (ECS::registry<Enemy>.entities.size() > 0) {
 				resetTimer();
 				restart("level_2");
@@ -491,7 +490,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     }
 
 	// Debugging
-	if (key == GLFW_KEY_D)
+	if (key == GLFW_KEY_O)
 		DebugSystem::in_debug_mode = (action != GLFW_RELEASE);
 
 	// Debugging

@@ -16,9 +16,7 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
     (void)elapsed_ms; // placeholder to silence unused warning until implemented
     (void)window_size_in_game_units; // placeholder to silence unused warning until implemented
-    build_grids_for_type<PLAYER>();
-    build_grids_for_type<WALL>();
-    build_grids_for_type<MOVEABLEWALL>();
+    build_grid();
     if (!ECS::registry<Soldier>.components.empty()) {
         auto soldier = ECS::registry<Soldier>.entities[0];
         auto& soldier_motion = soldier.get<Motion>();
@@ -41,6 +39,13 @@ void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 
 }
+
+void AISystem::build_grid() {
+    build_grids_for_type<PLAYER>();
+    build_grids_for_type<WALL>();
+    build_grids_for_type<MOVEABLEWALL>();
+}
+
 using Clock = std::chrono::high_resolution_clock;
 
 void AISystem::enemy_ai_step(ECS::Entity& enemy, float elapsed_ms, vec2 dest) {

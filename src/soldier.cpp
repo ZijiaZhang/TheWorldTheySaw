@@ -4,25 +4,18 @@
 #include "PhysicsObject.hpp"
 #include "Weapon.hpp"
 
-std::map<SoldierType, std::string> Soldier::soldierTypes = {
-    {SoldierType::BASIC, "basic"},
-    {SoldierType::MEDIUM, "medium"},
-    {SoldierType::HEAVY, "heavy"}
-};
 
-ECS::Entity Soldier::createSoldier(SoldierType type, vec2 position)
+
+ECS::Entity Soldier::createSoldier(vec2 position)
 {
 	auto entity = ECS::Entity();
 
-    std::string key = soldierTypes[type];
+    std::string key = "soldier";
     ShadedMesh& resource = cache_resource(key);
     if (resource.effect.program.resource == 0)
     {
-        std::string path = "/soldier/soldier_";
-        path.append(key);
-        path.append(".png");
-        resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path(path), "textured");
+
+        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "textured");
     }
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

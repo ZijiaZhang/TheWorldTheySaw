@@ -17,6 +17,7 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle)
             self.emplace<DeathTimer>();
         }
     };
+    entity.attach(Hit, overlap);
     entity.attach(Overlap, overlap);
 
     std::string key = "bullet";

@@ -36,7 +36,7 @@ int main()
 	WorldSystem world(window_size_in_px);
 	RenderSystem renderer(*world.window);
 	PhysicsSystem physics;
-//	AISystem ai;
+	AISystem ai;
 	SoldierAISystem soldierAi;
 	EnemyAISystem enemyAi;
 
@@ -73,6 +73,7 @@ int main()
 		*/
 		
 		if (world.aiControl) {
+		    ai.build_grid();
 			soldierAi.step(elapsed_ms, window_size_in_game_units);
 			enemyAi.step(elapsed_ms, window_size_in_game_units);
 		}
