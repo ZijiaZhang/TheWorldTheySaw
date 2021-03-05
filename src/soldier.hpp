@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include "tiny_ecs.hpp"
+#include "SoldierAi.hpp"
 #include <AiState.hpp>
 
 enum class SoldierType {
@@ -15,4 +16,6 @@ public:
 	static ECS::Entity createSoldier(vec2 pos);
 
 	AiState soldierState = AiState::IDLE;
+	ECS::Entity weapon;
+    AIAlgorithm ai_algorithm;
 };

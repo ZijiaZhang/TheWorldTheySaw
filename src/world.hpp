@@ -56,7 +56,8 @@ public:
 	static std::map<ButtonType, std::function<void()>> buttonCallbacks;
     static bool reload_level;
     static std::string level_name;
-	// LevelLoader level_loader;
+    static std::string selected_level;
+
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -78,9 +79,7 @@ private:
 
 	// Game state
 	float current_speed;
-	float next_turtle_spawn;
-	float next_fish_spawn;
-	float next_gunfire_spawn;
+
 	float endGameTimer;
 	ECS::Entity player_soldier;
 	ECS::Entity shield;

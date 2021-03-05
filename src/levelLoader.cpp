@@ -19,6 +19,7 @@
 #include "button.hpp"
 #include "world.hpp"
 #include "loading.hpp"
+#include "Weapon.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -29,13 +30,38 @@
 
 using json = nlohmann::json;
 
-std::string at_level = "level_1";
+
 
 void enemy_bullet_hit_death(ECS::Entity& self, const ECS::Entity &e) {
     if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()){
         self.emplace<DeathTimer>();
     }
 };
+
+auto select_algo_of_type(AIAlgorithm algo){
+    return [=](ECS::Entity& self, const ECS::Entity &other){
+        if (other.has<Soldier>()){
+            auto& soldier = other.get<Soldier>();
+            soldier.ai_algorithm = algo;
+        }
+    };
+}
+
+auto select_weapon_of_type(WeaponType type){
+    return [=](ECS::Entity& self, const ECS::Entity &other){
+        if (other.has<Soldier>()){
+            auto& soldier = other.get<Soldier>();
+            if (soldier.weapon.has<Weapon>()){
+                auto& weapon = soldier.weapon.get<Weapon>();
+                weapon.type = type;
+            }
+        }
+    };
+}
+
+
+
+
 
 std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Entity&)>> LevelLoader::physics_callbacks = {
         {"enemy_bullet_hit_death", enemy_bullet_hit_death},
@@ -73,7 +99,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
             return Button::createButton( ButtonType::START, location, [](ECS::Entity& self, const ECS::Entity& other){
                       if (other.has<Soldier>()){
                           WorldSystem::reload_level = true;
-                          WorldSystem::level_name = "level_3";
+                          WorldSystem::level_name = "loadout";
                       }
             });
         }},
@@ -87,6 +113,33 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
                 }
         });
         }},
+        {"button_select_bullet", [](vec2 location, vec2 size, float rotation,
+                              std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                              std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Button::createButton( ButtonType::SELECT_BULLET, location, select_weapon_of_type(W_BULLET));}},
+        {"button_select_rocket", [](vec2 location, vec2 size, float rotation,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Button::createButton( ButtonType::SELECT_ROCKET, location, select_weapon_of_type(W_ROCKET));}},
+        {"button_select_direct", [](vec2 location, vec2 size, float rotation,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Button::createButton( ButtonType::SELECT_DIRECT, location, select_algo_of_type(DIRECT));}},
+        {"button_select_a_star", [](vec2 location, vec2 size, float rotation,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Button::createButton( ButtonType::SELECT_DIRECT, location, select_algo_of_type(A_STAR));}},
+        {"button_enter_level", [](vec2 location, vec2 size, float rotation,
+                            std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                            std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+                         {
+                             return Button::createButton( ButtonType::START, location, [](ECS::Entity& self, const ECS::Entity& other){
+                                 if (other.has<Soldier>()){
+                                     WorldSystem::reload_level = true;
+                                     WorldSystem::level_name = WorldSystem::selected_level;
+                                 }
+                             });
+                         }},
         {"background", [](vec2 location, vec2 size, float rotation,
                 std::function<void(ECS::Entity&, const  ECS::Entity&)>,
                         std::function<void(ECS::Entity&, const  ECS::Entity&)>, json additional){

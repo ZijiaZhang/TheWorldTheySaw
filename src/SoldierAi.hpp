@@ -4,29 +4,49 @@
 #include "tiny_ecs.hpp"
 #include "PhysicsObject.hpp"
 
+typedef enum{
+    DIRECT,
+    A_STAR,
+} AIAlgorithm;
+
+typedef enum{
+    W_BULLET,
+    W_ROCKET,
+} WeaponType;
+
 class SoldierAISystem
 {
 public:
-    void step(float elapsed_ms, vec2 window_size_in_game_units);
+    static void step(float elapsed_ms, vec2 window_size_in_game_units);
+
+// Decision tree if statements
+static void direct_movement(ECS::Entity& soldier_entity, float elapsed_ms);
+static void a_star_to_closest_enemy(ECS::Entity& soldier_entity, float elapsed_ms);
+    static void shoot_bullet(ECS::Entity& soldier_entity, float elapsed_ms);
+    static void shoot_rocket(ECS::Entity& soldier_entity, float elapsed_ms);
+
 
 private:
-    float timeTicker = 0.f;
+    static float pathTicker;
 
-    float fireRate = 200.f;
-    // Decision tree if statements
-    void makeDecision(ECS::Entity& soldier_entity, float elapsed_ms);
+    static float updateRate;
+    static float weaponTicker;
 
-    bool isEnemyExists();
+    static bool isEnemyExists();
 
-    ECS::Entity getCloestEnemy(Motion& soldierMotion);
+    static ECS::Entity getCloestEnemy(Motion& soldierMotion);
 
-    bool isEnemyExistsInRange(Motion& soldierMotion, Motion& enemyMotion, float range);
+    static bool isEnemyExistsInRange(Motion& soldierMotion, Motion& enemyMotion, float range);
 
-    void idle(Motion& soldierMotion);
+    static void idle(Motion& soldierMotion);
 
-    void walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyMotion);
+    static void walkBackward(Motion& soldierMotion, Motion& enemyMotion);
 
-    void walkForwardAndShoot(Motion& soldierMotion, Motion& enemyMotion);
+    static void walkForward(Motion& soldierMotion, Motion& enemyMotion);
+
+
+    static std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity&, float)>> algorithmMap;
+    static std::unordered_map<WeaponType, std::function<void(ECS::Entity&, float)>> weaponMap;
 };
 
 

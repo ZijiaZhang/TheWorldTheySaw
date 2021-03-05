@@ -46,6 +46,10 @@ ECS::Entity Soldier::createSoldier(vec2 position)
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Soldier component to be able to refer to all turtles
 	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,60.f}, 0, entity);
-	ECS::registry<Soldier>.emplace(entity);
+    entity.emplace<AIPath>();
+
+	auto& soldier = ECS::registry<Soldier>.emplace(entity);
+	soldier.ai_algorithm = A_STAR;
+	soldier.weapon = weapon;
 	return entity;
 }

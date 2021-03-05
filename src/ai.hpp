@@ -18,7 +18,7 @@ public:
 
     void enemy_ai_step(ECS::Entity& e, float elapsed_ms, vec2 dest);
 
-    Path_with_heuristics find_path_to_location(const ECS::Entity& agent, vec2 position, float radius);
+    static Path_with_heuristics find_path_to_location(const ECS::Entity& agent, vec2 position, float radius);
 
     template <CollisionObjectType T>
     void add_grids_to_set(const Motion& motion, const PhysicsObject& obj);
@@ -30,9 +30,9 @@ public:
 
     static std::pair<int, int> get_grid_from_loc(vec2 vec);
 
-    float get_dist(const std::pair<int, int>& cur_grid, const std::pair<int, int>& dest_grid) const;
+    static float get_dist(const std::pair<int, int>& cur_grid, const std::pair<int, int>& dest_grid);
 
-    vec2 get_grid_location(std::pair<int, int> grid);
+    static vec2 get_grid_location(std::pair<int, int> grid);
 
     int id = 0;
     static const int GRID_SIZE = 50;

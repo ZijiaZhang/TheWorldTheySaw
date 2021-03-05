@@ -16,6 +16,7 @@
 #include "buttonStart.hpp"
 #include "buttonSetting.hpp"
 #include "loading.hpp"
+#include "Weapon.hpp"
 
 // stlib
 #include <string.h>
@@ -43,6 +44,8 @@ int DEGREE_SIZE = 45;
 int SECTION_POINT_NUM = 3;
 
 int KILL_SIZE = 3000;
+
+std::string WorldSystem::selected_level = "level_3";
 
 static float getDist(vec2 p1, vec2 p2)
 {
@@ -112,11 +115,7 @@ static bool checkCircle(ECS::Entity& player_salmon)
 // Create the fish world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
 WorldSystem::WorldSystem(ivec2 window_size_px) :
-	points(0),
-	next_turtle_spawn(0.f),
-	next_fish_spawn(0.f),
-	next_gunfire_spawn(0.f)
-
+	points(0)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -218,50 +217,13 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities[i]);
 		}
 	}
-	//    auto& motion = player_soldier.get<Motion>();
-		// motion.velocity = {100.f,0};
-		// Spawning new turtles
-	next_turtle_spawn -= elapsed_ms * current_speed;
 
 	if (screen != window_size_in_game_units) {
 		screen = window_size_in_game_units;
 	}
 
-	//	if (ECS::registry<Turtle>.components.size() <= MAX_TURTLES && next_turtle_spawn < 0.f)
-	//	{
-	//		// Reset timer
-	//		next_turtle_spawn = (TURTLE_DELAY_MS / 2) + uniform_dist(rng) * (TURTLE_DELAY_MS / 2);
-	//		// Create turtle
-	//		ECS::Entity entity = Turtle::createTurtle({0, 0});
-	//		// Setting random initial position and constant velocity
-	//		auto& motion = ECS::registry<Motion>.get(entity);
-	//		motion.position = vec2(window_size_in_game_units.x - 150.f, 50.f + uniform_dist(rng) * (window_size_in_game_units.y - 100.f));
-	//		motion.velocity = vec2(-100.f, 0.f );
-	//	}
-
-
-	//	next_gunfire_spawn -= elapsed_ms * current_speed;
-	//	if (fired && next_gunfire_spawn < 0.f)
-	//	{
-	//		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
-	//		Mix_PlayChannel(-1, gun_reload, 0);
-	//		fired = false;
-	//	}
-	//	else if (!fired && next_gunfire_spawn < 0.f)
-	//	{
-	//		next_gunfire_spawn = (GUNFIRE_DELAY_MS / 2) + uniform_dist(rng) * (GUNFIRE_DELAY_MS / 2);
-	//		Mix_PlayChannel(-1, gun_fire, 0);
-	//		fired = true;
-	//	}
-
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		// TODO A3: HANDLE PEBBLE SPAWN/UPDATES HERE
-		// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 3
-		// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-		// Processing the soldier state
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
-//	auto& screen = ECS::registry<ScreenState>.components[0];
+
 
 	for (int i = static_cast<int>(ECS::registry<DeathTimer>.components.size()) - 1; i >= 0; --i)
 	{
@@ -278,7 +240,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
-	std::cout << "current level: " << currentLevel << " ai control: " << aiControl << "\n";
 
 	endGameTimer += elapsed_ms;
 
@@ -295,14 +256,23 @@ void WorldSystem::restart(std::string level)
 	currentLevel = level_loader.at_level;
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-	// std::cout << "Restarting\n";
 
-	// WorldSystem::initializeCallbacks();
 
 	// Reset the game speed
 	current_speed = 1.f;
-
-	// Remove all entities that we created
+    auto weapon = W_BULLET;
+    auto algo = DIRECT;
+    if (player_soldier.has<Soldier>()) {
+        auto& soldier = player_soldier.get<Soldier>();
+        if (soldier.weapon.has<Weapon>()){
+            weapon = soldier.weapon.get<Weapon>().type;
+        }
+    }
+    if (player_soldier.has<Soldier>()) {
+        auto& soldier = player_soldier.get<Soldier>();
+        algo = soldier.ai_algorithm;
+    }
+    // Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
 	while (!ECS::registry<Motion>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());
@@ -325,6 +295,17 @@ void WorldSystem::restart(std::string level)
 		throw std::runtime_error("Cannot have more than one solider");
 	}
 	player_soldier = soliders.front();
+
+    if (player_soldier.has<Soldier>()) {
+        auto& soldier = player_soldier.get<Soldier>();
+        if (soldier.weapon.has<Weapon>()){
+            soldier.weapon.get<Weapon>().type = weapon;
+        }
+    }
+    if (player_soldier.has<Soldier>()) {
+        auto& soldier = player_soldier.get<Soldier>();
+        soldier.ai_algorithm = algo;
+    }
 
 	// std::cout << "soldier addr: " << &player_soldier << "\n";
 

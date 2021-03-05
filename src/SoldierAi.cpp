@@ -2,67 +2,140 @@
 #include "Enemy.hpp"
 #include "soldier.hpp"
 #include "debug.hpp"
+#include "Weapon.hpp"
 #include <Bullet.hpp>
 #include <float.h>
 
+std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity&, float)>> SoldierAISystem::algorithmMap = {
+        {DIRECT, SoldierAISystem::direct_movement},
+        {A_STAR, a_star_to_closest_enemy}
+};
+
+std::unordered_map<WeaponType , std::function<void(ECS::Entity&, float)>> SoldierAISystem::weaponMap = {
+        {W_BULLET, shoot_bullet},
+        {W_ROCKET, shoot_rocket}
+};
+
+float SoldierAISystem::pathTicker = 0.f;
+float SoldierAISystem::weaponTicker = 0.f;
+float SoldierAISystem::updateRate = 200.f;
+
 void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
-	timeTicker += elapsed_ms;
+    pathTicker += elapsed_ms;
+    weaponTicker += elapsed_ms;
 	if (!ECS::registry<Soldier>.components.empty())
 	{
 		auto& soldier = ECS::registry<Soldier>.entities[0];
-		SoldierAISystem::makeDecision(soldier, elapsed_ms);
-		//std::cout << "velocity: " << ECS::registry<Motion>.get(soldier).velocity.x << ", " << ECS::registry<Motion>.get(soldier).velocity.y << "\n";
+        algorithmMap[soldier.get<Soldier>().ai_algorithm](soldier, elapsed_ms);
+        if(soldier.get<Soldier>().weapon.has<Weapon>()) {
+            weaponMap[soldier.get<Soldier>().weapon.get<Weapon>().type](soldier, elapsed_ms);
+        }
 	}
 }
+void SoldierAISystem::shoot_bullet(ECS::Entity& soldier_entity, float elapsed_ms) {
+    if(weaponTicker > 200.f) {
+        auto& weapon = soldier_entity.get<Soldier>().weapon;
+        auto& soldier_motion = soldier_entity.get<Motion>();
+        ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+        if (ECS::registry<Motion>.has(cloestEnemy)) {
+            auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+            if (weapon.has<Motion>()) {
+                auto &motion = weapon.get<Motion>();
+                auto dir = enemyMotion.position - motion.position;
+                float rad = atan2(dir.y, dir.x);
+                motion.offset_angle = rad - soldier_motion.angle;
+                Bullet::createBullet(motion.position, rad, {380, 0}, 0, "laser");
+            }
+        }
 
-void SoldierAISystem::makeDecision(ECS::Entity& soldier_entity, float elapsed_ms)
+        weaponTicker = 0;
+    }
+}
+
+void SoldierAISystem::shoot_rocket(ECS::Entity& soldier_entity, float elapsed_ms) {
+    if(weaponTicker > 300.f) {
+        auto& weapon = soldier_entity.get<Soldier>().weapon;
+        auto& soldier_motion = soldier_entity.get<Motion>();
+        ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+        if (ECS::registry<Motion>.has(cloestEnemy)) {
+            auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+            if (weapon.has<Motion>()) {
+                auto &motion = weapon.get<Motion>();
+                auto dir = enemyMotion.position - motion.position;
+                float rad = atan2(dir.y, dir.x);
+                motion.offset_angle = rad - soldier_motion.angle;
+                Bullet::createBullet(motion.position, rad, {150, 0},  0, "rocket");
+            }
+        }
+
+        weaponTicker = 0;
+    }
+}
+void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity& soldier_entity, float elapsed_ms){
+    if (ECS::registry<Motion>.has(soldier_entity) && ECS::registry<Soldier>.has(soldier_entity)) {
+        auto& soldier_motion = ECS::registry<Motion>.get(soldier_entity);
+        auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
+
+        if (SoldierAISystem::isEnemyExists() && soldier_entity.has<AIPath>()) {
+            ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+            if (ECS::registry<Motion>.has(cloestEnemy)) {
+                auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+
+                AiState aState = soldier.soldierState;
+                {
+                    if (pathTicker > updateRate) {
+                        soldier.soldierState = AiState::WALK_FORWARD;
+                        soldier_entity.get<AIPath>().path = AISystem::find_path_to_location(soldier_entity,
+                                                                                            enemyMotion.position, 100);
+                        soldier_entity.get<AIPath>().desired_speed = {70, 0};
+                        pathTicker = 0.f;
+                        return;
+                    }
+                }
+            }
+        } else {
+
+            soldier.soldierState = AiState::IDLE;
+            SoldierAISystem::idle(soldier_motion);
+            soldier_entity.get<AIPath>().path = Path_with_heuristics{};
+        }
+    }
+}
+
+void SoldierAISystem::direct_movement(ECS::Entity& soldier_entity, float elapsed_ms)
 {
 	if (ECS::registry<Motion>.has(soldier_entity) && ECS::registry<Soldier>.has(soldier_entity)) {
 
-		// std::cout << "isEnemyExists\n";
 		auto& soldier_motion = ECS::registry<Motion>.get(soldier_entity);
 		auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
-		// std::cout << "makeDecision: " << &soldier_motion << "\n";
-		if (SoldierAISystem::isEnemyExists())
-		{
-			/*
-			int counter = 0;
-			for (ECS::Entity e: ECS::registry<Enemy>.entities) {
-				if (ECS::registry<Motion>.has(e)) {
-					counter++;
-				}
-				// std::cout << "motion: " << ECS::registry<Motion>.entities.size() << ", " << "Enemy: " << ECS::registry<Enemy>.entities.size() << "\n";
-			}
-			std::cout << "motion enemy: " << counter << "\n";
-			*/
 
-
+		if (SoldierAISystem::isEnemyExists()) {
 			ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
 			if (ECS::registry<Motion>.has(cloestEnemy)) {
 				auto& enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
 
 				AiState aState = soldier.soldierState;
-				if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 300) && aState == AiState::WALK_FORWARD_AND_SHOOT) {
-					if (timeTicker > fireRate) {
-						soldier.soldierState = AiState::WALK_BACKWARD_AND_SHOOT;
-						SoldierAISystem::walkBackwardAndShoot(soldier_motion, enemyMotion);
-						timeTicker = 0.f;
+				if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 300) && aState == AiState::WALK_FORWARD) {
+					if (pathTicker > updateRate) {
+						soldier.soldierState = AiState::WALK_BACKWARD;
+                        SoldierAISystem::walkBackward(soldier_motion, enemyMotion);
+                        pathTicker = 0.f;
 					}
 				}
-				else if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 500) && aState == AiState::WALK_BACKWARD_AND_SHOOT) {
-					if (timeTicker > fireRate) {
-						soldier.soldierState = AiState::WALK_BACKWARD_AND_SHOOT;
-						SoldierAISystem::walkBackwardAndShoot(soldier_motion, enemyMotion);
-						timeTicker = 0.f;
+				else if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 500) && aState == AiState::WALK_BACKWARD) {
+					if (pathTicker > updateRate) {
+						soldier.soldierState = AiState::WALK_BACKWARD;
+                        SoldierAISystem::walkBackward(soldier_motion, enemyMotion);
+                        pathTicker = 0.f;
 					}
 				}
 				else
 				{
-					if (timeTicker > fireRate) {
-						soldier.soldierState = AiState::WALK_FORWARD_AND_SHOOT;
-						SoldierAISystem::walkForwardAndShoot(soldier_motion, enemyMotion);
-						timeTicker = 0.f;
+					if (pathTicker > updateRate) {
+						soldier.soldierState = AiState::WALK_FORWARD;
+                        SoldierAISystem::walkForward(soldier_motion, enemyMotion);
+                        pathTicker = 0.f;
 					}
 
 				}
@@ -92,59 +165,25 @@ void SoldierAISystem::idle(Motion& soldierMotion)
 	soldierMotion.velocity = vec2{ 0.f, 0.f };
 }
 
-void SoldierAISystem::walkBackwardAndShoot(Motion& soldierMotion, Motion& enemyMotion)
+void SoldierAISystem::walkBackward(Motion& soldierMotion, Motion& enemyMotion)
 {
-	// std::cout << "walkBackwardAndShoot: " << &soldierMotion << "\n";
 	vec2 soldierPos = soldierMotion.position;
 	vec2 enemyPos = enemyMotion.position;
-
-
-//	vec2 posDiff = vec2{ enemyPos.x - soldierPos.x, enemyPos.y - soldierPos.y };
-//	float distance = sqrt(pow(enemyPos.x - soldierPos.x, 2)) + sqrt(pow(enemyPos.y - soldierPos.y, 2));
-//	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
-
-	// soldierMotion.velocity = vec2{ normalized.x * -100.f, normalized.y * -100.f };
-
-
 	soldierMotion.velocity = vec2{ -100.f, 0 };
-
-	// std::cout << "backward: " << soldierMotion.velocity.x;
-
 	auto dir = enemyPos - soldierPos;
 	float rad = atan2(dir.y, dir.x);
 	soldierMotion.angle = rad;
-
-	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle, 0);
-//	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
-	// bullet_motion.velocity = normalized * 380.f;
-	// std::cout << "backward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
 }
 
-void SoldierAISystem::walkForwardAndShoot(Motion& soldierMotion, Motion& enemyMotion)
+void SoldierAISystem::walkForward(Motion& soldierMotion, Motion& enemyMotion)
 {
-	// std::cout << "walkForwardAndShoot: " << &soldierMotion << "\n";
+
 	vec2 soldierPos = soldierMotion.position;
 	vec2 enemyPos = enemyMotion.position;
-
-
-
-//	vec2 posDiff = vec2{ enemyPos.x - soldierPos.x, enemyPos.y - soldierPos.y };
-//	float distance = sqrt(pow(enemyPos.x - soldierPos.x, 2)) + sqrt(pow(enemyPos.y - soldierPos.y, 2));
-//	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
-
-	// soldierMotion.velocity = vec2{ normalized.x * 100.f, normalized.y * 100.f };
-
-
 	soldierMotion.velocity = vec2{ 100.f, 0 };
-
 	auto dir = enemyPos - soldierPos;
 	float rad = atan2(dir.y, dir.x);
 	soldierMotion.angle = rad;
-
-	auto bullet = Bullet::createBullet(soldierMotion.position, soldierMotion.angle, 0);
-//	auto& bullet_motion = ECS::registry<Motion>.get(bullet);
-	// bullet_motion.velocity = normalized * 380.f;
-	// std::cout << "forward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
 }
 
 ECS::Entity SoldierAISystem::getCloestEnemy(Motion& soldierMotion)

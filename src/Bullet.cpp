@@ -5,7 +5,7 @@
 #include "Bullet.hpp"
 #include "PhysicsObject.hpp"
 
-ECS::Entity Bullet::createBullet(vec2 position, float angle, int teamID)
+ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID,  std::string name)
 {
     // Reserve en entity
     auto entity = ECS::Entity();
@@ -14,12 +14,15 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, int teamID)
     entity.attach(Hit, destroy_on_hit);
     entity.attach(Overlap, destroy_on_hit);
 
-    std::string key = "bullet";
+    std::string key = "bullet_" + name;
     ShadedMesh& resource = cache_resource(key);
     if (resource.effect.program.resource == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("/bullet/laser.png"), "textured");
+        std::string path = "/bullet/";
+        path.append(name);
+        path.append(".png");
+        RenderSystem::createSprite(resource, textures_path(path), "textured");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -29,7 +32,7 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, int teamID)
     Motion motion;
 
     motion.angle = angle;
-    motion.velocity = { 380.f, 0 };
+    motion.velocity = velocity;
     motion.position = position;
 
     // Setting initial values, scale is negative to make it face the opposite way

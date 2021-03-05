@@ -35,14 +35,14 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			}
 			else if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 400) && aState == AiState::WALK_BACKWARD) {
 				enemy.enemyState = AiState::WALK_BACKWARD;
-				EnemyAISystem::walkBackwardAndShoot(enemy_motion, soldierMotion);
+				EnemyAISystem::walkBackward(enemy_motion, soldierMotion);
 			}
 			else
 			{
-				if (timeTicker > enemyMovementRefresh) {
+				if (pathTicker > enemyMovementRefresh) {
 					enemy.enemyState = AiState::WANDER;
 					EnemyAISystem::walkRandom(enemy_motion);
-					timeTicker = 0;
+					pathTicker = 0;
 				}
 
 			}
@@ -70,7 +70,7 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 		}
 	}
 
-	// std::cout << "makeDecision: " << &soldier_motion << "\n";
+	// std::cout << "direct_movement: " << &soldier_motion << "\n";
 
 }
 
@@ -91,7 +91,7 @@ void EnemyAISystem::idle(Motion& enemyMotion)
 
 void EnemyAISystem::walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMotion)
 {
-	// std::cout << "walkBackwardAndShoot: " << &soldierMotion << "\n";
+	// std::cout << "walkBackward: " << &soldierMotion << "\n";
 	vec2 soldierPos = soldierMotion.position;
 	vec2 enemyPos = enemyMotion.position;
 

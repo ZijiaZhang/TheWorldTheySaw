@@ -11,13 +11,7 @@
 
 class Bullet {
 public:
-    static ECS::Entity createBullet(vec2 position, float angle, int teamID);
-
-//    static void destroy_on_hit(ECS::Entity &self,const ECS::Entity &e) {
-//        if (!self.has<DeathTimer>()) {
-//            self.emplace<DeathTimer>();
-//        }
-//    };
+    static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, std::string name);
 
     static void destroy_on_hit(ECS::Entity &self,const ECS::Entity &e) {
         if(e.has<Shield>()){
