@@ -2,6 +2,7 @@
 
 #include "common.hpp"
 #include "tiny_ecs.hpp"
+#include <AiState.hpp>
 
 enum class SoldierType {
     BASIC, MEDIUM, HEAVY
@@ -9,8 +10,9 @@ enum class SoldierType {
 
 struct Soldier
 {
+public:
 	// Creates all the associated render resources and default transform
-	static ECS::Entity createSoldier(SoldierType type, vec2 pos);
-    SoldierType type = SoldierType::BASIC;
-    static std::map<SoldierType, std::string> soldierTypes;
+	static ECS::Entity createSoldier(vec2 pos);
+
+	AiState soldierState = AiState::IDLE;
 };

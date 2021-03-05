@@ -239,6 +239,10 @@ namespace ECS {
 		}
 	};
 
-	static std::function<void(ECS::Entity, ECS::Entity)> colCallback = [](ECS::Entity e1, ECS::Entity e2) {std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n"; };
-	static std::function<void(ECS::Entity, ECS::Entity)> ptsCallback = [](ECS::Entity e1, ECS::Entity e2) {std::cout << "The entity gains " << e1.pts.getPoint() << " point \n"; };
+	static std::function<void(ECS::Entity, ECS::Entity)> colCallback = [](ECS::Entity e1, ECS::Entity e2) {
+		//std::cout << "collision of entity id: " << e1.id << " and entity id: " << e2.id << "\n"; 
+	};
+	static std::function<void(ECS::Entity, ECS::Entity)> ptsCallback = [](ECS::Entity e1, ECS::Entity e2) {
+		//std::cout << "The entity gains " << e1.pts.getPoint() << " point \n"; 
+	};
 }

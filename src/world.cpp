@@ -63,6 +63,13 @@ static float getDist(vec2 p1, vec2 p2)
 //	return atan2(det, dot);
 //}
 
+static std::map<std::string, bool> playableLevelMap = {
+		{"level_1", false},
+		{"level_2", false},
+		{"level_3", true},
+		{"level_4", true}
+};
+
 /*
  Dummy way
  split 360 degrees into even sections with DEGREE_SIZE, then
@@ -142,12 +149,15 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
-	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
+
 	auto mouse_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse(_0, _1, _2); };
 	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
-	glfwSetKeyCallback(window, key_redirect);
+
 	glfwSetMouseButtonCallback(window, mouse_redirect);
 	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+
+	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
+	glfwSetKeyCallback(window, key_redirect);
 
 	// Playing background music indefinitely
 	init_audio();
@@ -208,9 +218,9 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities[i]);
 		}
 	}
-	auto& motion = player_soldier.get<Motion>();
-	motion.velocity = { 100.f,0 };
-	// Spawning new turtles
+	//    auto& motion = player_soldier.get<Motion>();
+		// motion.velocity = {100.f,0};
+		// Spawning new turtles
 	next_turtle_spawn -= elapsed_ms * current_speed;
 
 	if (screen != window_size_in_game_units) {
@@ -267,6 +277,13 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+	aiControl = WorldSystem::isPlayableLevel(currentLevel);
+	std::cout << "current level: " << currentLevel << " ai control: " << aiControl << "\n";
+
+	endGameTimer += elapsed_ms;
+
+	runTimer(elapsed_ms);
+	checkEndGame();
 
 	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
 }
@@ -278,7 +295,7 @@ void WorldSystem::restart(std::string level)
 	currentLevel = level_loader.at_level;
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-	std::cout << "Restarting\n";
+	// std::cout << "Restarting\n";
 
 	// WorldSystem::initializeCallbacks();
 
@@ -309,13 +326,50 @@ void WorldSystem::restart(std::string level)
 	}
 	player_soldier = soliders.front();
 
-	std::cout << "soldier addr: " << &player_soldier << "\n";
+	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 	while (!ECS::registry<Camera>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
 	ECS::Entity camera;
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
+}
+
+bool WorldSystem::isPlayableLevel(std::string level)
+{
+	return playableLevelMap[level];
+}
+
+void WorldSystem::checkEndGame()
+{
+	if (WorldSystem::isPlayableLevel(currentLevel)) {
+		if (endGameTimer > 10000.f) {
+			if (ECS::registry<Enemy>.entities.size() <= 0) {
+				resetTimer();
+				restart("level_1");
+			}
+
+			if (ECS::registry<Enemy>.entities.size() > 0) {
+				resetTimer();
+				restart("level_2");
+			}
+		}
+	}
+}
+
+void WorldSystem::runTimer(float elapsed_ms)
+{
+	if (isPlayableLevel(currentLevel)) {
+		endGameTimer += elapsed_ms;
+	}
+	else {
+		resetTimer();
+	}
+}
+
+void WorldSystem::resetTimer()
+{
+	endGameTimer = 0.f;
 }
 
 // Compute collisions between entities
@@ -448,75 +502,77 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA)
 	{
 		current_speed -= 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
+		// std::cout << "Current speed = " << current_speed << std::endl;
 	}
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_PERIOD)
 	{
 		current_speed += 0.1f;
-		std::cout << "Current speed = " << current_speed << std::endl;
+		// std::cout << "Current speed = " << current_speed << std::endl;
 	}
 	current_speed = std::max(0.f, current_speed);
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
-	if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
-	{
-		DRAWING = true;
-		mouse_points.clear();
-	}
-	else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
-	{
-		DRAWING = false;
-		if (checkCircle(player_soldier))
+	if (!aiControl) {
+		if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
 		{
-			SHIELDUP = true;
+			DRAWING = true;
+			mouse_points.clear();
+		}
+		else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
+		{
+			DRAWING = false;
+			if (checkCircle(player_soldier))
+			{
+				SHIELDUP = true;
+			}
 		}
 	}
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
-	if (!ECS::registry<DeathTimer>.has(player_soldier))
-	{
-		auto& motion = ECS::registry<Motion>.get(player_soldier);
-		// Get world mouse position
-		if (!ECS::registry<Camera>.entities.empty()) {
-			auto& camera = ECS::registry<Camera>.entities[0];
-			if (camera.has<Camera>()) {
-				vec2 camera_pos = camera.get<Camera>().get_position();
-				mouse_pos += camera_pos;
+	if (!aiControl) {
+		if (!ECS::registry<DeathTimer>.has(player_soldier))
+		{
+			auto& motion = ECS::registry<Motion>.get(player_soldier);
+			// Get world mouse position
+			if (!ECS::registry<Camera>.entities.empty()) {
+				auto& camera = ECS::registry<Camera>.entities[0];
+				if (camera.has<Camera>()) {
+					vec2 camera_pos = camera.get<Camera>().get_position();
+					mouse_pos += camera_pos;
+				}
 			}
-		}
-		float disY = mouse_pos.y - motion.position.y;
-		float disX = mouse_pos.x - motion.position.x;
-		float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
+			float disY = mouse_pos.y - motion.position.y;
+			float disX = mouse_pos.x - motion.position.x;
+			float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
 
-		float sinV = asin(disY / longestL);
-		float cosV = acos(disX / longestL);
-		auto dir = mouse_pos - motion.position;
-		// printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
-		float rad = atan2(dir.y, dir.x);
-		motion.angle = rad;
+			float sinV = asin(disY / longestL);
+			float cosV = acos(disX / longestL);
+			auto dir = mouse_pos - motion.position;
+			// printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
+			float rad = atan2(dir.y, dir.x);
+			motion.angle = rad;
 
-		if (SHIELDUP && !hasShield) {
-			shield = Shield::createShield({ motion.position.x + 300 * cosV, motion.position.y + 300 * sinV });
-			hasShield = true;
-		}
-
-		if (SHIELDUP) {
-			auto& motionSh = ECS::registry<Motion>.get(shield);
-			motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
-			motionSh.angle = rad;
-		}
-		if (DRAWING) {
-			if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
-				mouse_points.pop_front();
+			if (SHIELDUP && !hasShield) {
+				shield = Shield::createShield({ motion.position.x + 300 * cosV, motion.position.y + 300 * sinV });
+				hasShield = true;
 			}
-			mouse_points.push_back(mouse_pos - motion.position);
+
+			if (SHIELDUP) {
+				auto& motionSh = ECS::registry<Motion>.get(shield);
+				motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
+				motionSh.angle = rad;
+			}
+			if (DRAWING) {
+				if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
+					mouse_points.pop_front();
+				}
+				mouse_points.push_back(mouse_pos - motion.position);
+			}
 		}
 	}
-
-
 }
 
 bool WorldSystem::reload_level = false;

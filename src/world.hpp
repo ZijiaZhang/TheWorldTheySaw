@@ -46,6 +46,8 @@ public:
 	// Should the game be over ?
 	bool is_over() const;
 
+	bool aiControl;
+
 	std::string currentLevel;
 
 	// OpenGL window handle
@@ -60,10 +62,16 @@ private:
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 mouse_pos);
 
-	void initializeCallbacks();
-
 	// Loads the audio
 	void init_audio();
+
+	bool isPlayableLevel(std::string level);
+
+	void checkEndGame();
+
+	void runTimer(float elapsed_ms);
+
+	void resetTimer();
 
 	// Number of fish eaten by the salmon, displayed in the window title
 	unsigned int points;
@@ -73,6 +81,7 @@ private:
 	float next_turtle_spawn;
 	float next_fish_spawn;
 	float next_gunfire_spawn;
+	float endGameTimer;
 	ECS::Entity player_soldier;
 	ECS::Entity shield;
 
@@ -86,5 +95,5 @@ private:
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 	vec2 screen;
 
-    void on_mouse(int key, int action, int mod);
+	void on_mouse(int key, int action, int mod);
 };
