@@ -9,7 +9,11 @@ std::map<ButtonType, std::string> Button::buttonNames = {
 	{ButtonType::DEFAULT_BUTTON, "default"},
 	{ButtonType::START, "start"},
 	{ButtonType::LEVEL_SELECT, "level_select"},
-	{ButtonType::QUIT, "quit"}
+	{ButtonType::QUIT, "quit"},
+    {ButtonType::SELECT_BULLET, "default"},
+    {ButtonType::SELECT_ROCKET, "default"},
+    {ButtonType::SELECT_DIRECT, "default"},
+    {ButtonType::SELECT_A_STAR, "default"},
 };
 
 ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap)

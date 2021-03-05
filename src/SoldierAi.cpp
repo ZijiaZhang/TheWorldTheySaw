@@ -118,14 +118,14 @@ void SoldierAISystem::direct_movement(ECS::Entity& soldier_entity, float elapsed
 				AiState aState = soldier.soldierState;
 				if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 300) && aState == AiState::WALK_FORWARD) {
 					if (pathTicker > updateRate) {
-						soldier.soldierState = AiState::WALK_BACKWARD_AND_SHOOT;
+						soldier.soldierState = AiState::WALK_BACKWARD;
                         SoldierAISystem::walkBackward(soldier_motion, enemyMotion);
                         pathTicker = 0.f;
 					}
 				}
 				else if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 500) && aState == AiState::WALK_BACKWARD) {
 					if (pathTicker > updateRate) {
-						soldier.soldierState = AiState::WALK_BACKWARD_AND_SHOOT;
+						soldier.soldierState = AiState::WALK_BACKWARD;
                         SoldierAISystem::walkBackward(soldier_motion, enemyMotion);
                         pathTicker = 0.f;
 					}
@@ -133,7 +133,7 @@ void SoldierAISystem::direct_movement(ECS::Entity& soldier_entity, float elapsed
 				else
 				{
 					if (pathTicker > updateRate) {
-						soldier.soldierState = AiState::WALK_FORWARD_AND_SHOOT;
+						soldier.soldierState = AiState::WALK_FORWARD;
                         SoldierAISystem::walkForward(soldier_motion, enemyMotion);
                         pathTicker = 0.f;
 					}
