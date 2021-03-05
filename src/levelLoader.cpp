@@ -18,6 +18,7 @@
 #include "render_components.hpp"
 #include "button.hpp"
 #include "world.hpp"
+#include "loading.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -99,7 +100,12 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
                           std::function<void(ECS::Entity&, const  ECS::Entity&)>,
                           std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
                 Start::createStart(location);
-            }}
+            }},
+        {"weapon", [](vec2 location, vec2 , float ,
+                      std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                      std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            Loading::createLoading(location);
+        }}
 };
 
 /**
