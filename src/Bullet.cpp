@@ -44,6 +44,15 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle)
     ECS::registry<Motion>.emplace(entity, motion);
 
     auto& physics = ECS::registry<PhysicsObject>.emplace(entity);
+    physics.vertex = {
+            {
+                    PhysicsVertex{{-0.25, 0.05, -0.02}},
+                    PhysicsVertex{{0.25, 0.05, -0.02}},
+                    PhysicsVertex{{0.25, -0.05, -0.02}},
+                    PhysicsVertex{{-0.25, -0.05, -0.02}}
+            }
+    };
+    physics.faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
     physics.object_type = BULLET;
     // Create and (empty) Fish component to be able to refer to all fish
     ECS::registry<Bullet>.emplace(entity);

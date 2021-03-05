@@ -2,8 +2,7 @@
     "player": [{
         "position": {"x": 100, "y": 200}
     }],
-    "map": {
-        "borders": [
+    "borders": [
             {
                 "position": {"x" : 1000, "y": 500},
                 "size": {"x" : 20, "y": 1000},
@@ -47,6 +46,6 @@
                 "rotation": 0
             }
         ]
-    }
-    
+
+
 }
