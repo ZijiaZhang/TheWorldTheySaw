@@ -27,24 +27,27 @@
     ],
     "button_select_direct": [
         {
-            "position": {"x": -100, "y":  425}
+            "position": {"x": -100, "y":  450}
         }
     ],
     "button_select_a_star": [
         {
-            "position": {"x": 250, "y":  420}
+            "position": {"x": 250, "y":  450}
         }
     ],
     "button_enter_level": [
         {
-            "position": {"x": 315, "y":  495}
+            "position": {
+                "x": 315,
+                "y": 575
+            }
         }
     ],
     "return_to_level_select": [
         {
             "position": {
-                "x": 100,
-                "y": 400
+                "x": -150,
+                "y": 575
             }
         }
     ]

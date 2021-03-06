@@ -19,7 +19,7 @@ ECS::Entity Soldier::createSoldier(vec2 position,
     if (resource.effect.program.resource == 0)
     {
 
-        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_heavy_unarmed.png"), "textured");
+        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "textured");
     }
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -49,7 +49,7 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Soldier component to be able to refer to all turtles
-	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,60.f}, 0, entity);
+	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,20.f}, 0, entity);
     entity.emplace<AIPath>();
 
 	auto& soldier = ECS::registry<Soldier>.emplace(entity);
