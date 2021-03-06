@@ -235,17 +235,19 @@ ECS::Entity SoldierAISystem::getCloestEnemy(Motion& soldierMotion)
 	// std::cout << "getCloestEnemy: " << &soldierMotion << "\n";
 	auto& enemyList = ECS::registry<Enemy>.entities;
 	float minDistance = FLT_MAX;
-	ECS::Entity closestEnemy = enemyList[0];
-	for (ECS::Entity& enemyEntity : enemyList) {
-		if (ECS::registry<Motion>.has(enemyEntity)) {
-			auto& enemyMotion = ECS::registry<Motion>.get(enemyEntity);
-			float distance = pow(soldierMotion.position.x - enemyMotion.position.x, 2) + pow(soldierMotion.position.y - enemyMotion.position.y, 2);
-			if (distance < minDistance) {
-				minDistance = distance;
-				closestEnemy = enemyEntity;
-			}
-		}
-	}
-
+    ECS::Entity closestEnemy;
+    if (enemyList.size() > 0) {
+        closestEnemy = enemyList[0];
+        for (ECS::Entity& enemyEntity : enemyList) {
+            if (ECS::registry<Motion>.has(enemyEntity)) {
+                auto& enemyMotion = ECS::registry<Motion>.get(enemyEntity);
+                float distance = pow(soldierMotion.position.x - enemyMotion.position.x, 2) + pow(soldierMotion.position.y - enemyMotion.position.y, 2);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestEnemy = enemyEntity;
+                }
+            }
+        }
+    }
 	return closestEnemy;
 }

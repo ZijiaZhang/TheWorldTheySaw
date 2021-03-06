@@ -1,0 +1,27 @@
+{
+    "player": [{
+        "position": {"x": 100, "y": 200}
+    }],
+    "select_level_1": [
+        {
+            "position": {"x": -100, "y":  0}
+        }
+    ],
+    "select_level_2": [
+        {
+            "position": {
+                "x": 300,
+                "y": 0
+            }
+        }
+    ],
+
+    "return_to_menu": [
+        {
+            "position": {
+                "x": 100,
+                "y": 300
+            }
+        }
+    ]
+}
