@@ -38,6 +38,12 @@ void enemy_bullet_hit_death(ECS::Entity& self, const ECS::Entity& e) {
 	}
 };
 
+void soldier_bullet_hit_death(ECS::Entity& self, const ECS::Entity& e) {
+	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Soldier>().teamID && !self.has<DeathTimer>()) {
+		self.emplace<DeathTimer>();
+	}
+};
+
 auto select_algo_of_type(AIAlgorithm algo) {
 	return [=](ECS::Entity& self, const ECS::Entity& other) {
 		if (other.has<Soldier>()) {
@@ -67,6 +73,10 @@ std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Ent
 		{"enemy_bullet_hit_death", enemy_bullet_hit_death},
 };
 
+std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Entity&)>> LevelLoader::physics_callbacks_soldier = {
+		{"soldier_bullet_hit_death", soldier_bullet_hit_death},
+};
+
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	std::function<void(ECS::Entity&, const  ECS::Entity&)>, std::function<void(ECS::Entity&, const  ECS::Entity&)>, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
@@ -85,9 +95,9 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	}
 	},
 	{"player", [](vec2 location, vec2 size, float rotation,
-			std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-			std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&) {
-		return Soldier::createSoldier(location);
+			std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
+			std::function<void(ECS::Entity&, const  ECS::Entity&)> hit, const json&) {
+		return Soldier::createSoldier(location, std::move(overlap), std::move(hit));
 	}},
 	{"enemy", [](vec2 location, vec2 size, float rotation,
 				 std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
@@ -246,6 +256,8 @@ void LevelLoader::load_level() {
 				float rotation = b.contains("rotation") ? static_cast<float>(b["rotation"]) : 0.f;
 				auto overlap = b.contains("overlap") ? physics_callbacks[b["overlap"]] : [](ECS::Entity&, const ECS::Entity& e) {};
 				auto hit = b.contains("hit") ? physics_callbacks[b["hit"]] : [](ECS::Entity&, const ECS::Entity& e) {};
+				auto overlap_s = b.contains("overlap") ? physics_callbacks_soldier[b["overlap"]] : [](ECS::Entity&, const ECS::Entity& e) {};
+				auto hit_s = b.contains("hit") ? physics_callbacks_soldier[b["hit"]] : [](ECS::Entity&, const ECS::Entity& e) {};
 				auto additional = b.contains("additionalProperties") ? b["additionalProperties"] : json{};
 				level_object.second(position, size, rotation, overlap, hit, additional);
 			}

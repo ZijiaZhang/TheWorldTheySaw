@@ -6,9 +6,13 @@
 
 
 
-ECS::Entity Soldier::createSoldier(vec2 position)
+ECS::Entity Soldier::createSoldier(vec2 position,
+	std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
+	std::function<void(ECS::Entity&, const  ECS::Entity&)> hit)
 {
 	auto entity = ECS::Entity();
+	entity.attach(Overlap, overlap);
+	entity.attach(Hit, std::move(hit));
 
     std::string key = "soldier";
     ShadedMesh& resource = cache_resource(key);
@@ -51,5 +55,6 @@ ECS::Entity Soldier::createSoldier(vec2 position)
 	auto& soldier = ECS::registry<Soldier>.emplace(entity);
 	soldier.ai_algorithm = A_STAR;
 	soldier.weapon = weapon;
+	soldier.teamID = 0;
 	return entity;
 }

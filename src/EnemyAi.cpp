@@ -2,6 +2,7 @@
 #include "Enemy.hpp"
 #include "soldier.hpp"
 #include "debug.hpp"
+#include <Bullet.hpp>
 
 void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
@@ -116,10 +117,13 @@ void EnemyAISystem::walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMot
 
 void EnemyAISystem::walkRandom(Motion& enemyMotion)
 {
+	Bullet::createBullet(enemyMotion.position, enemyMotion.angle, { 380, 0 }, 1, "bullet");
 	enemyMotion.velocity = vec2{ rand() % 200 - 99, rand() % 200 - 99 };
 }
 
 void EnemyAISystem::shortestPathToSoldier(ECS::Entity& e, float elapsed_ms, vec2 dest)
 {
+	auto& motion = e.get<Motion>();
+	Bullet::createBullet(motion.position, motion.angle, { 380, 0 }, 1, "bullet");
 	ai.enemy_ai_step(e, elapsed_ms, dest);
 }

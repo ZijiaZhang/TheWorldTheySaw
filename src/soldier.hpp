@@ -13,9 +13,11 @@ struct Soldier
 {
 public:
 	// Creates all the associated render resources and default transform
-	static ECS::Entity createSoldier(vec2 pos);
+	static ECS::Entity createSoldier(vec2 pos, std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap = [](ECS::Entity&, const ECS::Entity&) {},
+		std::function<void(ECS::Entity&, const  ECS::Entity&)> hit = [](ECS::Entity&, const ECS::Entity&) {});
 
 	AiState soldierState = AiState::IDLE;
 	ECS::Entity weapon;
     AIAlgorithm ai_algorithm;
+	int teamID = 0;
 };
