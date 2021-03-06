@@ -15,11 +15,6 @@
             }
         }
     ],
-    "return_to_loadout": [
-        {
-            "position": {"x": 250, "y":  275}
-        }
-    ],
     "return_to_menu": [
         {
             "position": {

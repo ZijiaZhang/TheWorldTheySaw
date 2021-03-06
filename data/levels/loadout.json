@@ -35,7 +35,7 @@
             "position": {"x": 250, "y":  450}
         }
     ],
-    "return_to_level_select": [
+    "button_enter_level": [
         {
             "position": {
                 "x": 315,
@@ -43,7 +43,7 @@
             }
         }
     ],
-    "return_to_menu": [
+    "return_to_level_select": [
         {
             "position": {
                 "x": -150,
