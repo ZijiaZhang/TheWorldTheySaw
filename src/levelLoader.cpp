@@ -172,13 +172,24 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 						std::function<void(ECS::Entity&, const  ECS::Entity&)>,
 						std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
 					{
-						return Button::createButton(ButtonType::DEFAULT_BUTTON, location, [](ECS::Entity& self, const ECS::Entity& other) {
+						return Button::createButton(ButtonType::RETURN, location, [](ECS::Entity& self, const ECS::Entity& other) {
 							if (other.has<Soldier>()) {
 								WorldSystem::reload_level = true;
 								WorldSystem::level_name = "menu";
 							}
 						});
 					} },
+        { "return_to_loadout", [](vec2 location, vec2 size, float rotation,
+                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+                {
+                    return Button::createButton(ButtonType::DEFAULT_BUTTON, location, [](ECS::Entity& self, const ECS::Entity& other) {
+                        if (other.has<Soldier>()) {
+                            WorldSystem::reload_level = true;
+                            WorldSystem::level_name = "loadout";
+                        }
+                    });
+                } },
 		{ "return_to_level_select", [](vec2 location, vec2 size, float rotation,
 							std::function<void(ECS::Entity&, const  ECS::Entity&)>,
 							std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
@@ -194,11 +205,11 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 					std::function<void(ECS::Entity&, const  ECS::Entity&)>,
 					std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
 				 {
-					 return Button::createButton(ButtonType::DEFAULT_BUTTON, location, [](ECS::Entity& self, const ECS::Entity& other) {
+					 return Button::createButton(ButtonType::LEVEL1, location, [](ECS::Entity& self, const ECS::Entity& other) {
 						 if (other.has<Soldier>()) {
 							 WorldSystem::reload_level = true;
 							 WorldSystem::selected_level = "level_4";
-							 WorldSystem::level_name = "loadout";
+							 WorldSystem::level_name = "level_4";
 						 }
 					 });
 				 }},
@@ -206,11 +217,11 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 						std::function<void(ECS::Entity&, const  ECS::Entity&)>,
 						std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
 					{
-						return Button::createButton(ButtonType::DEFAULT_BUTTON, location, [](ECS::Entity& self, const ECS::Entity& other) {
+						return Button::createButton(ButtonType::LEVEL2, location, [](ECS::Entity& self, const ECS::Entity& other) {
 							if (other.has<Soldier>()) {
 								WorldSystem::reload_level = true;
 								WorldSystem::selected_level = "level_3";
-								WorldSystem::level_name = "loadout";
+								WorldSystem::level_name = "level_3";
 							}
 						});
 					} }
