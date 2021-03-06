@@ -86,16 +86,20 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
     std::priority_queue<Path_with_heuristics, std::vector<Path_with_heuristics>, decltype(comp)> front(comp);
     std::pair<int, int> cur_grid = get_grid_from_loc(agent_motion.position);
     std::pair<int, int> dest_grid = get_grid_from_loc(position);
-
-    front.push(Path_with_heuristics{ std::vector<std::pair<int,int>>{cur_grid}, 0.f,
-                                    get_dist(cur_grid, dest_grid) });
+    auto initial_path = Path_with_heuristics{std::vector<std::pair<int,int>>{cur_grid}, 0.f,
+                                             get_dist(cur_grid, dest_grid)};
+    front.push(initial_path);
     std::pair<int, int> neighbors[]{ {0,1}, {0, -1}, {1,0}, {-1,0} };
     std::pair<int, int> neighbors2[]{ {-1,-1}, {1, -1}, {-1,1}, {1,1} };
 
     std::set<std::pair<int, int>> visited;
+    auto closest_path = initial_path;
     int counter = 50;
     while (!front.empty() && counter > 0) {
         auto path = front.top();
+        if (closest_path.heuristic > path.heuristic){
+            closest_path = path;
+        }
         front.pop();
         auto last_node = path.path.back();
         if (get_dist(last_node, dest_grid) <= radius) {
@@ -124,9 +128,9 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
         }
     }
     if (front.empty()) {
-        return Path_with_heuristics{};
+        return closest_path;
     }
-    return front.top();
+    return closest_path;
 }
 
 float AISystem::get_dist(const std::pair<int, int>& cur_grid,
