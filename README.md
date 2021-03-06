@@ -20,3 +20,16 @@ Main functions:
 
 - Texture layering
 
+
+## M2
+Main function
+- Add main menu
+- PLayer AI & Simple Enemy AI
+- To beat the level you need to call out shield by draw circles
+- Loadout selction by stpping on the desired weapon/ algorithm
+- There are currently two levels
+- Dynamic path finding. The enemy will navigate among moveable walls, but the spell that can move walls has not been crated yet, but the feature is there.
+- Parent and child system
+- Decition tree in Enemy
+- Help message in weapon selection page
+- Level loading with json files
