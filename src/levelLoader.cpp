@@ -38,6 +38,12 @@ void enemy_bullet_hit_death(ECS::Entity& self, const ECS::Entity& e) {
 	}
 };
 
+void soldier_bullet_hit_death(ECS::Entity& self, const ECS::Entity& e) {
+	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Soldier>().teamID && !self.has<DeathTimer>()) {
+		self.emplace<DeathTimer>();
+	}
+};
+
 auto select_algo_of_type(AIAlgorithm algo) {
 	return [=](ECS::Entity& self, const ECS::Entity& other) {
 		if (other.has<Soldier>()) {
@@ -65,6 +71,7 @@ auto select_weapon_of_type(WeaponType type) {
 
 std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Entity&)>> LevelLoader::physics_callbacks = {
 		{"enemy_bullet_hit_death", enemy_bullet_hit_death},
+        {"soldier_bullet_hit_death", soldier_bullet_hit_death},
 };
 
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
@@ -85,9 +92,9 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	}
 	},
 	{"player", [](vec2 location, vec2 size, float rotation,
-			std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-			std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&) {
-		return Soldier::createSoldier(location);
+			std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
+			std::function<void(ECS::Entity&, const  ECS::Entity&)> hit, const json&) {
+		return Soldier::createSoldier(location, std::move(overlap), std::move(hit));
 	}},
 	{"enemy", [](vec2 location, vec2 size, float rotation,
 				 std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,

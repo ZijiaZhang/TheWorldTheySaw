@@ -40,8 +40,8 @@ int MOUSE_POINTS_COUNT = 600;
 int LOW_RANGE = 0;
 int HIGH_RANGE = 1000;
 bool DRAWING = false;
-int DEGREE_SIZE = 45;
-int SECTION_POINT_NUM = 3;
+int DEGREE_SIZE = 60;
+int SECTION_POINT_NUM = 2;
 
 int KILL_SIZE = 3000;
 
@@ -70,7 +70,8 @@ static std::map<std::string, bool> playableLevelMap = {
 		{"menu", false},
 		{"loadout", false},
 		{"level_3", true},
-		{"level_4", true}
+		{"level_4", true},
+        {"level_5", true}
 };
 
 /*
@@ -253,7 +254,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 void WorldSystem::restart(std::string level)
 {
 	level_loader.set_level(level);
-	currentLevel = level_loader.at_level;
+	currentLevel = level;
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 
@@ -324,12 +325,16 @@ bool WorldSystem::isPlayableLevel(std::string level)
 void WorldSystem::checkEndGame()
 {
 	if (WorldSystem::isPlayableLevel(currentLevel)) {
-        if (ECS::registry<Enemy>.entities.size() <= 0) {
+        if (ECS::registry<Enemy>.entities.empty()) {
+            resetTimer();
+            restart("level_select");
+        }
+        if (ECS::registry<Soldier>.entities.empty()) {
             resetTimer();
             restart("level_select");
         }
 		if (endGameTimer > 1000000.f) {
-			if (ECS::registry<Enemy>.entities.size() > 0) {
+			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
 				restart("menu");
 			}
@@ -459,7 +464,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
         // level_loader.set_level("level_3");
         // level_loader.at_level = "level_3";
-        restart("level_5");
+        reload_level = true;
+        level_name = "level_5";
     }
 
 	// Debugging
