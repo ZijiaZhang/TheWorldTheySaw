@@ -40,7 +40,7 @@ int MOUSE_POINTS_COUNT = 600;
 int LOW_RANGE = 0;
 int HIGH_RANGE = 1000;
 bool DRAWING = false;
-int DEGREE_SIZE = 60;
+int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
 
 int KILL_SIZE = 3000;
