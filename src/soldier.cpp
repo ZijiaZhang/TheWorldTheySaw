@@ -15,7 +15,7 @@ ECS::Entity Soldier::createSoldier(vec2 position)
     if (resource.effect.program.resource == 0)
     {
 
-        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "textured");
+        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_heavy_unarmed.png"), "textured");
     }
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

@@ -12,6 +12,8 @@ typedef enum{
 typedef enum{
     W_BULLET,
     W_ROCKET,
+    W_LASER,
+    W_AMMO
 } WeaponType;
 
 class SoldierAISystem
@@ -24,6 +26,8 @@ static void direct_movement(ECS::Entity& soldier_entity, float elapsed_ms);
 static void a_star_to_closest_enemy(ECS::Entity& soldier_entity, float elapsed_ms);
     static void shoot_bullet(ECS::Entity& soldier_entity, float elapsed_ms);
     static void shoot_rocket(ECS::Entity& soldier_entity, float elapsed_ms);
+    static void shoot_laser(ECS::Entity& soldier_entity, float elapsed_ms);
+    static void shoot_ammo(ECS::Entity& soldier_entity, float elapsed_ms);
 
 
 private:

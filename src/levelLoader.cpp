@@ -113,22 +113,30 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 			}
 	});
 	}},
-	{"button_select_bullet", [](vec2 location, vec2 size, float rotation,
-						  std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-						  std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&) {
-		return Button::createButton(ButtonType::SELECT_BULLET, location, select_weapon_of_type(W_BULLET)); }},
 	{"button_select_rocket", [](vec2 location, vec2 size, float rotation,
-								std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-								std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&) {
-		return Button::createButton(ButtonType::SELECT_ROCKET, location, select_weapon_of_type(W_ROCKET)); }},
-	{"button_select_direct", [](vec2 location, vec2 size, float rotation,
-								std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-								std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&) {
-		return Button::createButton(ButtonType::SELECT_DIRECT, location, select_algo_of_type(DIRECT)); }},
-	{"button_select_a_star", [](vec2 location, vec2 size, float rotation,
-								std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-								std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&) {
-		return Button::createButton(ButtonType::SELECT_DIRECT, location, select_algo_of_type(A_STAR)); }},
+                              std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                              std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Button::createButton( ButtonType::SELECT_ROCKET, location, select_weapon_of_type(W_ROCKET));}},
+        {"button_select_ammo", [](vec2 location, vec2 size, float rotation,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Button::createButton( ButtonType::SELECT_AMMO, location, select_weapon_of_type(W_AMMO));}},
+        {"button_select_laser", [](vec2 location, vec2 size, float rotation,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Button::createButton( ButtonType::SELECT_LASER, location, select_weapon_of_type(W_LASER));}},
+        {"button_select_bullet", [](vec2 location, vec2 size, float rotation,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+            return Button::createButton( ButtonType::SELECT_BULLET, location, select_weapon_of_type(W_BULLET));}},
+        {"button_select_direct", [](vec2 location, vec2 size, float rotation,
+                                std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                                std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+        return Button::createButton( ButtonType::SELECT_DIRECT, location, select_algo_of_type(DIRECT));}},
+        {"button_select_a_star", [](vec2 location, vec2 size, float rotation,
+                                std::function<void(ECS::Entity&, const  ECS::Entity&)>,
+                                std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+        return Button::createButton( ButtonType::SELECT_A_STAR, location, select_algo_of_type(A_STAR));}},
 	{"button_enter_level", [](vec2 location, vec2 size, float rotation,
 						std::function<void(ECS::Entity&, const  ECS::Entity&)>,
 						std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
