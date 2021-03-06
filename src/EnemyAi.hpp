@@ -15,7 +15,10 @@ private:
 
     float timeTicker = 0.f;
 
-    float enemyMovementRefresh = 2000.f;
+    float enemyMovementRefresh = 30.f;
+
+    float shoot_time = 0.f;
+    float shoot_interval = 500.f;
     // Decision tree if statements
     void makeDecision(ECS::Entity enemy_entity, float elapsed_ms);
 

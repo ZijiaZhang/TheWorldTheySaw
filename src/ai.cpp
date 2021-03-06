@@ -93,7 +93,7 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
     std::pair<int, int> neighbors2[]{ {-1,-1}, {1, -1}, {-1,1}, {1,1} };
 
     std::set<std::pair<int, int>> visited;
-    int counter = 200;
+    int counter = 50;
     while (!front.empty() && counter > 0) {
         auto path = front.top();
         front.pop();

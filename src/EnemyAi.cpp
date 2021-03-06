@@ -7,12 +7,27 @@
 void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	timeTicker += elapsed_ms;
+	shoot_time += elapsed_ms;
 	if (!ECS::registry<Enemy>.components.empty())
 	{
-		for (auto& enemy : ECS::registry<Enemy>.entities)
-		{
-			EnemyAISystem::makeDecision(enemy, elapsed_ms);
-		}
+        if (timeTicker > enemyMovementRefresh) {
+            for (auto& enemy : ECS::registry<Enemy>.entities)
+            {
+                EnemyAISystem::makeDecision(enemy, elapsed_ms);
+            }
+            timeTicker = 0;
+        }
+        if (shoot_time > shoot_interval){
+            for (auto& enemy_entity : ECS::registry<Enemy>.entities)
+            {
+                if (ECS::registry<Motion>.has(enemy_entity) && ECS::registry<Enemy>.has(enemy_entity)) {
+                    auto& enemy_motion = ECS::registry<Motion>.get(enemy_entity);
+                    auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
+                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, "bullet");
+                }
+            }
+            shoot_time = 0;
+        }
 	}
 }
 
@@ -27,41 +42,16 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			ECS::Entity& soldier = ECS::registry<Soldier>.entities[0];
 			auto& soldierMotion = ECS::registry<Motion>.get(soldier);
 
-//			AiState aState = enemy.enemyState;
-			/*
-			if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 100) && aState == AiState::WALK_FORWARD) {
-				enemy.enemyState = AiState::WALK_BACKWARD;
-				EnemyAISystem::walkBackwardAndShoot(enemy_motion, soldierMotion);
-
-			}
-			else if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 400) && aState == AiState::WALK_BACKWARD) {
-				enemy.enemyState = AiState::WALK_BACKWARD;
-				EnemyAISystem::walkBackward(enemy_motion, soldierMotion);
-			}
-			else
-			{
-				if (pathTicker > enemyMovementRefresh) {
-					enemy.enemyState = AiState::WANDER;
-					EnemyAISystem::walkRandom(enemy_motion);
-					pathTicker = 0;
-				}
-
-			}
-			*/
-
 			if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 500.f)) {
 				enemy.enemyState = AiState::WALK_FORWARD;
 				EnemyAISystem::shortestPathToSoldier(enemy_entity, elapsed_ms, soldierMotion.position);
 			}
 			else
 			{
-				if (timeTicker > enemyMovementRefresh) {
 					enemy.enemyState = AiState::WANDER;
 					EnemyAISystem::walkRandom(enemy_motion);
-					timeTicker = 0;
-				}
-
 			}
+
 
 		}
 		else
@@ -117,13 +107,11 @@ void EnemyAISystem::walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMot
 
 void EnemyAISystem::walkRandom(Motion& enemyMotion)
 {
-	Bullet::createBullet(enemyMotion.position, enemyMotion.angle, { 380, 0 }, 1, "bullet");
 	enemyMotion.velocity = vec2{ rand() % 200 - 99, rand() % 200 - 99 };
 }
 
 void EnemyAISystem::shortestPathToSoldier(ECS::Entity& e, float elapsed_ms, vec2 dest)
 {
 	auto& motion = e.get<Motion>();
-	Bullet::createBullet(motion.position, motion.angle, { 380, 0 }, 1, "bullet");
 	ai.enemy_ai_step(e, elapsed_ms, dest);
 }

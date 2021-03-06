@@ -8,6 +8,8 @@
 #include "tiny_ecs.hpp"
 #include "render.hpp"
 #include "shield.hpp"
+#include "Enemy.hpp"
+#include "soldier.hpp"
 
 class Bullet {
 public:
@@ -18,8 +20,18 @@ public:
             if (e.get<Shield>().teamID == self.get<Bullet>().teamID){
                 return;
             }
-
         }
+        if(e.has<Enemy>()){
+            if (e.get<Enemy>().teamID == self.get<Bullet>().teamID){
+                return;
+            }
+        }
+        if(e.has<Soldier>()){
+            if (e.get<Soldier>().teamID == self.get<Bullet>().teamID){
+                return;
+            }
+        }
+
         if (!self.has<DeathTimer>()) {
             self.emplace<DeathTimer>();
         }

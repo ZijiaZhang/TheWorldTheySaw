@@ -71,10 +71,7 @@ auto select_weapon_of_type(WeaponType type) {
 
 std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Entity&)>> LevelLoader::physics_callbacks = {
 		{"enemy_bullet_hit_death", enemy_bullet_hit_death},
-};
-
-std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Entity&)>> LevelLoader::physics_callbacks_soldier = {
-		{"soldier_bullet_hit_death", soldier_bullet_hit_death},
+        {"soldier_bullet_hit_death", soldier_bullet_hit_death},
 };
 
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
@@ -267,8 +264,6 @@ void LevelLoader::load_level() {
 				float rotation = b.contains("rotation") ? static_cast<float>(b["rotation"]) : 0.f;
 				auto overlap = b.contains("overlap") ? physics_callbacks[b["overlap"]] : [](ECS::Entity&, const ECS::Entity& e) {};
 				auto hit = b.contains("hit") ? physics_callbacks[b["hit"]] : [](ECS::Entity&, const ECS::Entity& e) {};
-				auto overlap_s = b.contains("overlap") ? physics_callbacks_soldier[b["overlap"]] : [](ECS::Entity&, const ECS::Entity& e) {};
-				auto hit_s = b.contains("hit") ? physics_callbacks_soldier[b["hit"]] : [](ECS::Entity&, const ECS::Entity& e) {};
 				auto additional = b.contains("additionalProperties") ? b["additionalProperties"] : json{};
 				level_object.second(position, size, rotation, overlap, hit, additional);
 			}

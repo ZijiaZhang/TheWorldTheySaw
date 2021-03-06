@@ -41,7 +41,7 @@ int LOW_RANGE = 0;
 int HIGH_RANGE = 1000;
 bool DRAWING = false;
 int DEGREE_SIZE = 45;
-int SECTION_POINT_NUM = 3;
+int SECTION_POINT_NUM = 2;
 
 int KILL_SIZE = 3000;
 
@@ -324,12 +324,16 @@ bool WorldSystem::isPlayableLevel(std::string level)
 void WorldSystem::checkEndGame()
 {
 	if (WorldSystem::isPlayableLevel(currentLevel)) {
-        if (ECS::registry<Enemy>.entities.size() <= 0) {
+        if (ECS::registry<Enemy>.entities.empty()) {
+            resetTimer();
+            restart("level_select");
+        }
+        if (ECS::registry<Soldier>.entities.empty()) {
             resetTimer();
             restart("level_select");
         }
 		if (endGameTimer > 1000000.f) {
-			if (ECS::registry<Enemy>.entities.size() > 0) {
+			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
 				restart("menu");
 			}
