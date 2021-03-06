@@ -308,6 +308,15 @@ void WorldSystem::restart(std::string level)
         soldier.ai_algorithm = algo;
     }
 
+	if (level == "level_3") 
+	{
+		AISystem::GRID_SIZE = 100;
+	}
+	else 
+	{
+		AISystem::GRID_SIZE = 50;
+	}
+
 	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 	while (!ECS::registry<Camera>.entities.empty())

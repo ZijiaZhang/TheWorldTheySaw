@@ -10,6 +10,7 @@
 
 
 std::map<CollisionObjectType, std::set<std::pair<int, int>>> AISystem::occupied_grids_Enemy;
+int AISystem::GRID_SIZE=50;
 
 void AISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {

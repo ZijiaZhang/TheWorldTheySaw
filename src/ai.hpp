@@ -35,7 +35,7 @@ public:
     static vec2 get_grid_location(std::pair<int, int> grid);
 
     int id = 0;
-    static const int GRID_SIZE = 50;
+    static int GRID_SIZE;
 
     void build_grid();
 };
