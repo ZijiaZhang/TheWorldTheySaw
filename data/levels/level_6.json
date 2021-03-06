@@ -9,12 +9,54 @@
     }],
     "enemy": [
         {
-            "position": {"x" : 600, "y": 700},
+            "position": {"x" : 600, "y": 450},
             "velocity": {"x" : 50, "y": 50},
             "overlap": "enemy_bullet_hit_death"
         },
         {
-            "position": {"x" : 700, "y": 500},
+            "position": {"x" : 650, "y": 450},
+            "velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
+        },
+        {
+            "position": {"x" : 700, "y": 450},
+            "velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
+        },
+        {
+            "position": {"x" : 750, "y": 450},
+            "velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
+        },
+
+        {
+            "position": {"x" : 600, "y": 550},
+            "velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
+        },
+        {
+            "position": {"x" : 650, "y": 550},
+            "velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
+        },
+        {
+            "position": {"x" : 700, "y": 550},
+            "velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
+        },
+        {
+            "position": {"x" : 750, "y": 550},
+            "velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
+        },
+
+        {
+            "position": {"x" : 800, "y": 300},
+            "velocity": {"x" : 50, "y": 50},
+            "overlap": "enemy_bullet_hit_death"
+        },
+        {
+            "position": {"x" : 800, "y": 400},
             "velocity": {"x" : 50, "y": 50},
             "overlap": "enemy_bullet_hit_death"
         },
@@ -23,51 +65,23 @@
             "velocity": {"x" : 50, "y": 50},
             "overlap": "enemy_bullet_hit_death"
         },
+
         {
-            "position": {"x" : 100, "y": 300},
+            "position": {"x" : 300, "y": 600},
             "velocity": {"x" : 50, "y": 50},
             "overlap": "enemy_bullet_hit_death"
         },
         {
-            "position": {"x" : 100, "y": 400},
+            "position": {"x" : 400, "y": 600},
             "velocity": {"x" : 50, "y": 50},
             "overlap": "enemy_bullet_hit_death"
         },
         {
-            "position": {"x" : 200, "y": 500},
-            "velocity": {"x" : 50, "y": 50},
-            "overlap": "enemy_bullet_hit_death"
-        },
-        {
-            "position": {"x" : 200, "y": 800},
-            "velocity": {"x" : 50, "y": 50},
-            "overlap": "enemy_bullet_hit_death"
-        },
-        {
-            "position": {"x" : 200, "y": 800},
-            "velocity": {"x" : 50, "y": 50},
-            "overlap": "enemy_bullet_hit_death"
-        },
-        {
-            "position": {"x" : 300, "y": 800},
-            "velocity": {"x" : 50, "y": 50},
-            "overlap": "enemy_bullet_hit_death"
-        },
-        {
-            "position": {"x" : 400, "y": 800},
-            "velocity": {"x" : 50, "y": 50},
-            "overlap": "enemy_bullet_hit_death"
-        },
-        {
-            "position": {"x" : 500, "y": 800},
-            "velocity": {"x" : 50, "y": 50},
-            "overlap": "enemy_bullet_hit_death"
-        },
-        {
-            "position": {"x" : 600, "y": 800},
+            "position": {"x" : 500, "y": 600},
             "velocity": {"x" : 50, "y": 50},
             "overlap": "enemy_bullet_hit_death"
         }
+
     ],
     "borders": [
         {
@@ -91,70 +105,13 @@
             "rotation": 0
         }
     ],
-    "blocks": [
-        {
-            "position": {"x" : 300, "y": 200},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-        {
-            "position": {"x" : 400, "y": 300},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-        {
-            "position": {"x" : 500, "y": 400},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-        {
-            "position": {"x" : 600, "y": 500},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-        {
-            "position": {"x" : 700, "y": 600},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-        {
-            "position": {"x" : 800, "y": 700},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
+    "movable_wall": [
 
         {
-            "position": {"x" : 800, "y": 200},
+            "position": {"x" : 300, "y": 300},
             "size": {"x" : 50, "y": 50},
             "rotation": 0
         },
-        {
-            "position": {"x" : 700, "y": 300},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-        {
-            "position": {"x" : 600, "y": 400},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-        {
-            "position": {"x" : 500, "y": 500},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-        {
-            "position": {"x" : 400, "y": 600},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-        {
-            "position": {"x" : 300, "y": 700},
-            "size": {"x" : 50, "y": 50},
-            "rotation": 0
-        },
-
-
         {
             "position": {"x" : 400, "y": 300},
             "size": {"x" : 50, "y": 50},
@@ -166,12 +123,50 @@
             "rotation": 0
         },
         {
+            "position": {"x" : 600, "y": 300},
+            "size": {"x" : 50, "y": 50},
+            "rotation": 0
+        },
+        {
+            "position": {"x" : 700, "y": 300},
+            "size": {"x" : 50, "y": 50},
+            "rotation": 0
+        },
+        
+        {
             "position": {"x" : 300, "y": 400},
             "size": {"x" : 50, "y": 50},
             "rotation": 0
         },
         {
+            "position": {"x" : 400, "y": 400},
+            "size": {"x" : 50, "y": 50},
+            "rotation": 0
+        },
+        {
+            "position": {"x" : 500, "y": 400},
+            "size": {"x" : 50, "y": 50},
+            "rotation": 0
+        },
+
+        {
             "position": {"x" : 300, "y": 500},
+            "size": {"x" : 50, "y": 50},
+            "rotation": 0
+        },
+        {
+            "position": {"x" : 400, "y": 500},
+            "size": {"x" : 50, "y": 50},
+            "rotation": 0
+        },
+
+        {
+            "position": {"x" : 300, "y": 600},
+            "size": {"x" : 50, "y": 50},
+            "rotation": 0
+        },
+        {
+            "position": {"x" : 400, "y": 600},
             "size": {"x" : 50, "y": 50},
             "rotation": 0
         }
