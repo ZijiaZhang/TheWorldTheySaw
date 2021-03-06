@@ -23,7 +23,7 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                 if (ECS::registry<Motion>.has(enemy_entity) && ECS::registry<Enemy>.has(enemy_entity)) {
                     auto& enemy_motion = ECS::registry<Motion>.get(enemy_entity);
                     auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
-                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, "bullet");
+                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, "rocket");
                 }
             }
             shoot_time = 0;
