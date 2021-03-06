@@ -61,6 +61,7 @@ struct Motion {
 // For the order of drawing
 static std::map<std::string, int> ZValuesMap = {
         {"Start", 6},
+    {"Weapon", 11},
     {"Soldier", 10},
     {"Turtle", 9},
     {"Shield",8},

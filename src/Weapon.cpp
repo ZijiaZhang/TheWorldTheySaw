@@ -28,7 +28,7 @@ ECS::Entity Weapon::createWeapon(vec2 offset, float offset_angle, ECS::Entity pa
     Motion& motion = ECS::registry<Motion>.emplace(entity);
     motion.scale = resource.mesh.original_size * 20.f;
     motion.scale.x *= -3.0; // point front to the right
-    motion.zValue = ZValuesMap["Soldier"];
+    motion.zValue = ZValuesMap["Weapon"];
     motion.has_parent = true;
     motion.parent = std::move(parent);
     motion.offset = offset;
