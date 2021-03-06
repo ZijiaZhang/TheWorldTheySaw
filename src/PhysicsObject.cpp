@@ -11,7 +11,7 @@ std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::igno
                 WEAPON},
          },
     {PLAYER, {SHIELD}},
-     {MOVEABLEWALL, {BULLET, SHIELD}},
+     {MOVEABLEWALL, {SHIELD}},
     {SHIELD, {DEFAULT,
                      PLAYER,
                      ENEMY,
@@ -30,13 +30,13 @@ std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::only
                     ENEMY,
                     BULLET,
                     SHIELD,
-
+                    MOVEABLEWALL,
                     WEAPON}},
     {ENEMY,{BULLET}},
     {BUTTON, {PLAYER}},
     {PLAYER, {BUTTON, BULLET}},
-    {SHIELD, {BULLET
-                     }}
+    {SHIELD, {BULLET}},
+    {MOVEABLEWALL, {BULLET}}
     };
 
 

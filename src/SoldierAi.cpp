@@ -169,7 +169,7 @@ void SoldierAISystem::direct_movement(ECS::Entity& soldier_entity, float elapsed
 				}
 				else if (SoldierAISystem::isEnemyExistsInRange(soldier_motion, enemyMotion, 500) && aState == AiState::WALK_BACKWARD) {
 					if (pathTicker > updateRate) {
-						soldier.soldierState = AiState::WALK_BACKWARD;
+						soldier.soldierState = AiState::WALK_FORWARD;
                         SoldierAISystem::walkBackward(soldier_motion, enemyMotion);
                         pathTicker = 0.f;
 					}

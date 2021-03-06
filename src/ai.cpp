@@ -94,7 +94,7 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, v
 
     std::set<std::pair<int, int>> visited;
     auto closest_path = initial_path;
-    int counter = 50;
+    int counter = 100;
     while (!front.empty() && counter > 0) {
         auto path = front.top();
         if (closest_path.heuristic > path.heuristic){
