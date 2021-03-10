@@ -241,6 +241,8 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
+    player_soldier.get<AIPath>().active = aiControl;
+
 
 	endGameTimer += elapsed_ms;
 

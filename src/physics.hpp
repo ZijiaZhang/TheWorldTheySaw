@@ -10,6 +10,11 @@ struct CollisionResult{
     vec2 vertex = vec2{0,0};
 };
 
+struct Force{
+    vec2 force = vec2{0,0};
+    vec2 position = vec2{0,0};
+};
+
 
 class PhysicsSystem
 {

@@ -38,6 +38,7 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2
 		|| PhysicsObject::getCollisionType(e1.get<PhysicsObject>().object_type, e2.get<PhysicsObject>().object_type) == NoCollision) {
 		return NoCollision;
 	}
+
 	auto& m1 = e1.get<Motion>();
 	auto& m2 = e2.get<Motion>();
 	auto& p1 = e1.get<PhysicsObject>();
@@ -60,24 +61,37 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2
 	}
 	// If both collision is on
 	if (ret && p1.collide && p2.collide && !e1.get<Motion>().has_parent && !e2.get<Motion>().has_parent && PhysicsObject::getCollisionType(p1.object_type, p2.object_type) == Hit) {
-
+//        if(e1.has<Soldier>()){
+//            printf("e1 is soldier \n");
+//        } else if(e2.has<Soldier>()) {
+//            printf("e2 is soldier \n");
+//        }
 		// Handel collision
-		vec2 col_v_1 = c1.normal * dot(get_world_velocity(m1), c1.normal);
-		vec2 col_v_2 = c1.normal * dot(get_world_velocity(m2), c1.normal);
-		// equation from https://courses.lumenlearning.com/boundless-physics/chapter/collisions/#:~:text=If%20two%20particles%20are%20involved,m%201%20)%20v%202%20i%20.
-		vec2 delta_v1 = p2.fixed ? (-col_v_1 * 2.f) : (-col_v_1 + (p1.mass - p2.mass) / (p1.mass + p2.mass) * col_v_1 + 2 * p2.mass / (p2.mass + p1.mass) * col_v_2);
-		vec2 delta_v2 = p1.fixed ? (-col_v_2 * 2.f) : (-col_v_2 + (p2.mass - p1.mass) / (p1.mass + p2.mass) * col_v_2 + 2 * p1.mass / (p2.mass + p1.mass) * col_v_1);
+		vec2 relative_velocity = get_world_velocity(m2) - get_world_velocity(m1);
+		float relative_velocity_on_normal = dot(relative_velocity, c1.normal);
+        if (relative_velocity_on_normal * mul > 0){
+            // Do nothing if moving away
+            return PhysicsObject::getCollisionType(p1.object_type, p2.object_type);
+        }
+
+        float m1r = p1.fixed? 0.f : 1.f/p1.mass;
+        float m2r = p2.fixed? 0.f : 1.f/p2.mass;
+        vec2 impulse = c1.normal * (- 2.f* relative_velocity_on_normal /(m1r + m2r));
+
+        vec2 impact_location = c1.vertex + c1.normal * c1.penitration;
+        DebugSystem::createLine(impact_location, vec2{10,10});
+        p1.force.push_back(Force{-1.f * impulse, impact_location});
+        p2.force.push_back(Force{impulse, impact_location});;
+
+        float delta_p1 = p2.fixed ? c1.penitration : c1.penitration * p1.mass / (p2.mass + p1.mass);
+        float delta_p2 = p1.fixed ? c1.penitration : c1.penitration * p2.mass / (p2.mass + p1.mass);
+        m2.position -= p2.fixed ? vec2{ 0,0 } : delta_p2 * c1.normal * mul;
+        m1.position += p1.fixed ? vec2{ 0,0 } : delta_p1 * c1.normal * mul;
 
 
-		float delta_p1 = p2.fixed ? c1.penitration : c1.penitration * p1.mass / (p2.mass + p1.mass);
-		float delta_p2 = p1.fixed ? c1.penitration : c1.penitration * p2.mass / (p2.mass + p1.mass);
 
-		//printf("%f %f <%f,%f>\n", delta_p1, delta_p2, c1.normal.x, c1.normal.y);
 
-		m2.position -= p2.fixed ? vec2{ 0,0 } : delta_p2 * c1.normal * mul;
-		m1.position += p1.fixed ? vec2{ 0,0 } : delta_p1 * c1.normal * mul;
-		m1.velocity += p1.fixed ? vec2{ 0,0 } : get_local_velocity(delta_v1, m1);
-		m2.velocity += p2.fixed ? vec2{ 0,0 } : get_local_velocity(delta_v2, m2);
+
 	}
 	// If two objects overlap / hit
 	return PhysicsObject::getCollisionType(p1.object_type, p2.object_type);
@@ -174,6 +188,9 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
             auto& motion = entity.get<Motion>();
             auto& aiPath = entity.get<AIPath>();
+            if (!aiPath.active){
+                continue;
+            }
             if (aiPath.path.path.size() > 1) {
                 auto target = aiPath.path.path[1];
                 auto target_position = AISystem::get_grid_location(target);
@@ -192,12 +209,40 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
 
+    for (auto& entity : ECS::registry<PhysicsObject>.entities){
+        auto& physics = entity.get<PhysicsObject>();
+        if(physics.fixed)
+            continue;
+        auto& motion = entity.get<Motion>();
+        for(auto& f: physics.force) {
+            motion.preserve_world_velocity += f.force / physics.mass;
+            vec2 rad = f.position - motion.position;
+            float radius = static_cast<float>(sqrt(dot(rad,rad)));
+            float I = physics.mass/2.0f * static_cast<float>(pow(max(motion.scale.x, motion.scale.y), 2));
+            vec2 rotate_force = f.force - dot(f.force, rad) * rad / radius/ radius;
+            float mul = rotate_force.x * rad.y - rotate_force.y * rad.x < 0? 1: -1;
+            float alpha = sqrt(dot(rotate_force, rotate_force)) * radius/ I * mul;
+
+            motion.angular_velocity += alpha;
+
+        }
+        physics.force.clear();
+    }
+
+    for(auto& player: ECS::registry<Soldier>.entities){
+        player.get<Motion>().preserve_world_velocity*= 0.9;
+        player.get<Motion>().angular_velocity*= 0.9;
+    }
+
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
 		if (!motion.has_parent) {
 			float step_seconds = 1.0f * (elapsed_ms / 1000.f);
 			vec2 v = get_world_velocity(motion);
 			motion.position += v * step_seconds;
+			motion.angle += motion.angular_velocity * step_seconds;
+			motion.angular_velocity *= pow(0.9, step_seconds);
+            motion.preserve_world_velocity *= pow(0.9, step_seconds);
 		}
 		else {
 			if (motion.parent.has<Motion>()) {
@@ -275,12 +320,13 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				 // Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
 				CollisionType result = advanced_collision(entity_i, entity_j);
 				if (result != NoCollision) {
-					//				    if(entity_j.has<Bullet>()){
-					//				        printf("Bullet collide with %d\n", entity_i.get<PhysicsObject>().object_type);
-					//				    }
+
 					entity_i.physicsEvent(result, entity_i, entity_j);
 					entity_j.physicsEvent(result, entity_j, entity_i);
 				}
+//                if(entity_j.has<Soldier>() || entity_i.has<Soldier>()){
+//                    printf("Soldier collide with %d, %d\n", entity_i.get<PhysicsObject>().object_type, result);
+//                }
 
 			}
 		}
@@ -296,7 +342,7 @@ vec2 PhysicsSystem::get_world_velocity(const Motion& motion) {
 	float ca = cos(motion.angle);
 	float sa = sin(motion.angle);
 	vec2 v = { motion.velocity.x * ca - motion.velocity.y * sa,  motion.velocity.x * sa + motion.velocity.y * ca };
-	return v;
+	return v + motion.preserve_world_velocity;
 }
 
 vec2 PhysicsSystem::get_local_velocity(vec2 world_velocity, const Motion& motion) {

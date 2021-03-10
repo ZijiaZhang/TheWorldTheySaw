@@ -5,6 +5,7 @@
 #pragma once
 
 #include "common.hpp"
+#include "physics.hpp"
 
 class PhysicsObject{
 public:
@@ -25,7 +26,7 @@ public:
     bool collide = true;
     // Object type
     CollisionObjectType object_type = DEFAULT;
-
+    std::vector<Force> force = std::vector<Force>{};
 
 // Which object type is ignored
 
