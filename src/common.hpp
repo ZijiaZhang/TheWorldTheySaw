@@ -58,7 +58,7 @@ struct Motion {
 	// Offset will be relative to parents
 	vec2 offset = {0.f,0.f};
 	float offset_angle = 0.f;
-
+    vec2 offset_move = {0.f,0.f};
 };
 
 // For the order of drawing

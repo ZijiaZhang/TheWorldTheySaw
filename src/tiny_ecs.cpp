@@ -55,6 +55,19 @@ void ContainerInterface::list_all_components_of(Entity e) {
 	}
 }
 void ContainerInterface::remove_all_components_of(Entity e) {
+    if (e.has<ParentEntity>()){
+        auto& parent = e.get<ParentEntity>();
+        ECS::Entity parent_entity = parent.parent;
+        e.remove<ParentEntity>();
+        if (registry<ChildrenEntities>.has(parent_entity)){
+            registry<ChildrenEntities>.get(parent_entity).children.erase(e);
+        }
+    }
+    if(e.has<ChildrenEntities>()){
+        for(auto child: e.get<ChildrenEntities>().children) {
+            remove_all_components_of(child);
+        }
+    }
 	for (auto reg : registry_list_singleton()) {
 		assert(reg); // Must not be null
 		reg->remove(e);

@@ -60,7 +60,7 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2
 		return NoCollision;
 	}
 	// If both collision is on
-	if (ret && p1.collide && p2.collide && !e1.get<Motion>().has_parent && !e2.get<Motion>().has_parent && PhysicsObject::getCollisionType(p1.object_type, p2.object_type) == Hit) {
+	if (ret && p1.collide && p2.collide && PhysicsObject::getCollisionType(p1.object_type, p2.object_type) == Hit) {
 //        if(e1.has<Soldier>()){
 //            printf("e1 is soldier \n");
 //        } else if(e2.has<Soldier>()) {
@@ -69,25 +69,30 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2
 		// Handel collision
 		vec2 relative_velocity = get_world_velocity(m2) - get_world_velocity(m1);
 		float relative_velocity_on_normal = dot(relative_velocity, c1.normal);
-        if (relative_velocity_on_normal * mul > 0){
-            // Do nothing if moving away
-            return PhysicsObject::getCollisionType(p1.object_type, p2.object_type);
-        }
+
 
         float m1r = p1.fixed? 0.f : 1.f/p1.mass;
         float m2r = p2.fixed? 0.f : 1.f/p2.mass;
         vec2 impulse = c1.normal * (- 2.f* relative_velocity_on_normal /(m1r + m2r));
 
-        vec2 impact_location = c1.vertex + c1.normal * c1.penitration;
+        vec2 impact_location = c1.vertex - c1.normal * c1.penitration;
         DebugSystem::createLine(impact_location, vec2{10,10});
         p1.force.push_back(Force{-1.f * impulse, impact_location});
         p2.force.push_back(Force{impulse, impact_location});;
 
-        float delta_p1 = p2.fixed ? c1.penitration : c1.penitration * p1.mass / (p2.mass + p1.mass);
-        float delta_p2 = p1.fixed ? c1.penitration : c1.penitration * p2.mass / (p2.mass + p1.mass);
-        m2.position -= p2.fixed ? vec2{ 0,0 } : delta_p2 * c1.normal * mul;
-        m1.position += p1.fixed ? vec2{ 0,0 } : delta_p1 * c1.normal * mul;
 
+            float delta_p1 = p2.fixed ? c1.penitration : c1.penitration * p1.mass / (p2.mass + p1.mass);
+            float delta_p2 = p1.fixed ? c1.penitration : c1.penitration * p2.mass / (p2.mass + p1.mass);
+        if( !e1.get<Motion>().has_parent) {
+            m1.position += p1.fixed ? vec2{0, 0} : delta_p1 * c1.normal * mul;
+        } else{
+            m1.offset_move += p1.fixed ? vec2{0, 0} : delta_p1 * c1.normal * mul;
+        } if(!e2.get<Motion>().has_parent) {
+            m2.position -= p2.fixed ? vec2{0, 0} : delta_p2 * c1.normal * mul;
+        } else {
+            m2.offset_move -= p2.fixed ? vec2{0, 0} : delta_p2 * c1.normal * mul;
+            printf("%f,%f\n",m2.offset_move.x, m2.offset_move.y);
+        };
 
 
 
@@ -208,6 +213,15 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
+    for(auto& entity: ECS::registry<ParentEntity>.entities){
+        auto& parent = entity.get<ParentEntity>();
+        if(entity.has<PhysicsObject>() && parent.parent.has<PhysicsObject>()){
+            auto& physicsObject = entity.get<PhysicsObject>();
+            auto& parent_physics = parent.parent.get<PhysicsObject>();
+            parent_physics.force.insert( parent_physics.force.end(),physicsObject.force.begin(), physicsObject.force.end());
+            physicsObject.force.clear();
+        }
+    }
 
     for (auto& entity : ECS::registry<PhysicsObject>.entities){
         auto& physics = entity.get<PhysicsObject>();
@@ -234,6 +248,8 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         player.get<Motion>().angular_velocity*= 0.9;
     }
 
+
+
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
 		if (!motion.has_parent) {
@@ -249,8 +265,12 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				Transform t1{};
 				t1.rotate(motion.parent.get<Motion>().angle);
 				vec3 world_translate = t1.mat * vec3{ motion.offset, 0.f };
+                motion.parent.get<Motion>().position += motion.offset_move;
+                motion.offset_move = vec2 {0.f,0.f};
 				motion.position = motion.parent.get<Motion>().position + vec2{ world_translate };
 				motion.angle = motion.offset_angle + motion.parent.get<Motion>().angle;
+				motion.velocity = motion.parent.get<Motion>().velocity;
+
 			}
 		}
 	}

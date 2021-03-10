@@ -27,6 +27,7 @@ public:
     // Object type
     CollisionObjectType object_type = DEFAULT;
     std::vector<Force> force = std::vector<Force>{};
+    ECS::Entity parent;
 
 // Which object type is ignored
 
