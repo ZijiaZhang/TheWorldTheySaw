@@ -269,6 +269,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                 vec2 old_position = motion.position;
 				motion.position = motion.parent.get<Motion>().position + vec2{ world_translate };
 				motion.angle = motion.offset_angle + motion.parent.get<Motion>().angle;
+				motion.velocity = motion.parent.get<Motion>().velocity;
 				// Remove this because rotate will cause lots of force
 				// motion.velocity = get_local_velocity((motion.position - old_position) / step_seconds, motion);
 

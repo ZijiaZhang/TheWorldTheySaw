@@ -313,7 +313,7 @@ void WorldSystem::restart(std::string level)
 
 	if (level == "level_3") 
 	{
-		AISystem::GRID_SIZE = 100;
+		AISystem::GRID_SIZE = 70;
 	}
 	else 
 	{
