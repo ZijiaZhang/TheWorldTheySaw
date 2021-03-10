@@ -453,14 +453,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-		ECS::ContainerInterface::remove_all_components_of(player_soldier);
+		ECS::ContainerInterface::remove_all_components_of(player_soldier.get<Soldier>().weapon);
 	}
 
 	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
 		// level_loader.set_level("level_2");
 		// level_loader.at_level = "level_2";
-		restart("loadout");
-	}
+        ECS::ContainerInterface::remove_all_components_of(player_soldier);
+
+    }
 	if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
 		// level_loader.set_level("level_3");
 		// level_loader.at_level = "level_3";

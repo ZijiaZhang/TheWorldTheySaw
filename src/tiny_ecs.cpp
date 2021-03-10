@@ -64,8 +64,9 @@ void ContainerInterface::remove_all_components_of(Entity e) {
         }
     }
     if(e.has<ChildrenEntities>()){
-        for(auto child: e.get<ChildrenEntities>().children) {
-            remove_all_components_of(child);
+        auto& children = e.get<ChildrenEntities>().children;
+        for(auto it= children.begin(); it!= children.end();) {
+            remove_all_components_of(*it++);
         }
     }
 	for (auto reg : registry_list_singleton()) {
