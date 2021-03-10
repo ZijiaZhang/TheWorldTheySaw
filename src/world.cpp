@@ -241,7 +241,8 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
-    player_soldier.get<AIPath>().active = aiControl;
+	if(player_soldier.has<AIPath>())
+        player_soldier.get<AIPath>().active = aiControl;
 
 
 	endGameTimer += elapsed_ms;
@@ -452,7 +453,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-		ECS::ContainerInterface::remove_all_components_of(player_soldier.get<Soldier>().weapon);
+		ECS::ContainerInterface::remove_all_components_of(player_soldier);
 	}
 
 	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
@@ -507,7 +508,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
 
-    if (!ECS::registry<DeathTimer>.has(player_soldier))
+    if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>())
     {
         auto& motion = ECS::registry<Motion>.get(player_soldier);
         // Get world mouse position
