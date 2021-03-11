@@ -66,20 +66,6 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2
 //        } else if(e2.has<Soldier>()) {
 //            printf("e2 is soldier \n");
 //        }
-		// Handel collision
-		vec2 relative_velocity = get_world_velocity(m2) - get_world_velocity(m1);
-		float relative_velocity_on_normal = dot(relative_velocity, c1.normal);
-
-
-        float m1r = p1.fixed? 0.f : 1.f/p1.mass;
-        float m2r = p2.fixed? 0.f : 1.f/p2.mass;
-        vec2 impulse = c1.normal * (- 2.f* relative_velocity_on_normal /(m1r + m2r));
-
-        vec2 impact_location = c1.vertex - c1.normal * c1.penitration;
-        DebugSystem::createLine(impact_location, vec2{10,10});
-        p1.force.push_back(Force{-1.f * impulse, impact_location});
-        p2.force.push_back(Force{impulse, impact_location});;
-
 
         float delta_p1 = p2.fixed ? c1.penitration : c1.penitration * p1.mass / (p2.mass + p1.mass);
         float delta_p2 = p1.fixed ? c1.penitration : c1.penitration * p2.mass / (p2.mass + p1.mass);
@@ -93,12 +79,14 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2
             m2.offset_move -= p2.fixed ? vec2{0, 0} : delta_p2 * c1.normal * mul;
         };
 
-
-
-
 	}
 	// If two objects overlap / hit
-	return PhysicsObject::getCollisionType(p1.object_type, p2.object_type);
+	auto result = PhysicsObject::getCollisionType(p1.object_type, p2.object_type);
+    if (result != NoCollision) {
+        p1.physicsEvent(result, e1, e2, c1);
+        p2.physicsEvent(result, e2, e1, c1);
+    }
+	return result;
 }
 
 
@@ -342,11 +330,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				// Create a collision event
 				 // Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
 				CollisionType result = advanced_collision(entity_i, entity_j);
-				if (result != NoCollision) {
 
-					entity_i.physicsEvent(result, entity_i, entity_j);
-					entity_j.physicsEvent(result, entity_j, entity_i);
-				}
 //                if(entity_j.has<Soldier>() || entity_i.has<Soldier>()){
 //                    printf("Soldier collide with %d, %d\n", entity_i.get<PhysicsObject>().object_type, result);
 //                }

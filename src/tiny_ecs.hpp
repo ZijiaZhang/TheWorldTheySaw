@@ -33,22 +33,8 @@ namespace ECS {
 		{
 			id = next_id();
 			// Note, indices of already deleted entities arent re-used in this simple implementation.
-
-            collisionHandler = {
-				{Overlap, [](ECS::Entity& self, ECS::Entity const& e1) {
-                    (void) e1;
-                    (void) self;
-				    }
-				    },
-				{Hit, [](ECS::Entity& self, ECS::Entity const& e1) {
-                    (void) e1;
-                    (void) self;
-				    }
-				}
-			};
 		}
 
-		std::unordered_map<CollisionType, std::function<void(ECS::Entity&, const ECS::Entity&)>> collisionHandler;
 
 		// The ID defines an entity
 		unsigned int id;
@@ -82,15 +68,9 @@ namespace ECS {
 			return *this;
 		}
 
-		void attach(CollisionType key,  std::function<void(ECS::Entity&, const  ECS::Entity&)> callback) {
-			this->collisionHandler[key] = std::move(callback);
-		};
 
-		void physicsEvent(CollisionType key, ECS::Entity self, ECS::Entity other_entity) {
-			// std::cout << "update\n";
-			// if (collisionHandler[key] != NULL)
-			this->collisionHandler[key](self, other_entity);
-		};
+
+
         bool operator<(const Entity& other) const{
             return this->id < other.id;
         }

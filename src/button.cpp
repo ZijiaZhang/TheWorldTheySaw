@@ -22,11 +22,11 @@ std::map<ButtonType, std::string> Button::buttonNames = {
     
 };
 
-ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap)
+ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, COLLISION_HANDLER overlap)
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();
-    entity.attach(Overlap, overlap);
+
 	// Create the rendering components
 	std::string key = buttonNames[buttonType];
 	ShadedMesh& resource = cache_resource(key);
@@ -56,7 +56,7 @@ ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, std::func
 
 	auto& physics = entity.emplace<PhysicsObject>();
     physics.object_type = BUTTON;
-
+    physics.attach(Overlap, overlap);
 
 	// Create and (empty) Fish component to be able to refer to all fish
 	auto& button = ECS::registry<Button>.emplace(entity);

@@ -75,16 +75,3 @@ void ContainerInterface::remove_all_components_of(Entity e) {
 	}
 }
 
-/*
-* void ECS::Entity::attach(std::string key, std::function<void(ECS::Entity, ECS::Entity)> callback)
-{
-	collisionHandler.insert({ key, callback });
-}
-
-void ECS::Entity::update(std::string key, ECS::Entity e1, ECS::Entity e2)
-{
-	std::cout << "update\n";
-	if (collisionHandler[key] != NULL)
-		collisionHandler[key](e1, e2);
-}
-*/

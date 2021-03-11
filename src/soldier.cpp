@@ -1,5 +1,7 @@
 // Header
 #include "soldier.hpp"
+
+#include <utility>
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 #include "Weapon.hpp"
@@ -7,12 +9,11 @@
 
 
 ECS::Entity Soldier::createSoldier(vec2 position,
-	std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-	std::function<void(ECS::Entity&, const  ECS::Entity&)> hit)
+                                   COLLISION_HANDLER overlap,
+                                   COLLISION_HANDLER hit)
 {
 	auto entity = ECS::Entity();
-	entity.attach(Overlap, overlap);
-	entity.attach(Hit, std::move(hit));
+
 
     std::string key = "soldier";
     ShadedMesh& resource = cache_resource(key);
@@ -46,7 +47,8 @@ ECS::Entity Soldier::createSoldier(vec2 position,
             }
 	};
     physicsObject.faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
-
+    physicsObject.attach(Overlap, std::move(overlap));
+    physicsObject.attach(Hit, std::move(hit));
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Soldier component to be able to refer to all turtles
 	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,50.f}, 0, entity);

@@ -7,8 +7,8 @@
 #include "PhysicsObject.hpp"
 
 ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rotation,
-                                             std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-                                             std::function<void(ECS::Entity&, const  ECS::Entity&)> hit){
+                                             COLLISION_HANDLER overlap,
+                                             COLLISION_HANDLER hit){
     auto entity = ECS::Entity();
 
     std::string key = "wall";
