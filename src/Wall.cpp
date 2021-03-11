@@ -3,6 +3,8 @@
 //
 
 #include "Wall.hpp"
+
+#include <utility>
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 
@@ -16,12 +18,12 @@ ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation,
     if (resource.mesh.vertices.empty())
     {
         resource = ShadedMesh();
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3 {-0.5, 0.5, -0.02}, vec3{0.0,0.0,0.0}});
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, 0.5, -0.02}, vec3{0.0,0.0,0.0}});
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, -0.5, -0.02}, vec3{0.0,0.0,0.0}});
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{-0.5, -0.5, -0.02}, vec3{0.0,0.0,0.0}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3 {-0.5, 0.5, -0.02}, vec3{0.0,1.0,0.0}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, 0.5, -0.02}, vec3{0.0,1.0,0.0}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, -0.5, -0.02}, vec3{0.0,1.0,0.0}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{-0.5, -0.5, -0.02}, vec3{0.0,1.0,0.0}});
 
-        resource.mesh.vertex_indices = std::vector<uint16_t>({0, 3, 1, 1, 3, 2});
+        resource.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
 
         RenderSystem::createColoredMesh(resource, "salmon");
     }
@@ -40,7 +42,10 @@ ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation,
     PhysicsObject physicsObject;
     physicsObject.object_type = WALL;
     physicsObject.fixed = true;
+    physicsObject.attach(Overlap, overlap);
+    physicsObject.attach(Hit, hit);
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
+
     //motion.box = size;
     //motion.mass = 1000;
     // Create and (empty) Salmon component to be able to refer to all turtles

@@ -33,8 +33,8 @@ std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::only
                     MOVEABLEWALL,
                     WEAPON}},
     {ENEMY,{BULLET}},
-    {BUTTON, {PLAYER}},
-    {PLAYER, {BUTTON, BULLET}},
+//    {BUTTON, {PLAYER}},
+//    {PLAYER, {BUTTON, BULLET}},
     {SHIELD, {BULLET}},
     {MOVEABLEWALL, {BULLET}}
     };

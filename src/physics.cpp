@@ -7,6 +7,7 @@
 #include "Bullet.hpp"
 #include "Enemy.hpp"
 #include "Weapon.hpp"
+#include "Wall.hpp"
 #include <soldier.hpp>
 #include <iostream>
 
@@ -61,11 +62,7 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2
 	}
 	// If both collision is on
 	if (ret && p1.collide && p2.collide && PhysicsObject::getCollisionType(p1.object_type, p2.object_type) == Hit) {
-//        if(e1.has<Soldier>()){
-//            printf("e1 is soldier \n");
-//        } else if(e2.has<Soldier>()) {
-//            printf("e2 is soldier \n");
-//        }
+
 
         float delta_p1 = p2.fixed ? c1.penitration : c1.penitration * p1.mass / (p2.mass + p1.mass);
         float delta_p2 = p1.fixed ? c1.penitration : c1.penitration * p2.mass / (p2.mass + p1.mass);
@@ -213,8 +210,10 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
     for (auto& entity : ECS::registry<PhysicsObject>.entities){
         auto& physics = entity.get<PhysicsObject>();
-        if(physics.fixed)
+        if(physics.fixed) {
+            physics.force.clear();
             continue;
+        }
         auto& motion = entity.get<Motion>();
         for(auto& f: physics.force) {
             motion.preserve_world_velocity += f.force / physics.mass;
@@ -315,12 +314,13 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	// Check for collisions between all moving entities
 	auto& physics_object_container = ECS::registry<PhysicsObject>;
 	// for (auto [i, motion_i] : enumerate(motion_container.components)) // in c++ 17 we will be able to do this instead of the next three lines
-	for (unsigned int i = 0; i < physics_object_container.components.size(); i++)
+	unsigned int size = physics_object_container.components.size();
+	for (int i = size - 1; i >= 0 ; i--)
 	{
 		ECS::Entity& entity_i = physics_object_container.entities[i];
 		auto& motion_i = entity_i.get<Motion>();
 		// std::cout << "entity i addr: " << &entity_i << "\n";
-		for (unsigned int j = i + 1; j < physics_object_container.components.size(); j++)
+		for (int j = i - 1; j >= 0 ; j--)
 		{
 
 			ECS::Entity& entity_j = physics_object_container.entities[j];

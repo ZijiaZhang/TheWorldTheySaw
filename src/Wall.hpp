@@ -12,7 +12,7 @@
 class Wall {
 public:
     static ECS::Entity createWall(vec2 location, vec2 size, float rotation,
-                                  COLLISION_HANDLER overlap = [](ECS::Entity&, const ECS::Entity &, CollisionResult) {},
-                                  COLLISION_HANDLER hit = PhysicsObject::handle_collision);
+                                  COLLISION_HANDLER overlap,
+                                  COLLISION_HANDLER hit);
 };
 

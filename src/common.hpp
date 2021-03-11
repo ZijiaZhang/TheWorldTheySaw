@@ -108,4 +108,10 @@ struct AIPath{
 };
 
 
+inline float cross(vec2 x, vec2 y){
+    return (x.x * y.y - y.x* x.y);
+}
+
+
 Transform getTransform(const Motion &m1);
+
