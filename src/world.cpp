@@ -82,7 +82,7 @@ static std::map<std::string, bool> playableLevelMap = {
 
  Change LOW_RANGE, HIGH_RANGE, DEGREE_SIZE AND SECTION_POINT_NUM to simulate the circle.
  */
-static bool checkCircle(ECS::Entity& player_salmon)
+static bool checkCircle(ECS::Entity player_salmon)
 {
 	auto motion = ECS::registry<Motion>.get(player_salmon);
 	vec2 salmonPos = motion.position;
@@ -241,6 +241,9 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
+	if(player_soldier.has<AIPath>())
+        player_soldier.get<AIPath>().active = aiControl;
+
 
 	endGameTimer += elapsed_ms;
 
@@ -310,7 +313,7 @@ void WorldSystem::restart(std::string level)
 
 	if (level == "level_3") 
 	{
-		AISystem::GRID_SIZE = 100;
+		AISystem::GRID_SIZE = 70;
 	}
 	else 
 	{
@@ -437,8 +440,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 player_soldier.get<Motion>().velocity =
                         vec2{0, -100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             }
+
+            if(key == GLFW_KEY_Q) {
+                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {380, 0}, 0, "bullet");
+            }
         }
+
     }
+
+
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
@@ -450,16 +460,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-		// level_loader.set_level("level_1");
-		// level_loader.at_level = "level_1";
-		restart("level_1");
+		ECS::ContainerInterface::remove_all_components_of(player_soldier.get<Soldier>().weapon);
 	}
 
 	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
 		// level_loader.set_level("level_2");
 		// level_loader.at_level = "level_2";
-		restart("loadout");
-	}
+        ECS::ContainerInterface::remove_all_components_of(player_soldier);
+
+    }
 	if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
 		// level_loader.set_level("level_3");
 		// level_loader.at_level = "level_3";
@@ -507,7 +516,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
 
-    if (!ECS::registry<DeathTimer>.has(player_soldier))
+    if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>())
     {
         auto& motion = ECS::registry<Motion>.get(player_soldier);
         // Get world mouse position

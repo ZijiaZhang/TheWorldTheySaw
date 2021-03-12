@@ -32,20 +32,20 @@ using json = nlohmann::json;
 
 
 
-void enemy_bullet_hit_death(ECS::Entity& self, const ECS::Entity& e) {
+void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
 		self.emplace<DeathTimer>();
 	}
 };
 
-void soldier_bullet_hit_death(ECS::Entity& self, const ECS::Entity& e) {
+void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Soldier>().teamID && !self.has<DeathTimer>()) {
 		self.emplace<DeathTimer>();
 	}
 };
 
 auto select_algo_of_type(AIAlgorithm algo) {
-	return [=](ECS::Entity& self, const ECS::Entity& other) {
+	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
 		if (other.has<Soldier>()) {
 			auto& soldier = other.get<Soldier>();
 			soldier.ai_algorithm = algo;
@@ -54,7 +54,7 @@ auto select_algo_of_type(AIAlgorithm algo) {
 }
 
 auto select_weapon_of_type(WeaponType type) {
-	return [=](ECS::Entity& self, const ECS::Entity& other) {
+	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
 		if (other.has<Soldier>()) {
 			auto& soldier = other.get<Soldier>();
 			if (soldier.weapon.has<Weapon>()) {
@@ -69,95 +69,103 @@ auto select_weapon_of_type(WeaponType type) {
 
 
 
-std::unordered_map<std::string, std::function<void(ECS::Entity&, const  ECS::Entity&)>> LevelLoader::physics_callbacks = {
+auto select_button_overlap(const std::string& level){
+    return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+        if (other.has<Soldier>()) {
+            WorldSystem::reload_level = true;
+            WorldSystem::level_name = level;
+        }
+    };
+};
+
+auto select_level_button_overlap(const std::string& level){
+    return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+        if (other.has<Soldier>()) {
+            WorldSystem::selected_level = level;
+            WorldSystem::reload_level = true;
+            WorldSystem::level_name = "loadout";
+        }
+    };
+};
+
+
+
+
+std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callbacks = {
 		{"enemy_bullet_hit_death", enemy_bullet_hit_death},
         {"soldier_bullet_hit_death", soldier_bullet_hit_death},
+        {"wall_scater", Wall::wall_hit},
 };
 
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
-	std::function<void(ECS::Entity&, const  ECS::Entity&)>, std::function<void(ECS::Entity&, const  ECS::Entity&)>, json)>> LevelLoader::level_objects = {
+	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
-					   std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, const json&) {
-		Wall::createWall(location, size, rotation, overlap, hit);
+					   COLLISION_HANDLER overlap, COLLISION_HANDLER, const json&) {
+		Wall::createWall(location, size, rotation, overlap, physics_callbacks["wall_scater"]);
 	}
 	},
 	{"borders", [](vec2 location, vec2 size, float rotation,
-				   std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, const json&) {
-		Wall::createWall(location, size, rotation, overlap, hit);
+				   COLLISION_HANDLER overlap, COLLISION_HANDLER hit, const json&) {
+		Wall::createWall(location, size, rotation, overlap, PhysicsObject::handle_collision);
 	}
 	},
 	{"movable_wall", [](vec2 location, vec2 size, float rotation,
-						std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap, std::function<void(ECS::Entity&, const  ECS::Entity&)>hit, const json&) {
+						COLLISION_HANDLER overlap, COLLISION_HANDLER hit, const json&) {
 		MoveableWall::createMoveableWall(location, size, rotation, overlap, hit);
 	}
 	},
 	{"player", [](vec2 location, vec2 size, float rotation,
-			std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-			std::function<void(ECS::Entity&, const  ECS::Entity&)> hit, const json&) {
-		return Soldier::createSoldier(location, std::move(overlap), std::move(hit));
+			COLLISION_HANDLER overlap,
+			COLLISION_HANDLER hit, const json&) {
+		return Soldier::createSoldier(location, overlap, hit);
 	}},
 	{"enemy", [](vec2 location, vec2 size, float rotation,
-				 std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-				 std::function<void(ECS::Entity&, const  ECS::Entity&)> hit, const json&) {return Enemy::createEnemy(location, std::move(overlap), std::move(hit)); }},
+				 COLLISION_HANDLER overlap,
+				 COLLISION_HANDLER hit, const json&) {return Enemy::createEnemy(location, overlap, hit); }},
 	{"button_start", [](vec2 location, vec2 size, float rotation,
-				  std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-				  std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+				  COLLISION_HANDLER,
+				  COLLISION_HANDLER, const json&)
 				  {
-		return Button::createButton(ButtonType::START, location, [](ECS::Entity& self, const ECS::Entity& other) {
-				  if (other.has<Soldier>()) {
-					  WorldSystem::reload_level = true;
-					  WorldSystem::level_name = "level_select";
-				  }
-		});
+		return Button::createButton(ButtonType::START, location, select_button_overlap("level_select"));
 	}},
 	{"button_setting", [](vec2 location, vec2 size, float rotation,
-						std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-						std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&) {
-		return Button::createButton(ButtonType::LEVEL_SELECT, location, [](ECS::Entity& self, const ECS::Entity& other) {
-			if (other.has<Soldier>()) {
-				WorldSystem::reload_level = true;
-				WorldSystem::level_name = "loadout";
-			}
-	});
-	}},
+						COLLISION_HANDLER,
+						COLLISION_HANDLER, const json&) {
+		return Button::createButton(ButtonType::LEVEL_SELECT, location, select_button_overlap("loadout"));}
+	},
 	{"button_select_rocket", [](vec2 location, vec2 size, float rotation,
-                              std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                              std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+                              COLLISION_HANDLER,
+                              COLLISION_HANDLER, const json&){
             return Button::createButton( ButtonType::SELECT_ROCKET, location, select_weapon_of_type(W_ROCKET));}},
         {"button_select_ammo", [](vec2 location, vec2 size, float rotation,
-                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+                                    COLLISION_HANDLER,
+                                    COLLISION_HANDLER, const json&){
             return Button::createButton( ButtonType::SELECT_AMMO, location, select_weapon_of_type(W_AMMO));}},
         {"button_select_laser", [](vec2 location, vec2 size, float rotation,
-                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+                                    COLLISION_HANDLER,
+                                    COLLISION_HANDLER, const json&){
             return Button::createButton( ButtonType::SELECT_LASER, location, select_weapon_of_type(W_LASER));}},
         {"button_select_bullet", [](vec2 location, vec2 size, float rotation,
-                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+                                    COLLISION_HANDLER,
+                                    COLLISION_HANDLER, const json&){
             return Button::createButton( ButtonType::SELECT_BULLET, location, select_weapon_of_type(W_BULLET));}},
         {"button_select_direct", [](vec2 location, vec2 size, float rotation,
-                                std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                                std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+                                COLLISION_HANDLER,
+                                COLLISION_HANDLER, const json&){
         return Button::createButton( ButtonType::SELECT_DIRECT, location, select_algo_of_type(DIRECT));}},
         {"button_select_a_star", [](vec2 location, vec2 size, float rotation,
-                                std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                                std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&){
+                                COLLISION_HANDLER,
+                                COLLISION_HANDLER, const json&){
         return Button::createButton( ButtonType::SELECT_A_STAR, location, select_algo_of_type(A_STAR));}},
 	{"button_enter_level", [](vec2 location, vec2 size, float rotation,
-						std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-						std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+						COLLISION_HANDLER,
+						COLLISION_HANDLER, const json&)
 					 {
-						 return Button::createButton(ButtonType::DEFAULT_BUTTON, location, [](ECS::Entity& self, const ECS::Entity& other) {
-							 if (other.has<Soldier>()) {
-								 WorldSystem::reload_level = true;
-								 WorldSystem::level_name = WorldSystem::selected_level;
-							 }
-						 });
+						 return Button::createButton(ButtonType::DEFAULT_BUTTON, location, select_button_overlap( WorldSystem::selected_level));
 					 }},
 	{"background", [](vec2 location, vec2 size, float rotation,
-			std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-					std::function<void(ECS::Entity&, const  ECS::Entity&)>, json additional) {
+			COLLISION_HANDLER,
+					COLLISION_HANDLER, json additional) {
 		if (additional.contains("name")) {
 			Background::createBackground(vec2{500, 500}, additional["name"]);
 		}
@@ -166,71 +174,44 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 		}
 	}},
 	{"title", [](vec2 location, vec2 , float ,
-					  std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-					  std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&) {
+					  COLLISION_HANDLER,
+					  COLLISION_HANDLER, const json&) {
 			Start::createStart(location);
 		}},
 		{"weapon", [](vec2 location, vec2 , float ,
-					std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-					std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&) {
+					COLLISION_HANDLER,
+					COLLISION_HANDLER, const json&) {
 			Loading::createLoading(location);
 		}},
 		{ "return_to_menu", [](vec2 location, vec2 size, float rotation,
-						std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-						std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+						COLLISION_HANDLER,
+						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonType::RETURN, location, [](ECS::Entity& self, const ECS::Entity& other) {
-							if (other.has<Soldier>()) {
-								WorldSystem::reload_level = true;
-								WorldSystem::level_name = "menu";
-							}
-						});
+						return Button::createButton(ButtonType::RETURN, location, select_button_overlap("menu"));
 					} },
         { "return_to_loadout", [](vec2 location, vec2 size, float rotation,
-                    std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-                    std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+                    COLLISION_HANDLER,
+                    COLLISION_HANDLER, const json&)
                 {
-                    return Button::createButton(ButtonType::DEFAULT_BUTTON, location, [](ECS::Entity& self, const ECS::Entity& other) {
-                        if (other.has<Soldier>()) {
-                            WorldSystem::reload_level = true;
-                            WorldSystem::level_name = "loadout";
-                        }
-                    });
+                    return Button::createButton(ButtonType::DEFAULT_BUTTON, location, select_button_overlap("loadout"));
                 } },
 		{ "return_to_level_select", [](vec2 location, vec2 size, float rotation,
-							std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-							std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+							COLLISION_HANDLER,
+							COLLISION_HANDLER, const json&)
 						{
-							return Button::createButton(ButtonType::RETURN, location, [](ECS::Entity& self, const ECS::Entity& other) {
-								if (other.has<Soldier>()) {
-									WorldSystem::reload_level = true;
-									WorldSystem::level_name = "level_select";
-								}
-							});
+							return Button::createButton(ButtonType::RETURN, location, select_button_overlap("level_select"));
 						} },
 		{"select_level_1", [](vec2 location, vec2 size, float rotation,
-					std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-					std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+					COLLISION_HANDLER,
+					COLLISION_HANDLER, const json&)
 				 {
-					 return Button::createButton(ButtonType::LEVEL1, location, [](ECS::Entity& self, const ECS::Entity& other) {
-						 if (other.has<Soldier>()) {
-							 WorldSystem::reload_level = true;
-							 WorldSystem::selected_level = "level_4";
-							 WorldSystem::level_name = "loadout";
-						 }
-					 });
+					 return Button::createButton(ButtonType::LEVEL1, location, select_level_button_overlap("level_4"));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
-						std::function<void(ECS::Entity&, const  ECS::Entity&)>,
-						std::function<void(ECS::Entity&, const  ECS::Entity&)>, const json&)
+						COLLISION_HANDLER,
+						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonType::LEVEL2, location, [](ECS::Entity& self, const ECS::Entity& other) {
-							if (other.has<Soldier>()) {
-								WorldSystem::reload_level = true;
-								WorldSystem::selected_level = "level_3";
-                                WorldSystem::level_name = "loadout";
-							}
-						});
+						return Button::createButton(ButtonType::LEVEL2, location, select_level_button_overlap("level_3"));
 					} }
 };
 
@@ -262,8 +243,8 @@ void LevelLoader::load_level() {
 				vec2 position = b.contains("position") ? getVec2FromJson(b["position"]) : vec2{};
 				vec2 size = b.contains("size") ? getVec2FromJson(b["size"]) : vec2{};
 				float rotation = b.contains("rotation") ? static_cast<float>(b["rotation"]) : 0.f;
-				auto overlap = b.contains("overlap") ? physics_callbacks[b["overlap"]] : [](ECS::Entity&, const ECS::Entity& e) {};
-				auto hit = b.contains("hit") ? physics_callbacks[b["hit"]] : [](ECS::Entity&, const ECS::Entity& e) {};
+				auto overlap = b.contains("overlap") ? physics_callbacks[b["overlap"]] : [](ECS::Entity, const ECS::Entity e, CollisionResult) {};
+				auto hit = b.contains("hit") ? physics_callbacks[b["hit"]] : PhysicsObject::handle_collision;
 				auto additional = b.contains("additionalProperties") ? b["additionalProperties"] : json{};
 				level_object.second(position, size, rotation, overlap, hit, additional);
 			}

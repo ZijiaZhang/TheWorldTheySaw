@@ -11,8 +11,7 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     auto entity = ECS::Entity();
     // Create the rendering components
 
-    entity.attach(Hit, destroy_on_hit);
-    entity.attach(Overlap, destroy_on_hit);
+
 
     std::string key = "bullet_" + name;
     ShadedMesh& resource = cache_resource(key);
@@ -52,6 +51,8 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     };
     physics.faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
     physics.object_type = BULLET;
+    physics.attach(Hit, destroy_on_hit);
+    physics.attach(Overlap, destroy_on_hit);
     // Create and (empty) Fish component to be able to refer to all fish
     auto& bullet = ECS::registry<Bullet>.emplace(entity);
     bullet.teamID = teamID;

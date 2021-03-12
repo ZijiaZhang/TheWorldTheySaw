@@ -57,6 +57,7 @@ int main()
 		// Calculating elapsed times in milliseconds from the previous iteration
 		auto now = Clock::now();
 		float elapsed_ms = static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count()) / 1000.f;
+		elapsed_ms = 16.f;
 		t = now;
 
 		DebugSystem::clearDebugComponents();
@@ -64,13 +65,6 @@ int main()
 		if(DebugSystem::in_profile_mode)
 		    printf("Debug: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(debug_time - t)).count()) / 1000.f);
 
-		/*
-		if (ai_count> 0) {
-            // ai.step(elapsed_ms, window_size_in_game_units);
-		
-            ai_count = 0;
-		}
-		*/
 		
 		if (world.aiControl) {
 		    ai.build_grid();

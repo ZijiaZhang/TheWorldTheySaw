@@ -21,7 +21,7 @@ enum class ButtonType {
 };
 
 struct Button {
-	static ECS::Entity createButton(ButtonType buttonType, vec2 position, std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap);
+	static ECS::Entity createButton(ButtonType buttonType, vec2 position, COLLISION_HANDLER overlap);
 
 	ButtonType buttonType = ButtonType::DEFAULT_BUTTON;
 

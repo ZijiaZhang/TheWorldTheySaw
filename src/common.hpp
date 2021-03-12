@@ -44,6 +44,8 @@ struct Motion {
 	vec2 position = { 0, 0 };
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
+    vec2 preserve_world_velocity = {0,0};
+    float angular_velocity = 0.f;
 	vec2 scale = { 10, 10 };
     int zValue = 0;
 
@@ -56,6 +58,7 @@ struct Motion {
 	// Offset will be relative to parents
 	vec2 offset = {0.f,0.f};
 	float offset_angle = 0.f;
+    vec2 offset_move = {0.f,0.f};
 };
 
 // For the order of drawing
@@ -99,9 +102,16 @@ struct Path_with_heuristics{
 };
 
 struct AIPath{
+    bool active = true;
     Path_with_heuristics path;
     vec2 desired_speed = {0.f, 0.f};
 };
 
 
+inline float cross(vec2 x, vec2 y){
+    return (x.x * y.y - y.x* x.y);
+}
+
+
 Transform getTransform(const Motion &m1);
+

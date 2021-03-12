@@ -10,6 +10,11 @@ struct CollisionResult{
     vec2 vertex = vec2{0,0};
 };
 
+struct Force{
+    vec2 force = vec2{0,0};
+    vec2 position = vec2{0,0};
+};
+
 
 class PhysicsSystem
 {
@@ -21,7 +26,7 @@ public:
 	{
 		// Note, the first object is stored in the ECS container.entities
 		ECS::Entity other; // the second object involved in the collision
-		Collision(ECS::Entity& other);
+		Collision(ECS::Entity other);
 	};
 
 
@@ -32,10 +37,10 @@ public:
     static vec2 get_local_velocity(vec2 world_velocity, const Motion &motion) ;
 
     // Trigger advanced collision detection on two objects
-    CollisionType advanced_collision(ECS::Entity &m1, ECS::Entity &m2);
+    CollisionType advanced_collision(ECS::Entity m1, ECS::Entity m2);
 
     // The collition results of two advanced physics object
-    CollisionResult collision(ECS::Entity &m1, ECS::Entity &m2);
+    CollisionResult collision(ECS::Entity m1, ECS::Entity m2);
 
 };
 

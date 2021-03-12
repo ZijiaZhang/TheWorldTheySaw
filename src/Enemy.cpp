@@ -10,11 +10,10 @@
 #include "Bullet.hpp"
 
 ECS::Entity Enemy::createEnemy(vec2 position,
-                               std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap,
-                               std::function<void(ECS::Entity&, const  ECS::Entity&)> hit, int teamID){
+                               COLLISION_HANDLER overlap,
+                               COLLISION_HANDLER hit, int teamID){
     auto entity = ECS::Entity();
-    entity.attach(Overlap, overlap);
-    entity.attach(Hit, std::move(hit));
+
 
     std::string key = "enemy";
     ShadedMesh& resource = cache_resource(key);
@@ -51,6 +50,8 @@ ECS::Entity Enemy::createEnemy(vec2 position,
             }
     };
     physicsObject.faces = {{0,1}, {1,2 },{2,3 },{3,4 }, {4,5 }, {5,0}};
+    physicsObject.attach(Overlap, std::move(overlap));
+    physicsObject.attach(Hit, std::move(hit));
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 
     entity.emplace<AIPath>();

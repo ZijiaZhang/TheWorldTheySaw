@@ -7,11 +7,20 @@
 
 #include "common.hpp"
 #include "tiny_ecs.hpp"
+#include "PhysicsObject.hpp"
+#include "render.hpp"
+#include "levelLoader.hpp"
 
 class MoveableWall {
 public:
     static ECS::Entity createMoveableWall(vec2 location, vec2 size, float rotation,
-                                          std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap = [](ECS::Entity&, const ECS::Entity &) {},
-                                          std::function<void(ECS::Entity&, const  ECS::Entity&)> hit = [](ECS::Entity&, const ECS::Entity &) {});
+                                          COLLISION_HANDLER overlap = [](ECS::Entity, const ECS::Entity , CollisionResult) {},
+                                          COLLISION_HANDLER hit = PhysicsObject::handle_collision);
+    static ECS::Entity createCustomMoveableWall(vec2 location, vec2 scale, std::vector<ColoredVertex> vertexes,
+                                                vec2 world_velocity,
+                                                float rotation,
+                                          COLLISION_HANDLER overlap = [](ECS::Entity, const ECS::Entity , CollisionResult) {},
+                                          COLLISION_HANDLER hit = PhysicsObject::handle_collision);
+
 };
 

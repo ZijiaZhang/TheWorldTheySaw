@@ -15,7 +15,7 @@ class Bullet {
 public:
     static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, std::string name);
 
-    static void destroy_on_hit(ECS::Entity &self,const ECS::Entity &e) {
+    static void destroy_on_hit(ECS::Entity self,const ECS::Entity e, CollisionResult) {
         if(e.has<Shield>()){
             if (e.get<Shield>().teamID == self.get<Bullet>().teamID){
                 return;

@@ -55,22 +55,23 @@ void ContainerInterface::list_all_components_of(Entity e) {
 	}
 }
 void ContainerInterface::remove_all_components_of(Entity e) {
+    if (e.has<ParentEntity>()){
+        auto& parent = e.get<ParentEntity>();
+        ECS::Entity parent_entity = parent.parent;
+        e.remove<ParentEntity>();
+        if (registry<ChildrenEntities>.has(parent_entity)){
+            registry<ChildrenEntities>.get(parent_entity).children.erase(e);
+        }
+    }
+    if(e.has<ChildrenEntities>()){
+        auto& children = e.get<ChildrenEntities>().children;
+        for(auto it= children.begin(); it!= children.end();) {
+            remove_all_components_of(*it++);
+        }
+    }
 	for (auto reg : registry_list_singleton()) {
 		assert(reg); // Must not be null
 		reg->remove(e);
 	}
 }
 
-/*
-* void ECS::Entity::attach(std::string key, std::function<void(ECS::Entity, ECS::Entity)> callback)
-{
-	collisionHandler.insert({ key, callback });
-}
-
-void ECS::Entity::update(std::string key, ECS::Entity e1, ECS::Entity e2)
-{
-	std::cout << "update\n";
-	if (collisionHandler[key] != NULL)
-		collisionHandler[key](e1, e2);
-}
-*/

@@ -30,10 +30,12 @@ ECS::Entity Weapon::createWeapon(vec2 offset, float offset_angle, ECS::Entity pa
     motion.scale.x *= -3.0; // point front to the right
     motion.zValue = ZValuesMap["Weapon"];
     motion.has_parent = true;
-    motion.parent = std::move(parent);
+    motion.parent = parent;
     motion.offset = offset;
     motion.offset_angle = offset_angle;
 
+    auto& parent_entity = entity.emplace<ParentEntity>();
+    parent_entity.parent = parent;
     PhysicsObject physicsObject;
     physicsObject.mass = 100;
     physicsObject.object_type = WEAPON;

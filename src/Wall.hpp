@@ -7,11 +7,15 @@
 
 #include "common.hpp"
 #include "tiny_ecs.hpp"
+#include "PhysicsObject.hpp"
 
 class Wall {
 public:
     static ECS::Entity createWall(vec2 location, vec2 size, float rotation,
-                                  std::function<void(ECS::Entity&, const  ECS::Entity&)> overlap = [](ECS::Entity&, const ECS::Entity &) {},
-                                  std::function<void(ECS::Entity&, const  ECS::Entity&)> hit = [](ECS::Entity&, const ECS::Entity &) {});
+                                  COLLISION_HANDLER overlap,
+                                  COLLISION_HANDLER hit);
+
+    static void wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult collision);
+
 };
 

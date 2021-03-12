@@ -6,12 +6,12 @@
 #include <Bullet.hpp>
 #include <float.h>
 
-std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity&, float)>> SoldierAISystem::algorithmMap = {
+std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity, float)>> SoldierAISystem::algorithmMap = {
         {DIRECT, SoldierAISystem::direct_movement},
         {A_STAR, a_star_to_closest_enemy}
 };
 
-std::unordered_map<WeaponType , std::function<void(ECS::Entity&, float)>> SoldierAISystem::weaponMap = {
+std::unordered_map<WeaponType , std::function<void(ECS::Entity, float)>> SoldierAISystem::weaponMap = {
         {W_ROCKET, shoot_rocket},
         {W_AMMO, shoot_ammo},
         {W_LASER, shoot_laser},
@@ -35,7 +35,7 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         }
 	}
 }
-void SoldierAISystem::shoot_bullet(ECS::Entity& soldier_entity, float elapsed_ms) {
+void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms) {
     if(weaponTicker > 200.f) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
@@ -55,7 +55,7 @@ void SoldierAISystem::shoot_bullet(ECS::Entity& soldier_entity, float elapsed_ms
     }
 }
 
-void SoldierAISystem::shoot_rocket(ECS::Entity& soldier_entity, float elapsed_ms) {
+void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms) {
     if(weaponTicker > 300.f) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
@@ -75,7 +75,7 @@ void SoldierAISystem::shoot_rocket(ECS::Entity& soldier_entity, float elapsed_ms
     }
 }
 
-void SoldierAISystem::shoot_laser(ECS::Entity& soldier_entity, float elapsed_ms) {
+void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) {
     if(weaponTicker > 100.f) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
@@ -95,7 +95,7 @@ void SoldierAISystem::shoot_laser(ECS::Entity& soldier_entity, float elapsed_ms)
     }
 }
 
-void SoldierAISystem::shoot_ammo(ECS::Entity& soldier_entity, float elapsed_ms) {
+void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
     if(weaponTicker > 250.f) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
@@ -116,7 +116,7 @@ void SoldierAISystem::shoot_ammo(ECS::Entity& soldier_entity, float elapsed_ms) 
 }
 
 
-void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity& soldier_entity, float elapsed_ms){
+void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float elapsed_ms){
     if (ECS::registry<Motion>.has(soldier_entity) && ECS::registry<Soldier>.has(soldier_entity)) {
         auto& soldier_motion = ECS::registry<Motion>.get(soldier_entity);
         auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
@@ -147,7 +147,7 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity& soldier_entity, float
     }
 }
 
-void SoldierAISystem::direct_movement(ECS::Entity& soldier_entity, float elapsed_ms)
+void SoldierAISystem::direct_movement(ECS::Entity soldier_entity, float elapsed_ms)
 {
 	if (ECS::registry<Motion>.has(soldier_entity) && ECS::registry<Soldier>.has(soldier_entity)) {
 
@@ -238,7 +238,7 @@ ECS::Entity SoldierAISystem::getCloestEnemy(Motion& soldierMotion)
     ECS::Entity closestEnemy;
     if (enemyList.size() > 0) {
         closestEnemy = enemyList[0];
-        for (ECS::Entity& enemyEntity : enemyList) {
+        for (ECS::Entity enemyEntity : enemyList) {
             if (ECS::registry<Motion>.has(enemyEntity)) {
                 auto& enemyMotion = ECS::registry<Motion>.get(enemyEntity);
                 float distance = pow(soldierMotion.position.x - enemyMotion.position.x, 2) + pow(soldierMotion.position.y - enemyMotion.position.y, 2);

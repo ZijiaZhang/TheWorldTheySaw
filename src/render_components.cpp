@@ -270,6 +270,13 @@ void Mesh::loadFromOBJFile(std::string obj_path) {
 ShadedMesh& cache_resource(std::string key) 
 {
 	static std::unordered_map<std::string, ShadedMesh> resource_cache;
+//	static std::vector<ShadedMesh> meshs;
+//    if(key == ""){
+//        ShadedMesh mesh;
+//        meshs.push_back(std::move(mesh));
+//        printf("xxx\n");
+//        return meshs.back();
+//    }
 	const auto it = resource_cache.find(key);
 	if (it == resource_cache.end())
 	{
@@ -283,3 +290,5 @@ ShadedMesh& cache_resource(std::string key)
 ShadedMeshRef::ShadedMeshRef(ShadedMesh& mesh) : 
 	reference_to_cache(&mesh) 
 {};
+
+std::list<ShadedMesh> Global_Meshes::meshes = std::list<ShadedMesh>();

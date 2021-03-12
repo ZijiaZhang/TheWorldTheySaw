@@ -200,7 +200,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 	// Draw all textured meshes that have a position and size component
     // Draw by the order of motion zValue, the smaller zValue, draw earlier
     auto entities = ECS::registry<ShadedMeshRef>.entities;
-    sort(entities.begin(), entities.end(), [](const ECS::Entity& e1, const ECS::Entity& e2)
+    sort(entities.begin(), entities.end(), [](const ECS::Entity e1, const ECS::Entity e2)
     {
         return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
     });

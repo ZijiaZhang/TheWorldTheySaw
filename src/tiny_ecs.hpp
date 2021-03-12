@@ -8,12 +8,14 @@
 #include <functional>
 #include <iostream>
 #include "Point.hpp"
+#include <set>
 
 typedef enum{
     NoCollision,
     Overlap,
     Hit
 } CollisionType;
+
 
 namespace ECS {
 	// Declare the ComponentContainer upfront, such that we can define the registry and use it in the Entity class definition
@@ -31,26 +33,8 @@ namespace ECS {
 		{
 			id = next_id();
 			// Note, indices of already deleted entities arent re-used in this simple implementation.
-			pts = Points();
-
-            collisionHandler = {
-				{Overlap, [](ECS::Entity& self, ECS::Entity const& e1) {
-                    (void) e1;
-                    (void) self;
-				    }
-				    },
-				{Hit, [](ECS::Entity& self, ECS::Entity const& e1) {
-                    (void) e1;
-                    (void) self;
-				    }
-				}
-			};
 		}
 
-
-		Points pts;
-
-		std::unordered_map<CollisionType, std::function<void(ECS::Entity&, const ECS::Entity&)>> collisionHandler;
 
 		// The ID defines an entity
 		unsigned int id;
@@ -84,16 +68,12 @@ namespace ECS {
 			return *this;
 		}
 
-		void attach(CollisionType key,  std::function<void(ECS::Entity&, const  ECS::Entity&)> callback) {
-			this->collisionHandler[key] = std::move(callback);
-		};
 
-		void physicsEvent(CollisionType key, ECS::Entity self, ECS::Entity other_entity) {
-			// std::cout << "update\n";
-			// if (collisionHandler[key] != NULL)
-			this->collisionHandler[key](self, other_entity);
-		};
 
+
+        bool operator<(const Entity other) const{
+            return this->id < other.id;
+        }
 	private:
 		// yields ids from 1; entity 0 is the default initialization
 		static unsigned int next_id() {
@@ -245,4 +225,14 @@ namespace ECS {
 	static std::function<void(ECS::Entity, ECS::Entity)> ptsCallback = [](ECS::Entity e1, ECS::Entity e2) {
 		//std::cout << "The entity gains " << e1.pts.getPoint() << " point \n"; 
 	};
+
+
 }
+
+struct ChildrenEntities{
+    std::set<ECS::Entity> children;
+};
+
+struct ParentEntity{
+    ECS::Entity parent;
+};
