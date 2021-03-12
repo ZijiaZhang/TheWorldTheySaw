@@ -84,6 +84,9 @@ void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult colli
     vec2 first_intersect = vec2{};
     vec2 first_dir = vec2{};
     auto& motion = self.get<Motion>();
+    if (motion.scale.x < 50.f && motion.scale.y < 50.f){
+        return;
+    }
     Transform t1 = getTransform(motion);
     for(auto edge : physics.faces) {
         vec2 start =  t1.mat * vec3{physics.vertex[edge.first].position.x, physics.vertex[edge.first].position.y, 1};
