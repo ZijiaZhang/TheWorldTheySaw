@@ -83,7 +83,6 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
     scale *= vec2{max_r_x, max_r_y} / 0.5f;
     if (abs(scale.x) < 10.f && abs(scale.y) < 10.f){
         entity.emplace<DeathTimer>();
-        return entity;
     }
     for (auto& vertex: vertexes){
         vertex.position.x /= max_r_x / 0.5f;
