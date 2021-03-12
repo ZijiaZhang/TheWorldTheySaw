@@ -32,8 +32,8 @@ std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::only
                     SHIELD,
                     WEAPON}},
     {ENEMY,{BULLET}},
-//    {BUTTON, {PLAYER}},
-//    {PLAYER, {BUTTON, BULLET}},
+    {BUTTON, {PLAYER}},
+    {PLAYER, {BUTTON, BULLET}},
     {SHIELD, {BULLET}}
     };
 

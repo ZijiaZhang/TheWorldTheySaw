@@ -78,6 +78,16 @@ auto select_button_overlap(const std::string& level){
     };
 };
 
+auto select_level_button_overlap(const std::string& level){
+    return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+        if (other.has<Soldier>()) {
+            WorldSystem::selected_level = level;
+            WorldSystem::reload_level = true;
+            WorldSystem::level_name = "loadout";
+        }
+    };
+};
+
 
 
 
@@ -195,13 +205,13 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return Button::createButton(ButtonType::LEVEL1, location, select_button_overlap("level_4"));
+					 return Button::createButton(ButtonType::LEVEL1, location, select_level_button_overlap("level_4"));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonType::LEVEL2, location, select_button_overlap("level_3"));
+						return Button::createButton(ButtonType::LEVEL2, location, select_level_button_overlap("level_3"));
 					} }
 };
 
