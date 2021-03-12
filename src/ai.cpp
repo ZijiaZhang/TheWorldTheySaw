@@ -49,7 +49,7 @@ void AISystem::build_grid() {
 
 using Clock = std::chrono::high_resolution_clock;
 
-void AISystem::enemy_ai_step(ECS::Entity& enemy, float elapsed_ms, vec2 dest) {
+void AISystem::enemy_ai_step(ECS::Entity enemy, float elapsed_ms, vec2 dest) {
 
     if (!enemy.has<AIPath>()) {
         return;
@@ -65,7 +65,7 @@ vec2 AISystem::get_grid_location(std::pair<int, int> grid) {
     return { grid.first * GRID_SIZE + GRID_SIZE / 2, grid.second * GRID_SIZE + GRID_SIZE / 2 };
 }
 
-Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity& agent, vec2 position, float radius) {
+Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity agent, vec2 position, float radius) {
     auto& agent_motion = agent.get<Motion>();
     auto& agent_physics = agent.get<PhysicsObject>();
     std::set<std::pair<int, int>> collisions;

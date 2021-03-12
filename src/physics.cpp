@@ -34,7 +34,7 @@ bool collides(const Motion& motion1, const Motion& motion2)
 }
 
 
-CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2) {
+CollisionType PhysicsSystem::advanced_collision(ECS::Entity e1, ECS::Entity e2) {
 	if (!e1.has<Motion>() || !e2.has<Motion>() || !e1.has<PhysicsObject>() || !e2.has<PhysicsObject>()
 		|| PhysicsObject::getCollisionType(e1.get<PhysicsObject>().object_type, e2.get<PhysicsObject>().object_type) == NoCollision) {
 		return NoCollision;
@@ -81,13 +81,15 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity& e1, ECS::Entity& e2
 	auto result = PhysicsObject::getCollisionType(p1.object_type, p2.object_type);
     if (result != NoCollision) {
         p1.physicsEvent(result, e1, e2, c1);
-        p2.physicsEvent(result, e2, e1, c1);
+        // The vector may resize, re-obtain reference here.
+        auto& p2_a = ECS::registry<PhysicsObject>.get(e2);
+        p2_a.physicsEvent(result, e2, e1, c1);
     }
 	return result;
 }
 
 
-CollisionResult PhysicsSystem::collision(ECS::Entity& e1, ECS::Entity& e2) {
+CollisionResult PhysicsSystem::collision(ECS::Entity e1, ECS::Entity e2) {
 	if (!e1.has<Motion>() || !e2.has<Motion>() || !e1.has<PhysicsObject>() || !e2.has<PhysicsObject>()) {
 		return { 0, {0,0}, {0,0} };
 	}
@@ -291,8 +293,8 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				DebugSystem::createLine(vec2{ world.x, world.y }, vec2{ 10,10 });
 			}
 		}
-        for (auto& e : ECS::registry<Weapon>.entities) {
-            DebugSystem::createLine(e.get<Motion>().position, {10.f, 10.f});
+        for (auto& m : ECS::registry<Motion>.components) {
+            DebugSystem::createLine(m.position, {10.f, 10.f});
         }
 
 		for (auto& e : ECS::registry<AIPath>.components) {
@@ -317,13 +319,13 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	unsigned int size = physics_object_container.components.size();
 	for (int i = size - 1; i >= 0 ; i--)
 	{
-		ECS::Entity& entity_i = physics_object_container.entities[i];
+		ECS::Entity entity_i = physics_object_container.entities[i];
 		auto& motion_i = entity_i.get<Motion>();
 		// std::cout << "entity i addr: " << &entity_i << "\n";
 		for (int j = i - 1; j >= 0 ; j--)
 		{
 
-			ECS::Entity& entity_j = physics_object_container.entities[j];
+			ECS::Entity entity_j = physics_object_container.entities[j];
 			auto& motion_j = entity_j.get<Motion>();
 			if (collides(motion_i, motion_j))
 			{
@@ -340,7 +342,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 }
 
-PhysicsSystem::Collision::Collision(ECS::Entity& other)
+PhysicsSystem::Collision::Collision(ECS::Entity other)
 {
 	this->other = other;
 }

@@ -9,7 +9,7 @@
 #include "common.hpp"
 #include "physics.hpp"
 
-typedef std::function<void(ECS::Entity& self, const ECS::Entity& other, CollisionResult result)> COLLISION_HANDLER;
+typedef std::function<void(ECS::Entity self, const ECS::Entity other, CollisionResult result)> COLLISION_HANDLER;
 
 class PhysicsObject{
 public:
@@ -32,7 +32,6 @@ public:
     CollisionObjectType object_type = DEFAULT;
     std::vector<Force> force = std::vector<Force>{};
     ECS::Entity parent;
-private:
     std::unordered_map<CollisionType, COLLISION_HANDLER> collisionHandler;
 public:
     void attach(CollisionType key,  COLLISION_HANDLER callback) {
@@ -60,7 +59,7 @@ public:
         return Hit;
     }
 
-    static Force handle_collision(ECS::Entity self, const ECS::Entity &other, CollisionResult collision){
+    static Force handle_collision(ECS::Entity self, const ECS::Entity other, CollisionResult collision){
         if(!other.has<Motion>() || !self.has<Motion>()){
             return Force{};
         }

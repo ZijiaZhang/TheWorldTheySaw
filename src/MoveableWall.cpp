@@ -5,6 +5,7 @@
 #include "MoveableWall.hpp"
 
 #include "PhysicsObject.hpp"
+#include "Wall.hpp"
 
 ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rotation,
                                              COLLISION_HANDLER overlap,
@@ -59,7 +60,7 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
     assert(vertexes.size() >= 3);
     auto entity = ECS::Entity();
     vec2 sum = vec2{};
-    for(int index = 1; index < vertexes.size(); index++){
+    for(int index = 0; index < vertexes.size(); index++){
         sum += vec2{vertexes[index].position.x, vertexes[index].position.y};
     }
     sum /= (float)vertexes.size();
@@ -126,8 +127,9 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
     physicsObject.mass = 30;
 //    physicsObject.attach(Overlap,overlap);
 // Has bug doing this
-//    physicsObject.attach(Hit, LevelLoader::wall_hit);
-    physicsObject.attach(Hit, PhysicsObject::handle_collision);
+    physicsObject.attach(Overlap, overlap);
+    physicsObject.attach(Hit, hit);
+//    physicsObject.attach(Hit, PhysicsObject::handle_collision);
     //motion.box = size;
     // Create and (empty) Salmon component to be able to refer to all turtles
     ECS::registry<MoveableWall>.emplace(entity);

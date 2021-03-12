@@ -71,7 +71,7 @@ namespace ECS {
 
 
 
-        bool operator<(const Entity& other) const{
+        bool operator<(const Entity other) const{
             return this->id < other.id;
         }
 	private:

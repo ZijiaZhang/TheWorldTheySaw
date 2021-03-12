@@ -22,12 +22,12 @@ public:
     static void step(float elapsed_ms, vec2 window_size_in_game_units);
 
 // Decision tree if statements
-static void direct_movement(ECS::Entity& soldier_entity, float elapsed_ms);
-static void a_star_to_closest_enemy(ECS::Entity& soldier_entity, float elapsed_ms);
-    static void shoot_bullet(ECS::Entity& soldier_entity, float elapsed_ms);
-    static void shoot_rocket(ECS::Entity& soldier_entity, float elapsed_ms);
-    static void shoot_laser(ECS::Entity& soldier_entity, float elapsed_ms);
-    static void shoot_ammo(ECS::Entity& soldier_entity, float elapsed_ms);
+static void direct_movement(ECS::Entity soldier_entity, float elapsed_ms);
+static void a_star_to_closest_enemy(ECS::Entity soldier_entity, float elapsed_ms);
+    static void shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms);
+    static void shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms);
+    static void shoot_laser(ECS::Entity soldier_entity, float elapsed_ms);
+    static void shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms);
 
 
 private:
@@ -49,8 +49,8 @@ private:
     static void walkForward(Motion& soldierMotion, Motion& enemyMotion);
 
 
-    static std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity&, float)>> algorithmMap;
-    static std::unordered_map<WeaponType, std::function<void(ECS::Entity&, float)>> weaponMap;
+    static std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity, float)>> algorithmMap;
+    static std::unordered_map<WeaponType, std::function<void(ECS::Entity, float)>> weaponMap;
 };
 
 

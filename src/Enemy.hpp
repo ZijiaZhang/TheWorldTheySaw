@@ -11,8 +11,8 @@
 class Enemy {
 
 public:
-    static ECS::Entity createEnemy(vec2 position, COLLISION_HANDLER overlap = [](ECS::Entity&, const ECS::Entity &, CollisionResult) {},
-                                   COLLISION_HANDLER hit = [](ECS::Entity&, const ECS::Entity &, CollisionResult) {}, int teamID =1);
+    static ECS::Entity createEnemy(vec2 position, COLLISION_HANDLER overlap = [](ECS::Entity, const ECS::Entity, CollisionResult) {},
+                                   COLLISION_HANDLER hit = [](ECS::Entity, const ECS::Entity , CollisionResult) {}, int teamID =1);
     AiState enemyState = AiState::IDLE;
     int teamID = 1;
 };

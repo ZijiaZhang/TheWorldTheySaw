@@ -16,9 +16,9 @@ class AISystem
 public:
     void step(float elapsed_ms, vec2 window_size_in_game_units);
 
-    void enemy_ai_step(ECS::Entity& e, float elapsed_ms, vec2 dest);
+    void enemy_ai_step(ECS::Entity e, float elapsed_ms, vec2 dest);
 
-    static Path_with_heuristics find_path_to_location(const ECS::Entity& agent, vec2 position, float radius);
+    static Path_with_heuristics find_path_to_location(const ECS::Entity agent, vec2 position, float radius);
 
     template <CollisionObjectType T>
     void add_grids_to_set(const Motion& motion, const PhysicsObject& obj);

@@ -32,5 +32,5 @@ private:
 
     void walkRandom(Motion& enemyMotion);
 
-    void shortestPathToSoldier(ECS::Entity& e, float elapsed_ms, vec2 dest);
+    void shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest);
 };

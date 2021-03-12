@@ -39,7 +39,7 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 		auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
 		if (EnemyAISystem::isSoldierExists())
 		{
-			ECS::Entity& soldier = ECS::registry<Soldier>.entities[0];
+			ECS::Entity soldier = ECS::registry<Soldier>.entities[0];
 			auto& soldierMotion = ECS::registry<Motion>.get(soldier);
 
 			if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 500.f)) {
@@ -110,7 +110,7 @@ void EnemyAISystem::walkRandom(Motion& enemyMotion)
 	enemyMotion.velocity = vec2{ rand() % 200 - 99, rand() % 200 - 99 };
 }
 
-void EnemyAISystem::shortestPathToSoldier(ECS::Entity& e, float elapsed_ms, vec2 dest)
+void EnemyAISystem::shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest)
 {
 	auto& motion = e.get<Motion>();
 	ai.enemy_ai_step(e, elapsed_ms, dest);
