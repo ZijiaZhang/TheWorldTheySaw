@@ -33,6 +33,8 @@ ECS::Entity Background::createBackground(vec2 position, std::string name)
 
 	// Create and (empty) Fish component to be able to refer to all fish
 	ECS::registry<Background>.emplace(entity);
+	auto& pb = ECS::registry<ParallaxBackground>.emplace(entity);
+	pb.depth = 5.0;
 
 	return entity;
 }
