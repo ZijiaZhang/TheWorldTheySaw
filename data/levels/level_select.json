@@ -1,14 +1,27 @@
 {
-    "player": [{
-        "position": {"x": 500, "y": 500}
-    }],
-    "background": [{
-        "position": {"x": 500, "y": 500},
-        "additionalProperties": {"name": "levelbk"}
-    }],
+    "player": [
+        {
+            "position": {
+                "x": 500,
+                "y": 500
+            }
+        }
+    ],
+    "background": [
+        {
+            "position": {
+                "x": 500,
+                "y": 500
+            },
+            "additionalProperties": { "name": "levelbk" }
+        }
+    ],
     "select_level_1": [
         {
-            "position": {"x": 350, "y":  450}
+            "position": {
+                "x": 350,
+                "y": 450
+            }
         }
     ],
     "select_level_2": [
@@ -16,6 +29,14 @@
             "position": {
                 "x": 650,
                 "y": 450
+            }
+        }
+    ],
+    "select_level_3": [
+        {
+            "position": {
+                "x": 350,
+                "y": 550
             }
         }
     ],

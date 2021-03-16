@@ -55,6 +55,7 @@ public:
 
 	static std::map<ButtonType, std::function<void()>> buttonCallbacks;
     static bool reload_level;
+	static bool selecting;
     static std::string level_name;
     static std::string selected_level;
 

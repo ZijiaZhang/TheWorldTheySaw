@@ -17,7 +17,8 @@ enum class ButtonType {
     SELECT_A_STAR,
     RETURN,
     LEVEL1,
-    LEVEL2
+    LEVEL2,
+	LEVEL3
 };
 
 struct Button {

@@ -46,7 +46,7 @@ void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionRe
 
 auto select_algo_of_type(AIAlgorithm algo) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>()) {
+		if (other.has<Soldier>() && WorldSystem::selecting) {
 			auto& soldier = other.get<Soldier>();
 			soldier.ai_algorithm = algo;
 		}
@@ -55,7 +55,7 @@ auto select_algo_of_type(AIAlgorithm algo) {
 
 auto select_weapon_of_type(WeaponType type) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>()) {
+		if (other.has<Soldier>() && WorldSystem::selecting) {
 			auto& soldier = other.get<Soldier>();
 			if (soldier.weapon.has<Weapon>()) {
 				auto& weapon = soldier.weapon.get<Weapon>();
@@ -71,7 +71,7 @@ auto select_weapon_of_type(WeaponType type) {
 
 auto select_button_overlap(const std::string& level){
     return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-        if (other.has<Soldier>()) {
+        if (other.has<Soldier>() && WorldSystem::selecting) {
             WorldSystem::reload_level = true;
             WorldSystem::level_name = level;
         }
@@ -80,7 +80,7 @@ auto select_button_overlap(const std::string& level){
 
 auto select_level_button_overlap(const std::string& level){
     return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-        if (other.has<Soldier>()) {
+        if (other.has<Soldier>() && WorldSystem::selecting) {
             WorldSystem::selected_level = level;
             WorldSystem::reload_level = true;
             WorldSystem::level_name = "loadout";
@@ -212,6 +212,12 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 						COLLISION_HANDLER, const json&)
 					{
 						return Button::createButton(ButtonType::LEVEL2, location, select_level_button_overlap("level_3"));
+					} },
+		{ "select_level_3", [](vec2 location, vec2 size, float rotation,
+						COLLISION_HANDLER,
+						COLLISION_HANDLER, const json&)
+					{
+						return Button::createButton(ButtonType::DEFAULT_BUTTON, location, select_level_button_overlap("level_5"));
 					} }
 };
 

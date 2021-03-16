@@ -42,6 +42,7 @@ int HIGH_RANGE = 1000;
 bool DRAWING = false;
 int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
+bool WorldSystem::selecting = false;
 
 int KILL_SIZE = 3000;
 
@@ -343,7 +344,7 @@ void WorldSystem::checkEndGame()
         }
         if (ECS::registry<Soldier>.entities.empty()) {
             resetTimer();
-            restart("level_select");
+            restart("menu");
         }
 		if (endGameTimer > 1000000.f) {
 			if (!ECS::registry<Enemy>.entities.empty()) {
@@ -424,26 +425,34 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+	double soldier_speed = 200;
     if (!aiControl) {
         // Move soldier if alive
         if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
             if (key == GLFW_KEY_D) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{100, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{ soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             } else if (key == GLFW_KEY_A) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{-100, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{-soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             } else if (key == GLFW_KEY_S) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{0, 100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{0, soldier_speed } * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             } else if (key == GLFW_KEY_W) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{0, -100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{0, -soldier_speed } * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             }
 
             if(key == GLFW_KEY_Q) {
                 Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {380, 0}, 0, "bullet");
             }
+
+			if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+				selecting = true;
+			}
+			else {
+				selecting = false;
+			}
         }
 
     }
