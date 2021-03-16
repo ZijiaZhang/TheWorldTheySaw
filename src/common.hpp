@@ -61,6 +61,12 @@ struct Motion {
     vec2 offset_move = {0.f,0.f};
 };
 
+struct Health {
+    float shield = 0.f;
+    float hp = 0.f;
+    float max_hp = 0.f;
+};
+
 // For the order of drawing
 static std::map<std::string, int> ZValuesMap = {
         {"Start", 6},
