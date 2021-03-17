@@ -48,6 +48,7 @@ struct Motion {
     float angular_velocity = 0.f;
 	vec2 scale = { 10, 10 };
     int zValue = 0;
+    float depth = 0.f;
 
 	// Max speed on one axis
 	float max_control_speed = 100;

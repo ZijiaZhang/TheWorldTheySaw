@@ -146,10 +146,6 @@ struct DeathTimer
 	float counter_ms = 1;
 };
 
-struct ParallaxBackground {
-    float depth = 1.f;
-};
-
 class Global_Meshes{
 public:
     static std::list<ShadedMesh> meshes;

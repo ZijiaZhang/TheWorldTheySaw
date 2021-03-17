@@ -166,12 +166,15 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"background", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER,
 					COLLISION_HANDLER, json additional) {
+	    std::string name = "background";
+	    float depth = 0.f;
 		if (additional.contains("name")) {
-			Background::createBackground(vec2{500, 500}, additional["name"]);
+		    name = additional["name"];
 		}
-		else {
-		Background::createBackground(vec2{500, 500}, "background");
+		if (additional.contains("depth")) {
+		    depth = additional["depth"];
 		}
+		Background::createBackground(vec2{500, 500}, name, depth);
 	}},
 	{"title", [](vec2 location, vec2 , float ,
 					  COLLISION_HANDLER,
