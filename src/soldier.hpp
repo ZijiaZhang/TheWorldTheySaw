@@ -4,6 +4,7 @@
 #include "tiny_ecs.hpp"
 #include "SoldierAi.hpp"
 #include <AiState.hpp>
+#include "health_bar.hpp"
 
 enum class SoldierType {
     BASIC, MEDIUM, HEAVY
@@ -20,9 +21,4 @@ public:
 	ECS::Entity weapon;
     AIAlgorithm ai_algorithm;
 	int teamID = 0;
-
-	static void updateSoldierHealthBar(vec2 position, vec2 scale, float hp, float max_hp);
-
-private:
-	static void backgroundHealthBar(vec2 position, vec2 scale, float hp, float max_hp);
 };
