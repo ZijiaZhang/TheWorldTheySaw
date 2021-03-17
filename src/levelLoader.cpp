@@ -31,13 +31,6 @@
 using json = nlohmann::json;
 
 
-
-void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
-	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
-		self.emplace<DeathTimer>();
-	}
-};
-
 void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Soldier>().teamID && !self.has<DeathTimer>()) {
 		self.emplace<DeathTimer>();
@@ -92,7 +85,7 @@ auto select_level_button_overlap(const std::string& level){
 
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callbacks = {
-		{"enemy_bullet_hit_death", enemy_bullet_hit_death},
+		{"enemy_bullet_hit_death", Enemy::enemy_bullet_hit_death},
         {"soldier_bullet_hit_death", soldier_bullet_hit_death},
         {"wall_scater", Wall::wall_hit},
 };

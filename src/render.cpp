@@ -3,6 +3,7 @@
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
 #include "Camera.hpp"
+#include "Explosion.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -248,7 +249,6 @@ const std::string RenderSystem::build_anim_vertex_shader(int frames) {
            << "    gl_Position = vec4(pos.xy, in_position.z, 1.0);\n"
            << "}";
     std::string ret = output.str();
-    printf("%s", ret.c_str());
     return ret;
 }
 

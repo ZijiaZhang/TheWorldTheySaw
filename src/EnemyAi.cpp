@@ -2,6 +2,7 @@
 #include "Enemy.hpp"
 #include "soldier.hpp"
 #include "debug.hpp"
+#include "Explosion.hpp"
 #include <Bullet.hpp>
 
 void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
@@ -23,7 +24,13 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                 if (ECS::registry<Motion>.has(enemy_entity) && ECS::registry<Enemy>.has(enemy_entity)) {
                     auto& enemy_motion = ECS::registry<Motion>.get(enemy_entity);
                     auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
-                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, "rocket", 1000);
+                    auto callback = [](ECS::Entity e){
+                        if(e.has<Motion>()) {
+                            Explosion::CreateExplosion(e.get<Motion>().position, 20, 1);
+                        }
+                        ECS::ContainerInterface::remove_all_components_of(e);
+                    };
+                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, "rocket", 2000, callback);
                 }
             }
             shoot_time = 0;

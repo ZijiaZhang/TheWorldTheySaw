@@ -17,6 +17,7 @@
 #include "buttonSetting.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "Explosion.hpp"
 
 // stlib
 #include <string.h>
@@ -456,7 +457,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
             }
 
             if(key == GLFW_KEY_Q) {
-                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {380, 0}, 0, "bullet");
+                auto callback = [](ECS::Entity e){
+                    if(e.has<Motion>()) {
+                        Explosion::CreateExplosion(e.get<Motion>().position, 20, 0);
+                    }
+                    ECS::ContainerInterface::remove_all_components_of(e);
+                };
+                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {150, 0},  0, "rocket", 1000,
+                                     callback);
             }
         }
 

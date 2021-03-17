@@ -3,9 +3,12 @@
 //
 
 #include "Bullet.hpp"
+
+#include <utility>
 #include "PhysicsObject.hpp"
 
-ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID,  std::string name, float lifetime)
+ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID,  std::string name, float lifetime,
+                                 std::function<void(ECS::Entity)> callback)
 {
     // Reserve en entity
     auto entity = ECS::Entity();
@@ -51,17 +54,16 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     };
     physics.faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
     physics.object_type = BULLET;
-    physics.attach(Hit, destroy_on_hit);
-    physics.attach(Overlap, destroy_on_hit);
 
     if(lifetime > 0){
         auto& explode_timer = entity.emplace<ExplodeTimer>();
         explode_timer.counter_ms = lifetime;
-        explode_timer.callback = [](ECS::Entity e){
-            ECS::ContainerInterface::remove_all_components_of(e);
-        };
+        explode_timer.callback = callback;
     }
     auto& bullet = ECS::registry<Bullet>.emplace(entity);
     bullet.teamID = teamID;
+    bullet.on_destroy = callback;
+    physics.attach(Hit, destroy_on_hit);
+    physics.attach(Overlap, destroy_on_hit);
     return entity;
 }

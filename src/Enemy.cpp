@@ -8,6 +8,7 @@
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 #include "Bullet.hpp"
+#include "Explosion.hpp"
 
 ECS::Entity Enemy::createEnemy(vec2 position,
                                COLLISION_HANDLER overlap,
@@ -60,3 +61,11 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     e.teamID = teamID;
     return entity;
 }
+
+void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+    if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
+        self.emplace<DeathTimer>();
+    } else if (e.has<Explosion>() && e.get<Explosion>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()){
+        self.emplace<DeathTimer>();
+    }
+};

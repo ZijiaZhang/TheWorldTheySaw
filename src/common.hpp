@@ -86,6 +86,7 @@ typedef enum
     WEAPON,
     BUTTON,
     SHIELD,
+    EXPLOSION,
     LAST
 
 } CollisionObjectType;
