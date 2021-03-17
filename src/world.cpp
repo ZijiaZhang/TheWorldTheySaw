@@ -240,6 +240,20 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+    for (int i = static_cast<int>(ECS::registry<ExplodeTimer>.components.size()) - 1; i >= 0; --i)
+    {
+        auto entity = ECS::registry<ExplodeTimer>.entities[i];
+        // Progress timer
+        auto& counter = ECS::registry<ExplodeTimer>.get(entity);
+        counter.counter_ms -= elapsed_ms;
+
+        // Restart the game once the death timer expired
+        if (counter.counter_ms < 0)
+        {
+            counter.callback(entity);
+        }
+    }
+
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
 	if(player_soldier.has<AIPath>())
         player_soldier.get<AIPath>().active = aiControl;

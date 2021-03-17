@@ -13,7 +13,7 @@
 
 class Bullet {
 public:
-    static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, std::string name);
+    static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, std::string name, float lifetime = -1);
 
     static void destroy_on_hit(ECS::Entity self,const ECS::Entity e, CollisionResult) {
         if(e.has<Shield>()){
@@ -39,4 +39,9 @@ public:
     int teamID = 0;
 };
 
-
+// A timer that will be associated to dying object
+struct ExplodeTimer
+{
+    float counter_ms = 1000;
+    std::function<void(ECS::Entity)> callback;
+};

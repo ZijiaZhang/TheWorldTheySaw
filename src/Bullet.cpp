@@ -5,7 +5,7 @@
 #include "Bullet.hpp"
 #include "PhysicsObject.hpp"
 
-ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID,  std::string name)
+ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID,  std::string name, float lifetime)
 {
     // Reserve en entity
     auto entity = ECS::Entity();
@@ -53,7 +53,14 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     physics.object_type = BULLET;
     physics.attach(Hit, destroy_on_hit);
     physics.attach(Overlap, destroy_on_hit);
-    // Create and (empty) Fish component to be able to refer to all fish
+
+    if(lifetime > 0){
+        auto& explode_timer = entity.emplace<ExplodeTimer>();
+        explode_timer.counter_ms = lifetime;
+        explode_timer.callback = [](ECS::Entity e){
+            ECS::ContainerInterface::remove_all_components_of(e);
+        };
+    }
     auto& bullet = ECS::registry<Bullet>.emplace(entity);
     bullet.teamID = teamID;
     return entity;

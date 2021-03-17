@@ -5,6 +5,7 @@
 #include "Camera.hpp"
 
 #include <iostream>
+#include <sstream>
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 {
@@ -219,6 +220,36 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
 	// flicker-free display with a double buffer
 	glfwSwapBuffers(&window);
+}
+
+const std::string RenderSystem::build_anim_vertex_shader(int frames) {
+    int width = ceil(sqrt(frames));
+    std::stringstream output;
+    output << "#version 330\n"
+           << "\n"
+           << "// Input attributes\n"
+           << "in vec3 in_position;\n"
+           << "in vec2 in_texcoord;\n"
+           << "uniform float time;\n"
+           << "// Passed to fragment shader\n"
+           << "out vec2 texcoord;\n"
+           << "\n"
+           << "// Application data\n"
+           << "uniform mat3 transform;\n"
+           << "uniform mat3 projection;\n"
+           << "\n"
+           << "void main()\n"
+           << "{\n"
+           << "    float mytime = floor(mod(int(time), "<< frames <<".0));\n"
+           << "    float x_offset = mod(mytime, "<< width<<".0); \n"
+           << "    float y_offset = mod(floor(mytime/"<< width << "), "<< width<<".0); \n"
+           << "    texcoord = vec2((in_texcoord.x + x_offset) * 1.0/" << width <<".0 , (in_texcoord.y + y_offset) * 1.0/" << width <<".0);\n"
+           << "    vec3 pos = projection * transform * vec3(in_position.xy, 1.0);\n"
+           << "    gl_Position = vec4(pos.xy, in_position.z, 1.0);\n"
+           << "}";
+    std::string ret = output.str();
+    printf("%s", ret.c_str());
+    return ret;
 }
 
 void gl_has_errors()

@@ -67,7 +67,7 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {150, 0},  0, "rocket");
+                Bullet::createBullet(motion.position, rad, {150, 0},  0, "rocket", 1000);
             }
         }
 
