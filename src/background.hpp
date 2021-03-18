@@ -8,4 +8,6 @@ struct Background
 {
 	// Creates all the associated render resources and default transform
 	static ECS::Entity createBackground(vec2 position, std::string name, float depth);
+
+	float depth = 0.f;
 };

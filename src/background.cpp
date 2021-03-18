@@ -30,10 +30,10 @@ ECS::Entity Background::createBackground(vec2 position, std::string name, float 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ 1.5f, 1.5f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Background"];
-    motion.depth = depth;
 
 	// Create and (empty) Fish component to be able to refer to all fish
-	ECS::registry<Background>.emplace(entity);
+    auto& bg = ECS::registry<Background>.emplace(entity);
+    bg.depth = depth;
 
 	return entity;
 }

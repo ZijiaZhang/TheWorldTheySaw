@@ -253,8 +253,9 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	vec2 pl = ECS::registry<Motion>.get(player_soldier).position;
 	for (auto e : ECS::registry<Background>.entities) {
+	    auto c = ECS::registry<Background>.get(e);
 	    auto& bg_m = ECS::registry<Motion>.get(e);
-	    float depth = bg_m.depth;
+	    float depth = c.depth;
 	    if (depth != 0.f) {
             bg_m.position += (pl - prev_pl_pos) / depth;
             prev_pl_pos = pl;
