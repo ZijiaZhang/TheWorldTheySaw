@@ -44,6 +44,7 @@ int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
 
 int KILL_SIZE = 3000;
+vec2 prev_pl_pos = {0,0};
 
 std::string WorldSystem::selected_level = "level_3";
 
@@ -250,7 +251,16 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	runTimer(elapsed_ms);
 	checkEndGame();
 
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
+	vec2 pl = ECS::registry<Motion>.get(player_soldier).position;
+	for (auto e : ECS::registry<Background>.entities) {
+	    auto c = ECS::registry<Background>.get(e);
+	    auto& bg_m = ECS::registry<Motion>.get(e);
+	    float depth = c.depth;
+	    if (depth != 0.f) {
+            bg_m.position += (pl - prev_pl_pos) / depth;
+            prev_pl_pos = pl;
+        }
+	}
 }
 
 // Reset the world state to its initial state
@@ -327,6 +337,7 @@ void WorldSystem::restart(std::string level)
 	ECS::Entity camera;
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
+	prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
 }
 
 bool WorldSystem::isPlayableLevel(std::string level)
