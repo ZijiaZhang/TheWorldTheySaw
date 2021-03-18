@@ -13,7 +13,7 @@
 
 class Bullet {
 public:
-    static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, std::string name);
+    static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, std::string texture_name);
 
     static void destroy_on_hit(ECS::Entity self,const ECS::Entity e, CollisionResult) {
         if(e.has<Shield>()){

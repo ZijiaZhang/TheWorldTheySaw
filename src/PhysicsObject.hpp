@@ -29,7 +29,7 @@ public:
     // If collision is enabled
     bool collide = true;
     // Object type
-    CollisionObjectType object_type = DEFAULT;
+    CollisionObjectType object_type = COLLISION_DEFAULT;
     std::vector<Force> force = std::vector<Force>{};
     ECS::Entity parent;
     std::unordered_map<CollisionType, COLLISION_HANDLER> collisionHandler;

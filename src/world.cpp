@@ -17,6 +17,7 @@
 #include "buttonSetting.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "MagicParticle.hpp"
 
 // stlib
 #include <string.h>
@@ -266,6 +267,7 @@ void WorldSystem::restart(std::string level)
 	current_speed = 1.f;
     auto weapon = W_BULLET;
     auto algo = DIRECT;
+    auto magic = FIREBALL;
     if (player_soldier.has<Soldier>()) {
         auto& soldier = player_soldier.get<Soldier>();
         if (soldier.weapon.has<Weapon>()){
@@ -275,6 +277,7 @@ void WorldSystem::restart(std::string level)
     if (player_soldier.has<Soldier>()) {
         auto& soldier = player_soldier.get<Soldier>();
         algo = soldier.ai_algorithm;
+        magic = soldier.magic;
     }
     // Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -309,6 +312,7 @@ void WorldSystem::restart(std::string level)
     if (player_soldier.has<Soldier>()) {
         auto& soldier = player_soldier.get<Soldier>();
         soldier.ai_algorithm = algo;
+        soldier.magic = magic;
     }
 
 	if (level == "level_3") 
@@ -441,8 +445,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                         vec2{0, -100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             }
 
-            if(key == GLFW_KEY_Q) {
-                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {380, 0}, 0, "bullet");
+            if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
+                if(player_soldier.has<Soldier>()) {
+                    MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
+                                                       player_soldier.get<Motion>().angle,
+                                                       {380, 0},
+                                                       0,
+                                                       FIREBALL);
+                }
             }
         }
 

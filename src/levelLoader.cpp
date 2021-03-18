@@ -101,7 +101,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
 					   COLLISION_HANDLER overlap, COLLISION_HANDLER, const json&) {
-		Wall::createWall(location, size, rotation, overlap, physics_callbacks["wall_scater"]);
+		Wall::createWall(location, size, rotation, physics_callbacks["wall_scater"], physics_callbacks["wall_scater"]);
 	}
 	},
 	{"borders", [](vec2 location, vec2 size, float rotation,
