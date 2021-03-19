@@ -17,6 +17,7 @@
 #include "buttonSetting.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "Explosion.hpp"
 
 // stlib
 #include <string.h>
@@ -241,6 +242,20 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+    for (int i = static_cast<int>(ECS::registry<ExplodeTimer>.components.size()) - 1; i >= 0; --i)
+    {
+        auto entity = ECS::registry<ExplodeTimer>.entities[i];
+        // Progress timer
+        auto& counter = ECS::registry<ExplodeTimer>.get(entity);
+        counter.counter_ms -= elapsed_ms;
+
+        // Restart the game once the death timer expired
+        if (counter.counter_ms < 0)
+        {
+            counter.callback(entity);
+        }
+    }
+
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
 	if(player_soldier.has<AIPath>())
         player_soldier.get<AIPath>().active = aiControl;
@@ -453,7 +468,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
             }
 
             if(key == GLFW_KEY_Q) {
-                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {380, 0}, 0, "bullet");
+                auto callback = [](ECS::Entity e){
+                    if(e.has<Motion>()) {
+                        Explosion::CreateExplosion(e.get<Motion>().position, 20, 0);
+                    }
+                    ECS::ContainerInterface::remove_all_components_of(e);
+                };
+                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {150, 0},  0, "rocket", 1000,
+                                     callback);
             }
         }
 

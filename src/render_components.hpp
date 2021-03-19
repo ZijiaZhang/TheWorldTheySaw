@@ -96,6 +96,7 @@ struct Effect
 	GLResource<PROGRAM> program;
 
 	void load_from_file(std::string vs_path, std::string fs_path); // load shaders from files and link into program
+    void load_from_string(const std::string &vs_str, const std::string &fs_str);
 };
 
 // Mesh datastructure for storing vertex and index buffers

@@ -15,6 +15,8 @@ public:
                                    COLLISION_HANDLER hit = [](ECS::Entity, const ECS::Entity , CollisionResult) {}, int teamID =1);
     AiState enemyState = AiState::IDLE;
     int teamID = 1;
+
+    static void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult);
 };
 
 

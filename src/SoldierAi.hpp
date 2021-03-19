@@ -29,12 +29,12 @@ static void a_star_to_closest_enemy(ECS::Entity soldier_entity, float elapsed_ms
     static void shoot_laser(ECS::Entity soldier_entity, float elapsed_ms);
     static void shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms);
 
-
 private:
+    static float weaponTicker;
+
     static float pathTicker;
 
     static float updateRate;
-    static float weaponTicker;
 
     static bool isEnemyExists();
 

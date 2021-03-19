@@ -8,6 +8,7 @@
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 #include "Bullet.hpp"
+#include "Explosion.hpp"
 
 ECS::Entity Enemy::createEnemy(vec2 position,
                                COLLISION_HANDLER overlap,
@@ -20,7 +21,7 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     if (resource.mesh.vertices.size() == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("/enemy/cannon/asuka_ani.png"), "animation");
+        RenderSystem::createSpriteAnimation(resource, textures_path("/enemy/cannon/asuka_ani.png"), 2);
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -60,3 +61,11 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     e.teamID = teamID;
     return entity;
 }
+
+void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+    if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
+        self.emplace<DeathTimer>();
+    } else if (e.has<Explosion>() && e.get<Explosion>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()){
+        self.emplace<DeathTimer>();
+    }
+};
