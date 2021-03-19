@@ -347,16 +347,16 @@ void WorldSystem::checkEndGame()
 	if (WorldSystem::isPlayableLevel(currentLevel)) {
         if (ECS::registry<Enemy>.entities.empty()) {
             resetTimer();
-            restart("level_select");
+            restart("win");
         }
         if (ECS::registry<Soldier>.entities.empty()) {
             resetTimer();
-            restart("menu");
+            restart("lose");
         }
 		if (endGameTimer > 1000000.f) {
 			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
-				restart("menu");
+				restart("lose");
 			}
 		}
 	}
