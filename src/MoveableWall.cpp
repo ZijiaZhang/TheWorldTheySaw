@@ -102,9 +102,8 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
         resource.mesh.vertex_indices.emplace_back(index-1);
     }
 
-
     //printf("%d\n", resource.mesh.vertices.size());
-
+  
     RenderSystem::createColoredMesh(resource, "salmon");
 
 

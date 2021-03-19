@@ -6,6 +6,7 @@
 #include "Enemy.hpp"
 #include "Camera.hpp"
 #include "button.hpp"
+#include "health_bar.hpp"
 
 // stlib
 #include <vector>

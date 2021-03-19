@@ -4,6 +4,7 @@
 #include "tiny_ecs.hpp"
 #include "SoldierAi.hpp"
 #include <AiState.hpp>
+#include "health_bar.hpp"
 
 enum class SoldierType {
     BASIC, MEDIUM, HEAVY

@@ -30,10 +30,22 @@
 
 using json = nlohmann::json;
 
+void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
+		// std::cout << "enemy died\n";
+		self.emplace<DeathTimer>();
+	}
+};
 
 void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Soldier>().teamID && !self.has<DeathTimer>()) {
-		self.emplace<DeathTimer>();
+		auto& health = self.get<Health>();
+		float hp = health.hp;
+		// std::cout << "hp: " << hp << "\n";
+		health.hp--;
+
+		if (health.hp <= 0)
+			self.emplace<DeathTimer>();
 	}
 };
 

@@ -19,7 +19,6 @@ ECS::Entity Soldier::createSoldier(vec2 position,
     ShadedMesh& resource = cache_resource(key);
     if (resource.effect.program.resource == 0)
     {
-
         RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "textured");
     }
 
@@ -60,5 +59,10 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	soldier.ai_algorithm = A_STAR;
 	soldier.weapon = weapon;
 	soldier.teamID = 0;
+
+	auto& health = ECS::registry<Health>.emplace(entity);
+	health.hp = 3;
+	health.max_hp = 3;
+	
 	return entity;
 }

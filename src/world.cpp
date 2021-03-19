@@ -227,6 +227,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 
+	
 
 	for (int i = static_cast<int>(ECS::registry<DeathTimer>.components.size()) - 1; i >= 0; --i)
 	{
@@ -260,6 +261,15 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	if(player_soldier.has<AIPath>())
         player_soldier.get<AIPath>().active = aiControl;
 
+	/*
+	if (isPlayableLevel(currentLevel) && player_soldier.has<Motion>() && player_soldier.has<Health>()) {
+		auto& motion = player_soldier.get<Motion>();
+		auto& health = player_soldier.get<Health>();
+		Soldier::updateSoldierHealthBar(motion.position, motion.scale, health.hp, health.max_hp);
+	}
+	*/
+
+	Healthbar::updateHealthBar(player_soldier, isPlayableLevel(currentLevel));
 
 	endGameTimer += elapsed_ms;
 

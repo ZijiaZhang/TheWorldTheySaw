@@ -119,7 +119,7 @@ void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult colli
 //    printf("%f,%f\n", second_intersect.x, second_intersect.y);
 
     if (second_intersect_index == first_intersect_index){
-        printf("%d\n",second_intersect_index);
+        // printf("%d\n",second_intersect_index);
         return;
     }
     if(second_intersect_index < first_intersect_index){
@@ -170,7 +170,7 @@ void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult colli
         e2.get<PhysicsObject>().add_force(force);
         motion.position = {10000,10000};
     } else {
-        printf("%d, %d\n", first_intersect_index, second_intersect_index);
+        // printf("%d, %d\n", first_intersect_index, second_intersect_index);
         return;
     }
 }

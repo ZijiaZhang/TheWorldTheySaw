@@ -99,7 +99,7 @@ void EnemyAISystem::walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMot
 	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
 
 	enemyMotion.velocity = vec2{ normalized.x * -100.f, normalized.y * -100.f };
-	std::cout << enemyMotion.velocity.x << " ," << enemyMotion.velocity.y << "\n";
+	// std::cout << enemyMotion.velocity.x << " ," << enemyMotion.velocity.y << "\n";
 
 	// soldierMotion.velocity = vec2{ -100.f, 0 };
 
