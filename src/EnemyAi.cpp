@@ -28,7 +28,8 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                         if(e.has<Motion>()) {
                             Explosion::CreateExplosion(e.get<Motion>().position, 20, 1);
                         }
-                        ECS::ContainerInterface::remove_all_components_of(e);
+                        if(!e.has<DeathTimer>())
+                            e.emplace<DeathTimer>();
                     };
                     Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, "rocket", 2000, callback);
                 }

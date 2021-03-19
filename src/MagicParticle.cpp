@@ -21,7 +21,7 @@ ECS::Entity MagicParticle::createMagicParticle(vec2 position,
         std::string path = "/bullet/";
         path.append(magic_texture_map[weapon]);
         path.append(".png");
-        RenderSystem::createSprite(resource, textures_path(path), "textured");
+        RenderSystem::createSpriteAnimation(resource, textures_path(path), 2);
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -35,7 +35,7 @@ ECS::Entity MagicParticle::createMagicParticle(vec2 position,
     motion.position = position;
 
     // Setting initial values, scale is negative to make it face the opposite way
-    motion.scale = vec2({ 0.1f, 0.1f }) * static_cast<vec2>(resource.texture.size);
+    motion.scale = vec2({ -0.1f, 0.1f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["MagicParticle"];
     // printf("%lu\n", ECS::registry<Motion>.entities.size());
     ECS::registry<Motion>.emplace(entity, motion);
@@ -43,10 +43,10 @@ ECS::Entity MagicParticle::createMagicParticle(vec2 position,
     auto& physics = ECS::registry<PhysicsObject>.emplace(entity);
     physics.vertex = {
             {
-                    PhysicsVertex{{-0.5, 0.5, -0.02}},
-                    PhysicsVertex{{0.5, 0.5, -0.02}},
-                    PhysicsVertex{{0.5, -0.5, -0.02}},
-                    PhysicsVertex{{-0.5, -0.5, -0.02}}
+                    PhysicsVertex{{-0.25, 0.15, -0.02}},
+                    PhysicsVertex{{0.25, 0.15, -0.02}},
+                    PhysicsVertex{{0.25, -0.15, -0.02}},
+                    PhysicsVertex{{-0.25, -0.15, -0.02}}
             }
     };
     physics.faces = {{0,1}, {1,2 },{2,3 },{3,0 }};

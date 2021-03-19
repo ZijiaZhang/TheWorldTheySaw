@@ -5,7 +5,7 @@
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 #include "Weapon.hpp"
-
+#include "Bullet.hpp"
 
 
 ECS::Entity Soldier::createSoldier(vec2 position,
@@ -66,3 +66,15 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	
 	return entity;
 }
+
+
+void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+    if (e.has<Bullet>() && (e.get<Bullet>().teamID != self.get<Soldier>().teamID) && !self.has<DeathTimer>()) {
+        auto& health = self.get<Health>();
+        float hp = health.hp;
+        health.hp--;
+
+        if (health.hp <= 0)
+            self.emplace<DeathTimer>();
+    }
+};

@@ -464,6 +464,15 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+    if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        if(player_soldier.has<Soldier>()) {
+            MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
+                                               player_soldier.get<Motion>().angle,
+                                               {380, 0},
+                                               0,
+                                               FIREBALL);
+        }
+    }
     if (!aiControl) {
         // Move soldier if alive
         if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
@@ -479,16 +488,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
             } else if (key == GLFW_KEY_W) {
                 player_soldier.get<Motion>().velocity =
                         vec2{0, -100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
-            }
-
-            if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
-                if(player_soldier.has<Soldier>()) {
-                    MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
-                                                       player_soldier.get<Motion>().angle,
-                                                       {380, 0},
-                                                       0,
-                                                       FIREBALL);
-                }
             }
         }
 

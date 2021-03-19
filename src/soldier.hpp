@@ -22,4 +22,6 @@ public:
     AIAlgorithm ai_algorithm;
     MagicWeapon magic = FIREBALL;
 	int teamID = 0;
+
+	static void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult);
 };
