@@ -78,44 +78,44 @@ void RenderSystem::createSprite(ShadedMesh& sprite, std::string texture_path, st
 
 
 // Create a new sprite and register it with ECS
-void RenderSystem::createSpriteAnimation(ShadedMesh& sprite, std::string texture_path, std::string shader_name, std::vector<vec2> texture_coords)
+void RenderSystem::createSpriteAnimation(ShadedMesh& sprite, std::string texture_path, int animation_frames)
 {
-	if (texture_path.length() > 0)
-		sprite.texture.load_from_file(texture_path.c_str());
+    if (texture_path.length() > 0)
+        sprite.texture.load_from_file(texture_path.c_str());
 
-	// The position corresponds to the center of the texture.
-	TexturedVertex vertices[4];
-	vertices[0].position = { -1.f/2, +1.f/2, 0.f };
-	vertices[1].position = { +1.f/2, +1.f/2, 0.f };
-	vertices[2].position = { +1.f/2, -1.f/2, 0.f };
-	vertices[3].position = { -1.f/2, -1.f/2, 0.f };
-	vertices[0].texcoord = { 0.f, 1.f };
-	vertices[1].texcoord = { 1.f, 1.f };
-	vertices[2].texcoord = { 1.f, 0.f };
-	vertices[3].texcoord = { 0.f, 0.f };
+    // The position corresponds to the center of the texture.
+    TexturedVertex vertices[4];
+    vertices[0].position = { -1.f/2, +1.f/2, 0.f };
+    vertices[1].position = { +1.f/2, +1.f/2, 0.f };
+    vertices[2].position = { +1.f/2, -1.f/2, 0.f };
+    vertices[3].position = { -1.f/2, -1.f/2, 0.f };
+    vertices[0].texcoord = { 0.f, 1.f };
+    vertices[1].texcoord = { 1.f, 1.f };
+    vertices[2].texcoord = { 1.f, 0.f };
+    vertices[3].texcoord = { 0.f, 0.f };
 
-	// Counterclockwise as it's the default opengl front winding direction.
-	uint16_t indices[] = { 0, 3, 1, 1, 3, 2 };
+    // Counterclockwise as it's the default opengl front winding direction.
+    uint16_t indices[] = { 0, 3, 1, 1, 3, 2 };
 
-	glGenVertexArrays(1, sprite.mesh.vao.data());
-	glGenBuffers(1, sprite.mesh.vbo.data());
-	glGenBuffers(1, sprite.mesh.ibo.data());
-	gl_has_errors();
+    glGenVertexArrays(1, sprite.mesh.vao.data());
+    glGenBuffers(1, sprite.mesh.vbo.data());
+    glGenBuffers(1, sprite.mesh.ibo.data());
+    gl_has_errors();
 
-	// Vertex Buffer creation
-	glBindBuffer(GL_ARRAY_BUFFER, sprite.mesh.vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // sizeof(TexturedVertex) * 4
-	gl_has_errors();
+    // Vertex Buffer creation
+    glBindBuffer(GL_ARRAY_BUFFER, sprite.mesh.vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // sizeof(TexturedVertex) * 4
+    gl_has_errors();
 
-	// Index Buffer creation
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite.mesh.ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); // sizeof(uint16_t) * 6
-	gl_has_errors();
+    // Index Buffer creation
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sprite.mesh.ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); // sizeof(uint16_t) * 6
+    gl_has_errors();
 
-	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
+    glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
 
-	// Loading shaders
-	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
+    // Loading shaders
+    sprite.effect.load_from_string(build_anim_vertex_shader(animation_frames), fragment_shader_animation);
 }
 
 // Load a new mesh from disc and register it with ECS

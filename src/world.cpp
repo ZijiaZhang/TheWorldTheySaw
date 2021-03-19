@@ -17,6 +17,7 @@
 #include "buttonSetting.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "Explosion.hpp"
 
 // stlib
 #include <string.h>
@@ -44,6 +45,7 @@ int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
 
 int KILL_SIZE = 3000;
+vec2 prev_pl_pos = {0,0};
 
 std::string WorldSystem::selected_level = "level_3";
 
@@ -241,6 +243,20 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+    for (int i = static_cast<int>(ECS::registry<ExplodeTimer>.components.size()) - 1; i >= 0; --i)
+    {
+        auto entity = ECS::registry<ExplodeTimer>.entities[i];
+        // Progress timer
+        auto& counter = ECS::registry<ExplodeTimer>.get(entity);
+        counter.counter_ms -= elapsed_ms;
+
+        // Restart the game once the death timer expired
+        if (counter.counter_ms < 0)
+        {
+            counter.callback(entity);
+        }
+    }
+
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
 	if(player_soldier.has<AIPath>())
         player_soldier.get<AIPath>().active = aiControl;
@@ -260,7 +276,16 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	runTimer(elapsed_ms);
 	checkEndGame();
 
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
+	vec2 pl = ECS::registry<Motion>.get(player_soldier).position;
+	for (auto e : ECS::registry<Background>.entities) {
+	    auto c = ECS::registry<Background>.get(e);
+	    auto& bg_m = ECS::registry<Motion>.get(e);
+	    float depth = c.depth;
+	    if (depth != 0.f) {
+            bg_m.position += (pl - prev_pl_pos) / depth;
+            prev_pl_pos = pl;
+        }
+	}
 }
 
 // Reset the world state to its initial state
@@ -337,6 +362,7 @@ void WorldSystem::restart(std::string level)
 	ECS::Entity camera;
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
+	prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
 }
 
 bool WorldSystem::isPlayableLevel(std::string level)
@@ -452,7 +478,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
             }
 
             if(key == GLFW_KEY_Q) {
-                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {380, 0}, 0, "bullet");
+                auto callback = [](ECS::Entity e){
+                    if(e.has<Motion>()) {
+                        Explosion::CreateExplosion(e.get<Motion>().position, 20, 0);
+                    }
+                    ECS::ContainerInterface::remove_all_components_of(e);
+                };
+                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {150, 0},  0, "rocket", 1000,
+                                     callback);
             }
         }
 

@@ -59,6 +59,8 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
                                              COLLISION_HANDLER hit) {
     assert(vertexes.size() >= 3);
     auto entity = ECS::Entity();
+    float max_r_x = 0;
+    float max_r_y = 0;
     vec2 sum = vec2{};
     for(int index = 0; index < vertexes.size(); index++){
         sum += vec2{vertexes[index].position.x, vertexes[index].position.y};
@@ -67,6 +69,25 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
     for (auto& vertex: vertexes){
         vertex.position.x -= sum.x;
         vertex.position.y -= sum.y;
+    }
+    sum *= scale;
+    float ca = cos(rotation);
+    float sa = sin(rotation);
+    vec2 v = { sum.x * ca - sum.y * sa,  sum.x * sa + sum.y * ca };
+
+    for(int index = 0; index < vertexes.size(); index++) {
+        max_r_x = max(abs(vertexes[index].position.x), max_r_x);
+        max_r_y = max(abs(vertexes[index].position.y), max_r_y);
+    }
+
+    scale *= vec2{max_r_x, max_r_y} / 0.5f;
+    if (abs(scale.x) < 10.f && abs(scale.y) < 10.f){
+        entity.emplace<DeathTimer>();
+    }
+    for (auto& vertex: vertexes){
+        vertex.position.x /= max_r_x / 0.5f;
+        vertex.position.y /= max_r_y / 0.5f;
+        printf("%f,%f\n", vertex.position.x,vertex.position .y);
     }
 
     Global_Meshes::meshes.push_back(ShadedMesh{});
@@ -81,12 +102,8 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
         resource.mesh.vertex_indices.emplace_back(index-1);
     }
 
-
-    // printf("%d\n", resource.mesh.vertices.size());
-    for(int x : resource.mesh.vertex_indices){
-        // printf("%d,", x);
-    }
-    // printf("\n");
+    //printf("%d\n", resource.mesh.vertices.size());
+  
     RenderSystem::createColoredMesh(resource, "salmon");
 
 
@@ -96,12 +113,13 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
 
     // Setting initial motion values
     Motion& motion = ECS::registry<Motion>.emplace(entity);
-    motion.position = location;
+    motion.position = location + v;
     motion.angle = rotation;
     motion.preserve_world_velocity = world_velocity;
     motion.scale = scale;
     motion.zValue = ZValuesMap["Wall"];
 
+    printf("%f,%f\n", scale.x,scale.y);
     PhysicsObject&  physicsObject = ECS::registry<PhysicsObject>.emplace(entity);
     physicsObject.object_type = MOVEABLEWALL;
     physicsObject.vertex.clear();
@@ -116,12 +134,7 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
         physicsObject.faces.emplace_back(std::pair<int,int>{index-1, index});
     }
     physicsObject.faces.emplace_back(std::pair<int,int>{vertexes.size() - 1, 0});
-    sum *= motion.scale;
-    float ca = cos(motion.angle);
-    float sa = sin(motion.angle);
-    vec2 v = { sum.x * ca - sum.y * sa,  sum.x * sa + sum.y * ca };
 
-    motion.position += v;
 
     physicsObject.fixed = false;
     physicsObject.mass = 30;

@@ -71,7 +71,7 @@ IntersectionResult find_intersection(vec2 position, vec2 vector, vec2 position2,
 
 void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult collision) {
     Force force = PhysicsObject::handle_collision(self, e, collision);
-    if(self.has<DeathTimer>() || e.has<Wall>() || e.has<MoveableWall>() || !e.has<Bullet>()){
+    if(self.has<DeathTimer>() || e.has<Wall>() || e.has<MoveableWall>() || !false){
         return;
     }
 //    printf("%f\n", dot(force.force, force.force));
@@ -84,6 +84,9 @@ void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult colli
     vec2 first_intersect = vec2{};
     vec2 first_dir = vec2{};
     auto& motion = self.get<Motion>();
+    if (motion.scale.x < 50.f && motion.scale.y < 50.f){
+        return;
+    }
     Transform t1 = getTransform(motion);
     for(auto edge : physics.faces) {
         vec2 start =  t1.mat * vec3{physics.vertex[edge.first].position.x, physics.vertex[edge.first].position.y, 1};

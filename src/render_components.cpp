@@ -124,39 +124,44 @@ void Effect::load_from_file(std::string vs_path, std::string fs_path)
 	fs_ss << fs_is.rdbuf();
 	std::string vs_str = vs_ss.str();
 	std::string fs_str = fs_ss.str();
-	const char* vs_src = vs_str.c_str();
-	const char* fs_src = fs_str.c_str();
-	GLsizei vs_len = (GLsizei)vs_str.size();
-	GLsizei fs_len = (GLsizei)fs_str.size();
+    load_from_string(vs_str, fs_str);
 
-	vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, 1, &vs_src, &vs_len);
-	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, 1, &fs_src, &fs_len);
+}
 
-	// Compiling
-	gl_compile_shader(vertex);
-	gl_compile_shader(fragment);
+void Effect::load_from_string(const std::string &vs_str, const std::string &fs_str) {
+    const char* vs_src = vs_str.c_str();
+    const char* fs_src = fs_str.c_str();
+    GLsizei vs_len = (GLsizei)vs_str.size();
+    GLsizei fs_len = (GLsizei)fs_str.size();
 
-	// Linking
-	program = glCreateProgram();
-	glAttachShader(program, vertex);
-	glAttachShader(program, fragment);
-	glLinkProgram(program);
-	{
-		GLint is_linked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, &is_linked);
-		if (is_linked == GL_FALSE)
-		{
-			GLint log_len;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len);
-			std::vector<char> log(log_len);
-			glGetProgramInfoLog(program, log_len, &log_len, log.data());
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex, 1, &vs_src, &vs_len);
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment, 1, &fs_src, &fs_len);
 
-			throw std::runtime_error("Link error: "+ std::string(log.data()));
-		}
-	}
-	gl_has_errors();
+    // Compiling
+    gl_compile_shader(vertex);
+    gl_compile_shader(fragment);
+
+    // Linking
+    program = glCreateProgram();
+    glAttachShader(program, vertex);
+    glAttachShader(program, fragment);
+    glLinkProgram(program);
+    {
+        GLint is_linked = 0;
+        glGetProgramiv(program, GL_LINK_STATUS, &is_linked);
+        if (is_linked == GL_FALSE)
+        {
+            GLint log_len;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_len);
+            std::vector<char> log(log_len);
+            glGetProgramInfoLog(program, log_len, &log_len, log.data());
+
+            throw std::runtime_error("Link error: "+ std::string(log.data()));
+        }
+    }
+    gl_has_errors();
 }
 
 namespace {

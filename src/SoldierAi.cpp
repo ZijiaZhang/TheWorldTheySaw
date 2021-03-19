@@ -3,6 +3,7 @@
 #include "soldier.hpp"
 #include "debug.hpp"
 #include "Weapon.hpp"
+#include "Explosion.hpp"
 #include <Bullet.hpp>
 #include <float.h>
 
@@ -67,7 +68,14 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {150, 0},  0, "rocket");
+                auto callback = [](ECS::Entity e){
+                    if(e.has<Motion>()) {
+                        Explosion::CreateExplosion(e.get<Motion>().position, 20, 0);
+                    }
+                    ECS::ContainerInterface::remove_all_components_of(e);
+                };
+                Bullet::createBullet(motion.position, rad, {150, 0},  0, "rocket", 2000,
+                                     callback);
             }
         }
 
