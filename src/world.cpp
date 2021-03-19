@@ -70,9 +70,16 @@ static float getDist(vec2 p1, vec2 p2)
 static std::map<std::string, bool> playableLevelMap = {
 		{"menu", false},
 		{"loadout", false},
+		{"level_1", true},
+		{"level_2", true},
 		{"level_3", true},
 		{"level_4", true},
-        {"level_5", true}
+        {"level_5", true},
+		{"level_6", true},
+		{"level_7", true},
+		{"level_8", true},
+		{"level_9", true},
+		{"level_10", true}
 };
 
 /*
@@ -554,9 +561,11 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
         }
 
         if (SHIELDUP) {
-            auto& motionSh = ECS::registry<Motion>.get(shield);
-            motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
-            motionSh.angle = rad;
+			if (shield.has<Motion>()) {
+				auto& motionSh = ECS::registry<Motion>.get(shield);
+				motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
+				motionSh.angle = rad;
+			}
         }
         if (DRAWING) {
             if (mouse_points.size() >= MOUSE_POINTS_COUNT) {

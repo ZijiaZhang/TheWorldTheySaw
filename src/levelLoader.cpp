@@ -205,19 +205,37 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return Button::createButton(ButtonType::LEVEL1, location, select_level_button_overlap("level_4"));
+					 return Button::createButton(ButtonType::LEVEL1, location, select_level_button_overlap("level_1"));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonType::LEVEL2, location, select_level_button_overlap("level_3"));
+						return Button::createButton(ButtonType::LEVEL2, location, select_level_button_overlap("level_2"));
 					} },
 		{ "select_level_3", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonType::DEFAULT_BUTTON, location, select_level_button_overlap("level_5"));
+						return Button::createButton(ButtonType::DEFAULT_BUTTON, location, select_level_button_overlap("level_3"));
+					} },
+		{ "select_level_4", [](vec2 location, vec2 size, float rotation,
+					COLLISION_HANDLER,
+					COLLISION_HANDLER, const json&)
+					{
+						return Button::createButton(ButtonType::DEFAULT_BUTTON, location, select_level_button_overlap("level_4"));
+					} },
+		{ "select_level_5", [](vec2 location, vec2 size, float rotation,
+			COLLISION_HANDLER,
+			COLLISION_HANDLER, const json&)
+		{
+			return Button::createButton(ButtonType::DEFAULT_BUTTON, location, select_level_button_overlap("level_5"));
+		} },
+		{ "select_level_6", [](vec2 location, vec2 size, float rotation,
+						COLLISION_HANDLER,
+						COLLISION_HANDLER, const json&)
+					{
+						return Button::createButton(ButtonType::DEFAULT_BUTTON, location, select_level_button_overlap("level_6"));
 					} }
 };
 
