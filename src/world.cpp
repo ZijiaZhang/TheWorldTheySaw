@@ -17,6 +17,7 @@
 #include "buttonSetting.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "Explosion.hpp"
 #include "MagicParticle.hpp"
 
 // stlib
@@ -45,6 +46,7 @@ int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
 
 int KILL_SIZE = 3000;
+vec2 prev_pl_pos = {0,0};
 
 std::string WorldSystem::selected_level = "level_3";
 
@@ -227,6 +229,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 
 
+
 	for (int i = static_cast<int>(ECS::registry<DeathTimer>.components.size()) - 1; i >= 0; --i)
 	{
 		auto entity = ECS::registry<DeathTimer>.entities[i];
@@ -241,17 +244,49 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+    for (int i = static_cast<int>(ECS::registry<ExplodeTimer>.components.size()) - 1; i >= 0; --i)
+    {
+        auto entity = ECS::registry<ExplodeTimer>.entities[i];
+        // Progress timer
+        auto& counter = ECS::registry<ExplodeTimer>.get(entity);
+        counter.counter_ms -= elapsed_ms;
+
+        // Restart the game once the death timer expired
+        if (counter.counter_ms < 0)
+        {
+            counter.callback(entity);
+        }
+    }
+
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
 	if(player_soldier.has<AIPath>())
         player_soldier.get<AIPath>().active = aiControl;
 
+	/*
+	if (isPlayableLevel(currentLevel) && player_soldier.has<Motion>() && player_soldier.has<Health>()) {
+		auto& motion = player_soldier.get<Motion>();
+		auto& health = player_soldier.get<Health>();
+		Soldier::updateSoldierHealthBar(motion.position, motion.scale, health.hp, health.max_hp);
+	}
+	*/
+
+	Healthbar::updateHealthBar(player_soldier, isPlayableLevel(currentLevel));
 
 	endGameTimer += elapsed_ms;
 
 	runTimer(elapsed_ms);
 	checkEndGame();
 
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
+	vec2 pl = ECS::registry<Motion>.get(player_soldier).position;
+	for (auto e : ECS::registry<Background>.entities) {
+	    auto c = ECS::registry<Background>.get(e);
+	    auto& bg_m = ECS::registry<Motion>.get(e);
+	    float depth = c.depth;
+	    if (depth != 0.f) {
+            bg_m.position += (pl - prev_pl_pos) / depth;
+            prev_pl_pos = pl;
+        }
+	}
 }
 
 // Reset the world state to its initial state
@@ -331,6 +366,7 @@ void WorldSystem::restart(std::string level)
 	ECS::Entity camera;
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
+	prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
 }
 
 bool WorldSystem::isPlayableLevel(std::string level)

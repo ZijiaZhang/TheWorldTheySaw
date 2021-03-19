@@ -30,17 +30,22 @@
 
 using json = nlohmann::json;
 
-
-
 void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
+		// std::cout << "enemy died\n";
 		self.emplace<DeathTimer>();
 	}
 };
 
 void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Soldier>().teamID && !self.has<DeathTimer>()) {
-		self.emplace<DeathTimer>();
+		auto& health = self.get<Health>();
+		float hp = health.hp;
+		// std::cout << "hp: " << hp << "\n";
+		health.hp--;
+
+		if (health.hp <= 0)
+			self.emplace<DeathTimer>();
 	}
 };
 
@@ -92,7 +97,7 @@ auto select_level_button_overlap(const std::string& level){
 
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callbacks = {
-		{"enemy_bullet_hit_death", enemy_bullet_hit_death},
+		{"enemy_bullet_hit_death", Enemy::enemy_bullet_hit_death},
         {"soldier_bullet_hit_death", soldier_bullet_hit_death},
         {"wall_scater", Wall::wall_hit},
 };
@@ -166,12 +171,15 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"background", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER,
 					COLLISION_HANDLER, json additional) {
+	    std::string name = "background";
+	    float depth = 0.f;
 		if (additional.contains("name")) {
-			Background::createBackground(vec2{500, 500}, additional["name"]);
+		    name = additional["name"];
 		}
-		else {
-		Background::createBackground(vec2{500, 500}, "background");
+		if (additional.contains("depth")) {
+		    depth = additional["depth"];
 		}
+		Background::createBackground(vec2{500, 500}, name, depth);
 	}},
 	{"title", [](vec2 location, vec2 , float ,
 					  COLLISION_HANDLER,
