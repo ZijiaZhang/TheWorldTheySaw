@@ -25,7 +25,7 @@ std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::igno
     {WEAPON, {BULLET, BUTTON, SHIELD, PLAYER, MAGIC}},
     {ENEMY, {SHIELD}},
     {EXPLOSION, {EXPLOSION, WALL, MOVEABLEWALL, WEAPON}},
-    {MAGIC,{MAGIC, PLAYER, WEAPON}}
+    {MAGIC,{MAGIC, PLAYER, WEAPON, BULLET}}
 };
 std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::only_overlap_of_type{
     {BULLET,{COLLISION_DEFAULT,
@@ -40,7 +40,7 @@ std::map<CollisionObjectType, std::set<CollisionObjectType>> PhysicsObject::only
     {SHIELD, {BULLET}},
     {EXPLOSION, {ENEMY, PLAYER, SHIELD}},
     {SHIELD, {BULLET}},
-    {MAGIC, {WALL,MOVEABLEWALL}}
+    {MAGIC, {WALL,MOVEABLEWALL, ENEMY, SHIELD}}
     };
 
 
