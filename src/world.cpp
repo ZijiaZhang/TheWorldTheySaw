@@ -266,7 +266,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         }
     }
 
-	aiControl = WorldSystem::isPlayableLevel(currentLevel);
 //	if(player_soldier.has<AIPath>())
 //        player_soldier.get<AIPath>().active = aiControl;
 
@@ -375,6 +374,10 @@ void WorldSystem::restart(std::string level)
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
 	prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
+    aiControl = WorldSystem::isPlayableLevel(currentLevel);
+    if(player_soldier.has<AIPath>()){
+        player_soldier.get<AIPath>().active = true;
+    }
 }
 
 bool WorldSystem::isPlayableLevel(std::string level)

@@ -180,9 +180,10 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
             auto& motion = entity.get<Motion>();
             auto& aiPath = entity.get<AIPath>();
-            if (!aiPath.active || aiPath.path.path.empty()){
-                // motion.velocity -= (motion.velocity - aiPath.desired_speed) * elapsed_ms / 1000.f;
-				motion.velocity = { 0.f, 0.f };
+            if (!aiPath.active)
+                continue;
+            if(aiPath.path.path.empty()){
+                motion.velocity = vec2{0.f,0.f};
                 continue;
             }
             while(aiPath.progress < aiPath.path.path.size() &&
