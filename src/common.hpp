@@ -73,6 +73,7 @@ struct Health {
 // For the order of drawing
 static std::map<std::string, int> ZValuesMap = {
         {"Start", 6},
+        {"MagicParticle", 12},
     {"Weapon", 11},
     {"Soldier", 10},
     {"Turtle", 9},
@@ -86,7 +87,7 @@ static std::map<std::string, int> ZValuesMap = {
 
 typedef enum
 {
-    DEFAULT,
+    COLLISION_DEFAULT,
     PLAYER,
     ENEMY,
     BULLET,
@@ -96,9 +97,15 @@ typedef enum
     BUTTON,
     SHIELD,
     EXPLOSION,
+    MAGIC,
     LAST
 
 } CollisionObjectType;
+
+typedef enum{
+    FIREBALL
+}MagicWeapon;
+
 
 struct PhysicsVertex
 {

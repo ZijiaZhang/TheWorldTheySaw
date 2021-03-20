@@ -7,22 +7,21 @@
 #include <utility>
 #include "PhysicsObject.hpp"
 
-ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID,  std::string name, float lifetime,
-                                 std::function<void(ECS::Entity)> callback)
-{
+ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID,  std::string texture_name, float lifetime,
+                                 std::function<void(ECS::Entity)> callback){
     // Reserve en entity
     auto entity = ECS::Entity();
     // Create the rendering components
 
 
 
-    std::string key = "bullet_" + name;
+    std::string key = "bullet_" + texture_name;
     ShadedMesh& resource = cache_resource(key);
     if (resource.effect.program.resource == 0)
     {
         resource = ShadedMesh();
         std::string path = "/bullet/";
-        path.append(name);
+        path.append(texture_name);
         path.append(".png");
         RenderSystem::createSprite(resource, textures_path(path), "textured");
     }

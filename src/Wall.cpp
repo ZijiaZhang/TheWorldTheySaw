@@ -9,6 +9,7 @@
 #include "PhysicsObject.hpp"
 #include "MoveableWall.hpp"
 #include "Bullet.hpp"
+#include "MagicParticle.hpp"
 
 ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation,
                              COLLISION_HANDLER overlap,
@@ -71,7 +72,7 @@ IntersectionResult find_intersection(vec2 position, vec2 vector, vec2 position2,
 
 void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult collision) {
     Force force = PhysicsObject::handle_collision(self, e, collision);
-    if(self.has<DeathTimer>() || e.has<Wall>() || e.has<MoveableWall>() || !false){
+    if(self.has<DeathTimer>() || e.has<Wall>() || e.has<MoveableWall>() || !e.has<MagicParticle>()){
         return;
     }
 //    printf("%f\n", dot(force.force, force.force));

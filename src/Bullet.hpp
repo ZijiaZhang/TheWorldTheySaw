@@ -13,7 +13,7 @@
 
 class Bullet {
 public:
-    static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, std::string name, float lifetime = -1,
+    static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, std::string texture_name, float lifetime = -1,
                                     std::function<void(ECS::Entity)> callback = [](ECS::Entity e){
                                     if(!e.has<DeathTimer>())
                                     {
