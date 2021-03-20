@@ -561,13 +561,12 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 
     if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
     {
-        if(!aiControl && player_soldier.has<AIPath>() && player_soldier.get<AIPath>().path.path.empty()){
-            if(player_soldier.has<AIPath>()){
-                auto& aiPath = player_soldier.get<AIPath>();
-                aiPath.path.path.clear();
-                aiPath.progress = 0;
-                aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
-            }
+        if(!aiControl && player_soldier.has<AIPath>()){
+            auto& aiPath = player_soldier.get<AIPath>();
+			player_soldier.get<Motion>().velocity = { 200.f, 0.f };
+            aiPath.path.path.clear();
+            aiPath.progress = 0;
+            aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
         }
         DRAWING = true;
         mouse_points.clear();
