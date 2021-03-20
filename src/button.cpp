@@ -19,6 +19,7 @@ std::map<ButtonType, std::string> Button::buttonNames = {
     {ButtonType::RETURN, "return"},
     {ButtonType::LEVEL1, "level1"},
     {ButtonType::LEVEL2, "level2"},
+	{ButtonType::LEVEL3, "default"}
     
 };
 

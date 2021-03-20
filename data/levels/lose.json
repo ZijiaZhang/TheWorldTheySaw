@@ -1,0 +1,18 @@
+{
+    "player": [
+        {
+            "position": {
+                "x": 500,
+                "y": 500
+            }
+        }
+    ],
+    "return_to_menu": [
+        {
+            "position": {
+                "x": 500,
+                "y": 600
+            }
+        }
+    ]
+}

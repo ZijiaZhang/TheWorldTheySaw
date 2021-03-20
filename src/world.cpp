@@ -44,6 +44,7 @@ int HIGH_RANGE = 1000;
 bool DRAWING = false;
 int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
+bool WorldSystem::selecting = false;
 
 int KILL_SIZE = 3000;
 vec2 prev_pl_pos = {0,0};
@@ -72,9 +73,16 @@ static float getDist(vec2 p1, vec2 p2)
 static std::map<std::string, bool> playableLevelMap = {
 		{"menu", false},
 		{"loadout", false},
+		{"level_1", true},
+		{"level_2", true},
 		{"level_3", true},
 		{"level_4", true},
-        {"level_5", true}
+        {"level_5", true},
+		{"level_6", true},
+		{"level_7", true},
+		{"level_8", true},
+		{"level_9", true},
+		{"level_10", true}
 };
 
 /*
@@ -379,16 +387,16 @@ void WorldSystem::checkEndGame()
 	if (WorldSystem::isPlayableLevel(currentLevel)) {
         if (ECS::registry<Enemy>.entities.empty()) {
             resetTimer();
-            restart("level_select");
+            restart("win");
         }
         if (ECS::registry<Soldier>.entities.empty()) {
             resetTimer();
-            restart("level_select");
+            restart("lose");
         }
 		if (endGameTimer > 1000000.f) {
 			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
-				restart("menu");
+				restart("lose");
 			}
 		}
 	}
@@ -464,6 +472,9 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+  
+	double soldier_speed = 200;
+  
     if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
         if(player_soldier.has<Soldier>()) {
             MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
@@ -473,22 +484,30 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                                FIREBALL);
         }
     }
+  
     if (!aiControl) {
         // Move soldier if alive
         if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
             if (key == GLFW_KEY_D) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{100, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{ soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             } else if (key == GLFW_KEY_A) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{-100, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{-soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             } else if (key == GLFW_KEY_S) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{0, 100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{0, soldier_speed } * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             } else if (key == GLFW_KEY_W) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{0, -100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{0, -soldier_speed } * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             }
+
+			if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+				selecting = true;
+			}
+			else {
+				selecting = false;
+			}
         }
 
     }
@@ -590,9 +609,11 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
         }
 
         if (SHIELDUP) {
-            auto& motionSh = ECS::registry<Motion>.get(shield);
-            motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
-            motionSh.angle = rad;
+			if (shield.has<Motion>()) {
+				auto& motionSh = ECS::registry<Motion>.get(shield);
+				motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
+				motionSh.angle = rad;
+			}
         }
         if (DRAWING) {
             if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
