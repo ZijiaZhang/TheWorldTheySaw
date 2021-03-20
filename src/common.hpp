@@ -122,6 +122,7 @@ struct AIPath{
     bool active = true;
     Path_with_heuristics path;
     vec2 desired_speed = {0.f, 0.f};
+    int progress = 0;
 };
 
 

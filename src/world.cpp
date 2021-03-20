@@ -451,8 +451,6 @@ void WorldSystem::handle_collisions()
 					ECS::ContainerInterface::remove_all_components_of(entity_other);
 					Mix_PlayChannel(-1, gun_reload, 0);
 					++points;
-
-					// !!! TODO A1: create a new struct called LightUp in render_components.hpp and add an instance to the salmon entity
 				}
 			}
 		}

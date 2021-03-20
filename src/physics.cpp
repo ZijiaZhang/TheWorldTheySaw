@@ -183,8 +183,12 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             if (!aiPath.active){
                 continue;
             }
-            if (aiPath.path.path.size() > 1) {
-                auto target = aiPath.path.path[1];
+            while(aiPath.progress < aiPath.path.path.size() &&
+            length(AISystem::get_grid_location(aiPath.path.path[aiPath.progress]) - motion.position) < AISystem::GRID_SIZE){
+                aiPath.progress++;
+            }
+            if (aiPath.progress < aiPath.path.path.size()) {
+                auto target = aiPath.path.path[aiPath.progress];
                 auto target_position = AISystem::get_grid_location(target);
                 auto dir =  target_position - motion.position;
                 // Enemy will always face the player
