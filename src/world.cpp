@@ -267,8 +267,8 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
     }
 
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
-	if(player_soldier.has<AIPath>())
-        player_soldier.get<AIPath>().active = aiControl;
+//	if(player_soldier.has<AIPath>())
+//        player_soldier.get<AIPath>().active = aiControl;
 
 	/*
 	if (isPlayableLevel(currentLevel) && player_soldier.has<Motion>() && player_soldier.has<Health>()) {
@@ -561,6 +561,14 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 
     if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
     {
+        if(!aiControl && player_soldier.has<AIPath>() && player_soldier.get<AIPath>().path.path.empty()){
+            if(player_soldier.has<AIPath>()){
+                auto& aiPath = player_soldier.get<AIPath>();
+                aiPath.path.path.clear();
+                aiPath.progress = 0;
+                aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
+            }
+        }
         DRAWING = true;
         mouse_points.clear();
     }
@@ -577,18 +585,12 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
-
+    last_mouse_pos = mouse_pos;
     if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>())
     {
         auto& motion = ECS::registry<Motion>.get(player_soldier);
         // Get world mouse position
-        if (!ECS::registry<Camera>.entities.empty()) {
-            auto& camera = ECS::registry<Camera>.entities[0];
-            if (camera.has<Camera>()) {
-                vec2 camera_pos = camera.get<Camera>().get_position();
-                mouse_pos += camera_pos;
-            }
-        }
+        mouse_pos = getWorldMousePosition(mouse_pos);
         float disY = mouse_pos.y - motion.position.y;
         float disX = mouse_pos.x - motion.position.x;
         float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
@@ -598,7 +600,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
         auto dir = mouse_pos - motion.position;
         // printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
         float rad = atan2(dir.y, dir.x);
-        if (!aiControl) {
+        if (!aiControl && player_soldier.has<AIPath>() && player_soldier.get<AIPath>().path.path.empty()) {
             motion.angle = rad;
         }
         if (SHIELDUP && !hasShield) {
@@ -620,6 +622,17 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
             mouse_points.push_back(mouse_pos - motion.position);
         }
     }
+}
+
+vec2 WorldSystem::getWorldMousePosition(vec2 mouse_pos) const {
+    if (!ECS::registry<Camera>.entities.empty()) {
+        auto& camera = ECS::registry<Camera>.entities[0];
+        if (camera.has<Camera>()) {
+            vec2 camera_pos = camera.get<Camera>().get_position();
+            mouse_pos += camera_pos;
+        }
+    }
+    return mouse_pos;
 }
 
 bool WorldSystem::reload_level = false;
