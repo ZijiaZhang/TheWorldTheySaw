@@ -130,6 +130,8 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float 
         auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
 
         if (SoldierAISystem::isEnemyExists() && soldier_entity.has<AIPath>()) {
+            soldier_entity.get<AIPath>().active = true;
+
             ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
             if (ECS::registry<Motion>.has(cloestEnemy)) {
                 auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
@@ -140,6 +142,7 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float 
                         soldier.soldierState = AiState::WALK_FORWARD;
                         soldier_entity.get<AIPath>().path = AISystem::find_path_to_location(soldier_entity,
                                                                                             enemyMotion.position, 100);
+                        soldier_entity.get<AIPath>().progress = 0;
                         soldier_entity.get<AIPath>().desired_speed = {70, 0};
                         pathTicker = 0.f;
                         return;
@@ -151,6 +154,7 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float 
             soldier.soldierState = AiState::IDLE;
             SoldierAISystem::idle(soldier_motion);
             soldier_entity.get<AIPath>().path = Path_with_heuristics{};
+            soldier_entity.get<AIPath>().progress = 0;
         }
     }
 }
@@ -161,7 +165,9 @@ void SoldierAISystem::direct_movement(ECS::Entity soldier_entity, float elapsed_
 
 		auto& soldier_motion = ECS::registry<Motion>.get(soldier_entity);
 		auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
-
+        if(soldier_entity.has<AIPath>()){
+            soldier_entity.get<AIPath>().active = false;
+        }
 		if (SoldierAISystem::isEnemyExists()) {
 			ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
 			if (ECS::registry<Motion>.has(cloestEnemy)) {

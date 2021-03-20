@@ -47,7 +47,7 @@ public:
 	// Should the game be over ?
 	bool is_over() const;
 
-	bool aiControl;
+	bool aiControl = false;
 
 	std::string currentLevel;
 
@@ -95,6 +95,9 @@ private:
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 	vec2 screen;
+	vec2 last_mouse_pos;
 
 	void on_mouse(int key, int action, int mod);
+
+    vec2 getWorldMousePosition(vec2 mouse_pos) const;
 };
