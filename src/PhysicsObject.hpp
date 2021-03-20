@@ -29,7 +29,7 @@ public:
     // If collision is enabled
     bool collide = true;
     // Object type
-    CollisionObjectType object_type = DEFAULT;
+    CollisionObjectType object_type = COLLISION_DEFAULT;
     std::vector<Force> force = std::vector<Force>{};
     ECS::Entity parent;
     std::unordered_map<CollisionType, COLLISION_HANDLER> collisionHandler;
@@ -50,10 +50,12 @@ public:
     static std::map<CollisionObjectType, std::set<CollisionObjectType>> only_overlap_of_type;
 
     static CollisionType getCollisionType(CollisionObjectType c1, CollisionObjectType c2){
-        if (PhysicsObject::ignore_collision_of_type[c1].find(c2) != PhysicsObject::ignore_collision_of_type[c1].end()){
+        if (PhysicsObject::ignore_collision_of_type[c1].find(c2) != PhysicsObject::ignore_collision_of_type[c1].end()
+        || PhysicsObject::ignore_collision_of_type[c2].find(c1) != PhysicsObject::ignore_collision_of_type[c2].end()){
             return NoCollision;
         }
-        if (PhysicsObject::only_overlap_of_type[c1].find(c2) != PhysicsObject::only_overlap_of_type[c1].end()){
+        if (PhysicsObject::only_overlap_of_type[c1].find(c2) != PhysicsObject::only_overlap_of_type[c1].end()
+        ||PhysicsObject::only_overlap_of_type[c2].find(c1) != PhysicsObject::only_overlap_of_type[c2].end()){
             return Overlap;
         }
         return Hit;

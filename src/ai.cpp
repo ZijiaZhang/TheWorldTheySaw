@@ -69,7 +69,7 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity agent, ve
     auto& agent_motion = agent.get<Motion>();
     auto& agent_physics = agent.get<PhysicsObject>();
     std::set<std::pair<int, int>> collisions;
-    for (int x = DEFAULT; x != LAST; x++) {
+    for (int x = COLLISION_DEFAULT; x != LAST; x++) {
         auto c = static_cast<CollisionObjectType>(x);
         if (PhysicsObject::getCollisionType(agent_physics.object_type, c) == Hit) {
             collisions.insert(occupied_grids_Enemy[c].begin(), occupied_grids_Enemy[c].end());

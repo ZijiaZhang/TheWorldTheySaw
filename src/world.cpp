@@ -17,6 +17,8 @@
 #include "buttonSetting.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "Explosion.hpp"
+#include "MagicParticle.hpp"
 
 // stlib
 #include <string.h>
@@ -45,6 +47,7 @@ int SECTION_POINT_NUM = 2;
 bool WorldSystem::selecting = false;
 
 int KILL_SIZE = 3000;
+vec2 prev_pl_pos = {0,0};
 
 std::string WorldSystem::selected_level = "level_3";
 
@@ -234,6 +237,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 
 
+
 	for (int i = static_cast<int>(ECS::registry<DeathTimer>.components.size()) - 1; i >= 0; --i)
 	{
 		auto entity = ECS::registry<DeathTimer>.entities[i];
@@ -248,17 +252,49 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
+    for (int i = static_cast<int>(ECS::registry<ExplodeTimer>.components.size()) - 1; i >= 0; --i)
+    {
+        auto entity = ECS::registry<ExplodeTimer>.entities[i];
+        // Progress timer
+        auto& counter = ECS::registry<ExplodeTimer>.get(entity);
+        counter.counter_ms -= elapsed_ms;
+
+        // Restart the game once the death timer expired
+        if (counter.counter_ms < 0)
+        {
+            counter.callback(entity);
+        }
+    }
+
 	aiControl = WorldSystem::isPlayableLevel(currentLevel);
 	if(player_soldier.has<AIPath>())
         player_soldier.get<AIPath>().active = aiControl;
 
+	/*
+	if (isPlayableLevel(currentLevel) && player_soldier.has<Motion>() && player_soldier.has<Health>()) {
+		auto& motion = player_soldier.get<Motion>();
+		auto& health = player_soldier.get<Health>();
+		Soldier::updateSoldierHealthBar(motion.position, motion.scale, health.hp, health.max_hp);
+	}
+	*/
+
+	Healthbar::updateHealthBar(player_soldier, isPlayableLevel(currentLevel));
 
 	endGameTimer += elapsed_ms;
 
 	runTimer(elapsed_ms);
 	checkEndGame();
 
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
+	vec2 pl = ECS::registry<Motion>.get(player_soldier).position;
+	for (auto e : ECS::registry<Background>.entities) {
+	    auto c = ECS::registry<Background>.get(e);
+	    auto& bg_m = ECS::registry<Motion>.get(e);
+	    float depth = c.depth;
+	    if (depth != 0.f) {
+            bg_m.position += (pl - prev_pl_pos) / depth;
+            prev_pl_pos = pl;
+        }
+	}
 }
 
 // Reset the world state to its initial state
@@ -274,6 +310,7 @@ void WorldSystem::restart(std::string level)
 	current_speed = 1.f;
     auto weapon = W_BULLET;
     auto algo = DIRECT;
+    auto magic = FIREBALL;
     if (player_soldier.has<Soldier>()) {
         auto& soldier = player_soldier.get<Soldier>();
         if (soldier.weapon.has<Weapon>()){
@@ -283,6 +320,7 @@ void WorldSystem::restart(std::string level)
     if (player_soldier.has<Soldier>()) {
         auto& soldier = player_soldier.get<Soldier>();
         algo = soldier.ai_algorithm;
+        magic = soldier.magic;
     }
     // Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -317,6 +355,7 @@ void WorldSystem::restart(std::string level)
     if (player_soldier.has<Soldier>()) {
         auto& soldier = player_soldier.get<Soldier>();
         soldier.ai_algorithm = algo;
+        soldier.magic = magic;
     }
 
 	if (level == "level_3") 
@@ -335,6 +374,7 @@ void WorldSystem::restart(std::string level)
 	ECS::Entity camera;
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
+	prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
 }
 
 bool WorldSystem::isPlayableLevel(std::string level)
@@ -432,7 +472,19 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+  
 	double soldier_speed = 200;
+  
+    if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        if(player_soldier.has<Soldier>()) {
+            MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
+                                               player_soldier.get<Motion>().angle,
+                                               {380, 0},
+                                               0,
+                                               FIREBALL);
+        }
+    }
+  
     if (!aiControl) {
         // Move soldier if alive
         if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
@@ -448,10 +500,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
             } else if (key == GLFW_KEY_W) {
                 player_soldier.get<Motion>().velocity =
                         vec2{0, -soldier_speed } * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
-            }
-
-            if(key == GLFW_KEY_Q) {
-                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {380, 0}, 0, "bullet");
             }
 
 			if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
