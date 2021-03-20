@@ -4,7 +4,7 @@
 #include "tiny_ecs.hpp"
 #include <levelLoader.hpp>
 
-enum class ButtonType {
+enum class ButtonIcon {
 	DEFAULT_BUTTON,
 	START,
 	LEVEL_SELECT,
@@ -21,10 +21,19 @@ enum class ButtonType {
 	LEVEL3
 };
 
+enum class ButtonClass{
+    BUTTON_CLASS_OTHER,
+    WEAPON_SELECTION,
+    ALGORITHM_SELECTION,
+    MAGIC_SELECTION,
+};
+
 struct Button {
-	static ECS::Entity createButton(ButtonType buttonType, vec2 position, COLLISION_HANDLER overlap);
+	static ECS::Entity createButton(ButtonIcon buttonType, vec2 position, COLLISION_HANDLER overlap);
 
-	ButtonType buttonType = ButtonType::DEFAULT_BUTTON;
-
-	static std::map<ButtonType, std::string> buttonNames;
+	ButtonIcon buttonType = ButtonIcon::DEFAULT_BUTTON;
+	ButtonClass buttonClass = ButtonClass::BUTTON_CLASS_OTHER;
+    bool selected = false;
+	static std::map<ButtonIcon, std::string> buttonNamesMap;
+	static std::map<ButtonIcon, ButtonClass> buttonClassMap;
 };

@@ -49,15 +49,13 @@ public:
 
 	bool aiControl;
 
-	std::string currentLevel;
-
 	// OpenGL window handle
 	GLFWwindow* window;
 
-	static std::map<ButtonType, std::function<void()>> buttonCallbacks;
+	static std::map<ButtonIcon, std::function<void()>> buttonCallbacks;
     static bool reload_level;
 	static bool selecting;
-    static std::string level_name;
+    static std::string reload_level_name;
     static std::string selected_level;
 
 private:

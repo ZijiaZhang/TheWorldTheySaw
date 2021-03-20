@@ -9,6 +9,7 @@ in vec2 ori_pos;
 uniform sampler2D sampler0;
 uniform vec3 fcolor;
 uniform float time;
+uniform bool shining;
 
 // Output color
 layout(location = 0) out  vec4 color;
@@ -52,7 +53,7 @@ void main()
     if(color.a < 0.8) {
         discard;
     }
-
-    color = anisotropic(color.xyz);
-
+    if(shining){
+        color = anisotropic(color.xyz);
+    }
 }

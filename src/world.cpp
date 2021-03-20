@@ -19,6 +19,7 @@
 #include "Weapon.hpp"
 #include "Explosion.hpp"
 #include "MagicParticle.hpp"
+#include "GameInstance.hpp"
 
 // stlib
 #include <string.h>
@@ -266,7 +267,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         }
     }
 
-	aiControl = WorldSystem::isPlayableLevel(currentLevel);
+	aiControl = WorldSystem::isPlayableLevel(GameInstance::currentLevel);
 //	if(player_soldier.has<AIPath>())
 //        player_soldier.get<AIPath>().active = aiControl;
 
@@ -278,7 +279,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 	*/
 
-	Healthbar::updateHealthBar(player_soldier, isPlayableLevel(currentLevel));
+	Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
 	endGameTimer += elapsed_ms;
 
@@ -301,27 +302,14 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 void WorldSystem::restart(std::string level)
 {
 	level_loader.set_level(level);
-	currentLevel = level;
+    GameInstance::currentLevel = level;
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 
 
 	// Reset the game speed
 	current_speed = 1.f;
-    auto weapon = W_BULLET;
-    auto algo = DIRECT;
-    auto magic = FIREBALL;
-    if (player_soldier.has<Soldier>()) {
-        auto& soldier = player_soldier.get<Soldier>();
-        if (soldier.weapon.has<Weapon>()){
-            weapon = soldier.weapon.get<Weapon>().type;
-        }
-    }
-    if (player_soldier.has<Soldier>()) {
-        auto& soldier = player_soldier.get<Soldier>();
-        algo = soldier.ai_algorithm;
-        magic = soldier.magic;
-    }
+
     // Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
 	while (!ECS::registry<Motion>.entities.empty())
@@ -345,18 +333,6 @@ void WorldSystem::restart(std::string level)
 		throw std::runtime_error("Cannot have more than one solider");
 	}
 	player_soldier = soliders.front();
-
-    if (player_soldier.has<Soldier>()) {
-        auto& soldier = player_soldier.get<Soldier>();
-        if (soldier.weapon.has<Weapon>()){
-            soldier.weapon.get<Weapon>().type = weapon;
-        }
-    }
-    if (player_soldier.has<Soldier>()) {
-        auto& soldier = player_soldier.get<Soldier>();
-        soldier.ai_algorithm = algo;
-        soldier.magic = magic;
-    }
 
 	if (level == "level_3") 
 	{
@@ -384,7 +360,7 @@ bool WorldSystem::isPlayableLevel(std::string level)
 
 void WorldSystem::checkEndGame()
 {
-	if (WorldSystem::isPlayableLevel(currentLevel)) {
+	if (WorldSystem::isPlayableLevel(GameInstance::currentLevel)) {
         if (ECS::registry<Enemy>.entities.empty()) {
             resetTimer();
             restart("win");
@@ -404,7 +380,7 @@ void WorldSystem::checkEndGame()
 
 void WorldSystem::runTimer(float elapsed_ms)
 {
-	if (isPlayableLevel(currentLevel)) {
+	if (isPlayableLevel(GameInstance::currentLevel)) {
 		endGameTimer += elapsed_ms;
 	}
 	else {
@@ -517,8 +493,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	{
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-
-		restart(currentLevel);
+		restart(GameInstance::currentLevel);
 	}
 
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
@@ -545,7 +520,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         // level_loader.set_level("level_3");
         // level_loader.at_level = "level_3";
         reload_level = true;
-        level_name = "level_5";
+        reload_level_name = "level_5";
     }
 
 	// Debugging
@@ -636,4 +611,4 @@ vec2 WorldSystem::getWorldMousePosition(vec2 mouse_pos) const {
 }
 
 bool WorldSystem::reload_level = false;
-std::string WorldSystem::level_name = "menu";
+std::string WorldSystem::reload_level_name = "menu";

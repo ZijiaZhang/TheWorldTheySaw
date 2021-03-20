@@ -4,6 +4,7 @@
 #include "debug.hpp"
 #include "Weapon.hpp"
 #include "Explosion.hpp"
+#include "GameInstance.hpp"
 #include <Bullet.hpp>
 #include <float.h>
 
@@ -30,9 +31,9 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	if (!ECS::registry<Soldier>.components.empty())
 	{
 		auto& soldier = ECS::registry<Soldier>.entities[0];
-        algorithmMap[soldier.get<Soldier>().ai_algorithm](soldier, elapsed_ms);
+        algorithmMap[GameInstance::algorithm](soldier, elapsed_ms);
         if(soldier.get<Soldier>().weapon.has<Weapon>()) {
-            weaponMap[soldier.get<Soldier>().weapon.get<Weapon>().type](soldier, elapsed_ms);
+            weaponMap[GameInstance::selectedWeapon](soldier, elapsed_ms);
         }
 	}
 }

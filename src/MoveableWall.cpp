@@ -6,6 +6,8 @@
 
 #include "PhysicsObject.hpp"
 #include "Wall.hpp"
+#include "soldier.hpp"
+#include "Enemy.hpp"
 
 ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rotation,
                                              COLLISION_HANDLER overlap,
@@ -148,4 +150,8 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
     ECS::registry<MoveableWall>.emplace(entity);
 
     return entity;
+}
+
+void MoveableWall::wall_hit(ECS::Entity self, ECS::Entity e, CollisionResult collision) {
+    PhysicsObject::handle_collision(self, e, collision);
 }

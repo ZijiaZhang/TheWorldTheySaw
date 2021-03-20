@@ -56,7 +56,6 @@ ECS::Entity Soldier::createSoldier(vec2 position,
     entity.emplace<AIPath>();
 
 	auto& soldier = ECS::registry<Soldier>.emplace(entity);
-	soldier.ai_algorithm = A_STAR;
 	soldier.weapon = weapon;
 	soldier.teamID = 0;
 

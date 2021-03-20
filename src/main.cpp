@@ -48,7 +48,7 @@ int main()
 	{
 	    if(WorldSystem::reload_level){
 	        WorldSystem::reload_level = false;
-	        world.restart(WorldSystem::level_name);
+	        world.restart(WorldSystem::reload_level_name);
 	    }
 	    ai_count++;
 		// Processes system messages, if this wasn't present the window would become unresponsive

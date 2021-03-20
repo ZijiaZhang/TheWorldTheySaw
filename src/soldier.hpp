@@ -19,7 +19,6 @@ public:
 
 	AiState soldierState = AiState::IDLE;
 	ECS::Entity weapon;
-    AIAlgorithm ai_algorithm;
     MagicWeapon magic = FIREBALL;
 	int teamID = 0;
 

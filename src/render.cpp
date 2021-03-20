@@ -4,6 +4,7 @@
 #include "tiny_ecs.hpp"
 #include "Camera.hpp"
 #include "Explosion.hpp"
+#include "button.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -56,26 +57,13 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
-	}
-	else if (in_color_loc >= 0)
-	{
+	} else if (in_color_loc >= 0) {
 		glEnableVertexAttribArray(in_position_loc);
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
 		glEnableVertexAttribArray(in_color_loc);
 		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(sizeof(vec3)));
 
-		// Light up?
-		// !!! TODO A1: check whether the entity has a LightUp component
-		if (false)
-		{
-			GLint light_up_uloc = glGetUniformLocation(texmesh.effect.program, "light_up");
-
-			// !!! TODO A1: set the light_up shader variable using glUniform1i
-			(void)light_up_uloc; // placeholder to silence unused warning until implemented
-		}
-	}
-	else
-	{
+	} else {
 		throw std::runtime_error("This type of entity is not yet supported");
 	}
 	gl_has_errors();
@@ -97,7 +85,14 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
 	gl_has_errors();
 
-	// Drawing of num_indices/3 triangles specified in the index buffer
+    GLint shining_uloc = glGetUniformLocation(texmesh.effect.program, "shining");
+    if(shining_uloc > 0){
+        if(entity.has<Button>()){
+            glUniform1i(shining_uloc, entity.get<Button>().selected);
+        }
+    }
+
+    // Drawing of num_indices/3 triangles specified in the index buffer
 	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
 	glBindVertexArray(0);
 }
