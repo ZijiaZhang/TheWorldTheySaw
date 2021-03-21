@@ -25,16 +25,25 @@ std::map<ButtonType, std::string> Button::buttonNames = {
     {ButtonType::LEVEL4, "level4"},
     {ButtonType::LEVEL5, "level5"},
     {ButtonType::LEVEL6, "level6"}
-    
 };
 
-ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, COLLISION_HANDLER overlap)
+
+std::map<ButtonIcon, ButtonClass> Button::buttonClassMap = {
+        {ButtonIcon::SELECT_ROCKET,  ButtonClass::WEAPON_SELECTION},
+        {ButtonIcon::SELECT_AMMO,     ButtonClass::WEAPON_SELECTION},
+        {ButtonIcon::SELECT_LASER,    ButtonClass::WEAPON_SELECTION},
+        {ButtonIcon::SELECT_BULLET,   ButtonClass::WEAPON_SELECTION},
+        {ButtonIcon::SELECT_DIRECT,   ButtonClass::ALGORITHM_SELECTION},
+        {ButtonIcon::SELECT_A_STAR,  ButtonClass::ALGORITHM_SELECTION},
+};
+
+ECS::Entity Button::createButton(ButtonIcon buttonType, vec2 position, COLLISION_HANDLER overlap)
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();
 
 	// Create the rendering components
-	std::string key = buttonNames[buttonType];
+	std::string key = buttonNamesMap[buttonType];
 	ShadedMesh& resource = cache_resource(key);
 
 	if (resource.effect.program.resource == 0)
@@ -69,6 +78,6 @@ ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, COLLISION
 
 
 	button.buttonType = buttonType;
-
+    button.buttonClass = buttonClassMap[buttonType];
 	return entity;
 }

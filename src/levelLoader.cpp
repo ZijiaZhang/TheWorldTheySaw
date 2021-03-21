@@ -20,6 +20,7 @@
 #include "world.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "GameInstance.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -40,21 +41,29 @@ void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResu
 
 auto select_algo_of_type(AIAlgorithm algo) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>() && WorldSystem::selecting) {
-			auto& soldier = other.get<Soldier>();
-			soldier.ai_algorithm = algo;
-		}
-	};
+        if (other.has<Soldier>() && WorldSystem::selecting) {
+
+            for (auto &button: ECS::registry<Button>.components) {
+                if (button.buttonClass == ButtonClass::ALGORITHM_SELECTION) {
+                    button.selected = false;
+                }
+            }
+            self.get<Button>().selected = true;
+            GameInstance::algorithm = algo;
+        }
+    };
 }
 
 auto select_weapon_of_type(WeaponType type) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>() && WorldSystem::selecting) {
-			auto& soldier = other.get<Soldier>();
-			if (soldier.weapon.has<Weapon>()) {
-				auto& weapon = soldier.weapon.get<Weapon>();
-				weapon.type = type;
-			}
+	    if (other.has<Soldier>() && WorldSystem::selecting) {
+            for(auto& button: ECS::registry<Button>.components){
+                if(button.buttonClass == ButtonClass::WEAPON_SELECTION){
+                    button.selected = false;
+                }
+            }
+			self.get<Button>().selected = true;
+			GameInstance::selectedWeapon = type;
 		}
 	};
 }
@@ -67,7 +76,7 @@ auto select_button_overlap(const std::string& level){
     return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
         if (other.has<Soldier>() && WorldSystem::selecting) {
             WorldSystem::reload_level = true;
-            WorldSystem::level_name = level;
+            WorldSystem::reload_level_name = level;
         }
     };
 };
@@ -77,7 +86,7 @@ auto select_level_button_overlap(const std::string& level){
         if (other.has<Soldier>() && WorldSystem::selecting) {
             WorldSystem::selected_level = level;
             WorldSystem::reload_level = true;
-            WorldSystem::level_name = "loadout";
+            WorldSystem::reload_level_name = "loadout";
         }
     };
 };
@@ -90,6 +99,17 @@ std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callback
         {"soldier_bullet_hit_death", Soldier::soldier_bullet_hit_death},
         {"wall_scater", Wall::wall_hit},
 };
+
+std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::default_hit_callback = {
+        {"movable_wall", MoveableWall::wall_hit},
+};
+
+COLLISION_HANDLER get_default_hit_callback(const std::string& key){
+    if(LevelLoader::default_hit_callback.find(key)!= LevelLoader::default_hit_callback.end()){
+        return LevelLoader::default_hit_callback[key];
+    }
+    return PhysicsObject::handle_collision;
+}
 
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
@@ -120,12 +140,12 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 				  COLLISION_HANDLER,
 				  COLLISION_HANDLER, const json&)
 				  {
-		return Button::createButton(ButtonType::START, location, select_button_overlap("level_select"));
+		return Button::createButton(ButtonIcon::START, location, select_button_overlap("level_select"));
 	}},
 	{"button_setting", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&) {
-		return Button::createButton(ButtonType::LEVEL_SELECT, location, select_button_overlap("loadout"));}
+		return Button::createButton(ButtonIcon::LEVEL_SELECT, location, select_button_overlap("loadout"));}
 	},
 	{"button_select_rocket", [](vec2 location, vec2 size, float rotation,
                               COLLISION_HANDLER,
@@ -188,7 +208,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonType::RETURN, location, select_button_overlap("menu"));
+						return Button::createButton(ButtonIcon::RETURN, location, select_button_overlap("menu"));
 					} },
         { "return_to_loadout", [](vec2 location, vec2 size, float rotation,
                     COLLISION_HANDLER,
@@ -200,7 +220,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 							COLLISION_HANDLER,
 							COLLISION_HANDLER, const json&)
 						{
-							return Button::createButton(ButtonType::RETURN, location, select_button_overlap("level_select"));
+							return Button::createButton(ButtonIcon::RETURN, location, select_button_overlap("level_select"));
 						} },
         { "next_to_level_select", [](vec2 location, vec2 size, float rotation,
                         COLLISION_HANDLER,
@@ -212,13 +232,13 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return Button::createButton(ButtonType::LEVEL1, location, select_level_button_overlap("level_1"));
+					 return Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("level_1"));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonType::LEVEL2, location, select_level_button_overlap("level_2"));
+						return Button::createButton(ButtonIcon::LEVEL2, location, select_level_button_overlap("level_2"));
 					} },
 		{ "select_level_3", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
@@ -275,7 +295,7 @@ void LevelLoader::load_level() {
 				vec2 size = b.contains("size") ? getVec2FromJson(b["size"]) : vec2{};
 				float rotation = b.contains("rotation") ? static_cast<float>(b["rotation"]) : 0.f;
 				auto overlap = b.contains("overlap") ? physics_callbacks[b["overlap"]] : [](ECS::Entity, const ECS::Entity e, CollisionResult) {};
-				auto hit = b.contains("hit") ? physics_callbacks[b["hit"]] : PhysicsObject::handle_collision;
+				auto hit = b.contains("hit") ? physics_callbacks[b["hit"]] : get_default_hit_callback(level_object.first);
 				auto additional = b.contains("additionalProperties") ? b["additionalProperties"] : json{};
 				level_object.second(position, size, rotation, overlap, hit, additional);
 			}

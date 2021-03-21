@@ -4,8 +4,6 @@
 
 #include "Bullet.hpp"
 
-#include <utility>
-#include "PhysicsObject.hpp"
 
 ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID,  std::string texture_name, float lifetime,
                                  std::function<void(ECS::Entity)> callback){

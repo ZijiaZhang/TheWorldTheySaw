@@ -30,5 +30,6 @@ class LevelLoader {
     static std::unordered_map<std::string, COLLISION_HANDLER> physics_callbacks;
     static std::unordered_map<std::string, std::function<void(vec2 location, vec2 size, float rotation,
                                                               COLLISION_HANDLER, COLLISION_HANDLER, json)>> level_objects;
+    static std::unordered_map<std::string, COLLISION_HANDLER> default_hit_callback;
 
 };
