@@ -466,18 +466,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     if (!aiControl) {
         // Move soldier if alive
         if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
-            if (key == GLFW_KEY_D) {
+            if (key == GLFW_KEY_W) {
+                if (player_soldier.has<AIPath>()) {
+                    auto &aiPath = player_soldier.get<AIPath>();
+                    aiPath.active = false;
+                }
                 player_soldier.get<Motion>().velocity =
                         vec2{ soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
-            } else if (key == GLFW_KEY_A) {
-                player_soldier.get<Motion>().velocity =
-                        vec2{-soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
-            } else if (key == GLFW_KEY_S) {
-                player_soldier.get<Motion>().velocity =
-                        vec2{0, soldier_speed } * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
-            } else if (key == GLFW_KEY_W) {
-                player_soldier.get<Motion>().velocity =
-                        vec2{0, -soldier_speed } * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             }
 
 			if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
@@ -542,6 +537,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
     {
         if(!aiControl && player_soldier.has<AIPath>()){
             auto& aiPath = player_soldier.get<AIPath>();
+            aiPath.active = true;
 			player_soldier.get<Motion>().velocity = { 200.f, 0.f };
             aiPath.path.path.clear();
             aiPath.progress = 0;
