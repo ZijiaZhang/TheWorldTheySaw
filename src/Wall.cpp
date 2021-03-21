@@ -52,7 +52,7 @@ ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation,
     //motion.mass = 1000;
     // Create and (empty) Salmon component to be able to refer to all turtles
     ECS::registry<Wall>.emplace(entity);
-    resource.texture.color = {1,1,1};
+    resource.texture.color = {0,0,1};
     return entity;
 }
 

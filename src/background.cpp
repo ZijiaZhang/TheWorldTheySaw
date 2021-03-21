@@ -2,7 +2,11 @@
 #include "background.hpp"
 #include "render.hpp"
 
+<<<<<<< Updated upstream
 ECS::Entity Background::createBackground(vec2 position, std::string name)
+=======
+ECS::Entity Background::createBackground(vec2 position, std::string name, float depth, float size)
+>>>>>>> Stashed changes
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();
@@ -28,7 +32,7 @@ ECS::Entity Background::createBackground(vec2 position, std::string name)
 	motion.velocity = { 0.f, 0 };
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ 1.5f, 1.5f }) * static_cast<vec2>(resource.texture.size);
+	motion.scale = vec2({ size, size }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Background"];
 
 	// Create and (empty) Fish component to be able to refer to all fish
