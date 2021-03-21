@@ -131,6 +131,8 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float 
         auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
 
         if (SoldierAISystem::isEnemyExists() && soldier_entity.has<AIPath>()) {
+            soldier_entity.get<AIPath>().active = true;
+
             ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
             if (ECS::registry<Motion>.has(cloestEnemy)) {
                 auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
@@ -164,7 +166,9 @@ void SoldierAISystem::direct_movement(ECS::Entity soldier_entity, float elapsed_
 
 		auto& soldier_motion = ECS::registry<Motion>.get(soldier_entity);
 		auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
-
+        if(soldier_entity.has<AIPath>()){
+            soldier_entity.get<AIPath>().active = false;
+        }
 		if (SoldierAISystem::isEnemyExists()) {
 			ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
 			if (ECS::registry<Motion>.has(cloestEnemy)) {

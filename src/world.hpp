@@ -47,7 +47,7 @@ public:
 	// Should the game be over ?
 	bool is_over() const;
 
-	bool aiControl;
+	bool aiControl = false;
 
 	// OpenGL window handle
 	GLFWwindow* window;
