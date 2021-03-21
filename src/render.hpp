@@ -7,6 +7,23 @@
 struct InstancedMesh;
 struct ShadedMesh;
 
+const std::string fragment_shader_animation = "#version 330\n"
+                                              "\n"
+                                              "// From vertex shader\n"
+                                              "in vec2 texcoord;\n"
+                                              "\n"
+                                              "// Application data\n"
+                                              "uniform sampler2D sampler0;\n"
+                                              "uniform vec3 fcolor;\n"
+                                              "\n"
+                                              "// Output color\n"
+                                              "layout(location = 0) out  vec4 color;\n"
+                                              "\n"
+                                              "void main()\n"
+                                              "{\n"
+                                              "\tcolor = vec4(fcolor, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));\n"
+                                              "}";
+
 // OpenGL utilities
 void gl_has_errors();
 
@@ -27,6 +44,7 @@ public:
 	// Expose the creating of visual representations to other systems
 	static void createSprite(ShadedMesh& mesh_container, std::string texture_path, std::string shader_name);
 	static void createColoredMesh(ShadedMesh& mesh_container, std::string shader_name);
+    static void createSpriteAnimation(ShadedMesh &sprite, std::string texture_path, int number_of_frames);
 
 private:
 	// Initialize the screeen texture used as intermediate render target
@@ -48,6 +66,6 @@ private:
 
     ECS::Entity get_camera();
 
-    void createSpriteAnimation(ShadedMesh &sprite, std::string texture_path, std::string shader_name,
-                               std::vector<vec2> texture_coords);
+
+    static const std::string build_anim_vertex_shader(int frames);
 };

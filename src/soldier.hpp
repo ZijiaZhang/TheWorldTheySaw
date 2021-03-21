@@ -4,6 +4,7 @@
 #include "tiny_ecs.hpp"
 #include "SoldierAi.hpp"
 #include <AiState.hpp>
+#include "health_bar.hpp"
 
 enum class SoldierType {
     BASIC, MEDIUM, HEAVY
@@ -19,5 +20,8 @@ public:
 	AiState soldierState = AiState::IDLE;
 	ECS::Entity weapon;
     AIAlgorithm ai_algorithm;
+    MagicWeapon magic = FIREBALL;
 	int teamID = 0;
+
+	static void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult);
 };

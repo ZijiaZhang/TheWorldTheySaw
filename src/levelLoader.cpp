@@ -30,23 +30,17 @@
 
 using json = nlohmann::json;
 
-
-
 void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
 		self.emplace<DeathTimer>();
 	}
 };
 
-void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
-	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Soldier>().teamID && !self.has<DeathTimer>()) {
-		self.emplace<DeathTimer>();
-	}
-};
+
 
 auto select_algo_of_type(AIAlgorithm algo) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>()) {
+		if (other.has<Soldier>() && WorldSystem::selecting) {
 			auto& soldier = other.get<Soldier>();
 			soldier.ai_algorithm = algo;
 		}
@@ -55,7 +49,7 @@ auto select_algo_of_type(AIAlgorithm algo) {
 
 auto select_weapon_of_type(WeaponType type) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>()) {
+		if (other.has<Soldier>() && WorldSystem::selecting) {
 			auto& soldier = other.get<Soldier>();
 			if (soldier.weapon.has<Weapon>()) {
 				auto& weapon = soldier.weapon.get<Weapon>();
@@ -71,7 +65,7 @@ auto select_weapon_of_type(WeaponType type) {
 
 auto select_button_overlap(const std::string& level){
     return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-        if (other.has<Soldier>()) {
+        if (other.has<Soldier>() && WorldSystem::selecting) {
             WorldSystem::reload_level = true;
             WorldSystem::level_name = level;
         }
@@ -80,7 +74,7 @@ auto select_button_overlap(const std::string& level){
 
 auto select_level_button_overlap(const std::string& level){
     return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-        if (other.has<Soldier>()) {
+        if (other.has<Soldier>() && WorldSystem::selecting) {
             WorldSystem::selected_level = level;
             WorldSystem::reload_level = true;
             WorldSystem::level_name = "loadout";
@@ -92,8 +86,8 @@ auto select_level_button_overlap(const std::string& level){
 
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callbacks = {
-		{"enemy_bullet_hit_death", enemy_bullet_hit_death},
-        {"soldier_bullet_hit_death", soldier_bullet_hit_death},
+		{"enemy_bullet_hit_death", Enemy::enemy_bullet_hit_death},
+        {"soldier_bullet_hit_death", Soldier::soldier_bullet_hit_death},
         {"wall_scater", Wall::wall_hit},
 };
 
@@ -101,7 +95,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
 					   COLLISION_HANDLER overlap, COLLISION_HANDLER, const json&) {
-		Wall::createWall(location, size, rotation, overlap, physics_callbacks["wall_scater"]);
+		Wall::createWall(location, size, rotation, physics_callbacks["wall_scater"], physics_callbacks["wall_scater"]);
 	}
 	},
 	{"borders", [](vec2 location, vec2 size, float rotation,
@@ -168,13 +162,16 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 					COLLISION_HANDLER, json additional) {
 	    std::string name = "background";
 	    float depth = 0.f;
-        float scale = 1.5f;
+      float scale = 1.5f;
 		if (additional.contains("name")) {
 			name = additional["name"];
 		}
-        if (additional.contains("scale")) {
-            scale = additional["scale"];
-        }
+    if (additional.contains("depth")) {
+		    depth = additional["depth"];
+		}
+    if (additional.contains("scale")) {
+        scale = additional["scale"];
+    }
 		Background::createBackground(vec2{500, 500}, name, depth, scale);
 	}},
 	{"title", [](vec2 location, vec2 , float ,
@@ -215,7 +212,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return Button::createButton(ButtonType::LEVEL1, location, select_level_button_overlap("level_4"));
+					 return Button::createButton(ButtonType::LEVEL1, location, select_level_button_overlap("level_1"));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,

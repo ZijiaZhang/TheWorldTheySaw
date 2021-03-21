@@ -9,6 +9,7 @@
 #include "PhysicsObject.hpp"
 #include "MoveableWall.hpp"
 #include "Bullet.hpp"
+#include "MagicParticle.hpp"
 
 ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation,
                              COLLISION_HANDLER overlap,
@@ -71,7 +72,7 @@ IntersectionResult find_intersection(vec2 position, vec2 vector, vec2 position2,
 
 void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult collision) {
     Force force = PhysicsObject::handle_collision(self, e, collision);
-    if(self.has<DeathTimer>() || e.has<Wall>() || e.has<MoveableWall>() || !e.has<Bullet>()){
+    if(self.has<DeathTimer>() || e.has<Wall>() || e.has<MoveableWall>() || !e.has<MagicParticle>()){
         return;
     }
 //    printf("%f\n", dot(force.force, force.force));
@@ -84,6 +85,9 @@ void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult colli
     vec2 first_intersect = vec2{};
     vec2 first_dir = vec2{};
     auto& motion = self.get<Motion>();
+    if (motion.scale.x < 50.f && motion.scale.y < 50.f){
+        return;
+    }
     Transform t1 = getTransform(motion);
     for(auto edge : physics.faces) {
         vec2 start =  t1.mat * vec3{physics.vertex[edge.first].position.x, physics.vertex[edge.first].position.y, 1};
@@ -116,7 +120,7 @@ void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult colli
 //    printf("%f,%f\n", second_intersect.x, second_intersect.y);
 
     if (second_intersect_index == first_intersect_index){
-        printf("%d\n",second_intersect_index);
+        // printf("%d\n",second_intersect_index);
         return;
     }
     if(second_intersect_index < first_intersect_index){
@@ -167,7 +171,7 @@ void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult colli
         e2.get<PhysicsObject>().add_force(force);
         motion.position = {10000,10000};
     } else {
-        printf("%d, %d\n", first_intersect_index, second_intersect_index);
+        // printf("%d, %d\n", first_intersect_index, second_intersect_index);
         return;
     }
 }

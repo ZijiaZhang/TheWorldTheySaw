@@ -17,6 +17,8 @@
 #include "buttonSetting.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "Explosion.hpp"
+#include "MagicParticle.hpp"
 
 // stlib
 #include <string.h>
@@ -42,8 +44,10 @@ int HIGH_RANGE = 1000;
 bool DRAWING = false;
 int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
+bool WorldSystem::selecting = false;
 
 int KILL_SIZE = 3000;
+vec2 prev_pl_pos = {0,0};
 
 std::string WorldSystem::selected_level = "level_3";
 
@@ -69,9 +73,16 @@ static float getDist(vec2 p1, vec2 p2)
 static std::map<std::string, bool> playableLevelMap = {
 		{"menu", false},
 		{"loadout", false},
+		{"level_1", true},
+		{"level_2", true},
 		{"level_3", true},
 		{"level_4", true},
-        {"level_5", true}
+        {"level_5", true},
+		{"level_6", true},
+		{"level_7", true},
+		{"level_8", true},
+		{"level_9", true},
+		{"level_10", true}
 };
 
 /*
@@ -226,6 +237,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 
 
+
 	for (int i = static_cast<int>(ECS::registry<DeathTimer>.components.size()) - 1; i >= 0; --i)
 	{
 		auto entity = ECS::registry<DeathTimer>.entities[i];
@@ -240,17 +252,48 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 	}
 
-	aiControl = WorldSystem::isPlayableLevel(currentLevel);
-	if(player_soldier.has<AIPath>())
-        player_soldier.get<AIPath>().active = aiControl;
+    for (int i = static_cast<int>(ECS::registry<ExplodeTimer>.components.size()) - 1; i >= 0; --i)
+    {
+        auto entity = ECS::registry<ExplodeTimer>.entities[i];
+        // Progress timer
+        auto& counter = ECS::registry<ExplodeTimer>.get(entity);
+        counter.counter_ms -= elapsed_ms;
 
+        // Restart the game once the death timer expired
+        if (counter.counter_ms < 0)
+        {
+            counter.callback(entity);
+        }
+    }
+
+//	if(player_soldier.has<AIPath>())
+//        player_soldier.get<AIPath>().active = aiControl;
+
+	/*
+	if (isPlayableLevel(currentLevel) && player_soldier.has<Motion>() && player_soldier.has<Health>()) {
+		auto& motion = player_soldier.get<Motion>();
+		auto& health = player_soldier.get<Health>();
+		Soldier::updateSoldierHealthBar(motion.position, motion.scale, health.hp, health.max_hp);
+	}
+	*/
+
+	Healthbar::updateHealthBar(player_soldier, isPlayableLevel(currentLevel));
 
 	endGameTimer += elapsed_ms;
 
 	runTimer(elapsed_ms);
 	checkEndGame();
 
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the DeathTimer
+	vec2 pl = ECS::registry<Motion>.get(player_soldier).position;
+	for (auto e : ECS::registry<Background>.entities) {
+	    auto c = ECS::registry<Background>.get(e);
+	    auto& bg_m = ECS::registry<Motion>.get(e);
+	    float depth = c.depth;
+	    if (depth != 0.f) {
+            bg_m.position += (pl - prev_pl_pos) / depth;
+            prev_pl_pos = pl;
+        }
+	}
 }
 
 // Reset the world state to its initial state
@@ -266,6 +309,7 @@ void WorldSystem::restart(std::string level)
 	current_speed = 1.f;
     auto weapon = W_BULLET;
     auto algo = DIRECT;
+    auto magic = FIREBALL;
     if (player_soldier.has<Soldier>()) {
         auto& soldier = player_soldier.get<Soldier>();
         if (soldier.weapon.has<Weapon>()){
@@ -275,6 +319,7 @@ void WorldSystem::restart(std::string level)
     if (player_soldier.has<Soldier>()) {
         auto& soldier = player_soldier.get<Soldier>();
         algo = soldier.ai_algorithm;
+        magic = soldier.magic;
     }
     // Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -309,6 +354,7 @@ void WorldSystem::restart(std::string level)
     if (player_soldier.has<Soldier>()) {
         auto& soldier = player_soldier.get<Soldier>();
         soldier.ai_algorithm = algo;
+        soldier.magic = magic;
     }
 
 	if (level == "level_3") 
@@ -327,6 +373,11 @@ void WorldSystem::restart(std::string level)
 	ECS::Entity camera;
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
+	prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
+    aiControl = WorldSystem::isPlayableLevel(currentLevel);
+    if(player_soldier.has<AIPath>()){
+        player_soldier.get<AIPath>().active = true;
+    }
 }
 
 bool WorldSystem::isPlayableLevel(std::string level)
@@ -339,16 +390,16 @@ void WorldSystem::checkEndGame()
 	if (WorldSystem::isPlayableLevel(currentLevel)) {
         if (ECS::registry<Enemy>.entities.empty()) {
             resetTimer();
-            restart("level_select");
+            restart("win");
         }
         if (ECS::registry<Soldier>.entities.empty()) {
             resetTimer();
-            restart("level_select");
+            restart("lose");
         }
 		if (endGameTimer > 1000000.f) {
 			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
-				restart("menu");
+				restart("lose");
 			}
 		}
 	}
@@ -403,8 +454,6 @@ void WorldSystem::handle_collisions()
 					ECS::ContainerInterface::remove_all_components_of(entity_other);
 					Mix_PlayChannel(-1, gun_reload, 0);
 					++points;
-
-					// !!! TODO A1: create a new struct called LightUp in render_components.hpp and add an instance to the salmon entity
 				}
 			}
 		}
@@ -424,26 +473,42 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+  
+	double soldier_speed = 200;
+  
+    if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
+        if(player_soldier.has<Soldier>()) {
+            MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
+                                               player_soldier.get<Motion>().angle,
+                                               {380, 0},
+                                               0,
+                                               FIREBALL);
+        }
+    }
+  
     if (!aiControl) {
         // Move soldier if alive
         if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
             if (key == GLFW_KEY_D) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{100, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{ soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             } else if (key == GLFW_KEY_A) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{-100, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{-soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             } else if (key == GLFW_KEY_S) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{0, 100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{0, soldier_speed } * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             } else if (key == GLFW_KEY_W) {
                 player_soldier.get<Motion>().velocity =
-                        vec2{0, -100} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+                        vec2{0, -soldier_speed } * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
             }
 
-            if(key == GLFW_KEY_Q) {
-                Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, {380, 0}, 0, "bullet");
-            }
+			if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+				selecting = true;
+			}
+			else {
+				selecting = false;
+			}
         }
 
     }
@@ -499,6 +564,13 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 
     if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
     {
+        if(!aiControl && player_soldier.has<AIPath>()){
+            auto& aiPath = player_soldier.get<AIPath>();
+			player_soldier.get<Motion>().velocity = { 200.f, 0.f };
+            aiPath.path.path.clear();
+            aiPath.progress = 0;
+            aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
+        }
         DRAWING = true;
         mouse_points.clear();
     }
@@ -515,18 +587,12 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 
 void WorldSystem::on_mouse_move(vec2 mouse_pos)
 {
-
+    last_mouse_pos = mouse_pos;
     if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>())
     {
         auto& motion = ECS::registry<Motion>.get(player_soldier);
         // Get world mouse position
-        if (!ECS::registry<Camera>.entities.empty()) {
-            auto& camera = ECS::registry<Camera>.entities[0];
-            if (camera.has<Camera>()) {
-                vec2 camera_pos = camera.get<Camera>().get_position();
-                mouse_pos += camera_pos;
-            }
-        }
+        mouse_pos = getWorldMousePosition(mouse_pos);
         float disY = mouse_pos.y - motion.position.y;
         float disX = mouse_pos.x - motion.position.x;
         float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
@@ -536,7 +602,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
         auto dir = mouse_pos - motion.position;
         // printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
         float rad = atan2(dir.y, dir.x);
-        if (!aiControl) {
+        if (!aiControl && player_soldier.has<AIPath>() && player_soldier.get<AIPath>().path.path.empty()) {
             motion.angle = rad;
         }
         if (SHIELDUP && !hasShield) {
@@ -545,9 +611,11 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
         }
 
         if (SHIELDUP) {
-            auto& motionSh = ECS::registry<Motion>.get(shield);
-            motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
-            motionSh.angle = rad;
+			if (shield.has<Motion>()) {
+				auto& motionSh = ECS::registry<Motion>.get(shield);
+				motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
+				motionSh.angle = rad;
+			}
         }
         if (DRAWING) {
             if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
@@ -556,6 +624,17 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
             mouse_points.push_back(mouse_pos - motion.position);
         }
     }
+}
+
+vec2 WorldSystem::getWorldMousePosition(vec2 mouse_pos) const {
+    if (!ECS::registry<Camera>.entities.empty()) {
+        auto& camera = ECS::registry<Camera>.entities[0];
+        if (camera.has<Camera>()) {
+            vec2 camera_pos = camera.get<Camera>().get_position();
+            mouse_pos += camera_pos;
+        }
+    }
+    return mouse_pos;
 }
 
 bool WorldSystem::reload_level = false;

@@ -5,7 +5,7 @@
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 #include "Weapon.hpp"
-
+#include "Bullet.hpp"
 
 
 ECS::Entity Soldier::createSoldier(vec2 position,
@@ -19,7 +19,6 @@ ECS::Entity Soldier::createSoldier(vec2 position,
     ShadedMesh& resource = cache_resource(key);
     if (resource.effect.program.resource == 0)
     {
-
         RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "textured");
     }
 
@@ -51,7 +50,7 @@ ECS::Entity Soldier::createSoldier(vec2 position,
     physicsObject.attach(Hit, std::move(hit));
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Soldier component to be able to refer to all turtles
-	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,50.f}, 0, entity);
+	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,20.f}, 0, entity);
 	auto& children_entity = entity.emplace<ChildrenEntities>();
 	children_entity.children.insert(weapon);
     entity.emplace<AIPath>();
@@ -60,5 +59,22 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	soldier.ai_algorithm = A_STAR;
 	soldier.weapon = weapon;
 	soldier.teamID = 0;
+
+	auto& health = ECS::registry<Health>.emplace(entity);
+	health.hp = 3;
+	health.max_hp = 3;
+	
 	return entity;
 }
+
+
+void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+    if (e.has<Bullet>() && (e.get<Bullet>().teamID != self.get<Soldier>().teamID) && !self.has<DeathTimer>()) {
+        auto& health = self.get<Health>();
+        float hp = health.hp;
+        health.hp--;
+
+        if (health.hp <= 0)
+            self.emplace<DeathTimer>();
+    }
+};
