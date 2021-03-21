@@ -25,7 +25,7 @@ ECS::Entity Loading::createLoading(vec2 position)
     motion.velocity = { 0.f, 0 };
     motion.position = position;
     // Setting initial values, scale is negative to make it face the opposite way
-    motion.scale = vec2({ 1.0f, 1.0f }) * static_cast<vec2>(resource.texture.size);
+    motion.scale = vec2({ 0.6f, 0.6f }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Loading"];
 
     // Create and (empty) Fish component to be able to refer to all fish

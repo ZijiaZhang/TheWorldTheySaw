@@ -13,7 +13,7 @@
                 "x": 500,
                 "y": 500
             },
-            "additionalProperties": { "name": "levelbk" }
+            "additionalProperties": { "name": "levelSelect", "scale": 0.5 }
         }
     ],
     "select_level_1": [
@@ -33,42 +33,42 @@
         }
     ],
     "select_level_3": [
-        {
-            "position": {
-                "x": 350,
-                "y": 550
+            {
+                "position": {
+                    "x": 350,
+                    "y": 550
+                }
             }
-        }
-    ],
-    "select_level_4": [
-        {
-            "position": {
-                "x": 650,
-                "y": 550
+        ],
+        "select_level_4": [
+            {
+                "position": {
+                    "x": 650,
+                    "y": 550
+                }
             }
-        }
-    ],
-    "select_level_5": [
-        {
-            "position": {
-                "x": 350,
-                "y": 650
+        ],
+        "select_level_5": [
+            {
+                "position": {
+                    "x": 350,
+                    "y": 650
+                }
             }
-        }
-    ],
-    "select_level_6": [
-        {
-            "position": {
-                "x": 650,
-                "y": 650
+        ],
+        "select_level_6": [
+            {
+                "position": {
+                    "x": 650,
+                    "y": 650
+                }
             }
-        }
-    ],
+        ],
     "return_to_menu": [
         {
             "position": {
-                "x": 300,
-                "y": 750
+                "x": 200,
+                "y": 725
             }
         }
     ]
