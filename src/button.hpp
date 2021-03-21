@@ -9,16 +9,21 @@ enum class ButtonIcon {
 	START,
 	LEVEL_SELECT,
 	QUIT,
-	SELECT_ROCKET,
-    SELECT_AMMO,
-    SELECT_BULLET,
-    SELECT_LASER,
-    SELECT_DIRECT,
-    SELECT_A_STAR,
+//	SELECT_ROCKET,
+//    SELECT_AMMO,
+//    SELECT_BULLET,
+//    SELECT_LASER,
+//    SELECT_DIRECT,
+//    SELECT_A_STAR,
+    NEXT,
+    RESTART,
     RETURN,
     LEVEL1,
     LEVEL2,
-	LEVEL3
+	LEVEL3,
+    LEVEL4,
+    LEVEL5,
+    LEVEL6
 };
 
 enum class ButtonClass{

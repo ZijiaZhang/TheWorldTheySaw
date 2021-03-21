@@ -7,39 +7,39 @@
     }],
     "button_select_rocket": [
         {
-            "position": {"x": -100, "y":  25}
+            "position": {"x": 80, "y":  95}
         }
     ],
     "button_select_ammo": [
         {
-            "position": {"x": 250, "y":  25}
+            "position": {"x": 340, "y":  95}
         }
     ],
     "button_select_laser": [
         {
-            "position": {"x": -100, "y":  275}
+            "position": {"x": 340, "y":  172}
         }
     ],
     "button_select_bullet": [
         {
-            "position": {"x": 250, "y":  275}
+            "position": {"x": 80, "y":  172}
         }
     ],
     "button_select_direct": [
         {
-            "position": {"x": -100, "y":  450}
+            "position": {"x": 80, "y":  405}
         }
     ],
     "button_select_a_star": [
         {
-            "position": {"x": 250, "y":  450}
+            "position": {"x": 340, "y":  405}
         }
     ],
     "button_enter_level": [
         {
             "position": {
                 "x": 315,
-                "y": 575
+                "y": 540
             }
         }
     ],
@@ -47,7 +47,7 @@
         {
             "position": {
                 "x": -150,
-                "y": 575
+                "y": 540
             }
         }
     ]

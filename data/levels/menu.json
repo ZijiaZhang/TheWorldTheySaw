@@ -5,7 +5,7 @@
 	}],
 	"background": [{
 		"position": {"x": 500, "y": 500},
-        "additionalProperties": {"name": "background2"}
+        "additionalProperties": {"name": "backgroundScifi", "scale": 0.8}
 	}],
     "blocks": [
         {
@@ -38,17 +38,17 @@
     ],
     "button_start": [
         {
-            "position": {"x" : 300, "y": 525}
+            "position": {"x" : 1000, "y": 425}
         }
     ],
     "button_setting": [
         {
-            "position": {"x" : 300, "y": 600}
+            "position": {"x" : 1000, "y": 525}
         }
     ],
     "title": [
         {
-            "position": {"x" : 300, "y": 300}
+            "position": {"x" : 475, "y": 450}
         }
     ]
 
