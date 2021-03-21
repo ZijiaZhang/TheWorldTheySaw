@@ -49,7 +49,7 @@ void main()
 {
     color = vec4(fcolor, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
 
-    if(color.a < 0.8) {
+    if(color.a < 0.55) {
         discard;
     }
 
