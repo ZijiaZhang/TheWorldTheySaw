@@ -5,26 +5,26 @@
 #include "PhysicsObject.hpp"
 #include <soldier.hpp>
 
-std::map<ButtonType, std::string> Button::buttonNames = {
-	{ButtonType::DEFAULT_BUTTON, "default"},
-	{ButtonType::START, "start"},
-	{ButtonType::LEVEL_SELECT, "level_select"},
-	{ButtonType::QUIT, "quit"},
-//    {ButtonType::SELECT_ROCKET, "select_rocket"},
-//    {ButtonType::SELECT_AMMO, "select_ammo"},
-//    {ButtonType::SELECT_LASER,"select_laser"},
-//    {ButtonType::SELECT_BULLET, "select_bullet"},
-//    {ButtonType::SELECT_DIRECT,"select_direct"},
-//    {ButtonType::SELECT_A_STAR, "select_a_star"},
-    {ButtonType::NEXT, "next"},
-    {ButtonType::RESTART, "RESTART"},
-    {ButtonType::RETURN, "return"},
-    {ButtonType::LEVEL1, "level1"},
-    {ButtonType::LEVEL2, "level2"},
-	{ButtonType::LEVEL3, "level3"},
-    {ButtonType::LEVEL4, "level4"},
-    {ButtonType::LEVEL5, "level5"},
-    {ButtonType::LEVEL6, "level6"}
+std::map<ButtonIcon, std::string> Button::buttonNamesMap = {
+	{ButtonIcon::DEFAULT_BUTTON, "default"},
+	{ButtonIcon::START, "start"},
+	{ButtonIcon::LEVEL_SELECT, "level_select"},
+	{ButtonIcon::QUIT, "quit"},
+    {ButtonIcon::SELECT_ROCKET, "select_rocket"},
+    {ButtonIcon::SELECT_AMMO, "select_ammo"},
+    {ButtonIcon::SELECT_LASER,"select_laser"},
+    {ButtonIcon::SELECT_BULLET, "select_bullet"},
+    {ButtonIcon::SELECT_DIRECT,"select_direct"},
+    {ButtonIcon::SELECT_A_STAR, "select_a_star"},
+    {ButtonIcon::NEXT, "next"},
+    {ButtonIcon::RESTART, "RESTART"},
+    {ButtonIcon::RETURN, "return"},
+    {ButtonIcon::LEVEL1, "level1"},
+    {ButtonIcon::LEVEL2, "level2"},
+	{ButtonIcon::LEVEL3, "level3"},
+    {ButtonIcon::LEVEL4, "level4"},
+    {ButtonIcon::LEVEL5, "level5"},
+    {ButtonIcon::LEVEL6, "level6"}
 };
 
 
