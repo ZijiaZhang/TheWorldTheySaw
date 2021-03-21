@@ -21,13 +21,10 @@ std::map<ButtonType, std::string> Button::buttonNames = {
     {ButtonType::RETURN, "return"},
     {ButtonType::LEVEL1, "level1"},
     {ButtonType::LEVEL2, "level2"},
-<<<<<<< Updated upstream
-=======
 	{ButtonType::LEVEL3, "level3"},
     {ButtonType::LEVEL4, "level4"},
     {ButtonType::LEVEL5, "level5"},
     {ButtonType::LEVEL6, "level6"}
->>>>>>> Stashed changes
     
 };
 

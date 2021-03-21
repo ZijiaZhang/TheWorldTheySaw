@@ -19,15 +19,11 @@ enum class ButtonType {
     RESTART,
     RETURN,
     LEVEL1,
-<<<<<<< Updated upstream
-    LEVEL2
-=======
     LEVEL2,
 	LEVEL3,
     LEVEL4,
     LEVEL5,
     LEVEL6
->>>>>>> Stashed changes
 };
 
 struct Button {

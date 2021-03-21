@@ -2,11 +2,7 @@
 #include "background.hpp"
 #include "render.hpp"
 
-<<<<<<< Updated upstream
-ECS::Entity Background::createBackground(vec2 position, std::string name)
-=======
 ECS::Entity Background::createBackground(vec2 position, std::string name, float depth, float size)
->>>>>>> Stashed changes
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();

@@ -166,25 +166,16 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"background", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER,
 					COLLISION_HANDLER, json additional) {
-<<<<<<< Updated upstream
-=======
 	    std::string name = "background";
 	    float depth = 0.f;
         float scale = 1.5f;
->>>>>>> Stashed changes
 		if (additional.contains("name")) {
-			Background::createBackground(vec2{500, 500}, additional["name"]);
+			name = additional["name"];
 		}
-		else {
-		Background::createBackground(vec2{500, 500}, "background");
-		}
-<<<<<<< Updated upstream
-=======
         if (additional.contains("scale")) {
             scale = additional["scale"];
         }
 		Background::createBackground(vec2{500, 500}, name, depth, scale);
->>>>>>> Stashed changes
 	}},
 	{"title", [](vec2 location, vec2 , float ,
 					  COLLISION_HANDLER,
@@ -230,9 +221,6 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-<<<<<<< Updated upstream
-						return Button::createButton(ButtonType::LEVEL2, location, select_level_button_overlap("level_3"));
-=======
 						return Button::createButton(ButtonType::LEVEL2, location, select_level_button_overlap("level_2"));
 					} },
 		{ "select_level_3", [](vec2 location, vec2 size, float rotation,
@@ -258,7 +246,6 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 						COLLISION_HANDLER, const json&)
 					{
 						return Button::createButton(ButtonType::LEVEL6, location, select_level_button_overlap("level_6"));
->>>>>>> Stashed changes
 					} }
 };
 
