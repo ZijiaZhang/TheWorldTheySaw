@@ -21,7 +21,7 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     if (resource.mesh.vertices.size() == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSpriteAnimation(resource, textures_path("/enemy/cannon/asuka_ani.png"), 2);
+        RenderSystem::createSprite(resource, textures_path("/enemy/cannon/alien.png"), "textured");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

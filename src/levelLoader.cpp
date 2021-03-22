@@ -228,11 +228,17 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
                     {
                         return Button::createButton(ButtonIcon::NEXT, location, select_button_overlap("level_select"));
                     } },
+        { "next_to_level", [](vec2 location, vec2 size, float rotation,
+                    COLLISION_HANDLER,
+                    COLLISION_HANDLER, const json&)
+                {
+                    return Button::createButton(ButtonIcon::NEXT, location, select_button_overlap("level_1"));
+                } },
 		{"select_level_1", [](vec2 location, vec2 size, float rotation,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("level_1"));
+					 return Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("intro"));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
