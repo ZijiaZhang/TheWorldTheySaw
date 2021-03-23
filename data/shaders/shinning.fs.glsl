@@ -9,6 +9,7 @@ in vec2 ori_pos;
 uniform sampler2D sampler0;
 uniform vec3 fcolor;
 uniform float time;
+uniform bool shining;
 
 // Output color
 layout(location = 0) out  vec4 color;
@@ -49,10 +50,10 @@ void main()
 {
     color = vec4(fcolor, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
 
-    if(color.a < 0.8) {
+    if(color.a < 0.55) {
         discard;
     }
-
-    color = anisotropic(color.xyz);
-
+    if(shining){
+        color = anisotropic(color.xyz);
+    }
 }

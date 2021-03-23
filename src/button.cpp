@@ -5,36 +5,45 @@
 #include "PhysicsObject.hpp"
 #include <soldier.hpp>
 
-std::map<ButtonType, std::string> Button::buttonNames = {
-	{ButtonType::DEFAULT_BUTTON, "default"},
-	{ButtonType::START, "start"},
-	{ButtonType::LEVEL_SELECT, "level_select"},
-	{ButtonType::QUIT, "quit"},
-//    {ButtonType::SELECT_ROCKET, "select_rocket"},
-//    {ButtonType::SELECT_AMMO, "select_ammo"},
-//    {ButtonType::SELECT_LASER,"select_laser"},
-//    {ButtonType::SELECT_BULLET, "select_bullet"},
-//    {ButtonType::SELECT_DIRECT,"select_direct"},
-//    {ButtonType::SELECT_A_STAR, "select_a_star"},
-    {ButtonType::NEXT, "next"},
-    {ButtonType::RESTART, "RESTART"},
-    {ButtonType::RETURN, "return"},
-    {ButtonType::LEVEL1, "level1"},
-    {ButtonType::LEVEL2, "level2"},
-	{ButtonType::LEVEL3, "level3"},
-    {ButtonType::LEVEL4, "level4"},
-    {ButtonType::LEVEL5, "level5"},
-    {ButtonType::LEVEL6, "level6"}
-    
+std::map<ButtonIcon, std::string> Button::buttonNamesMap = {
+	{ButtonIcon::DEFAULT_BUTTON, "default"},
+	{ButtonIcon::START, "start"},
+	{ButtonIcon::LEVEL_SELECT, "level_select"},
+	{ButtonIcon::QUIT, "quit"},
+    {ButtonIcon::SELECT_ROCKET, "select_rocket"},
+    {ButtonIcon::SELECT_AMMO, "select_ammo"},
+    {ButtonIcon::SELECT_LASER,"select_laser"},
+    {ButtonIcon::SELECT_BULLET, "select_bullet"},
+    {ButtonIcon::SELECT_DIRECT,"select_direct"},
+    {ButtonIcon::SELECT_A_STAR, "select_a_star"},
+    {ButtonIcon::NEXT, "next"},
+    {ButtonIcon::RESTART, "RESTART"},
+    {ButtonIcon::RETURN, "return"},
+    {ButtonIcon::LEVEL1, "level1"},
+    {ButtonIcon::LEVEL2, "level2"},
+	{ButtonIcon::LEVEL3, "level3"},
+    {ButtonIcon::LEVEL4, "level4"},
+    {ButtonIcon::LEVEL5, "level5"},
+    {ButtonIcon::LEVEL6, "level6"}
 };
 
-ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, COLLISION_HANDLER overlap)
+
+std::map<ButtonIcon, ButtonClass> Button::buttonClassMap = {
+        {ButtonIcon::SELECT_ROCKET,  ButtonClass::WEAPON_SELECTION},
+        {ButtonIcon::SELECT_AMMO,     ButtonClass::WEAPON_SELECTION},
+        {ButtonIcon::SELECT_LASER,    ButtonClass::WEAPON_SELECTION},
+        {ButtonIcon::SELECT_BULLET,   ButtonClass::WEAPON_SELECTION},
+        {ButtonIcon::SELECT_DIRECT,   ButtonClass::ALGORITHM_SELECTION},
+        {ButtonIcon::SELECT_A_STAR,  ButtonClass::ALGORITHM_SELECTION},
+};
+
+ECS::Entity Button::createButton(ButtonIcon buttonType, vec2 position, COLLISION_HANDLER overlap)
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();
 
 	// Create the rendering components
-	std::string key = buttonNames[buttonType];
+	std::string key = buttonNamesMap[buttonType];
 	ShadedMesh& resource = cache_resource(key);
 
 	if (resource.effect.program.resource == 0)
@@ -43,7 +52,7 @@ ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, COLLISION
 		path.append(key);
 		path.append(".png");
 		resource = ShadedMesh();
-		RenderSystem::createSprite(resource, textures_path(path), "shinning");
+		RenderSystem::createSprite(resource, textures_path(path), "textured");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -69,6 +78,6 @@ ECS::Entity Button::createButton(ButtonType buttonType, vec2 position, COLLISION
 
 
 	button.buttonType = buttonType;
-
+    button.buttonClass = buttonClassMap[buttonType];
 	return entity;
 }

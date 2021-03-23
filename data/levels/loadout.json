@@ -7,22 +7,22 @@
     }],
     "button_select_rocket": [
         {
-            "position": {"x": 80, "y":  95}
+            "position": {"x": 80, "y":  60}
         }
     ],
     "button_select_ammo": [
         {
-            "position": {"x": 340, "y":  95}
+            "position": {"x": 340, "y":  60}
         }
     ],
     "button_select_laser": [
         {
-            "position": {"x": 340, "y":  172}
+            "position": {"x": 340, "y":  137}
         }
     ],
     "button_select_bullet": [
         {
-            "position": {"x": 80, "y":  172}
+            "position": {"x": 80, "y":  137}
         }
     ],
     "button_select_direct": [

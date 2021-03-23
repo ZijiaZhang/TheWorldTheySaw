@@ -9,5 +9,4 @@ struct Weapon
 {
     // Creates all the associated render resources and default transform
     static ECS::Entity createWeapon(vec2 offset, float offset_angle, ECS::Entity parent);
-    WeaponType type = W_BULLET;
 };
