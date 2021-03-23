@@ -53,7 +53,7 @@ void main()
     if(color.a < 0.55) {
         discard;
     }
-    if(shining){
-        color = anisotropic(color.xyz);
-    }
+    
+    color = anisotropic(color.xyz);
+    
 }
