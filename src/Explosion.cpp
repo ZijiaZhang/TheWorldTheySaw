@@ -16,9 +16,9 @@ ECS::Entity Explosion::CreateExplosion(vec2 location, float radius, int teamID) 
     {
         resource = ShadedMesh();
         std::string path = "/bullet/";
-        path.append("bullet_sakura");
+        path.append("smoke");
         path.append(".png");
-        RenderSystem::createSpriteAnimation(resource, textures_path(path), 2);
+        RenderSystem::createSpriteAnimation(resource, textures_path(path), 16);
     }
     ECS::registry<ShadedMeshRef>.emplace(entity, resource);
 
