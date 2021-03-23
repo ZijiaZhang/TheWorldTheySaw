@@ -347,6 +347,9 @@ void WorldSystem::restart(std::string level)
 
 	while (!ECS::registry<Camera>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
+
+	Global_Meshes::meshes.clear();
+
 	ECS::Entity camera;
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
