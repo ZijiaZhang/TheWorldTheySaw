@@ -148,6 +148,12 @@ struct DeathTimer
 	float counter_ms = 1;
 };
 
+struct PressTimer
+{
+    float counter_ms = 1;
+};
+
+
 class Global_Meshes{
 public:
     static std::list<ShadedMesh> meshes;

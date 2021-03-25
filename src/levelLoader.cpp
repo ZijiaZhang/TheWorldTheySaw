@@ -50,6 +50,10 @@ auto select_algo_of_type(AIAlgorithm algo) {
             }
             self.get<Button>().selected = true;
             GameInstance::algorithm = algo;
+            if(!self.has<PressTimer>()){
+                self.emplace<PressTimer>();
+            }
+            //self.emplace<PressTimer>();
         }
     };
 }
@@ -64,6 +68,9 @@ auto select_weapon_of_type(WeaponType type) {
             }
 			self.get<Button>().selected = true;
 			GameInstance::selectedWeapon = type;
+            if(!self.has<PressTimer>()){
+                self.emplace<PressTimer>();
+            }
 		}
 	};
 }

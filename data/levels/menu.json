@@ -38,17 +38,12 @@
     ],
     "button_start": [
         {
-            "position": {"x" : 1000, "y": 425}
-        }
-    ],
-    "button_setting": [
-        {
-            "position": {"x" : 1000, "y": 525}
+            "position": {"x" : 480, "y": 675}
         }
     ],
     "title": [
         {
-            "position": {"x" : 475, "y": 450}
+            "position": {"x" : 480, "y": 450}
         }
     ]
 

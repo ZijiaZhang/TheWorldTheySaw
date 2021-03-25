@@ -480,6 +480,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 			if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
 				selecting = true;
+//                auto& registry = ECS::registry<Button>;
+//                for (unsigned int i=0; i< registry.components.size(); i++)
+//                {
+//                    auto entity = registry.entities[i];
+//                    ECS::registry<PressTimer>.emplace(entity);
+//                }
 			}
 			else {
 				selecting = false;
