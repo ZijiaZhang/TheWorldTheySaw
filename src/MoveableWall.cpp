@@ -50,7 +50,7 @@ ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rot
     //motion.box = size;
     // Create and (empty) Salmon component to be able to refer to all turtles
     ECS::registry<MoveableWall>.emplace(entity);
-    resource.texture.color = {0,0,1};
+    resource.texture.color = {0,0,0};
     return entity;
 }
 
@@ -103,6 +103,7 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
         resource.mesh.vertex_indices.emplace_back(index);
         resource.mesh.vertex_indices.emplace_back(index-1);
     }
+    resource.texture.color = {0,0,0};
 
     //printf("%d\n", resource.mesh.vertices.size());
   

@@ -60,7 +60,12 @@ private:
 
 	// Screen texture handles
 	GLuint frame_buffer;
+	GLuint wall_frame_buffer;
+    GLuint light_frame_buffer;
+
+    Texture light_frame_texture;
 	ShadedMesh screen_sprite;
+    ShadedMesh wall_screen_sprite;
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;
 	ECS::Entity screen_state_entity;
 
@@ -68,4 +73,6 @@ private:
 
 
     static const std::string build_anim_vertex_shader(int frames);
+
+    void drawLights();
 };
