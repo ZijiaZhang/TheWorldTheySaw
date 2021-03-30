@@ -21,7 +21,7 @@ ECS::Entity MagicParticle::createMagicParticle(vec2 position,
         std::string path = "/bullet/";
         path.append(magic_texture_map[weapon]);
         path.append(".png");
-        RenderSystem::createSpriteAnimation(resource, textures_path(path), 25);
+        RenderSystem::createSpriteAnimation(resource, textures_path(path), 4);
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -62,7 +62,7 @@ ECS::Entity MagicParticle::createMagicParticle(vec2 position,
 }
 
 std::unordered_map<MagicWeapon , std::string> MagicParticle::magic_texture_map = {
-        {FIREBALL, "bullet_ex2"}
+        {FIREBALL, "fireball"}
 };
 
 std::unordered_map<MagicWeapon , float> MagicParticle::magic_damage_map = {
