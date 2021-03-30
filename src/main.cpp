@@ -86,11 +86,7 @@ int main()
 		world.handle_collisions();
 
 		renderer.draw(window_size_in_game_units);
-        auto render_time = Clock::now();
-        if(DebugSystem::in_profile_mode)
-            printf("Render: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(render_time - physics_time)).count()) / 1000.f);
-
-    }
+	}
 
 	return EXIT_SUCCESS;
 }

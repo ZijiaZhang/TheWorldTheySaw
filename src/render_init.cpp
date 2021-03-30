@@ -17,30 +17,16 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 
 	// Create a frame buffer
 	frame_buffer = 0;
-    wall_frame_buffer = 0;
-    light_frame_buffer = 0;
 	glGenFramebuffers(1, &frame_buffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
-    initScreenTexture();
-    glGenFramebuffers(1, &wall_frame_buffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, wall_frame_buffer);
-    // Create a sprite withour loading a texture
-    createSprite(wall_screen_sprite, "", "lights");
+	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
-    // Initialize the screen texture and its state
-    wall_screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
-
-    glGenFramebuffers(1, &light_frame_buffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, light_frame_buffer);
-    light_frame_texture.create_from_screen(&window, depth_render_buffer_id.data());
-
+	initScreenTexture();
 }
 
 RenderSystem::~RenderSystem()
 {
 	// delete allocated resources
 	glDeleteFramebuffers(1, &frame_buffer);
-    glDeleteFramebuffers(1, &wall_frame_buffer);
 
 	// remove all entities created by the render system
 	while (ECS::registry<Motion>.entities.size() > 0)
