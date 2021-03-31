@@ -302,6 +302,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 void WorldSystem::restart(std::string level)
 {
 	level_loader.set_level(level);
+	selecting = false;
     GameInstance::currentLevel = level;
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
