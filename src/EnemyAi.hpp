@@ -10,6 +10,8 @@ class EnemyAISystem
 public:
     void step(float elapsed_ms, vec2 window_size_in_game_units);
 
+    static void takeDamage(ECS::Entity enemy_entity, float damage);
+
 private:
     AISystem ai;
 
@@ -33,4 +35,5 @@ private:
     void walkRandom(Motion& enemyMotion);
 
     void shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest);
+
 };

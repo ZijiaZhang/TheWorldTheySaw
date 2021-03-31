@@ -17,10 +17,38 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 
 	// Create a frame buffer
 	frame_buffer = 0;
+	ui_buffer = 0;
 	glGenFramebuffers(1, &frame_buffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
 	initScreenTexture();
+    glGenFramebuffers(1, &ui_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, ui_buffer);
+    ui_texture.create_from_screen(&window, depth_render_buffer_id.data());
+
+
+    health_bar = ShadedMesh();
+    health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{0, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
+
+    health_bar.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
+    health_bar.texture.color = vec3{1,0,0};
+    RenderSystem::createColoredMesh(health_bar, "salmon");
+
+
+    health_bar_background = ShadedMesh();
+    health_bar_background.mesh.vertices.emplace_back(ColoredVertex{vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    health_bar_background.mesh.vertices.emplace_back(ColoredVertex{vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    health_bar_background.mesh.vertices.emplace_back(ColoredVertex{vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    health_bar_background.mesh.vertices.emplace_back(ColoredVertex{vec3{0, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
+
+    health_bar_background.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
+    health_bar_background.texture.color = vec3{0.1,0.1,0.1};
+    RenderSystem::createColoredMesh(health_bar_background, "salmon");
+
+
 }
 
 RenderSystem::~RenderSystem()
@@ -156,4 +184,7 @@ void RenderSystem::initScreenTexture()
 	// Initialize the screen texture and its state
 	screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
 	ECS::registry<ScreenState>.emplace(screen_state_entity);
+
+
+
 }

@@ -71,20 +71,6 @@ static float getDist(vec2 p1, vec2 p2)
 //	return atan2(det, dot);
 //}
 
-static std::map<std::string, bool> playableLevelMap = {
-		{"menu", false},
-		{"loadout", false},
-		{"level_1", true},
-		{"level_2", true},
-		{"level_3", true},
-		{"level_4", true},
-        {"level_5", true},
-		{"level_6", true},
-		{"level_7", true},
-		{"level_8", true},
-		{"level_9", true},
-		{"level_10", true}
-};
 
 /*
  Dummy way
@@ -267,7 +253,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         }
     }
 
-	aiControl = WorldSystem::isPlayableLevel(GameInstance::currentLevel);
+	aiControl = GameInstance::isPlayableLevel();
 //	if(player_soldier.has<AIPath>())
 //        player_soldier.get<AIPath>().active = aiControl;
 
@@ -279,7 +265,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 	*/
 
-	Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
+	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
 	endGameTimer += elapsed_ms;
 
@@ -354,20 +340,16 @@ void WorldSystem::restart(std::string level)
 	camera.insert(Camera({ 0,0 }, player_soldier));
 
 	prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
-    aiControl = WorldSystem::isPlayableLevel(GameInstance::currentLevel);
+    aiControl = GameInstance::isPlayableLevel();
     if(player_soldier.has<AIPath>()){
         player_soldier.get<AIPath>().active = true;
     }
 }
 
-bool WorldSystem::isPlayableLevel(std::string level)
-{
-	return playableLevelMap[level];
-}
 
 void WorldSystem::checkEndGame()
 {
-	if (WorldSystem::isPlayableLevel(GameInstance::currentLevel)) {
+	if (GameInstance::isPlayableLevel()) {
         if (ECS::registry<Enemy>.entities.empty()) {
             resetTimer();
             restart("win");
@@ -387,7 +369,7 @@ void WorldSystem::checkEndGame()
 
 void WorldSystem::runTimer(float elapsed_ms)
 {
-	if (isPlayableLevel(GameInstance::currentLevel)) {
+	if (GameInstance::isPlayableLevel()) {
 		endGameTimer += elapsed_ms;
 	}
 	else {

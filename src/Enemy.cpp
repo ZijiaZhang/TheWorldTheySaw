@@ -9,10 +9,11 @@
 #include "PhysicsObject.hpp"
 #include "Bullet.hpp"
 #include "Explosion.hpp"
+#include "EnemyAi.hpp"
 
 ECS::Entity Enemy::createEnemy(vec2 position,
                                COLLISION_HANDLER overlap,
-                               COLLISION_HANDLER hit, int teamID){
+                               COLLISION_HANDLER hit, int teamID, float health){
     auto entity = ECS::Entity();
 
 
@@ -55,6 +56,12 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     physicsObject.attach(Hit, std::move(hit));
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 
+    if(health > 0){
+        auto& health_component = entity.emplace<Health>();
+        health_component.hp = health;
+        health_component.max_hp = health;
+    }
+
     entity.emplace<AIPath>();
     // Create and (empty) Salmon component to be able to refer to all turtles
     auto& e =ECS::registry<Enemy>.emplace(entity);
@@ -64,8 +71,8 @@ ECS::Entity Enemy::createEnemy(vec2 position,
 
 void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
     if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
-        self.emplace<DeathTimer>();
+        EnemyAISystem::takeDamage(self, 1);
     } else if (e.has<Explosion>() && e.get<Explosion>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()){
-        self.emplace<DeathTimer>();
+        EnemyAISystem::takeDamage(self, 1);
     }
 };

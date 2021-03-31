@@ -3,30 +3,30 @@
 
 void Healthbar::updateHealthBar(ECS::Entity e, bool draw)
 {
-	if (e.has<Health>() && e.has<Motion>()) {
-		auto& motion = e.get<Motion>();
-		auto& health = e.get<Health>();
-
-		if (draw) {
-			if (health.hb_available) {
-				updateHealthBarPosition(motion.position, motion.scale, health.hp, health.max_hp, health.healthbar);
-				updateHealthBarPosition(motion.position, motion.scale, health.max_hp, health.max_hp, health.healthbarbg);
-			}
-			else if (!health.hb_available) {
-				health.healthbar = drawHealthBar(motion.position, motion.scale, health.hp, health.max_hp, {0.8, 0.1, 0.1}, "Soldier");
-				health.healthbarbg = drawHealthBar(motion.position, motion.scale, health.max_hp, health.max_hp, { 0.1, 0.1, 0.1 }, "Turtle");
-				health.hb_available = true;
-			}
-		}
-		else {
-			if (health.hb_available) {
-				ECS::registry<DeathTimer>.emplace(health.healthbar);
-				ECS::registry<DeathTimer>.emplace(health.healthbarbg);
-				health.hb_available = false;
-			}
-		}
-		
-	}
+//	if (e.has<Health>() && e.has<Motion>()) {
+//		auto& motion = e.get<Motion>();
+//		auto& health = e.get<Health>();
+//
+//		if (draw) {
+//			if (health.hb_available) {
+//				updateHealthBarPosition(motion.position, motion.scale, health.hp, health.max_hp, health.healthbar);
+//				updateHealthBarPosition(motion.position, motion.scale, health.max_hp, health.max_hp, health.healthbarbg);
+//			}
+//			else if (!health.hb_available) {
+//				health.healthbar = drawHealthBar(motion.position, motion.scale, health.hp, health.max_hp, {0.8, 0.1, 0.1}, "Soldier");
+//				health.healthbarbg = drawHealthBar(motion.position, motion.scale, health.max_hp, health.max_hp, { 0.1, 0.1, 0.1 }, "Turtle");
+//				health.hb_available = true;
+//			}
+//		}
+//		else {
+//			if (health.hb_available) {
+//				ECS::registry<DeathTimer>.emplace(health.healthbar);
+//				ECS::registry<DeathTimer>.emplace(health.healthbarbg);
+//				health.hb_available = false;
+//			}
+//		}
+//
+//	}
 }
 
 ECS::Entity Healthbar::drawHealthBar(vec2 position, vec2 scale, float hp, float max_hp, vec3 color, std::string layer)

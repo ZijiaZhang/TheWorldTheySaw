@@ -13,5 +13,9 @@ class GameInstance {
         static WeaponType selectedWeapon;
         static AIAlgorithm algorithm;
         static MagicWeapon selectedMagic;
+
+    static bool isPlayableLevel(std::string level);
+
+    static bool isPlayableLevel();
 };
 

@@ -47,7 +47,11 @@
         {
             "position": {"x" : 600, "y": 650},
             "velocity": {"x" : 50, "y": 50},
-            "overlap": "enemy_bullet_hit_death"
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "health": 5,
+                "team_id": 1
+            }
         },
         {
             "position": {"x" : 600, "y": 700},

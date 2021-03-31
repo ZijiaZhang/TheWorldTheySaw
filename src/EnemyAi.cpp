@@ -123,3 +123,17 @@ void EnemyAISystem::shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 
 	auto& motion = e.get<Motion>();
 	ai.enemy_ai_step(e, elapsed_ms, dest);
 }
+
+void EnemyAISystem::takeDamage(ECS::Entity enemy_entity, float damage) {
+    if(enemy_entity.has<Health>()){
+        auto& health = enemy_entity.get<Health>();
+        health.hp -= damage;
+        if (health.hp < 0 && !enemy_entity.has<DeathTimer>()){
+            enemy_entity.emplace<DeathTimer>();
+        }
+    } else {
+        if (!enemy_entity.has<DeathTimer>()){
+            enemy_entity.emplace<DeathTimer>();
+        }
+    }
+}

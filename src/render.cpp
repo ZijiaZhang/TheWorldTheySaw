@@ -5,6 +5,7 @@
 #include "Camera.hpp"
 #include "Explosion.hpp"
 #include "button.hpp"
+#include "GameInstance.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -13,40 +14,46 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 {
 	auto& motion = ECS::registry<Motion>.get(entity);
 	auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
+    drawTexturedMesh(entity, projection, motion, texmesh);
+
+}
+
+void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) {
     auto& screen = screen_state_entity.get<ScreenState>();
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     // Transformation code, see Rendering and Transformation in the template specification for more info
-	// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
-	Transform transform;
-	transform.translate(motion.position - camera.get_position());
-	transform.rotate(motion.angle);
-	transform.scale(motion.scale);
-	// !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
+// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
+    Transform transform;
+    transform.translate(motion.position - camera.get_position());
+    transform.rotate(motion.angle);
+    transform.scale(motion.scale);
+    // !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
 
-	// Setting shaders
-	glUseProgram(texmesh.effect.program);
-	glBindVertexArray(texmesh.mesh.vao);
-	gl_has_errors();
+    // Setting shaders
+    glUseProgram(texmesh.effect.program);
+    glBindVertexArray(texmesh.mesh.vao);
+    gl_has_errors();
 
-	// Enabling alpha channel for textures
-	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_DEPTH_TEST);
-	gl_has_errors();
+    // Enabling alpha channel for textures
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_DEPTH_TEST);
+    gl_has_errors();
 
-	GLint transform_uloc = glGetUniformLocation(texmesh.effect.program, "transform");
-	GLint projection_uloc = glGetUniformLocation(texmesh.effect.program, "projection");
-	gl_has_errors();
+    GLint transform_uloc = glGetUniformLocation(texmesh.effect.program, "transform");
+    GLint projection_uloc = glGetUniformLocation(texmesh.effect.program, "projection");
+    gl_has_errors();
 
-	// Setting vertex and index buffers
-	glBindBuffer(GL_ARRAY_BUFFER, texmesh.mesh.vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texmesh.mesh.ibo);
-	gl_has_errors();
+    // Setting vertex and index buffers
+    glBindBuffer(GL_ARRAY_BUFFER, texmesh.mesh.vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texmesh.mesh.ibo);
+    gl_has_errors();
 
-	// Input data location as in the vertex buffer
+    // Input data location as in the vertex buffer
     GLuint time_uloc       = glGetUniformLocation(texmesh.effect.program, "time");
-	GLint in_position_loc = glGetAttribLocation(texmesh.effect.program, "in_position");
-	GLint in_texcoord_loc = glGetAttribLocation(texmesh.effect.program, "in_texcoord");
-	GLint in_color_loc = glGetAttribLocation(texmesh.effect.program, "in_color");
+    GLint in_position_loc = glGetAttribLocation(texmesh.effect.program, "in_position");
+    GLint in_texcoord_loc = glGetAttribLocation(texmesh.effect.program, "in_texcoord");
+    GLint in_color_loc = glGetAttribLocation(texmesh.effect.program, "in_color");
     glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
     if (in_texcoord_loc >= 0)
 	{
@@ -66,11 +73,11 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 	} else {
 		throw std::runtime_error("This type of entity is not yet supported");
 	}
-	gl_has_errors();
+    gl_has_errors();
 
-	// Getting uniform locations for glUniform* calls
-	GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
-	//glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
+    // Getting uniform locations for glUniform* calls
+    GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
+    //glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
     if(ECS::registry<PressTimer>.has(entity)){
         float color[] = {0.f, 0.5f, 1.f};
         glUniform3fv(color_uloc, 1, color);
@@ -79,17 +86,17 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
     }
     gl_has_errors();
 
-	// Get number of indices from index buffer, which has elements uint16_t
-	GLint size = 0;
-	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-	gl_has_errors();
-	GLsizei num_indices = size / sizeof(uint16_t);
-	//GLsizei num_triangles = num_indices / 3;
+    // Get number of indices from index buffer, which has elements uint16_t
+    GLint size = 0;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    gl_has_errors();
+    GLsizei num_indices = size / sizeof(uint16_t);
+    //GLsizei num_triangles = num_indices / 3;
 
-	// Setting uniform values to the currently bound program
-	glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform.mat);
-	glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
-	gl_has_errors();
+    // Setting uniform values to the currently bound program
+    glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform.mat);
+    glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
+    gl_has_errors();
 
     GLint shining_uloc = glGetUniformLocation(texmesh.effect.program, "shining");
     if(shining_uloc > 0){
@@ -99,8 +106,88 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
     }
 
     // Drawing of num_indices/3 triangles specified in the index buffer
-	glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
-	glBindVertexArray(0);
+    glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
+    glBindVertexArray(0);
+}
+
+void RenderSystem::drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) {
+    auto& screen = screen_state_entity.get<ScreenState>();
+    auto& camera = ECS::registry<Camera>.get(screen.camera);
+    // Transformation code, see Rendering and Transformation in the template specification for more info
+// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
+    Transform transform;
+    transform.translate(motion.position - camera.get_position());
+    transform.rotate(motion.angle);
+    transform.scale(motion.scale);
+    // !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
+
+    // Setting shaders
+    glUseProgram(texmesh.effect.program);
+    glBindVertexArray(texmesh.mesh.vao);
+    gl_has_errors();
+
+    // Enabling alpha channel for textures
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_DEPTH_TEST);
+    gl_has_errors();
+
+    GLint transform_uloc = glGetUniformLocation(texmesh.effect.program, "transform");
+    GLint projection_uloc = glGetUniformLocation(texmesh.effect.program, "projection");
+    gl_has_errors();
+
+    // Setting vertex and index buffers
+    glBindBuffer(GL_ARRAY_BUFFER, texmesh.mesh.vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texmesh.mesh.ibo);
+    gl_has_errors();
+
+    // Input data location as in the vertex buffer
+    GLuint time_uloc       = glGetUniformLocation(texmesh.effect.program, "time");
+    GLint in_position_loc = glGetAttribLocation(texmesh.effect.program, "in_position");
+    GLint in_texcoord_loc = glGetAttribLocation(texmesh.effect.program, "in_texcoord");
+    GLint in_color_loc = glGetAttribLocation(texmesh.effect.program, "in_color");
+    glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
+    if (in_texcoord_loc >= 0)
+    {
+        glEnableVertexAttribArray(in_position_loc);
+        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(in_texcoord_loc);
+        glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
+        // Enabling and binding texture to slot 0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
+    } else if (in_color_loc >= 0) {
+        glEnableVertexAttribArray(in_position_loc);
+        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(in_color_loc);
+        glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(sizeof(vec3)));
+
+    } else {
+        throw std::runtime_error("This type of entity is not yet supported");
+    }
+    gl_has_errors();
+
+    // Getting uniform locations for glUniform* calls
+    GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
+    glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
+    gl_has_errors();
+
+    // Get number of indices from index buffer, which has elements uint16_t
+    GLint size = 0;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    gl_has_errors();
+    GLsizei num_indices = size / sizeof(uint16_t);
+    //GLsizei num_triangles = num_indices / 3;
+
+    // Setting uniform values to the currently bound program
+    glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform.mat);
+    glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
+    gl_has_errors();
+
+    // Drawing of num_indices/3 triangles specified in the index buffer
+    glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
+
+    glBindVertexArray(0);
 }
 
 // Draw the intermediate texture to the screen, with some distortion to simulate water
@@ -150,9 +237,17 @@ void RenderSystem::drawToScreen()
 	glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // note the stride to skip the preceeding vertex position
 	gl_has_errors();
 
+    GLint normal_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "screen_texture");
+    GLint ui_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "ui_texture");
+    glUniform1i(normal_texture_loc, 0);
+    glUniform1i(ui_texture_loc,  1);
+
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, screen_sprite.texture.texture_id);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, ui_texture.texture_id);
 
 	// Draw
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr); // two triangles = 6 vertices; nullptr indicates that there is no offset from the bound index buffer
@@ -168,29 +263,27 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 	ivec2 frame_buffer_size; // in pixels
 	glfwGetFramebufferSize(&window, &frame_buffer_size.x, &frame_buffer_size.y);
 
-	// First render to the custom framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
-	gl_has_errors();
+    glBindFramebuffer(GL_FRAMEBUFFER, ui_buffer);
+    gl_has_errors();
 
-	// Clearing backbuffer
-	glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
-	glDepthRange(0.00001, 10);
-	glClearColor(0, 0, 0, 1.0);
-	glClearDepth(1.f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	gl_has_errors();
+    // Clearing backbuffer
+    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    glDepthRange(0.00001, 10);
+    glClearColor(0, 0, 0, 0);
+    glClearDepth(1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
+    // Fake projection matrix, scales with respect to window coordinates
+    float left = 0.f;
+    float top = 0.f;
+    float right = window_size_in_game_units.x;
+    float bottom = window_size_in_game_units.y;
 
-	// Fake projection matrix, scales with respect to window coordinates
-	float left = 0.f;
-	float top = 0.f;
-	float right = window_size_in_game_units.x;
-	float bottom = window_size_in_game_units.y;
-
-	float sx = 2.f / (right - left);
-	float sy = 2.f / (top - bottom);
-	float tx = -(right + left) / (right - left);
-	float ty = -(top + bottom) / (top - bottom);
-	mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
+    float sx = 2.f / (right - left);
+    float sy = 2.f / (top - bottom);
+    float tx = -(right + left) / (right - left);
+    float ty = -(top + bottom) / (top - bottom);
+    mat3 projection_2D{ { sx, 0.f, 0.f },{ 0.f, sy, 0.f },{ tx, ty, 1.f } };
     auto& screen = screen_state_entity.get<ScreenState>();
 
     if(ECS::registry<Camera>.size() == 0){
@@ -198,30 +291,65 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     } else if(!screen.camera.has<Camera>()) {
         screen.camera = ECS::registry<Camera>.entities[0];
     }
+
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     camera.set_screen_size(window_size_in_game_units);
-	// Draw all textured meshes that have a position and size component
+
+    // Render UI
+    if(GameInstance::isPlayableLevel()){
+        auto e = ECS::registry<Health>.entities;
+        for(auto& entity: e){
+            if (entity.has<Motion>()) {
+                auto& health = entity.get<Health>();
+                auto& enemy_motion = entity.get<Motion>();
+                Motion motion{};
+                motion.position = enemy_motion.position + health.health_bar_offset;
+                motion.scale = {50,5};
+                motion.position.x -= motion.scale.x /2;
+                motion.angle = 0;
+                drawTexturedMesh(projection_2D, motion, health_bar_background);
+                motion.scale.x *= health.hp / health.max_hp;
+                drawTexturedMesh(projection_2D, motion, health_bar);
+            }
+        }
+    }
+
+    // First render to the custom framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+    gl_has_errors();
+
+    // Clearing backbuffer
+    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    glDepthRange(0.00001, 10);
+    glClearColor(0, 0, 0, 1.0);
+    glClearDepth(1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
+
+
+    // Draw all textured meshes that have a position and size component
     // Draw by the order of motion zValue, the smaller zValue, draw earlier
     auto entities = ECS::registry<ShadedMeshRef>.entities;
     sort(entities.begin(), entities.end(), [](const ECS::Entity e1, const ECS::Entity e2)
     {
         return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
     });
-    
-	for (ECS::Entity entity : entities)
-	{
-		if (!ECS::registry<Motion>.has(entity))
-			continue;
-		// Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
-		drawTexturedMesh(entity, projection_2D);
-		gl_has_errors();
-	}
 
-	// Truely render to the screen
-	drawToScreen();
+    for (ECS::Entity entity : entities)
+    {
+        if (!ECS::registry<Motion>.has(entity))
+            continue;
+        // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
+        drawTexturedMesh(entity, projection_2D);
+        gl_has_errors();
+    }
 
-	// flicker-free display with a double buffer
-	glfwSwapBuffers(&window);
+
+    // Truely render to the screen
+    drawToScreen();
+
+    // flicker-free display with a double buffer
+    glfwSwapBuffers(&window);
 }
 
 const std::string RenderSystem::build_anim_vertex_shader(int frames) {
