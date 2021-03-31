@@ -53,14 +53,22 @@ private:
 
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(ECS::Entity entity, const mat3& projection);
-	void drawToScreen();
+    void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
+    void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
+
+    void drawToScreen();
 
 	// Window handle
 	GLFWwindow& window;
 
 	// Screen texture handles
 	GLuint frame_buffer;
+	GLuint ui_buffer;
 	ShadedMesh screen_sprite;
+	ShadedMesh health_bar;
+	ShadedMesh health_bar_background;
+	Texture ui_texture;
+
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;
 	ECS::Entity screen_state_entity;
 
@@ -68,4 +76,6 @@ private:
 
 
     static const std::string build_anim_vertex_shader(int frames);
+
+    void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) const;
 };

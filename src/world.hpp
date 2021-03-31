@@ -66,8 +66,6 @@ private:
 	// Loads the audio
 	void init_audio();
 
-	bool isPlayableLevel(std::string level);
-
 	void checkEndGame();
 
 	void runTimer(float elapsed_ms);

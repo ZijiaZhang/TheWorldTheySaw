@@ -142,7 +142,17 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	}},
 	{"enemy", [](vec2 location, vec2 size, float rotation,
 				 COLLISION_HANDLER overlap,
-				 COLLISION_HANDLER hit, const json&) {return Enemy::createEnemy(location, overlap, hit); }},
+				 COLLISION_HANDLER hit, const json& additional) {
+	    float health = ENEMY_DEFAULT_HEALTH;
+	    int team_id = ENEMY_DEFAULT_TEAM_ID;
+	    if(additional.contains("health")){
+	        health = additional["health"];
+	    }
+        if(additional.contains("team_id")){
+            team_id = additional["team_id"];
+        }
+	    return Enemy::createEnemy(location, overlap, hit, team_id, health);
+	}},
 	{"button_start", [](vec2 location, vec2 size, float rotation,
 				  COLLISION_HANDLER,
 				  COLLISION_HANDLER, const json&)

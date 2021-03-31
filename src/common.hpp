@@ -65,9 +65,7 @@ struct Health {
     float shield = 0.f;
     float hp = 0.f;
     float max_hp = 0.f;
-    ECS::Entity healthbar;
-    ECS::Entity healthbarbg;
-    bool hb_available = false;
+    vec2 health_bar_offset = {0,-50};
 };
 
 // For the order of drawing
