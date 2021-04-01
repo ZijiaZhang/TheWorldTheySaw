@@ -47,6 +47,7 @@ std::vector<std::string> LevelLoader::existing_level = {
 	"level_7",
 };
 
+/*
 std::unordered_map<std::string, int> LevelLoader::level_progression = {
 	{"intro", 0},
 	{"level_2", -1},
@@ -59,6 +60,8 @@ std::unordered_map<std::string, int> LevelLoader::level_progression = {
 	{"level_9", -1},
 	{"level_10", -1}
 };
+*/
+
 
 std::vector<std::string> LevelLoader::level_order = {
 	"intro",

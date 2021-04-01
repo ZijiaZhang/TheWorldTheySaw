@@ -33,7 +33,7 @@ class LevelLoader {
     
     std::vector<json> levels;
 
-    static std::unordered_map<std::string, int> level_progression;
+    // static std::unordered_map<std::string, int> level_progression;
     static std::vector<std::string> level_order;
     static std::vector<std::string> existing_level;
     static std::unordered_map<std::string, COLLISION_HANDLER> physics_callbacks;
