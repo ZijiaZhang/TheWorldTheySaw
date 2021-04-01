@@ -10,7 +10,8 @@ uniform vec2 world_size;
 in vec2 texcoord;
 in vec2 world_pos;
 
-const float max_step = 255.0;
+const float max_step = 600.0;
+const float accuracy = 255;
 const float pi = radians(180);
 layout(location = 0) out vec4 color;
 
@@ -24,12 +25,14 @@ void main()
 	vec2 angle = normalize(vec2(cos(radian), sin(radian)));
 
 	float i = 1;
-	for(i=0; i< max_step; i++){
+	for(i=0; i< max_step; i+=3){
 		if(texture2D(screen_texture, (player_position * world_size + angle * i) / world_size).a > 0.5) break;
 	}
-	float l = (i-1)/ max_step;
+	i--;
 
-	color = vec4(l, 0.0,0.0,1.0);
+	float d2 = floor(i/ accuracy)/accuracy;
+	float d1 = mod(i, accuracy) / accuracy;
+	color = vec4(d2, d1,0.0,1.0);
 	if(length(angle) < 0.9){
 		color = vec4(1.0, 1.0, 1.0, 1.0);
 	}

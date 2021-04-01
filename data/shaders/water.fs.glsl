@@ -11,8 +11,9 @@ uniform vec2 world_size;
 
 in vec2 texcoord;
 
-const float max_step = 255.0;
+const float max_step = 1200.0;
 const float pi = radians(180);
+const float accuracy = 255;
 
 layout(location = 0) out vec4 color;
 
@@ -28,8 +29,9 @@ void main()
 	float distance = length(delta);
 	float index = floor(fract(radian / 2.0 / pi) * ray_count);
 	vec2 ray_loc = vec2(mod(index, texture_size)  + 0.5, floor((index + 0.5) / texture_size)) / texture_size;
-	float ray_len = texture(lighting_texture, ray_loc).x * float(max_step);
+	vec4 ray_data = texture(lighting_texture, ray_loc);
 
+	float ray_len = ray_data.x * accuracy * accuracy + ray_data.y* accuracy;
 	// vec4 auto = texture(lighting_texture, ray_loc);
 
 	if(ray_len >= distance){
