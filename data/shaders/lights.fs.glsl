@@ -27,7 +27,7 @@ void main()
 	float t = 0.0;
 	for(float i = 0.0; i< max_step; i+=3.0){
 		t = i;
-		if(texture2D(screen_texture, (player_position * world_size + angle * i) / world_size).a > 0.5) {
+		if(texture(screen_texture, (player_position * world_size + angle * i) / world_size).a > 0.5) {
 			break;
 		};
 	}
