@@ -12,8 +12,8 @@ uniform vec2 world_size;
 in vec2 texcoord;
 
 const float max_step = 1200.0;
-const float pi = radians(180);
-const float accuracy = 255;
+const float pi = radians(180.0);
+const float accuracy = 255.0;
 
 layout(location = 0) out vec4 color;
 

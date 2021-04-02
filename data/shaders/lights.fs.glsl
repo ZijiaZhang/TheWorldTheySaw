@@ -31,7 +31,7 @@ void main()
 			break;
 		};
 	}
-	gl_FragColor = vec4(floor(t/ accuracy)/accuracy, mod(t, accuracy) / accuracy,0.0,1.0);
+	color = vec4(floor(t/ accuracy)/accuracy, mod(t, accuracy) / accuracy,0.0,1.0);
 //	color = vec4(cos(radian), sin(radian), 0.0, 1.0);
 
 
