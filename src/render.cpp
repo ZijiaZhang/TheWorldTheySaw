@@ -221,13 +221,24 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 
 	// Set clock
-	GLuint time_uloc       = glGetUniformLocation(screen_sprite.effect.program, "time");
-	GLuint dead_timer_uloc = glGetUniformLocation(screen_sprite.effect.program, "darken_screen_factor");
-	glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
+    GLint in_player = glGetUniformLocation(screen_sprite.effect.program, "player_position");
+    GLint texture_size_loc = glGetUniformLocation(screen_sprite.effect.program, "texture_size");
+    GLint world_size_loc = glGetUniformLocation(screen_sprite.effect.program, "world_size");
+    gl_has_errors();
 	auto& screen = ECS::registry<ScreenState>.get(screen_state_entity);
-	glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
-	gl_has_errors();
-
+    gl_has_errors();
+    glUniform1f(texture_size_loc, light_frame_texture.size.x);
+    gl_has_errors();
+    vec2 world_size{w,h};
+    glUniform2fv(world_size_loc, 1, (float*)&world_size);
+    if(!ECS::registry<Soldier>.entities.empty() && ECS::registry<Soldier>.entities[0].has<Motion>() && ECS::registry<Camera>.has(screen.camera)) {
+        auto player_loc = ECS::registry<Soldier>.entities[0].get<Motion>().position;
+        auto &camera = ECS::registry<Camera>.get(screen.camera);
+        auto camera_loc = camera.get_position();
+        vec2 player_loccation{(player_loc.x - camera_loc.x) / w, (player_loc.y - camera_loc.y) / h};
+        glUniform2fv(in_player, 1, (float*)&player_loccation);
+    }
+    gl_has_errors();
 	// Set the vertex position and vertex texture coordinates (both stored in the same VBO)
 	GLint in_position_loc = glGetAttribLocation(screen_sprite.effect.program, "in_position");
 	glEnableVertexAttribArray(in_position_loc);
@@ -255,8 +266,6 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 }
 
-<<<<<<< HEAD
-=======
 
 // Draw the intermediate texture to the screen, with some distortion to simulate water
 void RenderSystem::drawLights()
@@ -294,19 +303,24 @@ void RenderSystem::drawLights()
     // Set clock
     GLuint time_uloc       = glGetUniformLocation(wall_screen_sprite.effect.program, "time");
     GLuint dead_timer_uloc = glGetUniformLocation(wall_screen_sprite.effect.program, "darken_screen_factor");
-    GLint in_player_x = glGetUniformLocation(wall_screen_sprite.effect.program, "player_position_x");
-    GLint in_player_y = glGetUniformLocation(wall_screen_sprite.effect.program, "player_position_y");
+    GLint in_player = glGetUniformLocation(wall_screen_sprite.effect.program, "player_position");
+    GLint texture_size_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "texture_size");
+    GLint world_size_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "world_size");
 
 
     glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
+    glUniform1f(texture_size_loc, light_frame_texture.size.x);
+
     auto& screen = ECS::registry<ScreenState>.get(screen_state_entity);
+    vec2 world_size{w,h};
+    glUniform2fv(world_size_loc, 1, (float*)&world_size);
     glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
     if(!ECS::registry<Soldier>.entities.empty() && ECS::registry<Soldier>.entities[0].has<Motion>() && ECS::registry<Camera>.has(screen.camera)) {
         auto player_loc = ECS::registry<Soldier>.entities[0].get<Motion>().position;
         auto &camera = ECS::registry<Camera>.get(screen.camera);
         auto camera_loc = camera.get_position();
-        glUniform1f(in_player_x, (player_loc.x - camera_loc.x) / w);
-        glUniform1f(in_player_y, (player_loc.y - camera_loc.y) / h);
+        vec2 player_loccation{(player_loc.x - camera_loc.x) / w, (player_loc.y - camera_loc.y) / h};
+        glUniform2fv(in_player, 1, (float *) &player_loccation);
     }
     gl_has_errors();
 
@@ -330,7 +344,6 @@ void RenderSystem::drawLights()
     gl_has_errors();
 }
 
->>>>>>> 0a66087 (Add variable resolution)
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw(vec2 window_size_in_game_units)
@@ -402,6 +415,8 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gl_has_errors();
 
+    glClearColor(1, 1, 1, 0);
+    gl_has_errors();
 
     // Draw all textured meshes that have a position and size component
     // Draw by the order of motion zValue, the smaller zValue, draw earlier

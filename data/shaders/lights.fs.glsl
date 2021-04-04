@@ -3,28 +3,37 @@
 uniform sampler2D screen_texture;
 uniform float time;
 uniform float darken_screen_factor;
-uniform float player_position_x;
-uniform float player_position_y;
+uniform vec2 player_position;
+uniform float texture_size;
+uniform vec2 world_size;
 
 in vec2 texcoord;
 in vec2 world_pos;
 
+const float max_step = 255.0;
+const float pi = radians(180);
 layout(location = 0) out vec4 color;
 
 void main()
 {
-	vec2 coord = texcoord;
+	vec2 coord = floor(texcoord * texture_size);
+	// float world_deg = world_size.y/ world_size.x;
+    float ray_count = texture_size * texture_size;
+	float ray_of_current_pixel = coord.x + coord.y * texture_size;
+	float radian = 2.0 * pi * ray_of_current_pixel/ray_count;
+	vec2 angle = normalize(vec2(cos(radian), sin(radian)));
 
-    vec4 in_color = texture(screen_texture, coord);
-	vec2 player_position = vec2(player_position_x, player_position_y);
-	vec2 direction = texcoord - player_position;
-	color = in_color;
-	for (int i =0; i< 100; i++){
-		vec4 color2 = texture(screen_texture,player_position + direction / 100.0 * float(i));
-		if (color2.x < 0.9) {
-			color = vec4(0, 0, 0,1);
-			break;
-		}
+	float i = 1;
+	for(i=0; i< max_step; i++){
+		if(texture2D(screen_texture, (player_position * world_size + angle * i) / world_size).a > 0.5) break;
 	}
+	float l = (i-1)/ max_step;
+
+	color = vec4(l, 0.0,0.0,1.0);
+	if(length(angle) < 0.9){
+		color = vec4(1.0, 1.0, 1.0, 1.0);
+	}
+//	color = vec4(cos(radian), sin(radian), 0.0, 1.0);
+
 
 }
