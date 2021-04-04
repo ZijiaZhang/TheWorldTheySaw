@@ -11,29 +11,25 @@
 #include "Explosion.hpp"
 #include "EnemyAi.hpp"
 
+std::string Enemy::ori_texture_path = "/enemy/cannon/alien.png";
+std::string Enemy::frozen_texture_path = "/enemy/frozen.jpeg";
+std::string Enemy::ori_shader_name = "textured";
+std::string Enemy::frozen_shader_name = "frozen";
+
 ECS::Entity Enemy::createEnemy(vec2 position,
                                COLLISION_HANDLER overlap,
                                COLLISION_HANDLER hit, int teamID, float health){
     auto entity = ECS::Entity();
 
 
-    std::string key = "enemy";
-    ShadedMesh& resource = cache_resource(key);
-    if (resource.mesh.vertices.size() == 0)
-    {
-        resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("/enemy/cannon/alien.png"), "textured");
-    }
-
-    // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-    ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+    Enemy::set_shader(entity);
 
     // Setting initial motion values
     Motion& motion = ECS::registry<Motion>.emplace(entity);
     motion.position = position;
     motion.angle = 0.f;
     motion.velocity = { 0.f, 0.f };
-    motion.scale = resource.mesh.original_size * 50.f;
+    motion.scale = entity.get<ShadedMeshRef>().reference_to_cache->mesh.original_size * 50.f;
     motion.scale.x *= -1; // point front to the right
     motion.zValue = ZValuesMap["Enemy"];
 
@@ -71,8 +67,35 @@ ECS::Entity Enemy::createEnemy(vec2 position,
 
 void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
     if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
-        EnemyAISystem::takeDamage(self, 1);
+        if (Bullet::bulletEffect[e.get<Bullet>().type]) {
+            Bullet::bulletEffect[e.get<Bullet>().type](e, self, 0.0);
+        }
+        EnemyAISystem::takeDamage(self, e.get<Bullet>().damage);
+
     } else if (e.has<Explosion>() && e.get<Explosion>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()){
         EnemyAISystem::takeDamage(self, 1);
     }
 };
+
+void Enemy::set_shader(ECS::Entity self, bool effect, std::string texture_path, std::string shader_name) {
+    if (ECS::registry<ShadedMeshRef>.has(self)) {
+        ECS::registry<ShadedMeshRef>.remove(self);
+    }
+    std::string key = effect ? "enemy" + std::to_string(self.id) : "enemy";
+    ShadedMesh& resource = cache_resource(key);
+    if (resource.mesh.vertices.size() == 0)
+    {
+        resource = ShadedMesh();
+        RenderSystem::createSprite(resource, textures_path(texture_path), shader_name);
+    }
+
+    ECS::registry<ShadedMeshRef>.emplace(self, resource);
+}
+
+void Enemy::set_frozen_shader(ECS::Entity self) {
+    set_shader(self, true, Enemy::frozen_texture_path);
+}
+
+void Enemy::set_activating_shader(ECS::Entity self) {
+    set_shader(self, true, Enemy::frozen_texture_path, Enemy::frozen_shader_name);
+}

@@ -49,7 +49,7 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
+                Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet");
             }
         }
 
@@ -75,7 +75,7 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
                     }
                     ECS::ContainerInterface::remove_all_components_of(e);
                 };
-                Bullet::createBullet(motion.position, rad, {150, 0},  0, "rocket", 2000,
+                Bullet::createBullet(motion.position, rad, {150, 0},  0, W_ROCKET, "rocket", 2000,
                                      callback);
             }
         }
@@ -96,7 +96,7 @@ void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) 
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
+                Bullet::createBullet(motion.position, rad, {400, 0}, 0, W_LASER, "laser");
             }
         }
 
@@ -116,7 +116,7 @@ void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
+                Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo");
             }
         }
 

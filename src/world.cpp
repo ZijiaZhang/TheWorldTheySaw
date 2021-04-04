@@ -282,6 +282,16 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             prev_pl_pos = pl;
         }
 	}
+
+	// flash the frozen enemies when there is 1000ms left.
+	auto frozenEnemies = ECS::registry<FrozenTimer>.entities;
+	for (auto e: frozenEnemies) {
+	    auto executing_ms = ECS::registry<FrozenTimer>.get(e).executing_ms;
+	    if (executing_ms < 1000.f && !ECS::registry<Activating>.has(e)) {
+            ECS::registry<Activating>.emplace(e);
+            Enemy::set_activating_shader(e);
+	    }
+	}
 }
 
 // Reset the world state to its initial state
@@ -448,7 +458,24 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                                FIREBALL);
         }
     }
-  
+
+    if(key == GLFW_KEY_A && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_LASER);
+        printf("weapon leaser\n");
+    }
+    if(key == GLFW_KEY_S && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_AMMO);
+        printf("weapon ammo\n");
+    }
+    if(key == GLFW_KEY_D && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_ROCKET);
+        printf("weapon rocket\n");
+    }
+    if(key == GLFW_KEY_F && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_BULLET);
+        printf("weapon bullet\n");
+    }
+
     if (!aiControl) {
         // Move soldier if alive
         if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
