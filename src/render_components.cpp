@@ -50,7 +50,7 @@ template<> GLResource<PROGRAM>::~GLResource() noexcept {
 		glDeleteProgram(resource);
 }
 template<> GLResource<SHADER>::~GLResource() noexcept {
-	if (resource > 0)
+	if (resource > 0) 
 		glDeleteShader(resource);
 }
 

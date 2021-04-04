@@ -9,6 +9,9 @@
 
 #include <iostream>
 #include <sstream>
+#include <soldier.hpp>
+#include <Wall.hpp>
+#include <MoveableWall.hpp>
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 {
@@ -247,11 +250,13 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
 	glEnableVertexAttribArray(in_texcoord_loc);
 	glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // note the stride to skip the preceeding vertex position
 	gl_has_errors();
-
+     
     GLint normal_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "screen_texture");
     GLint ui_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "ui_texture");
+    GLint light_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "lighting_texture");
     glUniform1i(normal_texture_loc, 0);
     glUniform1i(ui_texture_loc,  1);
+    glUniform1i(light_texture_loc, 2);
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
@@ -259,13 +264,15 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, ui_texture.texture_id);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, light_frame_texture.texture_id);
 
 	// Draw
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr); // two triangles = 6 vertices; nullptr indicates that there is no offset from the bound index buffer
 	glBindVertexArray(0);
 	gl_has_errors();
 }
-
+ 
 
 // Draw the intermediate texture to the screen, with some distortion to simulate water
 void RenderSystem::drawLights(vec2 window_size_in_game_units)
@@ -429,6 +436,44 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     for (ECS::Entity entity : entities)
     {
         if (!ECS::registry<Motion>.has(entity))
+            continue;
+        // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
+        drawTexturedMesh(entity, projection_2D);
+        gl_has_errors();
+    }
+
+
+    glBindFramebuffer(GL_FRAMEBUFFER, wall_frame_buffer);
+    gl_has_errors();
+    // Clearing backbuffer
+    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    gl_has_errors();
+    glDepthRange(0.00001, 10);
+    gl_has_errors();
+
+    glClearColor(1, 1, 1, 1.0);
+    glClearColor(1, 1, 1, 0);
+    gl_has_errors();
+
+    glClearDepth(1.f); 
+    gl_has_errors();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
+    // Draw all textured meshes that have a position and size component
+    // Draw by the order of motion zValue, the smaller zValue, draw earlier
+    auto wall_entities = ECS::registry<Wall>.entities;
+    for (ECS::Entity entity : wall_entities)
+    {
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity))
+            continue;
+        // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
+        drawTexturedMesh(entity, projection_2D);
+        gl_has_errors();
+    }
+    auto moveable_wall_entities = ECS::registry<MoveableWall>.entities;
+    for (ECS::Entity entity : moveable_wall_entities)
+    {
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity))
             continue;
         // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
         drawTexturedMesh(entity, projection_2D);

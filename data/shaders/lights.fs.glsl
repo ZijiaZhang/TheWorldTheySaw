@@ -25,7 +25,7 @@ void main()
 	vec2 angle = normalize(vec2(cos(radian), sin(radian)));
 
 	float t = 0.0;
-	for(float i = 0.0; i< max_step; i+=3.0){
+	for(float i = 0.0; i< max_step; i+=1.0){
 		t = i;
         vec2 texture_loc = (player_position * world_size + angle * i) / world_size;
 		if(texture_loc.x > 1.0 || texture_loc.x < 0.0 ||
@@ -34,7 +34,7 @@ void main()
 		};
 	}
 	color = vec4(floor(t/ accuracy)/accuracy, mod(t, accuracy) / accuracy,0.0,1.0);
-//	color = vec4(cos(radian), sin(radian), 0.0, 1.0);
+	// color = vec4(cos(radian), sin(radian), 0.0, 1.0);
 
 
 }

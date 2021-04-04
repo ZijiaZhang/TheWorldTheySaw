@@ -19,6 +19,11 @@ layout(location = 0) out vec4 color;
 
 void main()
 {
+	vec4 ui_color = texture(ui_texture, texcoord);
+	if(ui_color.a > 0.5){
+		color = ui_color;
+		return;
+	}
 	vec2 coord = floor(texcoord * world_size);
 	float ray_count = texture_size * texture_size;
 
@@ -39,10 +44,6 @@ void main()
 	} else {
 		color = vec4(0.2,0.2,0.2,1.0) * in_color;
 	}
-	//color = vec4(cos(radian), sin(radian), 0.0, 1.0);
-	//color = texture(lighting_texture, texcoord);
-//	if(light_color.x < 0.5){
-//		color *= 0.2;
-//	}
+
 
 }

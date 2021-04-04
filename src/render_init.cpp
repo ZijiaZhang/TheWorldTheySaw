@@ -50,6 +50,10 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     RenderSystem::createColoredMesh(health_bar_background, "salmon");
 
     // Initialize the screen texture and its state
+     glGenFramebuffers(1, &wall_frame_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, wall_frame_buffer);
+    createSprite(wall_screen_sprite, "", "lights");
+
     wall_screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
 
     create_light_texture(512);
@@ -59,6 +63,7 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 void RenderSystem::create_light_texture(float quality){
     glGenFramebuffers(1, &light_frame_buffer);
     glBindFramebuffer(GL_FRAMEBUFFER, light_frame_buffer);
+    light_frame_texture.create_from_screen(&window, depth_render_buffer_id.data());
 
     glGenTextures(1, light_frame_texture.texture_id.data());
     glBindTexture(GL_TEXTURE_2D, light_frame_texture.texture_id);

@@ -65,9 +65,15 @@ private:
 	// Screen texture handles
 	GLuint frame_buffer;
 	GLuint ui_buffer;
+	GLuint light_frame_buffer;
+	GLuint wall_frame_buffer;
+
 	ShadedMesh screen_sprite;
 	ShadedMesh health_bar;
 	ShadedMesh health_bar_background;
+	ShadedMesh wall_screen_sprite;
+
+	Texture light_frame_texture;
 	Texture ui_texture;
 
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;
