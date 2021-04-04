@@ -33,7 +33,7 @@ void main()
 	float radian = atan(delta.y , delta.x);
 	float distance = length(delta);
 	float index = floor(fract(radian / 2.0 / pi) * ray_count);
-	vec2 ray_loc = vec2(mod(index, texture_size)  + 0.5, floor((index + 0.5) / texture_size)) / texture_size;
+	vec2 ray_loc = vec2(mod(index, texture_size)  + 0.5, floor((index) / texture_size)  + 0.5) / texture_size;
 	vec4 ray_data = texture(lighting_texture, ray_loc);
 
 	float ray_len = ray_data.x * accuracy * accuracy + ray_data.y* accuracy;

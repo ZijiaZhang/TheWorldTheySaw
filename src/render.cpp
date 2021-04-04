@@ -455,7 +455,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     glClearColor(1, 1, 1, 0);
     gl_has_errors();
 
-    glClearDepth(1.f); 
+    glClearDepth(1.f);  
     gl_has_errors();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gl_has_errors();
