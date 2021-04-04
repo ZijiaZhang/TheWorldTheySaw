@@ -14,7 +14,8 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 
 	// Load OpenGL function pointers
 	gl3w_init();
-
+    if(renderSystem)
+        throw std::runtime_error("Should not create second RenderSystem");
 	// Create a frame buffer
 	frame_buffer = 0;
 	ui_buffer = 0;
@@ -48,7 +49,19 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     health_bar_background.texture.color = vec3{0.1,0.1,0.1};
     RenderSystem::createColoredMesh(health_bar_background, "salmon");
 
+<<<<<<< HEAD
 
+=======
+    create_light_texture(0.2);
+    renderSystem = this;
+}
+
+void RenderSystem::create_light_texture(float quality){
+    glGenFramebuffers(1, &light_frame_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, light_frame_buffer);
+    light_frame_texture.create_from_screen(&window, depth_render_buffer_id.data(),
+                                           quality);
+>>>>>>> 0a66087 (Add variable resolution)
 }
 
 RenderSystem::~RenderSystem()
@@ -188,3 +201,5 @@ void RenderSystem::initScreenTexture()
 
 
 }
+
+RenderSystem* RenderSystem::renderSystem = nullptr;

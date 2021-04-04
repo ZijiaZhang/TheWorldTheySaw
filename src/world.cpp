@@ -477,7 +477,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     }
 
-
+    if (key == GLFW_KEY_H && action == GLFW_PRESS) {
+        if(RenderSystem::renderSystem)
+            RenderSystem::renderSystem->create_light_texture(1);
+    }
+    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+        if(RenderSystem::renderSystem)
+            RenderSystem::renderSystem->create_light_texture(0.2);
+    }
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)

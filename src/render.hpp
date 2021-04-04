@@ -45,7 +45,8 @@ public:
 	static void createSprite(ShadedMesh& mesh_container, std::string texture_path, std::string shader_name);
 	static void createColoredMesh(ShadedMesh& mesh_container, std::string shader_name);
     static void createSpriteAnimation(ShadedMesh &sprite, std::string texture_path, int number_of_frames);
-
+    static RenderSystem* renderSystem;
+    void create_light_texture(float quality);
 private:
 	// Initialize the screeen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the water shader
@@ -77,5 +78,13 @@ private:
 
     static const std::string build_anim_vertex_shader(int frames);
 
+<<<<<<< HEAD
     void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) const;
+=======
+    void drawLights();
+
+
+
+
+>>>>>>> 0a66087 (Add variable resolution)
 };

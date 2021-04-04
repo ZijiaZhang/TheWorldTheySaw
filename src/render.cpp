@@ -255,6 +255,82 @@ void RenderSystem::drawToScreen()
 	gl_has_errors();
 }
 
+<<<<<<< HEAD
+=======
+
+// Draw the intermediate texture to the screen, with some distortion to simulate water
+void RenderSystem::drawLights()
+{
+    // Setting shaders
+    glUseProgram(wall_screen_sprite.effect.program);
+    glBindVertexArray(wall_screen_sprite.mesh.vao);
+    gl_has_errors();
+
+    // Clearing backbuffer
+    int w, h;
+    glfwGetFramebufferSize(&window, &w, &h);
+//    w = light_frame_texture.size.x;
+//    h = light_frame_texture.size.y;
+//    //printf("w: %d\n", w);
+    glBindFramebuffer(GL_FRAMEBUFFER, light_frame_buffer);
+    glViewport(0, 0, light_frame_texture.size.x, light_frame_texture.size.y);
+    glDepthRange(0, 10);
+    glClearColor(1.f, 0, 0, 1.0);
+    glClearDepth(1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
+
+    // Disable alpha channel for mapping the screen texture onto the real screen
+    glDisable(GL_BLEND); // we have a single texture without transparency. Areas with alpha <1 cab arise around the texture transparency boundary, enabling blending would make them visible.
+    glDisable(GL_DEPTH_TEST);
+
+    glBindBuffer(GL_ARRAY_BUFFER, wall_screen_sprite.mesh.vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, wall_screen_sprite.mesh.ibo); // Note, GL_ELEMENT_ARRAY_BUFFER associates indices to the bound GL_ARRAY_BUFFER
+    gl_has_errors();
+
+    // Draw the screen texture on the quad geometry
+    gl_has_errors();
+
+    // Set clock
+    GLuint time_uloc       = glGetUniformLocation(wall_screen_sprite.effect.program, "time");
+    GLuint dead_timer_uloc = glGetUniformLocation(wall_screen_sprite.effect.program, "darken_screen_factor");
+    GLint in_player_x = glGetUniformLocation(wall_screen_sprite.effect.program, "player_position_x");
+    GLint in_player_y = glGetUniformLocation(wall_screen_sprite.effect.program, "player_position_y");
+
+
+    glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
+    auto& screen = ECS::registry<ScreenState>.get(screen_state_entity);
+    glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
+    if(!ECS::registry<Soldier>.entities.empty() && ECS::registry<Soldier>.entities[0].has<Motion>() && ECS::registry<Camera>.has(screen.camera)) {
+        auto player_loc = ECS::registry<Soldier>.entities[0].get<Motion>().position;
+        auto &camera = ECS::registry<Camera>.get(screen.camera);
+        auto camera_loc = camera.get_position();
+        glUniform1f(in_player_x, (player_loc.x - camera_loc.x) / w);
+        glUniform1f(in_player_y, (player_loc.y - camera_loc.y) / h);
+    }
+    gl_has_errors();
+
+    // Set the vertex position and vertex texture coordinates (both stored in the same VBO)
+    GLint in_position_loc = glGetAttribLocation(wall_screen_sprite.effect.program, "in_position");
+    glEnableVertexAttribArray(in_position_loc);
+    glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)0);
+    GLint in_texcoord_loc = glGetAttribLocation(wall_screen_sprite.effect.program, "in_texcoord");
+    glEnableVertexAttribArray(in_texcoord_loc);
+    glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void*)sizeof(vec3)); // note the stride to skip the preceeding vertex position
+
+    gl_has_errors();
+
+    // Bind our texture in Texture Unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, wall_screen_sprite.texture.texture_id);
+
+    // Draw
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr); // two triangles = 6 vertices; nullptr indicates that there is no offset from the bound index buffer
+    glBindVertexArray(0);
+    gl_has_errors();
+}
+
+>>>>>>> 0a66087 (Add variable resolution)
 // Render our game world
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
 void RenderSystem::draw(vec2 window_size_in_game_units)
