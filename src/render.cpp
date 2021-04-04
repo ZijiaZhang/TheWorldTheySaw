@@ -191,7 +191,7 @@ void RenderSystem::drawTexturedMesh(const mat3 &projection, Motion &motion, cons
 }
 
 // Draw the intermediate texture to the screen, with some distortion to simulate water
-void RenderSystem::drawToScreen() 
+void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
 {
 	// Setting shaders
 	glUseProgram(screen_sprite.effect.program);
@@ -235,7 +235,7 @@ void RenderSystem::drawToScreen()
         auto player_loc = ECS::registry<Soldier>.entities[0].get<Motion>().position;
         auto &camera = ECS::registry<Camera>.get(screen.camera);
         auto camera_loc = camera.get_position();
-        vec2 player_loccation{(player_loc.x - camera_loc.x) / w, (player_loc.y - camera_loc.y) / h};
+        vec2 player_loccation{(player_loc.x - camera_loc.x) /window_size_in_game_units.x, (player_loc.y - camera_loc.y) / window_size_in_game_units.y};
         glUniform2fv(in_player, 1, (float*)&player_loccation);
     }
     gl_has_errors();
@@ -268,7 +268,7 @@ void RenderSystem::drawToScreen()
 
 
 // Draw the intermediate texture to the screen, with some distortion to simulate water
-void RenderSystem::drawLights()
+void RenderSystem::drawLights(vec2 window_size_in_game_units)
 {
     // Setting shaders
     glUseProgram(wall_screen_sprite.effect.program);
@@ -319,7 +319,7 @@ void RenderSystem::drawLights()
         auto player_loc = ECS::registry<Soldier>.entities[0].get<Motion>().position;
         auto &camera = ECS::registry<Camera>.get(screen.camera);
         auto camera_loc = camera.get_position();
-        vec2 player_loccation{(player_loc.x - camera_loc.x) / w, (player_loc.y - camera_loc.y) / h};
+        vec2 player_loccation{(player_loc.x - camera_loc.x) / window_size_in_game_units.x, (player_loc.y - camera_loc.y) / window_size_in_game_units.y};
         glUniform2fv(in_player, 1, (float *) &player_loccation);
     }
     gl_has_errors();
@@ -436,11 +436,15 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     }
 
 
-    // Truely render to the screen
-    drawToScreen();
+	// Truely render to the screen
+    drawLights(window_size_in_game_units);
 
-    // flicker-free display with a double buffer
-    glfwSwapBuffers(&window);
+    glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+    gl_has_errors();
+	drawToScreen(window_size_in_game_units);
+    glfwSwapInterval( 0 );
+	// flicker-free display with a double buffer
+	glfwSwapBuffers(&window);
 }
 
 const std::string RenderSystem::build_anim_vertex_shader(int frames) {

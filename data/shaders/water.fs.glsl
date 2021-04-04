@@ -11,7 +11,7 @@ uniform vec2 world_size;
 
 in vec2 texcoord;
 
-const float max_step = 1200.0;
+const float max_step = 255.0 * 255.0;
 const float pi = radians(180.0);
 const float accuracy = 255.0;
 
@@ -39,7 +39,7 @@ void main()
 	} else {
 		color = vec4(0.2,0.2,0.2,1.0) * in_color;
 	}
-//	color = vec4(cos(radian), sin(radian), 0.0, 1.0);
+	//color = vec4(cos(radian), sin(radian), 0.0, 1.0);
 	//color = texture(lighting_texture, texcoord);
 //	if(light_color.x < 0.5){
 //		color *= 0.2;

@@ -57,7 +57,7 @@ private:
     void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
     void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
 
-    void drawToScreen();
+	void drawToScreen(vec2 window_size_in_game_units);
 
 	// Window handle
 	GLFWwindow& window;
@@ -78,13 +78,10 @@ private:
 
     static const std::string build_anim_vertex_shader(int frames);
 
-<<<<<<< HEAD
-    void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) const;
-=======
-    void drawLights();
+    void drawLights(vec2 window_size_in_game_units);
+	void drawTexturedMesh(const mat3& projection, Motion& motion, const ShadedMesh& texmesh) const;
 
 
 
 
->>>>>>> 0a66087 (Add variable resolution)
 };

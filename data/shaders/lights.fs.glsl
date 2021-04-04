@@ -10,7 +10,7 @@ uniform vec2 world_size;
 in vec2 texcoord;
 in vec2 world_pos;
 
-const float max_step = 600.0;
+const float max_step = 255.0 * 255.0;
 const float accuracy = 255.0;
 const float pi = radians(180.0);
 layout(location = 0) out vec4 color;
@@ -27,7 +27,9 @@ void main()
 	float t = 0.0;
 	for(float i = 0.0; i< max_step; i+=3.0){
 		t = i;
-		if(texture(screen_texture, (player_position * world_size + angle * i) / world_size).a > 0.5) {
+        vec2 texture_loc = (player_position * world_size + angle * i) / world_size;
+		if(texture_loc.x > 1.0 || texture_loc.x < 0.0 ||
+           texture_loc.y > 1.0 || texture_loc.y < 0.0 || texture(screen_texture, texture_loc).a > 0.5) {
 			break;
 		};
 	}

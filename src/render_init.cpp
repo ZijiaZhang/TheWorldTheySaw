@@ -52,7 +52,7 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     // Initialize the screen texture and its state
     wall_screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
 
-    create_light_texture(200);
+    create_light_texture(512);
     renderSystem = this;
 }
 
