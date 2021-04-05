@@ -2,6 +2,7 @@
 #include "shield.hpp"
 #include "render.hpp"
 #include "PhysicsObject.hpp"
+#include "Bullet.hpp"
 
 ECS::Entity Shield::createShield(vec2 position,  int teamID)
 {
@@ -31,9 +32,34 @@ ECS::Entity Shield::createShield(vec2 position,  int teamID)
 
     auto& physics = entity.emplace<PhysicsObject>();
     physics.object_type = SHIELD;
+    physics.vertex = {
+        {
+                PhysicsVertex{{-0.4, 0.2, -0.02}},
+                PhysicsVertex{{0.3, 0.3, -0.02}},
+                PhysicsVertex{{0.3, -0.3, -0.02}},
+                PhysicsVertex{{-0.2, -0.2, -0.02}}
+            }
+    };
+    physics.faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
+    physics.attach(Overlap, Shield::shield_bullet_hit_death);
+    physics.attach(Hit, Shield::shield_bullet_hit_death);
 
 	// Create and (empty) Fish component to be able to refer to all fish
 	auto& shield = ECS::registry<Shield>.emplace(entity);
     shield.teamID = teamID;
+
+    auto& health = ECS::registry<Health>.emplace(entity);
+    health.hp = 20;
+    health.max_hp = 20;
+
 	return entity;
 }
+
+void Shield::shield_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+    if (e.has<Bullet>() && (e.get<Bullet>().teamID != self.get<Shield>().teamID) && !self.has<DeathTimer>()) {
+        auto& health = self.get<Health>();
+        health.hp--;
+        if (health.hp <= 0)
+            self.emplace<DeathTimer>();
+    }
+};
