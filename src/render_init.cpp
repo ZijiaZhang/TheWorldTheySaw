@@ -28,7 +28,7 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     ui_texture.create_from_screen(&window, depth_render_buffer_id.data());
 
 
-    health_bar = ShadedMesh();
+    health_bar = ShadedMesh(); 
     health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
     health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
     health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
@@ -56,7 +56,7 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 
     wall_screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
 
-    create_light_texture(512);
+    create_light_texture(32);
     renderSystem = this;
 }
 
@@ -92,6 +92,14 @@ void RenderSystem::create_light_texture(float quality){
         throw std::runtime_error("glCheckFramebufferStatus(GL_FRAMEBUFFER)");
 
     gl_has_errors();
+
+}
+
+void RenderSystem::recreate_light_texture(float quality) {
+    glDeleteTextures(1, light_frame_texture.texture_id.data());
+    glDeleteFramebuffers(1, &light_frame_buffer);
+    create_light_texture(quality);
+
 
 }
 

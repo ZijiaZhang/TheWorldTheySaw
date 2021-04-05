@@ -496,7 +496,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-		ECS::ContainerInterface::remove_all_components_of(player_soldier.get<Soldier>().weapon);
+		restart("settings"); 
 	}
 
 	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {

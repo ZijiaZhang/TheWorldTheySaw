@@ -47,6 +47,7 @@ public:
     static void createSpriteAnimation(ShadedMesh &sprite, std::string texture_path, int number_of_frames);
     static RenderSystem* renderSystem;
     void create_light_texture(float quality);
+	void recreate_light_texture(float quality);
 private:
 	// Initialize the screeen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the water shader
