@@ -83,7 +83,7 @@ struct Texture
 	// Loads texture from file specified by path
 	void load_from_file(std::string path);
 	bool is_valid() const; // True if texture is valid
-	void create_from_screen(GLFWwindow const * const window, GLuint* depth_render_buffer_id); // Screen texture
+	void create_from_screen(GLFWwindow const * const window, GLuint* depth_render_buffer_id, float resolution_scale = 1); // Screen texture
 
 	std::unordered_map<std::string, stbi_uc*> texture_cache;
 };

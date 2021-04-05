@@ -45,7 +45,9 @@ public:
 	static void createSprite(ShadedMesh& mesh_container, std::string texture_path, std::string shader_name);
 	static void createColoredMesh(ShadedMesh& mesh_container, std::string shader_name);
     static void createSpriteAnimation(ShadedMesh &sprite, std::string texture_path, int number_of_frames);
-
+    static RenderSystem* renderSystem;
+    void create_light_texture(float quality);
+	void recreate_light_texture(float quality);
 private:
 	// Initialize the screeen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the water shader
@@ -56,7 +58,7 @@ private:
     void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
     void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
 
-    void drawToScreen();
+	void drawToScreen(vec2 window_size_in_game_units);
 
 	// Window handle
 	GLFWwindow& window;
@@ -64,9 +66,15 @@ private:
 	// Screen texture handles
 	GLuint frame_buffer;
 	GLuint ui_buffer;
+	GLuint light_frame_buffer;
+	GLuint wall_frame_buffer;
+
 	ShadedMesh screen_sprite;
 	ShadedMesh health_bar;
 	ShadedMesh health_bar_background;
+	ShadedMesh wall_screen_sprite;
+
+	Texture light_frame_texture;
 	Texture ui_texture;
 
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;
@@ -77,5 +85,10 @@ private:
 
     static const std::string build_anim_vertex_shader(int frames);
 
-    void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) const;
+    void drawLights(vec2 window_size_in_game_units);
+	void drawTexturedMesh(const mat3& projection, Motion& motion, const ShadedMesh& texmesh) const;
+
+
+
+
 };

@@ -50,7 +50,7 @@ template<> GLResource<PROGRAM>::~GLResource() noexcept {
 		glDeleteProgram(resource);
 }
 template<> GLResource<SHADER>::~GLResource() noexcept {
-	if (resource > 0)
+	if (resource > 0) 
 		glDeleteShader(resource);
 }
 
@@ -76,12 +76,14 @@ void Texture::load_from_file(std::string path)
 }
 
 // http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-void Texture::create_from_screen(GLFWwindow const* window, GLuint* depth_render_buffer_id) {
+void Texture::create_from_screen(GLFWwindow const* window, GLuint* depth_render_buffer_id, float resolution_scale) {
 	glGenTextures(1, texture_id.data());
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 
 	glfwGetFramebufferSize(const_cast<GLFWwindow*>(window), &size.x, &size.y);
-
+    size.x = int(size.x * resolution_scale);
+    size.y = int(size.y * resolution_scale);
+    //printf("%d, %d \n", x, y);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

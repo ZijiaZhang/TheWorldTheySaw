@@ -89,7 +89,7 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
     for (auto& vertex: vertexes){
         vertex.position.x /= max_r_x / 0.5f;
         vertex.position.y /= max_r_y / 0.5f;
-        printf("%f,%f\n", vertex.position.x,vertex.position .y);
+        // printf("%f,%f\n", vertex.position.x,vertex.position .y);
     }
 
     Global_Meshes::meshes.push_back(ShadedMesh{});

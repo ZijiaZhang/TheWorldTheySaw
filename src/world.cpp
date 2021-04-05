@@ -271,17 +271,18 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	runTimer(elapsed_ms);
 	checkEndGame();
-
-	vec2 pl = ECS::registry<Motion>.get(player_soldier).position;
-	for (auto e : ECS::registry<Background>.entities) {
-	    auto c = ECS::registry<Background>.get(e);
-	    auto& bg_m = ECS::registry<Motion>.get(e);
-	    float depth = c.depth;
-	    if (depth != 0.f) {
-            bg_m.position += (pl - prev_pl_pos) / depth;
-            prev_pl_pos = pl;
+    if(player_soldier.has<Motion>()) {
+        vec2 pl = ECS::registry<Motion>.get(player_soldier).position;
+        for (auto e : ECS::registry<Background>.entities) {
+            auto c = ECS::registry<Background>.get(e);
+            auto &bg_m = ECS::registry<Motion>.get(e);
+            float depth = c.depth;
+            if (depth != 0.f) {
+                bg_m.position += (pl - prev_pl_pos) / depth;
+                prev_pl_pos = pl;
+            }
         }
-	}
+    }
 }
 
 // Reset the world state to its initial state
@@ -478,7 +479,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     }
 
-
+    if (key == GLFW_KEY_H && action == GLFW_PRESS) {
+        if(RenderSystem::renderSystem)
+            RenderSystem::renderSystem->create_light_texture(1);
+    }
+    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+        if(RenderSystem::renderSystem)
+            RenderSystem::renderSystem->create_light_texture(0.2);
+    }
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
@@ -489,13 +497,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	}
 
 	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-		ECS::ContainerInterface::remove_all_components_of(player_soldier.get<Soldier>().weapon);
+		restart("settings"); 
 	}
 
 	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
 		// level_loader.set_level("level_2");
 		// level_loader.at_level = "level_2";
-        ECS::ContainerInterface::remove_all_components_of(player_soldier);
+        restart("level_1");
+        //ECS::ContainerInterface::remove_all_components_of(player_soldier);
 
     }
 	if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
