@@ -23,9 +23,9 @@ class LevelLoader {
     public:
         int get_level_state(std::string level);
         bool is_level_unlocked(std::string level);
-        bool is_level_cleared(std::string level);
         std::string get_next_level_name(std::string level);
         void update_level_state(std::string level, int state);
+        // void set_level_value(std::string level, int value);
         void set_level(std::string level);
         void load_level();
     
