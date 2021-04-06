@@ -172,9 +172,9 @@ CollisionResult PhysicsSystem::collision(ECS::Entity e1, ECS::Entity e2) {
 
 
 
-void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
+void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units, float multiplier)
 {
-    float step_seconds = 1.0f * (elapsed_ms / 1000.f);
+    float step_seconds = multiplier * (elapsed_ms / 1000.f);
     for(auto& entity: ECS::registry<AIPath>.entities){
         if(entity.has<Motion>()){
 

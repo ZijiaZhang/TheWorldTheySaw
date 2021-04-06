@@ -79,7 +79,7 @@ int main()
         auto world_time = Clock::now();
         if(DebugSystem::in_profile_mode)
             printf("World: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(world_time - ai_time)).count()) / 1000.f);
-		physics.step(elapsed_ms, window_size_in_game_units);
+		physics.step(elapsed_ms, window_size_in_game_units, WorldSystem::game_world_speed);
         auto physics_time = Clock::now();
         if(DebugSystem::in_profile_mode)
             printf("Physics: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(physics_time - world_time)).count()) / 1000.f);
