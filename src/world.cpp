@@ -446,7 +446,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
   
 	double soldier_speed = 200;
   
-    if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
+    if(key == GLFW_KEY_Q && action == GLFW_PRESS && !pause && GameInstance::isPlayableLevel()) {
         if(player_soldier.has<Soldier>()) {
             MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
                                                player_soldier.get<Motion>().angle,
@@ -538,6 +538,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel()) {
 		pause = !pause;
 	}
+
+	if (key == GLFW_KEY_C && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
+		SHIELDUP = true;
+	}
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
@@ -560,7 +564,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
         DRAWING = false;
         if (checkCircle(player_soldier))
         {
-            SHIELDUP = true;
+            // SHIELDUP = true;
         }
     }
 
