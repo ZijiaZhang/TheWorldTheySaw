@@ -40,7 +40,7 @@ public:
         self.get<Bullet>().on_destroy(self);
     };
     int teamID = 0;
-    int velocity_indicator = 0;
+    std::string bullet_indicator = "";
     std::function<void(ECS::Entity)> on_destroy = [](ECS::Entity e){
         if(!e.has<DeathTimer>())
         {

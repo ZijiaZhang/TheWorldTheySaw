@@ -71,21 +71,21 @@ ECS::Entity Enemy::createEnemy(vec2 position,
 
 void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
     if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
-        auto bullet_indicator = e.get<Bullet>().velocity_indicator;
+        auto bullet_type = e.get<Bullet>().bullet_indicator;
         // bullet
-        if (bullet_indicator == 380) {
+        if (bullet_type == "bullet") {
             EnemyAISystem::takeDamage(self, 0.4);
         }
         // rocket
-        else if (bullet_indicator == 150) {
+        else if (bullet_type == "rocket") {
             EnemyAISystem::takeDamage(self, 0.7);
         }
         // laser
-        else if (bullet_indicator == 400) {
+        else if (bullet_type == "laser") {
             EnemyAISystem::takeDamage(self, 0.3);
         }
         // ammo
-        else if (bullet_indicator == 200) {
+        else {
             EnemyAISystem::takeDamage(self, 0.6);
         }
         // EnemyAISystem::takeDamage(self, 1);
