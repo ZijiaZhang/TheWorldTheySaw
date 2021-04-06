@@ -450,6 +450,11 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                                FIREBALL);
         }
     }
+	if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+		if (player_soldier.has<Soldier>()) {
+			Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, { 380, 0 }, 0, "bullet");
+		}
+	}
   
     if (!aiControl) {
         // Move soldier if alive

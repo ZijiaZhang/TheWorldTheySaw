@@ -29,6 +29,7 @@ public:
 		Collision(ECS::Entity other);
 	};
 
+    static std::unordered_map<std::string, std::pair<std::vector<std::vector<std::pair<int, int>>>, std::vector<int>>> decomposed_non_convex;
 
 	// Get world velocity from local velocity. Only rotation applied
     static vec2 get_world_velocity(const Motion &motion) ;

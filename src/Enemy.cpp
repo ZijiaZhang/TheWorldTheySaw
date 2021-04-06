@@ -51,6 +51,8 @@ ECS::Entity Enemy::createEnemy(vec2 position,
                     PhysicsVertex{{0, 0, -0.02}},
             }
     };
+    physicsObject.non_convex = true;
+    physicsObject.decompose_key = "enemy_basic";
     physicsObject.faces = {{0,1}, {1,2 },{2,3 },{3,4 }, {4,5 }, {5,0}};
     physicsObject.attach(Overlap, std::move(overlap));
     physicsObject.attach(Hit, std::move(hit));
