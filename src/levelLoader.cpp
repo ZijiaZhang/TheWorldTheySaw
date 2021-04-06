@@ -300,12 +300,16 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 				motion.position.y -= delta;
 				other_motion.position.y -= delta;
 			}
-			GameInstance::light_quality = floor((motion.position.x - x_min) / (x_max - x_min) * (val_max - val_min) + val_min);
-			RenderSystem::renderSystem ->recreate_light_texture(2 * GameInstance::light_quality);
-			printf("light_quality: %f\n", GameInstance::light_quality);
+			float quality = floor((motion.position.x - x_min) / (x_max - x_min) * (val_max - val_min) + val_min);
+			if (GameInstance::light_quality != quality){
+				GameInstance::light_quality = quality;
+				RenderSystem::renderSystem->recreate_light_texture(2 * GameInstance::light_quality);
+				printf("light_quality: %f\n", GameInstance::light_quality);
+			}
 		}
 		});
 	e.get<PhysicsObject>().mass = 100.f;
+	e.get<Motion>().position.x = (GameInstance::light_quality - val_min) / (val_max - val_min) * (x_max-x_min) + x_min;
 	}},
 	{"title", [](vec2 location, vec2 , float ,
 					  COLLISION_HANDLER,
