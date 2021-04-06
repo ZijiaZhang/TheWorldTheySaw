@@ -59,7 +59,7 @@ void AISystem::enemy_ai_step(ECS::Entity enemy, float elapsed_ms, vec2 dest) {
     auto path = find_path_to_location(enemy, dest, 100.f);
     // printf("D: %d\n", path.path.size());
     enemy_ai_data.path = std::move(path);
-    enemy_ai_data.progress = 0;
+    enemy_ai_data.progress = 1;
 }
 
 vec2 AISystem::get_grid_location(std::pair<int, int> grid) {

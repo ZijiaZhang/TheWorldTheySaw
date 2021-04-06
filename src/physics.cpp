@@ -187,7 +187,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                 continue;
             }
             while(aiPath.progress < aiPath.path.path.size() &&
-            length(AISystem::get_grid_location(aiPath.path.path[aiPath.progress]) - motion.position) < AISystem::GRID_SIZE){
+            length(AISystem::get_grid_location(aiPath.path.path[aiPath.progress]) - motion.position) < AISystem::GRID_SIZE * 0.5){
                 aiPath.progress++;
             }
             if (aiPath.progress < aiPath.path.path.size()) {
