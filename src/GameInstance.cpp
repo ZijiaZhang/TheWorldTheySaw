@@ -11,7 +11,11 @@ MagicWeapon GameInstance::selectedMagic = FIREBALL;
 
 static std::map<std::string, bool> playableLevelMap = {
         {"menu", false},
+        {"level_select", false},
         {"loadout", false},
+        {"win", false},
+        {"lose", false},
+        {"intro", false},
         {"level_1", true},
         {"level_2", true},
         {"level_3", true},
