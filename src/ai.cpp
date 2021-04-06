@@ -93,7 +93,6 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity agent, ve
     front.push(initial_path);
     std::pair<int, int> neighbors[]{ {0,1}, {0, -1}, {1,0}, {-1,0} };
     std::pair<int, int> neighbors2[]{ {-1,-1}, {1, -1}, {-1,1}, {1,1} };
-
     std::set<std::pair<int, int>> visited;
     auto closest_path = initial_path;
     int counter = 100;
@@ -122,7 +121,10 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity agent, ve
         }
         for (auto n : neighbors2) {
             std::pair<int, int> next_node{ last_node.first + n.first, last_node.second + n.second };
-            if (collisions.find(next_node) == collisions.end() && visited.find(next_node) == visited.end()) {
+            std::pair<int, int> margin1{ last_node.first, last_node.second + n.second };
+            std::pair<int, int> margin2{ last_node.first + n.first, last_node.second};
+            if (collisions.find(next_node) == collisions.end() && visited.find(next_node) == visited.end() &&
+                collisions.find(margin1) == collisions.end() && collisions.find(margin2) == collisions.end()) {
                 auto v = path.path;
                 v.emplace_back(next_node);
                 front.push(Path_with_heuristics{ std::move(v), static_cast<float>(path.cost + GRID_SIZE * sqrt(2)), get_dist(next_node, dest_grid) });
