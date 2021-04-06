@@ -20,6 +20,7 @@
 #include "Explosion.hpp"
 #include "MagicParticle.hpp"
 #include "GameInstance.hpp"
+#include "WeaponTimer.hpp"
 
 // stlib
 #include <string.h>
@@ -292,6 +293,18 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             Enemy::set_activating_shader(e);
 	    }
 	}
+
+	// fix the weapon timer location.
+	auto weaponTimers = ECS::registry<WeaponTimer>.entities;
+	for (auto e : weaponTimers) {
+	    auto& motion = ECS::registry<Motion>.get(e);
+	    motion.position = player_soldier.get<Motion>().position - motion.offset;
+	}
+
+	bool executingDone = WeaponTimer::updateAllWeaponTimers(elapsed_ms);
+    if (executingDone) {
+        Soldier::switchWeapon(player_soldier, W_BULLET);
+    }
 }
 
 // Reset the world state to its initial state
@@ -354,6 +367,9 @@ void WorldSystem::restart(std::string level)
     aiControl = GameInstance::isPlayableLevel();
     if(player_soldier.has<AIPath>()){
         player_soldier.get<AIPath>().active = true;
+    }
+    if (aiControl) {
+        WeaponTimer::createAllWeaponTimers();
     }
 }
 
@@ -461,19 +477,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
     if(key == GLFW_KEY_A && action == GLFW_PRESS) {
         Soldier::switchWeapon(player_soldier, W_LASER);
-        printf("weapon leaser\n");
     }
     if(key == GLFW_KEY_S && action == GLFW_PRESS) {
         Soldier::switchWeapon(player_soldier, W_AMMO);
-        printf("weapon ammo\n");
     }
     if(key == GLFW_KEY_D && action == GLFW_PRESS) {
         Soldier::switchWeapon(player_soldier, W_ROCKET);
-        printf("weapon rocket\n");
     }
     if(key == GLFW_KEY_F && action == GLFW_PRESS) {
         Soldier::switchWeapon(player_soldier, W_BULLET);
-        printf("weapon bullet\n");
     }
 
     if (!aiControl) {

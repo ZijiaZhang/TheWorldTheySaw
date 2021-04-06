@@ -67,6 +67,7 @@ private:
 	ShadedMesh screen_sprite;
 	ShadedMesh health_bar;
 	ShadedMesh health_bar_background;
+    ShadedMesh weaponTimerMask;
 	Texture ui_texture;
 
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;

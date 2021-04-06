@@ -8,6 +8,7 @@
 #include "Weapon.hpp"
 #include "GameInstance.hpp"
 #include "render_components.hpp"
+#include "WeaponTimer.hpp"
 
 enum class SoldierType {
     BASIC, MEDIUM, HEAVY
@@ -38,7 +39,32 @@ public:
 	    }
 	}
 
+	static effectStatus getTypeStatus(ECS::Entity self, WeaponType type) {
+        auto entities = ECS::registry<EffectTimer>.entities;
+        if (entities.empty()) {
+            auto& effectTimer = ECS::registry<EffectTimer>.emplace(self);
+        }
+        for (auto e : entities) {
+            if (e.get<EffectTimer>().type == type) {
+                return e.get<EffectTimer>().status;
+            }
+        }
+	}
+
 	static void switchWeapon(ECS::Entity self, WeaponType type) {
+	    // check type available
+	    effectStatus status = getTypeStatus(self, type);
+	    if (status == EXECUTING) {
+	        printf("The skill is executing!\n");
+	        return;
+	    }
+	    if (status == COOLDOWN) {
+	        printf("The skill is not ready!\n");
+	        return;
+	    }
+
+        WeaponTimer::updateTimerWhenSwitchWeapon(type);
+
 	    // change the weapon texture
         // remove old weapon
         ECS::ContainerInterface::remove_all_components_of(self.get<Soldier>().weapon);
