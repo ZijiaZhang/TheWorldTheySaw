@@ -351,7 +351,7 @@ void WorldSystem::checkEndGame()
 {
 	if (GameInstance::isPlayableLevel()) {
         if (ECS::registry<Enemy>.entities.empty()) {
-			level_loader.update_level_state(selected_level, 1);
+			level_loader.update_level_state(GameInstance::currentLevel, 1);
             resetTimer();
             restart("win");
         }
