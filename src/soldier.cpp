@@ -10,7 +10,7 @@
 
 ECS::Entity Soldier::createSoldier(vec2 position,
                                    COLLISION_HANDLER overlap,
-                                   COLLISION_HANDLER hit)
+                                   COLLISION_HANDLER hit, float light_intensity)
 {
 	auto entity = ECS::Entity();
 
@@ -58,6 +58,7 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	auto& soldier = ECS::registry<Soldier>.emplace(entity);
 	soldier.weapon = weapon;
 	soldier.teamID = 0;
+	soldier.light_intensity = light_intensity;
 
 	auto& health = ECS::registry<Health>.emplace(entity);
 	health.hp = 3;

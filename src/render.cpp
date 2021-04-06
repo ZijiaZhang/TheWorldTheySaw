@@ -222,11 +222,12 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
 
 	// Draw the screen texture on the quad geometry
 	gl_has_errors();
-
+     
 	// Set clock
     GLint in_player = glGetUniformLocation(screen_sprite.effect.program, "player_position");
     GLint texture_size_loc = glGetUniformLocation(screen_sprite.effect.program, "texture_size");
     GLint world_size_loc = glGetUniformLocation(screen_sprite.effect.program, "world_size");
+    GLint light_intensity_loc = glGetUniformLocation(screen_sprite.effect.program, "light_intensity");
     gl_has_errors();
 	auto& screen = ECS::registry<ScreenState>.get(screen_state_entity);
     gl_has_errors();
@@ -240,6 +241,7 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
         auto camera_loc = camera.get_position();
         vec2 player_loccation{(player_loc.x - camera_loc.x) /window_size_in_game_units.x, (player_loc.y - camera_loc.y) / window_size_in_game_units.y};
         glUniform2fv(in_player, 1, (float*)&player_loccation);
+        glUniform1f(light_intensity_loc, ECS::registry<Soldier>.components[0].light_intensity);
     }
     gl_has_errors();
 	// Set the vertex position and vertex texture coordinates (both stored in the same VBO)

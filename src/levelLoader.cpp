@@ -177,8 +177,9 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	},
 	{"player", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER overlap,
-			COLLISION_HANDLER hit, const json&) {
-		return Soldier::createSoldier(location, overlap, hit);
+			COLLISION_HANDLER hit, const json& additional) {
+		float light_intensity = additional.contains("light_intensity") ? additional["light_intensity"] : DEFAULT_LIGHT_INTENSITY;
+		return Soldier::createSoldier(location, overlap, hit, light_intensity);
 	}},
 	{"enemy", [](vec2 location, vec2 size, float rotation,
 				 COLLISION_HANDLER overlap,
@@ -237,7 +238,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"background", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER,
 					COLLISION_HANDLER, json additional) {
-	    std::string name = "background";
+	    std::string name = "background";  
 	    float depth = 0.f;
       float scale = 1.5f;
 		if (additional.contains("name")) {

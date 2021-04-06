@@ -1,7 +1,15 @@
 {
-    "player": [{
-        "position": {"x": 25, "y": 150}
-    }],
+  "player": [
+    {
+      "position": {
+        "x": 25,
+        "y": 150
+      },
+      "additionalProperties": {
+        "light_intensity": 500
+      }
+    }
+  ],
     "weapon": [{
         "position": {"x": 100, "y": 200}
     }],

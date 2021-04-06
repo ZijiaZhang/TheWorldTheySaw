@@ -1,11 +1,14 @@
 {
     "player": [
-        {
-            "position": {
-                "x": 500,
-                "y": 500
-            }
+      {
+        "position": {
+          "x": 500,
+          "y": 500
+        },
+        "additionalProperties": {
+          "light_intensity": 500
         }
+      }
     ],
     "background": [{
         "position": {"x": 500, "y": 500},

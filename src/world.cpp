@@ -321,16 +321,6 @@ void WorldSystem::restart(std::string level)
 		throw std::runtime_error("Cannot have more than one solider");
 	}
 	player_soldier = soliders.front();
-
-	if (level == "level_3") 
-	{
-		AISystem::GRID_SIZE = 70;
-	}
-	else 
-	{
-		AISystem::GRID_SIZE = 50;
-	}
-
 	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 	while (!ECS::registry<Camera>.entities.empty())

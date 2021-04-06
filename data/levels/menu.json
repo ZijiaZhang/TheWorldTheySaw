@@ -1,8 +1,19 @@
 {
-	"player": [{
-		"position": {"x": 300, "y": 400},
-		"velocity": {"X": 100, "y": 50}
-	}],
+  "player": [
+    {
+      "position": {
+        "x": 300,
+        "y": 400
+      },
+      "velocity": {
+        "X": 100,
+        "y": 50
+      },
+      "additionalProperties": {
+        "light_intensity": 500
+      }
+    }
+  ],
 	"background": [{
 		"position": {"x": 500, "y": 500},
         "additionalProperties": {"name": "backgroundScifi", "scale": 0.8}
