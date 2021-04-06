@@ -70,8 +70,9 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
     if (e.has<Bullet>() && (e.get<Bullet>().teamID != self.get<Soldier>().teamID) && !self.has<DeathTimer>()) {
         auto& health = self.get<Health>();
-        float hp = health.hp;
-        health.hp--;
+        // auto& bullet_indicator = e.get<Bullet>().velocity_indicator;
+        // std::cout << bullet_indicator << "!!!!!";
+        health.hp -= 0.5;
 
         if (health.hp <= 0)
             self.emplace<DeathTimer>();
