@@ -313,15 +313,14 @@ void WorldSystem::restart(std::string level)
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-
 	// load background, walls, enemies and player from level_loaders
 	level_loader.load_level();
 
-	auto soliders = ECS::registry<Soldier>.entities;
-	if (soliders.size() > 1) {
-		throw std::runtime_error("Cannot have more than one solider");
+	auto soldiers = ECS::registry<Soldier>.entities;
+	if (soldiers.size() != 1) {
+		throw std::runtime_error("Can only have one soldier");
 	}
-	player_soldier = soliders.front();
+	player_soldier = soldiers.front();
 
 	if (level == "level_3") 
 	{
@@ -354,7 +353,7 @@ void WorldSystem::checkEndGame()
 {
 	if (GameInstance::isPlayableLevel()) {
         if (ECS::registry<Enemy>.entities.empty()) {
-			level_loader.update_level_state(selected_level, 1);
+			level_loader.update_level_state(GameInstance::currentLevel, 1);
             resetTimer();
             restart("win");
         }
@@ -532,6 +531,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// Debugging
 	if (key == GLFW_KEY_P)
 		DebugSystem::in_profile_mode = (action != GLFW_RELEASE);
+
+	if (key == GLFW_KEY_Z && action == GLFW_RELEASE && GameInstance::isPlayableLevel(GameInstance::currentLevel)) {
+		level_loader.save_level_objects(GameInstance::currentLevel);
+		reload_level_name = "level_select";
+		reload_level = true;
+	}
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {

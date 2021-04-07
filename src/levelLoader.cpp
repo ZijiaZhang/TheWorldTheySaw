@@ -20,7 +20,6 @@
 #include "world.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
-#include "GameInstance.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -64,7 +63,7 @@ std::unordered_map<std::string, int> LevelLoader::level_progression = {
 
 
 std::vector<std::string> LevelLoader::level_order = {
-	"intro",
+	"level_1",
 	"level_2",
 	"level_3",
 	"level_4",
@@ -76,23 +75,39 @@ std::vector<std::string> LevelLoader::level_order = {
 	"level_10",
 };
 
+std::unordered_map<std::string, LevelEntityState> LevelLoader::saved_level_states = {};
+std::unordered_map<std::string, bool> LevelLoader::saved_flag = {
+	{"level_2", false},
+	{"level_2", false},
+	{"level_3", false},
+	{"level_4", false},
+	{"level_5", false},
+	{"level_6", false},
+	{"level_7", false},
+	{"level_8", false},
+	{"level_9", false},
+	{"level_10", false}
+};
+
 std::string get_save_directory() {
 	TCHAR NPath[MAX_PATH];
 	GetCurrentDirectory(MAX_PATH, NPath);
-	std::string path = std::string(NPath).substr(0, std::string(NPath).find_last_of("12") + 1).append("\\save.txt");
+	// std::string path = std::string(NPath).substr(0, std::string(NPath).find_last_of("12") + 1).append("\\save.txt");
+	std::string path = "../save.txt";
 	return path;
 }
 
-void save_level_data()
+static void save_level_data()
 {
 	std::ofstream data(get_save_directory(), std::ofstream::trunc);
 	for (int i = 0; i < level_progression.size(); i++) {
 		data << level_progression[LevelLoader::level_order[i]] << "\n";
 	}
 	data.close();
+	return;
 }
 
-void load_level_data()
+static void load_level_data()
 {
 	std::ifstream data(get_save_directory());
 
@@ -108,6 +123,7 @@ void load_level_data()
 			level_progression[LevelLoader::level_order[i]] = line[0] - '0';
 		}
 	}
+	return;
 }
 
 void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
@@ -118,58 +134,68 @@ void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResu
 
 auto select_algo_of_type(AIAlgorithm algo) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-        if (other.has<Soldier>() && WorldSystem::selecting) {
+		if (other.has<Soldier>() && WorldSystem::selecting) {
 
-            for (auto &button: ECS::registry<Button>.components) {
-                if (button.buttonClass == ButtonClass::ALGORITHM_SELECTION) {
-                    button.selected = false;
-                }
-            }
-            self.get<Button>().selected = true;
-            GameInstance::algorithm = algo;
-            if(!self.has<PressTimer>()){
-                self.emplace<PressTimer>();
-            }
-            //self.emplace<PressTimer>();
-        }
-    };
+			for (auto& button : ECS::registry<Button>.components) {
+				if (button.buttonClass == ButtonClass::ALGORITHM_SELECTION) {
+					button.selected = false;
+				}
+			}
+			self.get<Button>().selected = true;
+			GameInstance::algorithm = algo;
+			if (!self.has<PressTimer>()) {
+				self.emplace<PressTimer>();
+			}
+			//self.emplace<PressTimer>();
+		}
+	};
 }
 
 auto select_weapon_of_type(WeaponType type) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-	    if (other.has<Soldier>() && WorldSystem::selecting) {
-            for(auto& button: ECS::registry<Button>.components){
-                if(button.buttonClass == ButtonClass::WEAPON_SELECTION){
-                    button.selected = false;
-                }
-            }
+		if (other.has<Soldier>() && WorldSystem::selecting) {
+			for (auto& button : ECS::registry<Button>.components) {
+				if (button.buttonClass == ButtonClass::WEAPON_SELECTION) {
+					button.selected = false;
+				}
+			}
 			self.get<Button>().selected = true;
 			GameInstance::selectedWeapon = type;
-            if(!self.has<PressTimer>()){
-                self.emplace<PressTimer>();
-            }
+			if (!self.has<PressTimer>()) {
+				self.emplace<PressTimer>();
+			}
 		}
 	};
 }
 
 
-auto select_button_overlap(const std::string& level){
-    return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-        if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
-            WorldSystem::reload_level = true;
-            WorldSystem::reload_level_name = level;
-        }
-    };
+auto select_button_overlap(const std::string& level) {
+	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
+			WorldSystem::reload_level = true;
+			WorldSystem::reload_level_name = level;
+		}
+	};
 };
 
-auto select_level_button_overlap(const std::string& level){
-    return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-        if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
-            WorldSystem::selected_level = level;
-            WorldSystem::reload_level = true;
-            WorldSystem::reload_level_name = "loadout";
-        }
-    };
+auto select_level_button_overlap(const std::string& level) {
+	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
+			WorldSystem::selected_level = level;
+			WorldSystem::reload_level = true;
+
+			std::string l = level;
+			if (level == "intro") {
+				l = "level_1";
+			}
+			if (LevelLoader::saved_flag[l]) {
+				WorldSystem::reload_level_name = l;
+			}
+			else {
+				WorldSystem::reload_level_name = "loadout";
+			}
+		}
+	};
 };
 
 auto select_save_data() {
@@ -191,19 +217,19 @@ auto select_load_data() {
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callbacks = {
 		{"enemy_bullet_hit_death", Enemy::enemy_bullet_hit_death},
-        {"soldier_bullet_hit_death", Soldier::soldier_bullet_hit_death},
-        {"wall_scater", Wall::wall_hit},
+		{"soldier_bullet_hit_death", Soldier::soldier_bullet_hit_death},
+		{"wall_scater", Wall::wall_hit},
 };
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::default_hit_callback = {
-        {"movable_wall", MoveableWall::wall_hit},
+		{"movable_wall", MoveableWall::wall_hit},
 };
 
-COLLISION_HANDLER get_default_hit_callback(const std::string& key){
-    if(LevelLoader::default_hit_callback.find(key)!= LevelLoader::default_hit_callback.end()){
-        return LevelLoader::default_hit_callback[key];
-    }
-    return PhysicsObject::handle_collision;
+COLLISION_HANDLER get_default_hit_callback(const std::string& key) {
+	if (LevelLoader::default_hit_callback.find(key) != LevelLoader::default_hit_callback.end()) {
+		return LevelLoader::default_hit_callback[key];
+	}
+	return PhysicsObject::handle_collision;
 }
 
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
@@ -231,15 +257,15 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"enemy", [](vec2 location, vec2 size, float rotation,
 				 COLLISION_HANDLER overlap,
 				 COLLISION_HANDLER hit, const json& additional) {
-	    float health = ENEMY_DEFAULT_HEALTH;
-	    int team_id = ENEMY_DEFAULT_TEAM_ID;
-	    if(additional.contains("health")){
-	        health = additional["health"];
-	    }
-        if(additional.contains("team_id")){
-            team_id = additional["team_id"];
-        }
-	    return Enemy::createEnemy(location, overlap, hit, team_id, health);
+		float health = ENEMY_DEFAULT_HEALTH;
+		int team_id = ENEMY_DEFAULT_TEAM_ID;
+		if (additional.contains("health")) {
+			health = additional["health"];
+		}
+		if (additional.contains("team_id")) {
+			team_id = additional["team_id"];
+		}
+		return Enemy::createEnemy(location, overlap, hit, team_id, health);
 	}},
 	{"button_start", [](vec2 location, vec2 size, float rotation,
 				  COLLISION_HANDLER,
@@ -262,53 +288,53 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"button_setting", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&) {
-		return Button::createButton(ButtonIcon::LEVEL_SELECT, location, select_button_overlap("loadout"));}
+		return Button::createButton(ButtonIcon::LEVEL_SELECT, location, select_button_overlap("loadout")); }
 	},
 	{"button_select_rocket", [](vec2 location, vec2 size, float rotation,
-                              COLLISION_HANDLER,
-                              COLLISION_HANDLER, const json&){
-            return Button::createButton( ButtonIcon::SELECT_ROCKET, location, select_weapon_of_type(W_ROCKET));}},
-        {"button_select_ammo", [](vec2 location, vec2 size, float rotation,
-                                    COLLISION_HANDLER,
-                                    COLLISION_HANDLER, const json&){
-            return Button::createButton( ButtonIcon::SELECT_AMMO, location, select_weapon_of_type(W_AMMO));}},
-        {"button_select_laser", [](vec2 location, vec2 size, float rotation,
-                                    COLLISION_HANDLER,
-                                    COLLISION_HANDLER, const json&){
-            return Button::createButton( ButtonIcon::SELECT_LASER, location, select_weapon_of_type(W_LASER));}},
-        {"button_select_bullet", [](vec2 location, vec2 size, float rotation,
-                                    COLLISION_HANDLER,
-                                    COLLISION_HANDLER, const json&){
-            return Button::createButton( ButtonIcon::SELECT_BULLET, location, select_weapon_of_type(W_BULLET));}},
-        {"button_select_direct", [](vec2 location, vec2 size, float rotation,
-                                COLLISION_HANDLER,
-                                COLLISION_HANDLER, const json&){
-        return Button::createButton( ButtonIcon::SELECT_DIRECT, location, select_algo_of_type(DIRECT));}},
-        {"button_select_a_star", [](vec2 location, vec2 size, float rotation,
-                                COLLISION_HANDLER,
-                                COLLISION_HANDLER, const json&){
-        return Button::createButton( ButtonIcon::SELECT_A_STAR, location, select_algo_of_type(A_STAR));}},
+							  COLLISION_HANDLER,
+							  COLLISION_HANDLER, const json&) {
+			return Button::createButton(ButtonIcon::SELECT_ROCKET, location, select_weapon_of_type(W_ROCKET)); }},
+		{"button_select_ammo", [](vec2 location, vec2 size, float rotation,
+									COLLISION_HANDLER,
+									COLLISION_HANDLER, const json&) {
+			return Button::createButton(ButtonIcon::SELECT_AMMO, location, select_weapon_of_type(W_AMMO)); }},
+		{"button_select_laser", [](vec2 location, vec2 size, float rotation,
+									COLLISION_HANDLER,
+									COLLISION_HANDLER, const json&) {
+			return Button::createButton(ButtonIcon::SELECT_LASER, location, select_weapon_of_type(W_LASER)); }},
+		{"button_select_bullet", [](vec2 location, vec2 size, float rotation,
+									COLLISION_HANDLER,
+									COLLISION_HANDLER, const json&) {
+			return Button::createButton(ButtonIcon::SELECT_BULLET, location, select_weapon_of_type(W_BULLET)); }},
+		{"button_select_direct", [](vec2 location, vec2 size, float rotation,
+								COLLISION_HANDLER,
+								COLLISION_HANDLER, const json&) {
+		return Button::createButton(ButtonIcon::SELECT_DIRECT, location, select_algo_of_type(DIRECT)); }},
+		{"button_select_a_star", [](vec2 location, vec2 size, float rotation,
+								COLLISION_HANDLER,
+								COLLISION_HANDLER, const json&) {
+		return Button::createButton(ButtonIcon::SELECT_A_STAR, location, select_algo_of_type(A_STAR)); }},
 	{"button_enter_level", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					 {
-						 return Button::createButton(ButtonIcon::NEXT, location, select_button_overlap( WorldSystem::selected_level));
+						 return Button::createButton(ButtonIcon::NEXT, location, select_button_overlap(WorldSystem::selected_level));
 					 }},
 	{"background", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER,
 					COLLISION_HANDLER, json additional) {
-	    std::string name = "background";
-	    float depth = 0.f;
-      float scale = 1.5f;
+		std::string name = "background";
+		float depth = 0.f;
+	  float scale = 1.5f;
 		if (additional.contains("name")) {
 			name = additional["name"];
 		}
-    if (additional.contains("depth")) {
-		    depth = additional["depth"];
+	if (additional.contains("depth")) {
+			depth = additional["depth"];
 		}
-    if (additional.contains("scale")) {
-        scale = additional["scale"];
-    }
+	if (additional.contains("scale")) {
+		scale = additional["scale"];
+	}
 		Background::createBackground(vec2{500, 500}, name, depth, scale);
 	}}, 	{"quality_slider", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER overlap,
@@ -382,35 +408,35 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 					{
 						return Button::createButton(ButtonIcon::RETURN, location, select_button_overlap("menu"));
 					} },
-        { "return_to_loadout", [](vec2 location, vec2 size, float rotation,
-                    COLLISION_HANDLER,
-                    COLLISION_HANDLER, const json&)
-                {
-                    return Button::createButton(ButtonIcon::RESTART, location, select_button_overlap("loadout"));
-                } },
+		{ "return_to_loadout", [](vec2 location, vec2 size, float rotation,
+					COLLISION_HANDLER,
+					COLLISION_HANDLER, const json&)
+				{
+					return Button::createButton(ButtonIcon::RESTART, location, select_button_overlap("loadout"));
+				} },
 		{ "return_to_level_select", [](vec2 location, vec2 size, float rotation,
 							COLLISION_HANDLER,
 							COLLISION_HANDLER, const json&)
 						{
 							return Button::createButton(ButtonIcon::RETURN, location, select_button_overlap("level_select"));
 						} },
-        { "next_to_level_select", [](vec2 location, vec2 size, float rotation,
-                        COLLISION_HANDLER,
-                        COLLISION_HANDLER, const json&)
-                    {
-                        return Button::createButton(ButtonIcon::NEXT, location, select_button_overlap("level_select"));
-                    } },
-        { "next_to_level", [](vec2 location, vec2 size, float rotation,
-                    COLLISION_HANDLER,
-                    COLLISION_HANDLER, const json&)
-                {
-                    return Button::createButton(ButtonIcon::NEXT, location, select_button_overlap("level_1"));
-                } },
+		{ "next_to_level_select", [](vec2 location, vec2 size, float rotation,
+						COLLISION_HANDLER,
+						COLLISION_HANDLER, const json&)
+					{
+						return Button::createButton(ButtonIcon::NEXT, location, select_button_overlap("level_select"));
+					} },
+		{ "next_to_level", [](vec2 location, vec2 size, float rotation,
+					COLLISION_HANDLER,
+					COLLISION_HANDLER, const json&)
+				{
+					return Button::createButton(ButtonIcon::NEXT, location, select_button_overlap("level_1"));
+				} },
 		{"select_level_1", [](vec2 location, vec2 size, float rotation,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return level_progression["intro"] > 0 ? Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("intro")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+					 return level_progression["level_1"] > 0 ? Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("intro")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
@@ -475,11 +501,104 @@ void LevelLoader::load_level() {
 				auto overlap = b.contains("overlap") ? physics_callbacks[b["overlap"]] : [](ECS::Entity, const ECS::Entity e, CollisionResult) {};
 				auto hit = b.contains("hit") ? physics_callbacks[b["hit"]] : get_default_hit_callback(level_object.first);
 				auto additional = b.contains("additionalProperties") ? b["additionalProperties"] : json{};
-				level_object.second(position, size, rotation, overlap, hit, additional);
+
+				if (GameInstance::isPlayableLevel(at_level)) {
+					if (!saved_flag[at_level]) {
+						level_object.second(position, size, rotation, overlap, hit, additional);
+					}
+					else {
+						if (!(level_object.first == "blocks" || level_object.first == "borders" || level_object.first == "movable_wall" || level_object.first == "player" || level_object.first == "enemy")) {
+							level_object.second(position, size, rotation, overlap, hit, additional);
+						}
+					}
+				}
+				else {
+					level_object.second(position, size, rotation, overlap, hit, additional);
+				}
 			}
 		}
 	}
+	load_level_objects(at_level);
 }
+
+void LevelLoader::save_level_objects(std::string level)
+{
+	auto& physics_entities = ECS::registry<PhysicsObject>.entities;
+	// auto& enemies = ECS::registry<Enemy>.entities;
+	saved_level_states[level] = {};
+	saved_flag[level] = true;
+
+	saved_level_states[level].ai = GameInstance::algorithm;
+	saved_level_states[level].weapon = GameInstance::selectedWeapon;
+
+	for (auto entity : physics_entities) {
+		if (entity.has<Soldier>() && entity.has<Motion>() && entity.has<PhysicsObject>()) {
+			vec2 position = entity.get<Motion>().position;
+			COLLISION_HANDLER overlap = entity.get<PhysicsObject>().collisionHandler[Overlap];
+			COLLISION_HANDLER hit = entity.get<PhysicsObject>().collisionHandler[Hit];
+
+			saved_level_states[level].soldiers.push_back(SoldierArg(position, overlap, hit));
+		}
+		else if ((entity.has<Wall>() || entity.has<MoveableWall>()) && entity.has<Motion>() && entity.has<PhysicsObject>()) {
+			vec2 location = entity.get<Motion>().position;
+			vec2 size = entity.get<Motion>().scale;
+			float rotation = entity.get<Motion>().angle;
+			COLLISION_HANDLER overlap = entity.get<PhysicsObject>().collisionHandler[Overlap];
+			COLLISION_HANDLER hit = entity.get<PhysicsObject>().collisionHandler[Hit];
+			vec2 preserve_world_velocity = entity.get<Motion>().preserve_world_velocity;
+
+			if (entity.has<Wall>()) {
+				saved_level_states[level].walls.push_back(WallArg(location, size, rotation, overlap, hit, preserve_world_velocity));
+			}
+			else if (entity.has<MoveableWall>()) {
+				saved_level_states[level].moveable_walls.push_back(MoveableWallArg(location, size, rotation, overlap, hit, preserve_world_velocity));
+			}
+		}
+		else if (entity.has<Enemy>() && entity.has<Motion>() && entity.has<PhysicsObject>()) {
+			vec2 position = entity.get<Motion>().position;
+			COLLISION_HANDLER overlap = entity.get<PhysicsObject>().collisionHandler[Overlap];
+			COLLISION_HANDLER hit = entity.get<PhysicsObject>().collisionHandler[Hit];
+			int teamID = entity.get<Enemy>().teamID;
+			int hp = 0;
+
+			if (entity.has<Health>()) {
+				hp = entity.get<Health>().hp;
+			}
+
+			saved_level_states[level].enemies.push_back(EnemyArg(position, overlap, hit, teamID, hp));
+		}
+	}
+}
+
+void LevelLoader::load_level_objects(std::string level)
+{
+	if (!saved_flag[at_level]) {
+		return;
+	}
+	LevelEntityState current_level = saved_level_states[level];
+
+	if (current_level.soldiers.size() > 0) {
+		Soldier::createSoldier(std::get<0>(current_level.soldiers[0]), std::get<1>(current_level.soldiers[0]), std::get<2>(current_level.soldiers[0]));
+	}
+	for (auto wall_arg : current_level.walls) {
+		auto& motion = Wall::createWall(std::get<0>(wall_arg), std::get<1>(wall_arg), std::get<2>(wall_arg), std::get<3>(wall_arg), std::get<4>(wall_arg)).get<Motion>();
+		motion.preserve_world_velocity = std::get<5>(wall_arg);
+	}
+	for (auto moveable_wall_arg : current_level.moveable_walls) {
+		auto& motion = MoveableWall::createMoveableWall(std::get<0>(moveable_wall_arg), std::get<1>(moveable_wall_arg), std::get<2>(moveable_wall_arg), std::get<3>(moveable_wall_arg), std::get<4>(moveable_wall_arg)).get<Motion>();
+		motion.preserve_world_velocity = std::get<5>(moveable_wall_arg);
+	}
+	for (auto enemy_arg : current_level.enemies) {
+		Enemy::createEnemy(std::get<0>(enemy_arg), std::get<1>(enemy_arg), std::get<2>(enemy_arg), std::get<3>(enemy_arg), std::get<4>(enemy_arg));
+	}
+
+	GameInstance::algorithm = current_level.ai;
+	GameInstance::selectedWeapon = current_level.weapon;
+
+	saved_level_states[at_level] = {};
+	saved_flag[at_level] = false;
+}
+
 
 int LevelLoader::get_level_state(std::string level)
 {

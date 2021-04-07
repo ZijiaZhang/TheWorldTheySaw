@@ -69,7 +69,7 @@ struct Health {
 };
 
 static std::unordered_map<std::string, int> level_progression = {
-    {"intro", 1},
+    {"level_1", 1},
     {"level_2", 0},
     {"level_3", 0},
     {"level_4", 0},
