@@ -28,6 +28,7 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
     pathTicker += elapsed_ms;
     weaponTicker += elapsed_ms;
+
 	if (!ECS::registry<Soldier>.components.empty())
 	{
 		auto& soldier = ECS::registry<Soldier>.entities[0];
@@ -38,7 +39,7 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 }
 void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > 200.f) {
+    if(weaponTicker > 1000.f) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
         ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
@@ -49,7 +50,18 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
+                Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet");
+//                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
+                Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
+                std::cout << "fire_bullet \n";
+
+                if (gun_fire == nullptr)
+                    throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
+                        audio_path("gun_fire.wav"));
+
+                Mix_PlayChannel(-1, gun_fire, 0);
+                //Mix_FreeChunk(gun_fire);
+                
             }
         }
 
@@ -58,7 +70,7 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
 }
 
 void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > 300.f) {
+    if(weaponTicker > 1200.f) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
         ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
@@ -75,8 +87,16 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
                     }
                     ECS::ContainerInterface::remove_all_components_of(e);
                 };
-                Bullet::createBullet(motion.position, rad, {150, 0},  0, "rocket", 2000,
+                Bullet::createBullet(motion.position, rad, {150, 0},  0, W_ROCKET, "rocket", 2000,
                                      callback);
+
+                Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("firework.wav").c_str());
+                if (gun_fire == nullptr)
+                    throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
+                        audio_path("firework.wav"));
+
+                Mix_PlayChannel(-1, gun_fire, 0);
+                //Mix_FreeChunk(gun_fire);
             }
         }
 
@@ -85,7 +105,7 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
 }
 
 void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > 100.f) {
+    if(weaponTicker > 800.f) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
         ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
@@ -96,7 +116,16 @@ void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) 
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
+                Bullet::createBullet(motion.position, rad, {400, 0}, 0, W_LASER, "laser");
+                //Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
+                std::cout << "fire_laser \n";
+                Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("laser.wav").c_str());
+                if (gun_fire == nullptr)
+                    throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
+                        audio_path("laser.wav"));
+
+                Mix_PlayChannel(-1, gun_fire, 0);
+                //Mix_FreeChunk(gun_fire);
             }
         }
 
@@ -105,7 +134,7 @@ void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) 
 }
 
 void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > 250.f) {
+    if(weaponTicker > 1100.f) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
         ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
@@ -116,7 +145,17 @@ void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
+                Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo");
+                // Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
+
+                std::cout << "fire_ammo \n";
+                Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("ammo.wav").c_str());
+                if (gun_fire == nullptr)
+                    throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
+                        audio_path("ammo.wav"));
+
+                Mix_PlayChannel(-1, gun_fire, 0);
+                //Mix_FreeChunk(gun_fire);
             }
         }
 

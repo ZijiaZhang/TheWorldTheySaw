@@ -3,9 +3,19 @@
 //
 
 #include "Bullet.hpp"
+std::unordered_map<WeaponType, float> Bullet::bulletDamage {
+        {W_AMMO, 0.3},
+        {W_LASER, 0.5},
+        {W_BULLET, 1.0},
+        {W_ROCKET, 3.0}
+};
 
+std::unordered_map<WeaponType , std::function<void(ECS::Entity, ECS::Entity, float)>> Bullet::bulletEffect = {
+        {W_LASER, heal_soldier},
+        {W_AMMO, freeze_enemy},
+};
 
-ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID,  std::string texture_name, float lifetime,
+ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID, WeaponType type, std::string texture_name, float lifetime,
                                  std::function<void(ECS::Entity)> callback){
     // Reserve en entity
     auto entity = ECS::Entity();
@@ -59,8 +69,28 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     }
     auto& bullet = ECS::registry<Bullet>.emplace(entity);
     bullet.teamID = teamID;
+    bullet.bullet_indicator = texture_name;
     bullet.on_destroy = callback;
     physics.attach(Hit, destroy_on_hit);
     physics.attach(Overlap, destroy_on_hit);
+
+    bullet.type = type;
+    bullet.damage = Bullet::bulletDamage[type];
+
     return entity;
+}
+
+
+void Bullet::heal_soldier(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms) {
+    auto entities = ECS::registry<Soldier>.entities;
+    for (auto e : entities) {
+        ECS::registry<Soldier>.get(e).addHealth(e, 1);
+    }
+}
+
+void Bullet::freeze_enemy(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms) {
+    if (!ECS::registry<FrozenTimer>.has(enemy_entity)) {
+        ECS::registry<FrozenTimer>.emplace(enemy_entity);
+        Enemy::set_frozen_shader(enemy_entity);
+    }
 }

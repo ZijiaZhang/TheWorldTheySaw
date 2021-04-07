@@ -6,6 +6,7 @@
 #include "Explosion.hpp"
 #include "button.hpp"
 #include "GameInstance.hpp"
+#include "WeaponTimer.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -406,6 +407,25 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
                 drawTexturedMesh(projection_2D, motion, health_bar_background);
                 motion.scale.x *= health.hp / health.max_hp;
                 drawTexturedMesh(projection_2D, motion, health_bar);
+            }
+        }
+
+        auto wts = ECS::registry<WeaponTimer>.entities;
+        for(auto& entity: wts){
+            if (entity.has<Motion>()) {
+                auto& et = ECS::registry<EffectTimer>.get(entity);
+                auto& enemy_motion = entity.get<Motion>();
+                Motion motion{};
+                motion.position = enemy_motion.position;
+                motion.scale = enemy_motion.scale;
+                motion.position.x -= motion.scale.x /2;
+                motion.angle = 0;
+                if (et.status == COOLDOWN) {
+                    motion.scale.x *= et.cooldown_ms / WeaponTimer::effectAttributes[et.type][1];
+                } else {
+                    motion.scale.x = 0;
+                }
+                drawTexturedMesh(projection_2D, motion, weaponTimerMask);
             }
         }
     }
