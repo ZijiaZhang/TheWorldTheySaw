@@ -51,6 +51,7 @@ public:
                 return e.get<EffectTimer>().status;
             }
         }
+		return COOLDOWN;
 	}
 
 	static void switchWeapon(ECS::Entity self, WeaponType type) {

@@ -172,10 +172,6 @@ WorldSystem::~WorldSystem() {
 	// Destroy music components
 	if (background_music != nullptr)
 		Mix_FreeMusic(background_music);
-	if (gun_fire != nullptr)
-		Mix_FreeChunk(gun_fire);
-	if (gun_reload != nullptr)
-		Mix_FreeChunk(gun_reload);
 	Mix_CloseAudio();   //TODO: throw exception
 
 	// Destroy all created components
@@ -199,7 +195,7 @@ void WorldSystem::init_audio()
 	//gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
 	//gun_reload = Mix_LoadWAV(audio_path("firework.mp3").c_str());
 
-	if (background_music == nullptr || gun_fire == nullptr || gun_reload == nullptr)
+	if (background_music == nullptr)
 		throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
 			audio_path("gun_background.wav") +
 			audio_path("gun_fire.wav") +
@@ -432,17 +428,6 @@ void WorldSystem::handle_collisions()
 					// Scream, reset timer, and make the soldier sink
 					ECS::registry<DeathTimer>.emplace(entity);
 
-				}
-			}
-			// Checking Soldier - Fish collisions
-			else if (ECS::registry<Fish>.has(entity_other))
-			{
-				if (!ECS::registry<DeathTimer>.has(entity))
-				{
-					// chew, ai_count points, and set the LightUp timer
-					ECS::ContainerInterface::remove_all_components_of(entity_other);
-					Mix_PlayChannel(-1, gun_reload, 0);
-					++points;
 				}
 			}
 		}

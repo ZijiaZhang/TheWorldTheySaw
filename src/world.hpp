@@ -85,9 +85,7 @@ private:
 	ECS::Entity shield;
 
 	// music references
-	Mix_Music* background_music;
-	Mix_Chunk* gun_fire;
-	Mix_Chunk* gun_reload;
+	Mix_Music* background_music = nullptr;
 
 	// C++ random number generator
 	std::default_random_engine rng;

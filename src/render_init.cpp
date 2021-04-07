@@ -57,6 +57,16 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     wall_screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
 
     create_light_texture(32);
+
+    weaponTimerMask = ShadedMesh();
+    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{ vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0} });
+    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{ vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0} });
+    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{ vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0} });
+    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{ vec3{0, -0.5, -0.02}, vec3{1.0,1.0,1.0} });
+    weaponTimerMask.mesh.vertex_indices = std::vector<uint16_t>({ 0, 2, 1, 0, 3, 2 });
+    weaponTimerMask.texture.color = vec3{ 0.,1,0. };
+    RenderSystem::createColoredMesh(weaponTimerMask, "salmon");
+
     renderSystem = this;
 }
 
@@ -99,16 +109,6 @@ void RenderSystem::recreate_light_texture(float quality) {
     glDeleteTextures(1, light_frame_texture.texture_id.data());
     glDeleteFramebuffers(1, &light_frame_buffer);
     create_light_texture(quality);
-
-
-    weaponTimerMask = ShadedMesh();
-    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{vec3{0, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    weaponTimerMask.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
-    weaponTimerMask.texture.color = vec3{0.,1,0.};
-    RenderSystem::createColoredMesh(weaponTimerMask, "salmon");
 }
 
 RenderSystem::~RenderSystem()
