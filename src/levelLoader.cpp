@@ -232,6 +232,43 @@ COLLISION_HANDLER get_default_hit_callback(const std::string& key) {
 	return PhysicsObject::handle_collision;
 }
 
+COLLISION_HANDLER get_slider_callback(float val_min, float val_max, float x_min, float x_max, float y_min, float y_max) {
+	return [val_min, val_max, x_min, x_max, y_min, y_max](ECS::Entity self, ECS::Entity e, CollisionResult) mutable {
+		if (self.has<Motion>() && e.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			auto& other_motion = e.get<Motion>();
+			if (motion.position.x > x_max) {
+				float delta = motion.position.x - x_max;
+				motion.position.x -= delta;
+				other_motion.position.x -= delta;
+			}
+			else 	if (motion.position.x < x_min) {
+				float delta = motion.position.x - x_min;
+				motion.position.x -= delta;
+				other_motion.position.x -= delta;
+			}
+
+			if (motion.position.y > y_max) {
+				float delta = motion.position.y - y_max;
+				motion.position.y -= delta;
+				other_motion.position.y -= delta;
+			}
+			else if (motion.position.y < y_min) {
+				float delta = motion.position.y - y_min;
+				motion.position.y -= delta;
+				other_motion.position.y -= delta;
+			}
+			float quality = floor((motion.position.x - x_min) / (x_max - x_min) * (val_max - val_min) + val_min);
+			if (GameInstance::light_quality != quality) {
+				GameInstance::light_quality = quality;
+				RenderSystem::renderSystem->recreate_light_texture(2 * GameInstance::light_quality);
+				printf("light_quality: %f\n", GameInstance::light_quality);
+			}
+		}
+	};
+}
+
+
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
@@ -336,9 +373,10 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 		scale = additional["scale"];
 	}
 		Background::createBackground(vec2{500, 500}, name, depth, scale);
-	}}, 	{"quality_slider", [](vec2 location, vec2 size, float rotation,
+	}}, 	
+	{"quality_slider", [](vec2 location, vec2 size, float,
 			COLLISION_HANDLER overlap,
-					COLLISION_HANDLER, json additional) {
+					COLLISION_HANDLER hit, json additional) {
 		float val_min, val_max,
 		x_min = location.x, x_max = location.x, 
 		y_min = location.y, y_max = location.y;
@@ -360,38 +398,11 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	if (additional.contains("y_max")) {
 		y_max = additional["y_max"];
 	} 
-	 
-	auto e = MoveableWall::createMoveableWall(location, size, 0, overlap, [=](ECS::Entity self, ECS::Entity e, CollisionResult collision) {
-		if (self.has<Motion>() && e.has<Motion>()) {
-			auto& motion = self.get<Motion>();
-			auto& other_motion = e.get<Motion>();
-			if (motion.position.x > x_max) {
-				float delta = motion.position.x - x_max;
-				motion.position.x -= delta;
-				other_motion.position.x -= delta;
-			} else 	if (motion.position.x < x_min) {
-				float delta = motion.position.x - x_min;
-				motion.position.x -= delta;
-				other_motion.position.x -= delta;
-			}
-
-			if (motion.position.y > y_max) {
-				float delta = motion.position.y - y_max;
-				motion.position.y -= delta;
-				other_motion.position.y -= delta;
-			}
-			else if (motion.position.y < y_min) {
-				float delta = motion.position.y - y_min;
-				motion.position.y -= delta;
-				other_motion.position.y -= delta;
-			}
-			GameInstance::light_quality = floor((motion.position.x - x_min) / (x_max - x_min) * (val_max - val_min) + val_min);
-			RenderSystem::renderSystem ->recreate_light_texture(2 * GameInstance::light_quality);
-			printf("light_quality: %f\n", GameInstance::light_quality);
-		}
-		});
+	
+	auto e = MoveableWall::createMoveableWall(location, size, 0, overlap, get_slider_callback(val_min, val_max, x_min, x_max, y_min, y_max));
 	e.get<PhysicsObject>().mass = 100.f;
-	}},
+	}
+	},
 	{"title", [](vec2 location, vec2 , float ,
 					  COLLISION_HANDLER,
 					  COLLISION_HANDLER, const json&) {
