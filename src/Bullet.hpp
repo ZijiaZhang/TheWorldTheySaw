@@ -39,6 +39,30 @@ public:
         }
         self.get<Bullet>().on_destroy(self);
     };
+
+    static void lazer_penetrate(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+        if (e.has<Shield>()) {
+            if (e.get<Shield>().teamID == self.get<Bullet>().teamID) {
+                return;
+            }
+        }
+        if (e.has<Enemy>()) {
+            if (e.get<Enemy>().teamID == self.get<Bullet>().teamID) {
+                return;
+            }
+        }
+        if (e.has<Soldier>()) {
+            if (e.get<Soldier>().teamID == self.get<Bullet>().teamID) {
+                return;
+            }
+        }
+        self.get<Bullet>().penetration_counter--;
+
+        if (self.get<Bullet>().penetration_counter <= 0) {
+            self.get<Bullet>().on_destroy(self);
+        }
+    };
+
     int teamID = 0;
     std::string bullet_indicator = "";
     std::function<void(ECS::Entity)> on_destroy = [](ECS::Entity e){
@@ -50,6 +74,7 @@ public:
 
     WeaponType type;
     float damage = 1.0;
+    int penetration_counter = 0;
     static std::unordered_map<WeaponType, float> bulletDamage;
 
     static std::unordered_map<WeaponType, std::function<void(ECS::Entity, ECS::Entity, float)>> bulletEffect;

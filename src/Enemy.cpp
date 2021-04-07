@@ -74,22 +74,7 @@ void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Collis
 
         auto bullet_type = e.get<Bullet>().bullet_indicator;
         // bullet
-        if (bullet_type == "bullet") {
-            EnemyAISystem::takeDamage(self, 0.4);
-        }
-        // rocket
-        else if (bullet_type == "rocket") {
-            EnemyAISystem::takeDamage(self, 0.7);
-        }
-        // laser
-        else if (bullet_type == "laser") {
-            EnemyAISystem::takeDamage(self, 0.3);
-        }
-        // ammo
-        else {
-            EnemyAISystem::takeDamage(self, 0.6);
-        }
-        // EnemyAISystem::takeDamage(self, 1);
+        EnemyAISystem::takeDamage(self, e.get<Bullet>().damage);
 
     } else if (e.has<Explosion>() && e.get<Explosion>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()){
         EnemyAISystem::takeDamage(self, 0.5);

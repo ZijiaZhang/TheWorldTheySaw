@@ -6,10 +6,14 @@
 
 std::vector<float> WeaponTimer::laser_attr {3000, 10000};
 std::vector<float> WeaponTimer::ammo_attr {3000, 5000};
+std::vector<float> WeaponTimer::rocket_attr{ 3000, 10000 };
+std::vector<float> WeaponTimer::bullet_attr{ 3000, 5000 };
 // {WeaponType, [executing_ms, cooldown_ms]}
 std::unordered_map<WeaponType , std::vector<float>> WeaponTimer::effectAttributes {
         {W_LASER, laser_attr},
         {W_AMMO, ammo_attr},
+        {W_BULLET, bullet_attr},
+        {W_ROCKET, rocket_attr}
 };
 
 ECS::Entity WeaponTimer::createWeaponTimer(vec2 offset, WeaponType type, std::string texture_path){
