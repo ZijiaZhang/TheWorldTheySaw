@@ -53,7 +53,7 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet");
 //                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
                 Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
-                std::cout << "fire_bullet \n";
+                // std::cout << "fire_bullet \n";
 
                 if (gun_fire == nullptr)
                     throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
@@ -118,7 +118,7 @@ void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) 
                 motion.offset_angle = rad - soldier_motion.angle;
                 Bullet::createBullet(motion.position, rad, {400, 0}, 0, W_LASER, "laser");
                 //Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
-                std::cout << "fire_laser \n";
+                // std::cout << "fire_laser \n";
                 Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("laser.wav").c_str());
                 if (gun_fire == nullptr)
                     throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
@@ -148,7 +148,7 @@ void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
                 Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo");
                 // Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
 
-                std::cout << "fire_ammo \n";
+                // std::cout << "fire_ammo \n";
                 Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("ammo.wav").c_str());
                 if (gun_fire == nullptr)
                     throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
@@ -177,7 +177,7 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float 
                 auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
 
                 AiState aState = soldier.soldierState;
-                {
+                //{
                     if (pathTicker > updateRate) {
                         soldier.soldierState = AiState::WALK_FORWARD;
                         soldier_entity.get<AIPath>().path = AISystem::find_path_to_location(soldier_entity,
@@ -187,10 +187,9 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float 
                         pathTicker = 0.f;
                         return;
                     }
-                }
+                //}
             }
         } else {
-
             soldier.soldierState = AiState::IDLE;
             SoldierAISystem::idle(soldier_motion);
             soldier_entity.get<AIPath>().path = Path_with_heuristics{};
