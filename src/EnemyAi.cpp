@@ -14,6 +14,9 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         if (timeTicker > enemyMovementRefresh) {
             for (auto& enemy : ECS::registry<Enemy>.entities)
             {
+                if (EnemyAISystem::underEffectControl(enemy, elapsed_ms)) {
+                    continue;
+                }
                 EnemyAISystem::makeDecision(enemy, elapsed_ms);
             }
             timeTicker = 0;
@@ -21,6 +24,9 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         if (shoot_time > shoot_interval){
             for (auto& enemy_entity : ECS::registry<Enemy>.entities)
             {
+                if (EnemyAISystem::underEffectControl(enemy_entity, elapsed_ms)) {
+                    continue;
+                }
                 if (ECS::registry<Motion>.has(enemy_entity) && ECS::registry<Enemy>.has(enemy_entity)) {
                     auto& enemy_motion = ECS::registry<Motion>.get(enemy_entity);
                     auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
@@ -31,7 +37,7 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                         if(!e.has<DeathTimer>())
                             e.emplace<DeathTimer>();
                     };
-                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, "rocket", 2000, callback);
+                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, W_ROCKET, "rocket", 2000, callback);
                 }
             }
             shoot_time = 0;
@@ -136,4 +142,22 @@ void EnemyAISystem::takeDamage(ECS::Entity enemy_entity, float damage) {
             enemy_entity.emplace<DeathTimer>();
         }
     }
+}
+
+bool EnemyAISystem::underEffectControl(ECS::Entity enemy, float elapsed_ms) {
+    if (ECS::registry<FrozenTimer>.has(enemy)) {
+        auto& fc = enemy.get<FrozenTimer>();
+        fc.executing_ms -= elapsed_ms;
+        if (fc.executing_ms <= 0.) {
+            ECS::registry<FrozenTimer>.remove(enemy);
+            ECS::registry<Activating>.remove(enemy);
+            Enemy::set_shader(enemy);
+            return false;
+        } else {
+            enemy.get<Enemy>().enemyState = AiState::IDLE;
+            EnemyAISystem::idle(ECS::registry<Motion>.get(enemy));
+            return true;
+        }
+    }
+    return false;
 }

@@ -36,4 +36,5 @@ private:
 
     void shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest);
 
+    bool underEffectControl(ECS::Entity enemy, float elapsed_ms);
 };

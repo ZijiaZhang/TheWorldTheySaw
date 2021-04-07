@@ -13,7 +13,7 @@
 
 class Bullet {
 public:
-    static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, std::string texture_name, float lifetime = -1,
+    static ECS::Entity createBullet(vec2 position, float angle, vec2 velocity, int teamID, WeaponType type, std::string texture_name, float lifetime = -1,
                                     std::function<void(ECS::Entity)> callback = [](ECS::Entity e){
                                     if(!e.has<DeathTimer>())
                                     {
@@ -47,6 +47,14 @@ public:
             e.emplace<DeathTimer>();
         }
     };
+
+    WeaponType type;
+    float damage = 1.0;
+    static std::unordered_map<WeaponType, float> bulletDamage;
+
+    static std::unordered_map<WeaponType, std::function<void(ECS::Entity, ECS::Entity, float)>> bulletEffect;
+    static void heal_soldier(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);
+    static void freeze_enemy(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);
 };
 
 // A timer that will be associated to dying object
@@ -54,4 +62,12 @@ struct ExplodeTimer
 {
     float counter_ms = 1000;
     std::function<void(ECS::Entity)> callback;
+};
+
+struct FrozenTimer {
+    float executing_ms = 2000;
+};
+
+struct Activating {
+    // empty, only used for Activating shader
 };

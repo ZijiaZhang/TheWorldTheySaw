@@ -101,6 +101,14 @@ void RenderSystem::recreate_light_texture(float quality) {
     create_light_texture(quality);
 
 
+    weaponTimerMask = ShadedMesh();
+    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{vec3{0, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
+    weaponTimerMask.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
+    weaponTimerMask.texture.color = vec3{0.,1,0.};
+    RenderSystem::createColoredMesh(weaponTimerMask, "salmon");
 }
 
 RenderSystem::~RenderSystem()

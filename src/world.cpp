@@ -20,6 +20,7 @@
 #include "Explosion.hpp"
 #include "MagicParticle.hpp"
 #include "GameInstance.hpp"
+#include "WeaponTimer.hpp"
 
 // stlib
 #include <string.h>
@@ -283,6 +284,28 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                 prev_pl_pos = pl;
             }
         }
+	}
+
+	// flash the frozen enemies when there is 1000ms left.
+	auto frozenEnemies = ECS::registry<FrozenTimer>.entities;
+	for (auto e: frozenEnemies) {
+	    auto executing_ms = ECS::registry<FrozenTimer>.get(e).executing_ms;
+	    if (executing_ms < 1000.f && !ECS::registry<Activating>.has(e)) {
+            ECS::registry<Activating>.emplace(e);
+            Enemy::set_activating_shader(e);
+	    }
+	}
+
+	// fix the weapon timer location.
+	auto weaponTimers = ECS::registry<WeaponTimer>.entities;
+	for (auto e : weaponTimers) {
+	    auto& motion = ECS::registry<Motion>.get(e);
+	    motion.position = player_soldier.get<Motion>().position - motion.offset;
+	}
+
+	bool executingDone = WeaponTimer::updateAllWeaponTimers(elapsed_ms);
+    if (executingDone) {
+        Soldier::switchWeapon(player_soldier, W_BULLET);
     }
 }
 
@@ -345,6 +368,9 @@ void WorldSystem::restart(std::string level)
     aiControl = GameInstance::isPlayableLevel();
     if(player_soldier.has<AIPath>()){
         player_soldier.get<AIPath>().active = true;
+    }
+    if (aiControl) {
+        WeaponTimer::createAllWeaponTimers();
     }
 }
 
@@ -450,7 +476,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                                FIREBALL);
         }
     }
-  
+
+    if(key == GLFW_KEY_A && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_LASER);
+    }
+    if(key == GLFW_KEY_S && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_AMMO);
+    }
+    if(key == GLFW_KEY_D && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_ROCKET);
+    }
+    if(key == GLFW_KEY_F && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_BULLET);
+    }
+
     if (!aiControl) {
         // Move soldier if alive
         if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {

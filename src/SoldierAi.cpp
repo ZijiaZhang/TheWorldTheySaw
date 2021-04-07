@@ -50,7 +50,8 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
+                Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet");
+//                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
                 Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
                 std::cout << "fire_bullet \n";
 
@@ -86,7 +87,7 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
                     }
                     ECS::ContainerInterface::remove_all_components_of(e);
                 };
-                Bullet::createBullet(motion.position, rad, {150, 0},  0, "rocket", 2000,
+                Bullet::createBullet(motion.position, rad, {150, 0},  0, W_ROCKET, "rocket", 2000,
                                      callback);
 
                 Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("firework.wav").c_str());
@@ -115,7 +116,8 @@ void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) 
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
+                Bullet::createBullet(motion.position, rad, {400, 0}, 0, W_LASER, "laser");
+                //Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
                 std::cout << "fire_laser \n";
                 Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("laser.wav").c_str());
                 if (gun_fire == nullptr)
@@ -143,7 +145,8 @@ void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
+                Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo");
+                // Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
 
                 std::cout << "fire_ammo \n";
                 Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("ammo.wav").c_str());
