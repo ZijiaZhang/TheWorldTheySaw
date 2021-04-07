@@ -8,6 +8,7 @@ std::string GameInstance::currentLevel = "menu";
 WeaponType GameInstance::selectedWeapon = W_BULLET;
 AIAlgorithm GameInstance::algorithm = DIRECT;
 MagicWeapon GameInstance::selectedMagic = FIREBALL;
+float GameInstance::light_quality = 32.f;
 
 static std::map<std::string, bool> playableLevelMap = {
         {"menu", false},

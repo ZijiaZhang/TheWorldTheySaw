@@ -14,7 +14,8 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 
 	// Load OpenGL function pointers
 	gl3w_init();
-
+    if(renderSystem)
+        throw std::runtime_error("Should not create second RenderSystem");
 	// Create a frame buffer
 	frame_buffer = 0;
 	ui_buffer = 0;
@@ -27,7 +28,7 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     ui_texture.create_from_screen(&window, depth_render_buffer_id.data());
 
 
-    health_bar = ShadedMesh();
+    health_bar = ShadedMesh(); 
     health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
     health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
     health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
@@ -47,6 +48,57 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     health_bar_background.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
     health_bar_background.texture.color = vec3{0.1,0.1,0.1};
     RenderSystem::createColoredMesh(health_bar_background, "salmon");
+
+    // Initialize the screen texture and its state
+     glGenFramebuffers(1, &wall_frame_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, wall_frame_buffer);
+    createSprite(wall_screen_sprite, "", "lights");
+
+    wall_screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
+
+    create_light_texture(32);
+    renderSystem = this;
+}
+
+void RenderSystem::create_light_texture(float quality){
+    glGenFramebuffers(1, &light_frame_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, light_frame_buffer);
+    light_frame_texture.create_from_screen(&window, depth_render_buffer_id.data());
+
+    glGenTextures(1, light_frame_texture.texture_id.data());
+    glBindTexture(GL_TEXTURE_2D, light_frame_texture.texture_id);
+
+    light_frame_texture.size.x = int(quality);
+    light_frame_texture.size.y = int(quality);
+    //printf("%d, %d \n", x, y);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, light_frame_texture.size.x, light_frame_texture.size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    // Generate the render buffer with the depth buffer
+    glGenRenderbuffers(1, depth_render_buffer_id.data());
+    glBindRenderbuffer(GL_RENDERBUFFER, *depth_render_buffer_id.data());
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, light_frame_texture.size.x, light_frame_texture.size.y);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *depth_render_buffer_id.data());
+
+    // Set id as colour attachement #0
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, light_frame_texture.texture_id, 0);
+
+    // Set the list of draw buffers
+    GLenum draw_buffers[1] = { GL_COLOR_ATTACHMENT0 };
+    glDrawBuffers(1, draw_buffers); // "1" is the size of DrawBuffers
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        throw std::runtime_error("glCheckFramebufferStatus(GL_FRAMEBUFFER)");
+
+    gl_has_errors();
+
+}
+
+void RenderSystem::recreate_light_texture(float quality) {
+    glDeleteTextures(1, light_frame_texture.texture_id.data());
+    glDeleteFramebuffers(1, &light_frame_buffer);
+    create_light_texture(quality);
 
 
     weaponTimerMask = ShadedMesh();
@@ -196,3 +248,5 @@ void RenderSystem::initScreenTexture()
 
 
 }
+
+RenderSystem* RenderSystem::renderSystem = nullptr;

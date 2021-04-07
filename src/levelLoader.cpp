@@ -31,13 +31,56 @@
 
 using json = nlohmann::json;
 
+std::vector<std::string> LevelLoader::existing_level = {
+	"level_select",
+	"loadout",
+	"menu",
+	"win",
+	"lose",
+	"level_1",
+	"intro",
+	"level_2",
+	"level_3",
+	"level_4",
+	"level_5",
+	"level_6",
+	"level_7",
+};
+
+/*
+std::unordered_map<std::string, int> LevelLoader::level_progression = {
+	{"intro", 0},
+	{"level_2", -1},
+	{"level_3", -1},
+	{"level_4", -1},
+	{"level_5", -1},
+	{"level_6", -1},
+	{"level_7", -1},
+	{"level_8", -1},
+	{"level_9", -1},
+	{"level_10", -1}
+};
+*/
+
+
+std::vector<std::string> LevelLoader::level_order = {
+	"intro",
+	"level_2",
+	"level_3",
+	"level_4",
+	"level_5",
+	"level_6",
+	"level_7",
+	"level_8",
+	"level_9",
+	"level_10",
+};
+
 void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
 		self.emplace<DeathTimer>();
 	}
 };
-
-
 
 auto select_algo_of_type(AIAlgorithm algo) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
@@ -76,12 +119,9 @@ auto select_weapon_of_type(WeaponType type) {
 }
 
 
-
-
-
 auto select_button_overlap(const std::string& level){
     return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-        if (other.has<Soldier>() && WorldSystem::selecting) {
+        if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
             WorldSystem::reload_level = true;
             WorldSystem::reload_level_name = level;
         }
@@ -90,7 +130,7 @@ auto select_button_overlap(const std::string& level){
 
 auto select_level_button_overlap(const std::string& level){
     return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-        if (other.has<Soldier>() && WorldSystem::selecting) {
+        if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
             WorldSystem::selected_level = level;
             WorldSystem::reload_level = true;
             WorldSystem::reload_level_name = "loadout";
@@ -210,6 +250,61 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
         scale = additional["scale"];
     }
 		Background::createBackground(vec2{500, 500}, name, depth, scale);
+	}}, 	{"quality_slider", [](vec2 location, vec2 size, float rotation,
+			COLLISION_HANDLER overlap,
+					COLLISION_HANDLER, json additional) {
+		float val_min, val_max,
+		x_min = location.x, x_max = location.x, 
+		y_min = location.y, y_max = location.y;
+		if (additional.contains("val_min")) {
+			val_min = additional["val_min"];
+		}
+	if (additional.contains("val_max")) {
+		val_max = additional["val_max"];
+		}
+	if (additional.contains("x_min")) {
+		x_min = additional["x_min"];
+	}
+	if (additional.contains("x_max")) {
+		x_max = additional["x_max"];
+	}
+	if (additional.contains("y_min")) {
+		y_min = additional["y_min"];
+	}
+	if (additional.contains("y_max")) {
+		y_max = additional["y_max"];
+	} 
+	 
+	auto e = MoveableWall::createMoveableWall(location, size, 0, overlap, [=](ECS::Entity self, ECS::Entity e, CollisionResult collision) {
+		if (self.has<Motion>() && e.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			auto& other_motion = e.get<Motion>();
+			if (motion.position.x > x_max) {
+				float delta = motion.position.x - x_max;
+				motion.position.x -= delta;
+				other_motion.position.x -= delta;
+			} else 	if (motion.position.x < x_min) {
+				float delta = motion.position.x - x_min;
+				motion.position.x -= delta;
+				other_motion.position.x -= delta;
+			}
+
+			if (motion.position.y > y_max) {
+				float delta = motion.position.y - y_max;
+				motion.position.y -= delta;
+				other_motion.position.y -= delta;
+			}
+			else if (motion.position.y < y_min) {
+				float delta = motion.position.y - y_min;
+				motion.position.y -= delta;
+				other_motion.position.y -= delta;
+			}
+			GameInstance::light_quality = floor((motion.position.x - x_min) / (x_max - x_min) * (val_max - val_min) + val_min);
+			RenderSystem::renderSystem ->recreate_light_texture(2 * GameInstance::light_quality);
+			printf("light_quality: %f\n", GameInstance::light_quality);
+		}
+		});
+	e.get<PhysicsObject>().mass = 100.f;
 	}},
 	{"title", [](vec2 location, vec2 , float ,
 					  COLLISION_HANDLER,
@@ -255,37 +350,37 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("intro"));
+					 return level_progression["intro"] >= 0 ? Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("intro")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonIcon::LEVEL2, location, select_level_button_overlap("level_2"));
+						return level_progression["level_2"] >= 0 ? Button::createButton(ButtonIcon::LEVEL2, location, select_level_button_overlap("level_2")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 					} },
 		{ "select_level_3", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonIcon::LEVEL3, location, select_level_button_overlap("level_3"));
+						return level_progression["level_3"] >= 0 ? Button::createButton(ButtonIcon::LEVEL3, location, select_level_button_overlap("level_3")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 					} },
 		{ "select_level_4", [](vec2 location, vec2 size, float rotation,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonIcon::LEVEL4, location, select_level_button_overlap("level_4"));
+						return level_progression["level_4"] >= 0 ? Button::createButton(ButtonIcon::LEVEL4, location, select_level_button_overlap("level_4")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 					} },
 		{ "select_level_5", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER,
 			COLLISION_HANDLER, const json&)
 		{
-			return Button::createButton(ButtonIcon::LEVEL5, location, select_level_button_overlap("level_5"));
+			return level_progression["level_5"] >= 0 ? Button::createButton(ButtonIcon::LEVEL5, location, select_level_button_overlap("level_5")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 		} },
 		{ "select_level_6", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return Button::createButton(ButtonIcon::LEVEL6, location, select_level_button_overlap("level_6"));
+						return level_progression["level_6"] >= 0 ? Button::createButton(ButtonIcon::LEVEL6, location, select_level_button_overlap("level_6")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 					} }
 };
 
@@ -322,6 +417,38 @@ void LevelLoader::load_level() {
 				auto additional = b.contains("additionalProperties") ? b["additionalProperties"] : json{};
 				level_object.second(position, size, rotation, overlap, hit, additional);
 			}
+		}
+	}
+}
+
+int LevelLoader::get_level_state(std::string level)
+{
+	return level_progression[level];
+}
+
+bool LevelLoader::is_level_unlocked(std::string level)
+{
+	return level_progression[level] > -1;
+}
+
+bool LevelLoader::is_level_cleared(std::string level)
+{
+	return level_progression[level] > 0;
+}
+
+std::string LevelLoader::get_next_level_name(std::string level)
+{
+	auto it = std::find(level_order.begin(), level_order.end(), level);
+	auto next = std::next(it, 1);
+	return *next;
+}
+
+void LevelLoader::update_level_state(std::string level, int state)
+{
+	if (state > get_level_state(level)) {
+		level_progression[level] = state;
+		if (!is_level_unlocked(get_next_level_name(level))) {
+			level_progression[get_next_level_name(level)] = 0;
 		}
 	}
 }

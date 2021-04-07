@@ -69,6 +69,7 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     }
     auto& bullet = ECS::registry<Bullet>.emplace(entity);
     bullet.teamID = teamID;
+    bullet.bullet_indicator = texture_name;
     bullet.on_destroy = callback;
     physics.attach(Hit, destroy_on_hit);
     physics.attach(Overlap, destroy_on_hit);

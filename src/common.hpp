@@ -68,6 +68,19 @@ struct Health {
     vec2 health_bar_offset = {0,-50};
 };
 
+static std::unordered_map<std::string, int> level_progression = {
+    {"intro", 0},
+    {"level_2", -1},
+    {"level_3", -1},
+    {"level_4", -1},
+    {"level_5", -1},
+    {"level_6", -1},
+    {"level_7", -1},
+    {"level_8", -1},
+    {"level_9", -1},
+    {"level_10", -1}
+};
+
 // For the order of drawing
 static std::map<std::string, int> ZValuesMap = {
         {"Start", 6},
