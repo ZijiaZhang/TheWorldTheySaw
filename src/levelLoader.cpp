@@ -76,6 +76,40 @@ std::vector<std::string> LevelLoader::level_order = {
 	"level_10",
 };
 
+std::string get_save_directory() {
+	TCHAR NPath[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, NPath);
+	std::string path = std::string(NPath).substr(0, std::string(NPath).find_last_of("12") + 1).append("\\save.txt");
+	return path;
+}
+
+void save_level_data()
+{
+	std::ofstream data(get_save_directory(), std::ofstream::trunc);
+	for (int i = 0; i < level_progression.size(); i++) {
+		data << level_progression[LevelLoader::level_order[i]] << "\n";
+	}
+	data.close();
+}
+
+void load_level_data()
+{
+	std::ifstream data(get_save_directory());
+
+	if (!data.is_open()) {
+		for (int i = 0; i < LevelLoader::level_order.size(); i++) {
+			level_progression[LevelLoader::level_order[i]] = 0;
+		}
+		level_progression[LevelLoader::level_order[0]] = 1;
+	}
+	else {
+		std::string line;
+		for (int i = 0; std::getline(data, line) && i < level_progression.size(); i++) {
+			level_progression[LevelLoader::level_order[i]] = line[0] - '0';
+		}
+	}
+}
+
 void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
 		self.emplace<DeathTimer>();
@@ -138,7 +172,21 @@ auto select_level_button_overlap(const std::string& level){
     };
 };
 
+auto select_save_data() {
+	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (other.has<Soldier>() && WorldSystem::selecting) {
+			save_level_data();
+		}
+	};
+}
 
+auto select_load_data() {
+	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (other.has<Soldier>() && WorldSystem::selecting) {
+			load_level_data();
+		}
+	};
+}
 
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callbacks = {
@@ -198,6 +246,18 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 				  COLLISION_HANDLER, const json&)
 				  {
 		return Button::createButton(ButtonIcon::START, location, select_button_overlap("level_select"));
+	}},
+		{"button_save", [](vec2 location, vec2 size, float rotation,
+				  COLLISION_HANDLER,
+				  COLLISION_HANDLER, const json&)
+				  {
+		return Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_save_data());
+	}},
+		{"button_load", [](vec2 location, vec2 size, float rotation,
+				  COLLISION_HANDLER,
+				  COLLISION_HANDLER, const json&)
+				  {
+		return Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_load_data());
 	}},
 	{"button_setting", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
@@ -350,37 +410,37 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return level_progression["intro"] >= 0 ? Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("intro")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+					 return level_progression["intro"] > 0 ? Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("intro")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return level_progression["level_2"] >= 0 ? Button::createButton(ButtonIcon::LEVEL2, location, select_level_button_overlap("level_2")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+						return level_progression["level_2"] > 0 ? Button::createButton(ButtonIcon::LEVEL2, location, select_level_button_overlap("level_2")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 					} },
 		{ "select_level_3", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return level_progression["level_3"] >= 0 ? Button::createButton(ButtonIcon::LEVEL3, location, select_level_button_overlap("level_3")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+						return level_progression["level_3"] > 0 ? Button::createButton(ButtonIcon::LEVEL3, location, select_level_button_overlap("level_3")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 					} },
 		{ "select_level_4", [](vec2 location, vec2 size, float rotation,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 					{
-						return level_progression["level_4"] >= 0 ? Button::createButton(ButtonIcon::LEVEL4, location, select_level_button_overlap("level_4")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+						return level_progression["level_4"] > 0 ? Button::createButton(ButtonIcon::LEVEL4, location, select_level_button_overlap("level_4")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 					} },
 		{ "select_level_5", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER,
 			COLLISION_HANDLER, const json&)
 		{
-			return level_progression["level_5"] >= 0 ? Button::createButton(ButtonIcon::LEVEL5, location, select_level_button_overlap("level_5")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+			return level_progression["level_5"] > 0 ? Button::createButton(ButtonIcon::LEVEL5, location, select_level_button_overlap("level_5")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 		} },
 		{ "select_level_6", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
 					{
-						return level_progression["level_6"] >= 0 ? Button::createButton(ButtonIcon::LEVEL6, location, select_level_button_overlap("level_6")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+						return level_progression["level_6"] > 0 ? Button::createButton(ButtonIcon::LEVEL6, location, select_level_button_overlap("level_6")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
 					} }
 };
 
@@ -428,12 +488,7 @@ int LevelLoader::get_level_state(std::string level)
 
 bool LevelLoader::is_level_unlocked(std::string level)
 {
-	return level_progression[level] > -1;
-}
-
-bool LevelLoader::is_level_cleared(std::string level)
-{
-	return level_progression[level] > 0;
+	return level_progression[level] == 1;
 }
 
 std::string LevelLoader::get_next_level_name(std::string level)
@@ -445,13 +500,21 @@ std::string LevelLoader::get_next_level_name(std::string level)
 
 void LevelLoader::update_level_state(std::string level, int state)
 {
-	if (state > get_level_state(level)) {
+	if (state == 1) {
 		level_progression[level] = state;
 		if (!is_level_unlocked(get_next_level_name(level))) {
-			level_progression[get_next_level_name(level)] = 0;
+			level_progression[get_next_level_name(level)] = 1;
 		}
 	}
 }
+
+/*
+void LevelLoader::set_level_value(std::string level, int value)
+{
+	level_progression[level] = value;
+}
+*/
+
 
 void LevelLoader::set_level(std::string level) {
 	at_level = level;

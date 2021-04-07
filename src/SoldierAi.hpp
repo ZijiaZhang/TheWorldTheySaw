@@ -4,6 +4,11 @@
 #include "tiny_ecs.hpp"
 #include "PhysicsObject.hpp"
 
+
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#include <SDL_mixer.h>
+
 typedef enum{
     DIRECT,
     A_STAR,
