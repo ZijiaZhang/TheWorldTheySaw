@@ -161,6 +161,8 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	init_audio();
 	//Mix_PlayMusic(background_music, -1);
 	std::cout << "Loaded music\n";
+	Mix_PlayMusic(background_music, -1);
+
 }
 
 WorldSystem::~WorldSystem() {
@@ -171,7 +173,7 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(gun_fire);
 	if (gun_reload != nullptr)
 		Mix_FreeChunk(gun_reload);
-	Mix_CloseAudio();
+	Mix_CloseAudio();   //TODO: throw exception
 
 	// Destroy all created components
 	ECS::ContainerInterface::clear_all_components();
@@ -190,16 +192,15 @@ void WorldSystem::init_audio()
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) == -1)
 		throw std::runtime_error("Failed to open audio device");
 
-	background_music = Mix_LoadMUS(audio_path("gun_background.wav").c_str());
-	gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
-	gun_reload = Mix_LoadWAV(audio_path("gun_reload.wav").c_str());
+	background_music = Mix_LoadMUS(audio_path("background.wav").c_str());
+	//gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
+	//gun_reload = Mix_LoadWAV(audio_path("firework.mp3").c_str());
 
 	if (background_music == nullptr || gun_fire == nullptr || gun_reload == nullptr)
 		throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
 			audio_path("gun_background.wav") +
 			audio_path("gun_fire.wav") +
 			audio_path("gun_reload.wav"));
-
 }
 
 // Update our game world
