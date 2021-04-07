@@ -163,7 +163,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Playing background music indefinitely
 	init_audio();
 	//Mix_PlayMusic(background_music, -1);
-	std::cout << "Loaded music\n";
+	// std::cout << "Loaded music\n";
 	Mix_PlayMusic(background_music, -1);
 
 }
