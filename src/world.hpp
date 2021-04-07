@@ -55,6 +55,8 @@ public:
 	static std::map<ButtonIcon, std::function<void()>> buttonCallbacks;
     static bool reload_level;
 	static bool selecting;
+	static float game_world_speed;
+	static bool pause;
     static std::string reload_level_name;
     static std::string selected_level;
 

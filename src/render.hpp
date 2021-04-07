@@ -72,6 +72,7 @@ private:
 	ShadedMesh screen_sprite;
 	ShadedMesh health_bar;
 	ShadedMesh health_bar_background;
+    ShadedMesh weaponTimerMask;
 	ShadedMesh wall_screen_sprite;
 
 	Texture light_frame_texture;

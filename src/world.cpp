@@ -20,6 +20,7 @@
 #include "Explosion.hpp"
 #include "MagicParticle.hpp"
 #include "GameInstance.hpp"
+#include "WeaponTimer.hpp"
 
 // stlib
 #include <string.h>
@@ -46,6 +47,8 @@ bool DRAWING = false;
 int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
 bool WorldSystem::selecting = false;
+float WorldSystem::game_world_speed = 1.f;
+bool WorldSystem::pause = false;
 
 int KILL_SIZE = 3000;
 vec2 prev_pl_pos = {0,0};
@@ -269,7 +272,12 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
 	endGameTimer += elapsed_ms;
-
+	if (pause && GameInstance::isPlayableLevel()) {
+		game_world_speed = 0.f;
+	}
+	else {
+		game_world_speed = 1.f;
+	}
 	runTimer(elapsed_ms);
 	checkEndGame();
     if(player_soldier.has<Motion>()) {
@@ -283,6 +291,28 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                 prev_pl_pos = pl;
             }
         }
+	}
+
+	// flash the frozen enemies when there is 1000ms left.
+	auto frozenEnemies = ECS::registry<FrozenTimer>.entities;
+	for (auto e: frozenEnemies) {
+	    auto executing_ms = ECS::registry<FrozenTimer>.get(e).executing_ms;
+	    if (executing_ms < 1000.f && !ECS::registry<Activating>.has(e)) {
+            ECS::registry<Activating>.emplace(e);
+            Enemy::set_activating_shader(e);
+	    }
+	}
+
+	// fix the weapon timer location.
+	auto weaponTimers = ECS::registry<WeaponTimer>.entities;
+	for (auto e : weaponTimers) {
+	    auto& motion = ECS::registry<Motion>.get(e);
+	    motion.position = player_soldier.get<Motion>().position - motion.offset;
+	}
+
+	bool executingDone = WeaponTimer::updateAllWeaponTimers(elapsed_ms);
+    if (executingDone) {
+        Soldier::switchWeapon(player_soldier, W_BULLET);
     }
 }
 
@@ -313,15 +343,15 @@ void WorldSystem::restart(std::string level)
 
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
-
 	// load background, walls, enemies and player from level_loaders
 	level_loader.load_level();
 
-	auto soliders = ECS::registry<Soldier>.entities;
-	if (soliders.size() > 1) {
-		throw std::runtime_error("Cannot have more than one solider");
+	auto soldiers = ECS::registry<Soldier>.entities;
+	if (soldiers.size() != 1) {
+		throw std::runtime_error("Can only have one soldier");
 	}
-	player_soldier = soliders.front();
+
+	player_soldier = soldiers.front();
 	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 	while (!ECS::registry<Camera>.entities.empty())
@@ -337,6 +367,9 @@ void WorldSystem::restart(std::string level)
     if(player_soldier.has<AIPath>()){
         player_soldier.get<AIPath>().active = true;
     }
+    if (aiControl) {
+        WeaponTimer::createAllWeaponTimers();
+    }
 }
 
 
@@ -344,7 +377,7 @@ void WorldSystem::checkEndGame()
 {
 	if (GameInstance::isPlayableLevel()) {
         if (ECS::registry<Enemy>.entities.empty()) {
-			level_loader.update_level_state(selected_level, 1);
+			level_loader.update_level_state(GameInstance::currentLevel, 1);
             resetTimer();
             restart("win");
         }
@@ -432,7 +465,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
   
 	double soldier_speed = 200;
   
-    if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
+    if(key == GLFW_KEY_Q && action == GLFW_PRESS && !pause && GameInstance::isPlayableLevel()) {
         if(player_soldier.has<Soldier>()) {
             MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
                                                player_soldier.get<Motion>().angle,
@@ -441,7 +474,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                                                FIREBALL);
         }
     }
-  
+
+    if(key == GLFW_KEY_A && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_LASER);
+    }
+    if(key == GLFW_KEY_S && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_AMMO);
+    }
+    if(key == GLFW_KEY_D && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_ROCKET);
+    }
+    if(key == GLFW_KEY_F && action == GLFW_PRESS) {
+        Soldier::switchWeapon(player_soldier, W_BULLET);
+    }
+
     if (!aiControl) {
         // Move soldier if alive
         if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
@@ -522,6 +568,20 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	// Debugging
 	if (key == GLFW_KEY_P)
 		DebugSystem::in_profile_mode = (action != GLFW_RELEASE);
+
+	if (key == GLFW_KEY_Z && action == GLFW_RELEASE && GameInstance::isPlayableLevel(GameInstance::currentLevel)) {
+		level_loader.save_level_objects(GameInstance::currentLevel);
+		reload_level_name = "level_select";
+		reload_level = true;
+	}
+
+	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel()) {
+		pause = !pause;
+	}
+
+	if (key == GLFW_KEY_C && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
+		SHIELDUP = true;
+	}
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
@@ -544,7 +604,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
         DRAWING = false;
         if (checkCircle(player_soldier))
         {
-            SHIELDUP = true;
+            // SHIELDUP = true;
         }
     }
 
@@ -576,7 +636,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
         }
 
         if (SHIELDUP) {
-			if (shield.has<Motion>()) {
+			if (shield.has<Motion>() && !pause) {
 				auto& motionSh = ECS::registry<Motion>.get(shield);
 				motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
 				motionSh.angle = rad;
