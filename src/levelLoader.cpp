@@ -144,7 +144,7 @@ auto select_level_button_overlap(const std::string& level){
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callbacks = {
 		{"enemy_bullet_hit_death", Enemy::enemy_bullet_hit_death},
         {"soldier_bullet_hit_death", Soldier::soldier_bullet_hit_death},
-        {"wall_scater", Wall::wall_hit},
+        {"wall_scater", Wall::wall_overlap},
 };
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::default_hit_callback = {
@@ -162,7 +162,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
 					   COLLISION_HANDLER overlap, COLLISION_HANDLER, const json&) {
-		Wall::createWall(location, size, rotation, physics_callbacks["wall_scater"], physics_callbacks["wall_scater"]);
+		Wall::createWall(location, size, rotation, physics_callbacks["wall_scater"], Wall::wall_hit);
 	}
 	},
 	{"borders", [](vec2 location, vec2 size, float rotation,
@@ -172,7 +172,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	},
 	{"movable_wall", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER overlap, COLLISION_HANDLER hit, const json&) {
-		MoveableWall::createMoveableWall(location, size, rotation, overlap, hit);
+		MoveableWall::createMoveableWall(location, size, rotation, physics_callbacks["wall_scater"], Wall::wall_hit);
 	}
 	},
 	{"player", [](vec2 location, vec2 size, float rotation,
