@@ -4,14 +4,14 @@
 
 #include "Bullet.hpp"
 std::unordered_map<WeaponType, float> Bullet::bulletDamage {
-        {W_AMMO, 0.3},
-        {W_LASER, 0.5},
-        {W_BULLET, 0.0},
-        {W_ROCKET, 3.0}
+        {W_AMMO, 2.0},
+        {W_LASER, 1.0},
+        {W_BULLET, 2.0},
+        {W_ROCKET, 5.0}
 };
 
 std::unordered_map<WeaponType , std::function<void(ECS::Entity, ECS::Entity, float)>> Bullet::bulletEffect = {
-        {W_LASER, heal_soldier},
+        {W_ROCKET, heal_soldier},
         {W_AMMO, freeze_enemy},
 };
 
@@ -71,8 +71,18 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     bullet.teamID = teamID;
     bullet.bullet_indicator = texture_name;
     bullet.on_destroy = callback;
-    physics.attach(Hit, destroy_on_hit);
-    physics.attach(Overlap, destroy_on_hit);
+
+    switch (type) {
+        case W_LASER:
+            bullet.penetration_counter = 3;
+            physics.attach(Hit, lazer_penetrate);
+            physics.attach(Overlap, lazer_penetrate);
+            break;
+        default:
+            physics.attach(Hit, destroy_on_hit);
+            physics.attach(Overlap, destroy_on_hit);
+            break;
+    }
 
     bullet.type = type;
     bullet.damage = Bullet::bulletDamage[type];
