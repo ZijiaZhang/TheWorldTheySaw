@@ -47,6 +47,8 @@ bool DRAWING = false;
 int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
 bool WorldSystem::selecting = false;
+float WorldSystem::game_world_speed = 1.f;
+bool WorldSystem::pause = false;
 
 int KILL_SIZE = 3000;
 vec2 prev_pl_pos = {0,0};
@@ -270,7 +272,12 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
 	endGameTimer += elapsed_ms;
-
+	if (pause && GameInstance::isPlayableLevel()) {
+		game_world_speed = 0.f;
+	}
+	else {
+		game_world_speed = 1.f;
+	}
 	runTimer(elapsed_ms);
 	checkEndGame();
     if(player_soldier.has<Motion>()) {
@@ -467,7 +474,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
   
 	double soldier_speed = 200;
   
-    if(key == GLFW_KEY_Q && action == GLFW_PRESS) {
+    if(key == GLFW_KEY_Q && action == GLFW_PRESS && !pause && GameInstance::isPlayableLevel()) {
         if(player_soldier.has<Soldier>()) {
             MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
                                                player_soldier.get<Motion>().angle,
@@ -576,6 +583,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		reload_level_name = "level_select";
 		reload_level = true;
 	}
+
+	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel()) {
+		pause = !pause;
+	}
+
+	if (key == GLFW_KEY_C && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
+		SHIELDUP = true;
+	}
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
@@ -598,7 +613,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
         DRAWING = false;
         if (checkCircle(player_soldier))
         {
-            SHIELDUP = true;
+            // SHIELDUP = true;
         }
     }
 
@@ -630,7 +645,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
         }
 
         if (SHIELDUP) {
-			if (shield.has<Motion>()) {
+			if (shield.has<Motion>() && !pause) {
 				auto& motionSh = ECS::registry<Motion>.get(shield);
 				motionSh.position = vec2(motion.position.x + disX / 2, motion.position.y + disY / 2);
 				motionSh.angle = rad;

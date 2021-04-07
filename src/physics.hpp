@@ -19,7 +19,7 @@ struct Force{
 class PhysicsSystem
 {
 public:
-	void step(float elapsed_ms, vec2 window_size_in_game_units);
+	void step(float elapsed_ms, vec2 window_size_in_game_units, float multiplier);
 
 	// Stucture to store collision information
 	struct Collision
