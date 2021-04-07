@@ -33,7 +33,7 @@ if (IS_OS_MAC)
   link_directories(/usr/local/lib)
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} "src/shield.cpp" "src/shield.hpp" "src/SoldierAi.hpp" "src/AiState.hpp" "src/button.cpp" "src/button.hpp" "src/health_bar.hpp" "src/health_bar.cpp" src/WeaponTimer.hpp src/WeaponTimer.cpp)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC src/)
 
 # Added this so policy CMP0065 doesn't scream
