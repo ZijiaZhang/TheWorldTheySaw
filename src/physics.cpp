@@ -11,6 +11,8 @@
 #include <soldier.hpp>
 #include <iostream>
 
+std::unordered_map<std::string, std::pair<std::vector<std::vector<std::pair<int, int>>>, std::vector<int>>> PhysicsSystem::decomposed_non_convex{};
+
 // Returns the local bounding coordinates scaled by the current size of the entity 
 vec2 get_bounding_box(const Motion& motion)
 {
@@ -89,6 +91,61 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity e1, ECS::Entity e2) 
 }
 
 
+std::pair<std::vector<std::vector<std::pair<int, int>>>, std::vector<int>> convert_to_convex(std::vector<PhysicsVertex> vertex, std::vector<std::pair<int, int>> faces) {
+	std::vector<int> non_convex_points{};
+	for (int i = 0; i < faces.size() - 1; i++) {
+		int p1 = faces[i].first;
+		int p2 = faces[i].second;
+		int p3 = faces[i + 1].second;
+		assert(faces[i + 1].first == p2);
+		float dx1 = vertex[p2].position.x - vertex[p1].position.x;
+		float dy1 = vertex[p2].position.y - vertex[p1].position.y;
+		float dx2 = vertex[p3].position.x - vertex[p2].position.x;
+		float dy2 = vertex[p3].position.y - vertex[p2].position.y;
+		float a = dx1 * dy2 - dy1 * dx2;
+		if (a > 0) {
+			non_convex_points.push_back(i);
+		}
+	}
+	if (non_convex_points.empty()) {
+		std::vector<std::vector<std::pair<int, int>>> f{faces};
+		return std::pair(f, std::vector<int>{-1});
+	}
+	if (non_convex_points.size() == 1) {
+		std::vector<std::pair<int, int>> f1;
+		std::vector<std::pair<int, int>> f2;
+		std::vector<int> innter_edges{ -1, -1 };
+		int non_convex_index = faces[non_convex_points[0]].second;
+		int pickin_index = faces[(non_convex_points[0] + 2) % faces.size()].second;
+		bool b = false;
+		for (auto f : faces) {
+			if (f.first == pickin_index || f.first == non_convex_index) {
+				if (!b) {
+					f2.push_back(std::pair<int, int>(f.first, f.first == pickin_index ? non_convex_index : pickin_index));
+					innter_edges[1] = f2.size() - 1;
+				}
+				else {
+					f1.push_back(std::pair<int, int>(f.first, f.first == pickin_index ? non_convex_index : pickin_index));
+					innter_edges[0] = f1.size() - 1;
+				}
+				b = !b;
+			}
+			if (b) {
+				f1.push_back(f);
+			}
+			else {
+				f2.push_back(f);
+			}
+		}
+		std::vector<std::vector<std::pair<int, int>>> f{f1, f2};
+		return std::pair(f, innter_edges);
+	}
+	if (non_convex_points.size() > 1) {
+		throw std::runtime_error("Not yet supported");
+	}
+	return std::pair<std::vector<std::vector<std::pair<int, int>>>, std::vector<int>>{};
+}
+
 CollisionResult PhysicsSystem::collision(ECS::Entity e1, ECS::Entity e2) {
 	if (!e1.has<Motion>() || !e2.has<Motion>() || !e1.has<PhysicsObject>() || !e2.has<PhysicsObject>()) {
 		return { 0, {0,0}, {0,0} };
@@ -102,7 +159,15 @@ CollisionResult PhysicsSystem::collision(ECS::Entity e1, ECS::Entity e2) {
 	vec2 final_n_l = { 0,0 };
 	vec2 v = { 0,0 };
 	Transform t1 = getTransform(m1);
-
+	std::vector<std::vector<std::pair<int, int>>> faces{ p1.faces };
+	std::vector<int> innerfaces{ -1};
+	if (p1.non_convex) {
+		if (decomposed_non_convex.find(p1.decompose_key) == decomposed_non_convex.end()) {
+			decomposed_non_convex[p1.decompose_key] = convert_to_convex(p1.vertex, p1.faces);
+		}
+		faces = decomposed_non_convex[p1.decompose_key].first;
+		innerfaces = decomposed_non_convex[p1.decompose_key].second;
+	}
 
 	Transform t2 = getTransform(m2);
 	vec2 delta_x = m2.position - m1.position;
@@ -116,49 +181,58 @@ CollisionResult PhysicsSystem::collision(ECS::Entity e1, ECS::Entity e2) {
 
 		vec2 v2_1 = { global2_v1.x, global2_v1.y };
 		//printf("%f, %f\n", v2_1.x , v2_1.y);
-		bool x = true;
-		float dist = -FLT_MAX;
-		vec2 n = { 0,0 };
-		vec2 n_l = { 0,0 };
+		for (int l = 0; l < faces.size(); l ++) {
+			auto& face = faces[l];
+			bool x = true;
+			float dist = -FLT_MAX;
+			vec2 n = { 0,0 };
+			vec2 n_l = { 0,0 };
 
-		// Examine if the vertex is inside the other object
-		for (unsigned int i = 0; i < p1.faces.size(); ++i) {
-			auto edge = p1.faces[i];
-			vec3 vertex1_1 = { p1.vertex[edge.first].position.x, p1.vertex[edge.first].position.y, 1.f };
-			vec3 vertex1_2 = { p1.vertex[edge.second].position.x, p1.vertex[edge.second].position.y, 1.f };
-			vec3 global1_v1 = t1.mat * vertex1_1;
-			vec3 global1_v2 = t1.mat * vertex1_2;
-			vec2 v1_1 = { global1_v1.x, global1_v1.y };
-			vec2 v1_2 = { global1_v2.x, global1_v2.y };
-			// Normal of the face
-			vec3 normal_t = { vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x, 0 };
-			// Translate the normal with the matrix in global coordinates
-			normal_t = inverse(transpose(t1.mat)) * normal_t;
+			// Examine if the vertex is inside the other object
+			for (unsigned int i = 0; i < face.size(); ++i) {
+				auto edge = face[i];
+				vec3 vertex1_1 = { p1.vertex[edge.first].position.x, p1.vertex[edge.first].position.y, 1.f };
+				vec3 vertex1_2 = { p1.vertex[edge.second].position.x, p1.vertex[edge.second].position.y, 1.f };
+				vec3 global1_v1 = t1.mat * vertex1_1;
+				vec3 global1_v2 = t1.mat * vertex1_2;
+				vec2 v1_1 = { global1_v1.x, global1_v1.y };
+				vec2 v1_2 = { global1_v2.x, global1_v2.y };
+				// Normal of the face
+				vec3 normal_t = { vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x, 0 };
+				// Translate the normal with the matrix in global coordinates
+				normal_t = inverse(transpose(t1.mat)) * normal_t;
 
-			normal_t /= sqrt(normal_t.x * normal_t.x + normal_t.y * normal_t.y); // Normalize
-			// Normal in local coordinates. I removed it from the final result. So not really useful.
-			vec2 local_n = { vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x };
+				normal_t /= sqrt(normal_t.x * normal_t.x + normal_t.y * normal_t.y); // Normalize
+				// Normal in local coordinates. I removed it from the final result. So not really useful.
+				vec2 local_n = { vertex1_1.y - vertex1_2.y, vertex1_2.x - vertex1_1.x };
 
-			// Convert to vec2
-			vec2 normal1 = { normal_t.x, normal_t.y };
-			// If the projection >0 then the point is outside the bonding box
-			if (dot(v2_1 - v1_1, normal1) > 0) {
-				x = false;
+				// Convert to vec2
+				vec2 normal1 = { normal_t.x, normal_t.y };
+				// If the projection >0 then the point is outside the bonding box
+				
+				if (dot(v2_1 - v1_1, normal1) > 0) {
+					x = false;
+					break;
+				}
+				else if (dot(delta_x, normal1) >=0 &&
+					dot(v2_1 - v1_1, normal1) > dist &&
+					i!= innerfaces[l] ) {
+					// get smallest penitration from a edge
+					dist = dot(v2_1 - v1_1, normal1);
+
+					n_l = local_n;
+					n = normal1;
+				}
+			}
+			// Get smallest penitration from all the vertex // Not really sure about this
+			if (x && dist < best_distance && dist!= -FLT_MAX) {
+
+				best_distance = dist;
+				final_normal = n;
+				final_n_l = n_l;
+				v = v2_1;
 				break;
 			}
-			else if (dot(delta_x, normal1) > 0 && dot(v2_1 - v1_1, normal1) > dist) {
-				// get smallest penitration from a edge
-				dist = dot(v2_1 - v1_1, normal1);
-				n_l = local_n;
-				n = normal1;
-			}
-		}
-		// Get smallest penitration from all the vertex // Not really sure about this
-		if (x && dist < best_distance) {
-			best_distance = dist;
-			final_normal = n;
-			final_n_l = n_l;
-			v = v2_1;
 		}
 	}
 

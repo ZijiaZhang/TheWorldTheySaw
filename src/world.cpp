@@ -460,6 +460,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
     }
 
+	if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+		if (player_soldier.has<Soldier>()) {
+			Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, { 380, 0 }, 0, "bullet");
+		}
+	}
+
+
     if(key == GLFW_KEY_A && action == GLFW_PRESS) {
         Soldier::switchWeapon(player_soldier, W_LASER);
     }

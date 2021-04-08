@@ -19,7 +19,8 @@ public:
                                          PhysicsVertex{{0.5, 0.5, -0.02}},
                                          PhysicsVertex{{0.5, -0.5, -0.02}},
                                          PhysicsVertex{{-0.5, -0.5, -0.02}}};
-
+    bool non_convex = false;
+    std::string decompose_key = "";
     // The edges of connecting the vertex tha forms a bonding box
     std::vector<std::pair<int,int>> faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
     // The mass of the object
