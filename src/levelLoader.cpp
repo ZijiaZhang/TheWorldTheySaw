@@ -90,9 +90,6 @@ std::unordered_map<std::string, bool> LevelLoader::saved_flag = {
 };
 
 std::string get_save_directory() {
-	TCHAR NPath[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, NPath);
-	// std::string path = std::string(NPath).substr(0, std::string(NPath).find_last_of("12") + 1).append("\\save.txt");
 	std::string path = "../save.txt";
 	return path;
 }
