@@ -22,7 +22,7 @@ std::unordered_map<WeaponType , std::function<void(ECS::Entity, float)>> Soldier
 
 float SoldierAISystem::pathTicker = 0.f;
 float SoldierAISystem::weaponTicker = 0.f;
-float SoldierAISystem::updateRate = 200.f;
+float SoldierAISystem::updateRate = 500.f;
 
 void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
@@ -83,7 +83,7 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
                 motion.offset_angle = rad - soldier_motion.angle;
                 auto callback = [](ECS::Entity e){
                     if(e.has<Motion>()) {
-                        Explosion::CreateExplosion(e.get<Motion>().position, 20, 0);
+                        Explosion::CreateExplosion(e.get<Motion>().position, 20, 0, 1);
                     }
                     ECS::ContainerInterface::remove_all_components_of(e);
                 };

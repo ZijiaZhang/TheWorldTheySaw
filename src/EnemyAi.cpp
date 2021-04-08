@@ -24,6 +24,9 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         if (shoot_time > shoot_interval){
             for (auto& enemy_entity : ECS::registry<Enemy>.entities)
             {
+                if (enemy_entity.get<Enemy>().type == EnemyType::SUICIDE) {
+                    continue;
+                }
                 if (EnemyAISystem::underEffectControl(enemy_entity, elapsed_ms)) {
                     continue;
                 }
@@ -32,12 +35,12 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                     auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
                     auto callback = [](ECS::Entity e){
                         if(e.has<Motion>()) {
-                            Explosion::CreateExplosion(e.get<Motion>().position, 20, 1);
+                            Explosion::CreateExplosion(e.get<Motion>().position, 20, 1, 1);
                         }
                         if(!e.has<DeathTimer>())
                             e.emplace<DeathTimer>();
                     };
-                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, W_ROCKET, "rocket", 2000, callback);
+                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, W_BULLET, "bullet", 2000, callback);
                 }
             }
             shoot_time = 0;
@@ -56,7 +59,12 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			ECS::Entity soldier = ECS::registry<Soldier>.entities[0];
 			auto& soldierMotion = ECS::registry<Motion>.get(soldier);
 
-			if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 500.f)) {
+            if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 150.f) && enemy_entity.get<Enemy>().type == EnemyType::SUICIDE) {
+                Explosion::CreateExplosion(enemy_motion.position, 50, 1, 10);
+                enemy_entity.emplace<DeathTimer>();
+            }
+
+			else if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 500.f)) {
 				enemy.enemyState = AiState::WALK_FORWARD;
 				EnemyAISystem::shortestPathToSoldier(enemy_entity, elapsed_ms, soldierMotion.position);
 			}
@@ -65,8 +73,6 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 					enemy.enemyState = AiState::WANDER;
 					EnemyAISystem::walkRandom(enemy_motion);
 			}
-
-
 		}
 		else
 		{
@@ -134,7 +140,7 @@ void EnemyAISystem::takeDamage(ECS::Entity enemy_entity, float damage) {
     if(enemy_entity.has<Health>()){
         auto& health = enemy_entity.get<Health>();
         health.hp -= damage;
-        if (health.hp < 0 && !enemy_entity.has<DeathTimer>()){
+        if (health.hp <= 0 && !enemy_entity.has<DeathTimer>()){
             enemy_entity.emplace<DeathTimer>();
         }
     } else {

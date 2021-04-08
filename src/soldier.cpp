@@ -60,21 +60,33 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	soldier.teamID = 0;
 
 	auto& health = ECS::registry<Health>.emplace(entity);
-	health.hp = 3;
-	health.max_hp = 3;
+	health.hp = 5;
+	health.max_hp = 5;
 	
 	return entity;
 }
 
 
 void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
-    if (e.has<Bullet>() && (e.get<Bullet>().teamID != self.get<Soldier>().teamID) && !self.has<DeathTimer>()) {
-        auto& health = self.get<Health>();
-        // auto& bullet_indicator = e.get<Bullet>().velocity_indicator;
-        // std::cout << bullet_indicator << "!!!!!";
-        health.hp -= 0.5;
+    if (!self.has<DeathTimer>()) {
+        if (e.has<Bullet>() && (e.get<Bullet>().teamID != self.get<Soldier>().teamID)) {
+            auto& health = self.get<Health>();
+            // auto& bullet_indicator = e.get<Bullet>().velocity_indicator;
+            // std::cout << bullet_indicator << "!!!!!";
+            health.hp -= Bullet::bulletDamage[e.get<Bullet>().type];
 
-        if (health.hp <= 0)
-            self.emplace<DeathTimer>();
+            if (health.hp <= 0)
+                self.emplace<DeathTimer>();
+        }
+        else if (e.has<Explosion>() && (e.get<Explosion>().teamID != self.get<Soldier>().teamID)) {
+            auto& health = self.get<Health>();
+            health.hp -= e.get<Explosion>().damage;
+
+            if (health.hp <= 0)
+                self.emplace<DeathTimer>();
+        }
     }
+    
+
+    // explosion
 };

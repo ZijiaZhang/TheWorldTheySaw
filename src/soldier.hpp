@@ -9,6 +9,7 @@
 #include "GameInstance.hpp"
 #include "render_components.hpp"
 #include "WeaponTimer.hpp"
+#include "explosion.hpp"
 
 enum class SoldierType {
     BASIC, MEDIUM, HEAVY

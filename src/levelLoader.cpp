@@ -9,7 +9,6 @@
 #include <nlohmann/json.hpp>
 #include "Wall.hpp"
 #include "soldier.hpp"
-#include "Enemy.hpp"
 #include "background.hpp"
 #include "start.hpp"
 #include "tiny_ecs.hpp"
@@ -77,6 +76,7 @@ std::vector<std::string> LevelLoader::level_order = {
 
 std::unordered_map<std::string, LevelEntityState> LevelLoader::saved_level_states = {};
 std::unordered_map<std::string, bool> LevelLoader::saved_flag = {
+	{"level_1", false},
 	{"level_2", false},
 	{"level_2", false},
 	{"level_3", false},
@@ -90,9 +90,6 @@ std::unordered_map<std::string, bool> LevelLoader::saved_flag = {
 };
 
 std::string get_save_directory() {
-	TCHAR NPath[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, NPath);
-	// std::string path = std::string(NPath).substr(0, std::string(NPath).find_last_of("12") + 1).append("\\save.txt");
 	std::string path = "../save.txt";
 	return path;
 }
@@ -294,15 +291,15 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"enemy", [](vec2 location, vec2 size, float rotation,
 				 COLLISION_HANDLER overlap,
 				 COLLISION_HANDLER hit, const json& additional) {
-		float health = ENEMY_DEFAULT_HEALTH;
+		EnemyType type = EnemyType::STANDARD;
 		int team_id = ENEMY_DEFAULT_TEAM_ID;
-		if (additional.contains("health")) {
-			health = additional["health"];
+		if (additional.contains("enemy_type")) {
+			type = Enemy::enemy_type_map[additional["enemy_type"]];
 		}
 		if (additional.contains("team_id")) {
 			team_id = additional["team_id"];
 		}
-		return Enemy::createEnemy(location, overlap, hit, team_id, health);
+		return Enemy::createEnemy(location, overlap, hit, team_id, type);
 	}},
 	{"button_start", [](vec2 location, vec2 size, float rotation,
 				  COLLISION_HANDLER,
@@ -373,12 +370,12 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 		scale = additional["scale"];
 	}
 		Background::createBackground(vec2{500, 500}, name, depth, scale);
-	}}, 	
+	}},
 	{"quality_slider", [](vec2 location, vec2 size, float,
 			COLLISION_HANDLER overlap,
 					COLLISION_HANDLER hit, json additional) {
 		float val_min, val_max,
-		x_min = location.x, x_max = location.x, 
+		x_min = location.x, x_max = location.x,
 		y_min = location.y, y_max = location.y;
 		if (additional.contains("val_min")) {
 			val_min = additional["val_min"];
@@ -397,8 +394,8 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	}
 	if (additional.contains("y_max")) {
 		y_max = additional["y_max"];
-	} 
-	
+	}
+
 	auto e = MoveableWall::createMoveableWall(location, size, 0, overlap, get_slider_callback(val_min, val_max, x_min, x_max, y_min, y_max));
 	e.get<PhysicsObject>().mass = 100.f;
 	}
@@ -478,7 +475,43 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 						COLLISION_HANDLER, const json&)
 					{
 						return level_progression["level_6"] > 0 ? Button::createButton(ButtonIcon::LEVEL6, location, select_level_button_overlap("level_6")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
-					} }
+					} }, 
+		{ "select_level_7", [](vec2 location, vec2 size, float rotation,
+			COLLISION_HANDLER,
+			COLLISION_HANDLER, const json&)
+			{
+				return level_progression["level_7"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_7")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+					} },
+		{ "select_level_8", [](vec2 location, vec2 size, float rotation,
+		COLLISION_HANDLER,
+		COLLISION_HANDLER, const json&)
+		{
+		return level_progression["level_8"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_8")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} },
+		{ "select_level_9", [](vec2 location, vec2 size, float rotation,
+		COLLISION_HANDLER,
+		COLLISION_HANDLER, const json&)
+		{
+		return level_progression["level_9"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_9")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} },
+		{ "select_level_10", [](vec2 location, vec2 size, float rotation,
+		COLLISION_HANDLER,
+		COLLISION_HANDLER, const json&)
+		{
+			return level_progression["level_10"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_10")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} },
+		{ "select_level_11", [](vec2 location, vec2 size, float rotation,
+			COLLISION_HANDLER,
+			COLLISION_HANDLER, const json&)
+		{
+			return level_progression["level_11"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_11")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} },
+		{ "select_level_12", [](vec2 location, vec2 size, float rotation,
+			COLLISION_HANDLER,
+			COLLISION_HANDLER, const json&)
+		{
+			return level_progression["level_12"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_12")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} }
 };
 
 /**
@@ -570,13 +603,9 @@ void LevelLoader::save_level_objects(std::string level)
 			COLLISION_HANDLER overlap = entity.get<PhysicsObject>().collisionHandler[Overlap];
 			COLLISION_HANDLER hit = entity.get<PhysicsObject>().collisionHandler[Hit];
 			int teamID = entity.get<Enemy>().teamID;
-			int hp = 0;
+			EnemyType type = entity.get<Enemy>().type;
 
-			if (entity.has<Health>()) {
-				hp = entity.get<Health>().hp;
-			}
-
-			saved_level_states[level].enemies.push_back(EnemyArg(position, overlap, hit, teamID, hp));
+			saved_level_states[level].enemies.push_back(EnemyArg(position, overlap, hit, teamID, type));
 		}
 	}
 }

@@ -14,7 +14,8 @@
 class Explosion {
     public:
         int teamID;
-        static ECS::Entity CreateExplosion(vec2 location, float radius, int teamID);
+        float damage;
+        static ECS::Entity CreateExplosion(vec2 location, float radius, int teamID, float damage = 1.0f);
         static void destroy_on_hit(ECS::Entity self,const ECS::Entity e, CollisionResult) {
             if (e.has<Shield>()) {
                 if (e.get<Shield>().teamID == self.get<Explosion>().teamID) {

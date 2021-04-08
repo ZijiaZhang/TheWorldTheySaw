@@ -7,7 +7,7 @@
 #include "render.hpp"
 #include "PhysicsObject.hpp"
 
-ECS::Entity Explosion::CreateExplosion(vec2 location, float radius, int teamID) {
+ECS::Entity Explosion::CreateExplosion(vec2 location, float radius, int teamID, float damage) {
     auto entity = ECS::Entity();
 
     std::string key = "explosion";
@@ -54,5 +54,6 @@ ECS::Entity Explosion::CreateExplosion(vec2 location, float radius, int teamID) 
 
     auto& explosion = entity.emplace<Explosion>();
     explosion.teamID = teamID;
+    explosion.damage = damage;
     return  entity;
 }
