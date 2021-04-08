@@ -200,7 +200,21 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units, float
 				motion.angle = atan2(dir.y, dir.x);
 				aiPath.desired_speed = { 100.f, 0.f };
 				if (entity.has<Enemy>()) {
-					aiPath.desired_speed = { 100.f, 0.f };
+					switch (entity.get<Enemy>().type) {
+						case EnemyType::STANDARD:
+							aiPath.desired_speed = { 100.f, 0.f };
+							break;
+						case EnemyType::ELITE:
+							aiPath.desired_speed = { 50.f, 0.f };
+							break;
+						case EnemyType::SUICIDE:
+							aiPath.desired_speed = { 180.f, 0.f };
+							break;
+						default:
+							aiPath.desired_speed = { 100.f, 0.f };
+							break;
+					}
+					
 				}
 			}
 			else {

@@ -99,6 +99,7 @@ void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Collis
     }
     else if (e.has<Explosion>() && e.get<Explosion>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
         EnemyAISystem::takeDamage(self, e.get<Explosion>().damage);
+        e.get<Explosion>().damage = 0.f;
     }
     /*
     else if ((e.has<Soldier>() || e.has<Shield>()) && (self.has<Enemy>() && self.get<Enemy>().type == EnemyType::SUICIDE) && self.has<Health>() && !self.has<DeathTimer>()) {

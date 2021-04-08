@@ -81,6 +81,7 @@ void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Co
         else if (e.has<Explosion>() && (e.get<Explosion>().teamID != self.get<Soldier>().teamID)) {
             auto& health = self.get<Health>();
             health.hp -= e.get<Explosion>().damage;
+            e.get<Explosion>().damage = 0.f;
 
             if (health.hp <= 0)
                 self.emplace<DeathTimer>();

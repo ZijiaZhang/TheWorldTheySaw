@@ -35,7 +35,7 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
                     auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
                     auto callback = [](ECS::Entity e){
                         if(e.has<Motion>()) {
-                            Explosion::CreateExplosion(e.get<Motion>().position, 20, 1, 1);
+                            Explosion::CreateExplosion(e.get<Motion>().position, 20, 1, 0);
                         }
                         if(!e.has<DeathTimer>())
                             e.emplace<DeathTimer>();
@@ -60,7 +60,7 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			auto& soldierMotion = ECS::registry<Motion>.get(soldier);
 
             if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 150.f) && enemy_entity.get<Enemy>().type == EnemyType::SUICIDE) {
-                Explosion::CreateExplosion(enemy_motion.position, 50, 1, 10);
+                Explosion::CreateExplosion(enemy_motion.position, 100, 1, 1);
                 enemy_entity.emplace<DeathTimer>();
             }
 
@@ -80,7 +80,6 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			EnemyAISystem::idle(enemy_motion);
 		}
 	}
-
 	// std::cout << "direct_movement: " << &soldier_motion << "\n";
 
 }
