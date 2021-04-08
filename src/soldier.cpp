@@ -60,8 +60,8 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	soldier.teamID = 0;
 
 	auto& health = ECS::registry<Health>.emplace(entity);
-	health.hp = 5;
-	health.max_hp = 5;
+	health.hp = 10;
+	health.max_hp = 10;
 	
 	return entity;
 }

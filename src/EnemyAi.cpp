@@ -9,6 +9,7 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	timeTicker += elapsed_ms;
 	shoot_time += elapsed_ms;
+    elite_shoot_time += elapsed_ms;
 	if (!ECS::registry<Enemy>.components.empty())
 	{
         if (timeTicker > enemyMovementRefresh) {
@@ -24,26 +25,40 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         if (shoot_time > shoot_interval){
             for (auto& enemy_entity : ECS::registry<Enemy>.entities)
             {
-                if (enemy_entity.get<Enemy>().type == EnemyType::SUICIDE) {
+                if (EnemyAISystem::underEffectControl(enemy_entity, elapsed_ms)) {
                     continue;
+                }if (ECS::registry<Motion>.has(enemy_entity) && ECS::registry<Enemy>.has(enemy_entity)) {
+                    auto& enemy_motion = ECS::registry<Motion>.get(enemy_entity);
+                    auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
+                    if (enemy.type == EnemyType::STANDARD) {
+                        Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, W_BULLET, "bullet", 1000);
+                    }
                 }
+            }
+            shoot_time = 0;
+        }
+        if (elite_shoot_time > elite_shoot_interval) {
+            for (auto& enemy_entity : ECS::registry<Enemy>.entities)
+            {
                 if (EnemyAISystem::underEffectControl(enemy_entity, elapsed_ms)) {
                     continue;
                 }
                 if (ECS::registry<Motion>.has(enemy_entity) && ECS::registry<Enemy>.has(enemy_entity)) {
                     auto& enemy_motion = ECS::registry<Motion>.get(enemy_entity);
                     auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
-                    auto callback = [](ECS::Entity e){
-                        if(e.has<Motion>()) {
-                            Explosion::CreateExplosion(e.get<Motion>().position, 20, 1, 0);
-                        }
-                        if(!e.has<DeathTimer>())
-                            e.emplace<DeathTimer>();
-                    };
-                    Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 380, 0 }, 1, W_BULLET, "bullet", 2000, callback);
+                    if (enemy.type == EnemyType::ELITE) {
+                        auto callback = [](ECS::Entity e) {
+                            if (e.has<Motion>()) {
+                                Explosion::CreateExplosion(e.get<Motion>().position, 50, 1, 1);
+                            }
+                            if (!e.has<DeathTimer>())
+                                e.emplace<DeathTimer>();
+                        };
+                        Bullet::createBullet(enemy_motion.position, enemy_motion.angle, { 150, 0 }, 1, W_ROCKET, "rocket", 2000, callback);
+                    }
                 }
             }
-            shoot_time = 0;
+            elite_shoot_time = 0;
         }
 	}
 }
