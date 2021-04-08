@@ -346,17 +346,8 @@ void WorldSystem::restart(std::string level)
 	if (soldiers.size() != 1) {
 		throw std::runtime_error("Can only have one soldier");
 	}
+
 	player_soldier = soldiers.front();
-
-	if (level == "level_3") 
-	{
-		AISystem::GRID_SIZE = 70;
-	}
-	else 
-	{
-		AISystem::GRID_SIZE = 50;
-	}
-
 	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 	while (!ECS::registry<Camera>.entities.empty())

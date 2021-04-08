@@ -17,5 +17,7 @@ public:
 
     static void wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult collision);
 
+    static void wall_overlap(ECS::Entity self, const ECS::Entity e, CollisionResult collision);
+
 };
 

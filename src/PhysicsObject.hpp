@@ -61,8 +61,8 @@ public:
         return Hit;
     }
 
-    static Force handle_collision(ECS::Entity self, const ECS::Entity other, CollisionResult collision){
-        if(!other.has<Motion>() || !self.has<Motion>()){
+    static Force calculate_force(ECS::Entity self, const ECS::Entity other, CollisionResult collision){
+        if (!other.has<Motion>() || !self.has<Motion>()) {
             return Force{};
         }
         // Handel collision
@@ -74,19 +74,25 @@ public:
         float relative_velocity_on_normal = dot(relative_velocity, collision.normal);
 
 
-        float m1r = p1.fixed? 0.f : 1.f/p1.mass;
-        float m2r = p2.fixed? 0.f : 1.f/p2.mass;
-        vec2 impulse = collision.normal * (- 2.f* relative_velocity_on_normal /(m1r + m2r));
+        float m1r = p1.fixed ? 0.f : 1.f / p1.mass;
+        float m2r = p2.fixed ? 0.f : 1.f / p2.mass;
+        vec2 impulse = collision.normal * (-2.f * relative_velocity_on_normal / (m1r + m2r));
 
         vec2 impact_location = collision.vertex - collision.normal * collision.penitration;
         // DebugSystem::createLine(impact_location, vec2{10,10});
         impulse.x = min(max(impulse.x, -1000.f), 1000.f);
         impulse.y = min(max(impulse.y, -1000.f), 1000.f);
-        Force f = Force{-1.f * impulse, impact_location};
-        p1.force.push_back(f);
+        Force f = Force{ -1.f * impulse, impact_location };
+        
         return f;
     }
 
+    static Force handle_collision(ECS::Entity self, const ECS::Entity other, CollisionResult collision){
+        auto f = calculate_force(self, other, collision);
+        auto& p1 = self.get<PhysicsObject>();
+        p1.force.push_back(f);
+        return f;
+    }
     void add_force(Force f){
         force.push_back(f);
     }

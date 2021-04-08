@@ -214,8 +214,9 @@ auto select_load_data() {
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callbacks = {
 		{"enemy_bullet_hit_death", Enemy::enemy_bullet_hit_death},
-		{"soldier_bullet_hit_death", Soldier::soldier_bullet_hit_death},
-		{"wall_scater", Wall::wall_hit},
+        {"soldier_bullet_hit_death", Soldier::soldier_bullet_hit_death},
+        {"wall_scater", Wall::wall_overlap},
+
 };
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::default_hit_callback = {
@@ -270,7 +271,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
 					   COLLISION_HANDLER overlap, COLLISION_HANDLER, const json&) {
-		Wall::createWall(location, size, rotation, physics_callbacks["wall_scater"], physics_callbacks["wall_scater"]);
+		Wall::createWall(location, size, rotation, physics_callbacks["wall_scater"], Wall::wall_hit);
 	}
 	},
 	{"borders", [](vec2 location, vec2 size, float rotation,
@@ -280,13 +281,14 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	},
 	{"movable_wall", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER overlap, COLLISION_HANDLER hit, const json&) {
-		MoveableWall::createMoveableWall(location, size, rotation, overlap, hit);
+		MoveableWall::createMoveableWall(location, size, rotation, physics_callbacks["wall_scater"], Wall::wall_hit);
 	}
 	},
 	{"player", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER overlap,
-			COLLISION_HANDLER hit, const json&) {
-		return Soldier::createSoldier(location, overlap, hit);
+			COLLISION_HANDLER hit, const json& additional) {
+		float light_intensity = additional.contains("light_intensity") ? additional["light_intensity"] : DEFAULT_LIGHT_INTENSITY;
+		return Soldier::createSoldier(location, overlap, hit, light_intensity);
 	}},
 	{"enemy", [](vec2 location, vec2 size, float rotation,
 				 COLLISION_HANDLER overlap,
@@ -357,9 +359,10 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"background", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER,
 					COLLISION_HANDLER, json additional) {
-		std::string name = "background";
-		float depth = 0.f;
-	  float scale = 1.5f;
+	    std::string name = "background";  
+	    float depth = 0.f;
+      float scale = 1.5f;
+
 		if (additional.contains("name")) {
 			name = additional["name"];
 		}
@@ -400,6 +403,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	e.get<PhysicsObject>().mass = 100.f;
 	}
 	},
+
 	{"title", [](vec2 location, vec2 , float ,
 					  COLLISION_HANDLER,
 					  COLLISION_HANDLER, const json&) {
