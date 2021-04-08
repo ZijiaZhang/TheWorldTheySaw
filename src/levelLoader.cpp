@@ -371,12 +371,12 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 		scale = additional["scale"];
 	}
 		Background::createBackground(vec2{500, 500}, name, depth, scale);
-	}}, 	
+	}},
 	{"quality_slider", [](vec2 location, vec2 size, float,
 			COLLISION_HANDLER overlap,
 					COLLISION_HANDLER hit, json additional) {
 		float val_min, val_max,
-		x_min = location.x, x_max = location.x, 
+		x_min = location.x, x_max = location.x,
 		y_min = location.y, y_max = location.y;
 		if (additional.contains("val_min")) {
 			val_min = additional["val_min"];
@@ -395,8 +395,8 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	}
 	if (additional.contains("y_max")) {
 		y_max = additional["y_max"];
-	} 
-	
+	}
+
 	auto e = MoveableWall::createMoveableWall(location, size, 0, overlap, get_slider_callback(val_min, val_max, x_min, x_max, y_min, y_max));
 	e.get<PhysicsObject>().mass = 100.f;
 	}
@@ -476,7 +476,43 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 						COLLISION_HANDLER, const json&)
 					{
 						return level_progression["level_6"] > 0 ? Button::createButton(ButtonIcon::LEVEL6, location, select_level_button_overlap("level_6")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
-					} }
+					} }, 
+		{ "select_level_7", [](vec2 location, vec2 size, float rotation,
+			COLLISION_HANDLER,
+			COLLISION_HANDLER, const json&)
+			{
+				return level_progression["level_7"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_7")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+					} },
+		{ "select_level_8", [](vec2 location, vec2 size, float rotation,
+		COLLISION_HANDLER,
+		COLLISION_HANDLER, const json&)
+		{
+		return level_progression["level_8"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_8")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} },
+		{ "select_level_9", [](vec2 location, vec2 size, float rotation,
+		COLLISION_HANDLER,
+		COLLISION_HANDLER, const json&)
+		{
+		return level_progression["level_9"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_9")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} },
+		{ "select_level_10", [](vec2 location, vec2 size, float rotation,
+		COLLISION_HANDLER,
+		COLLISION_HANDLER, const json&)
+		{
+			return level_progression["level_10"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_10")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} },
+		{ "select_level_11", [](vec2 location, vec2 size, float rotation,
+			COLLISION_HANDLER,
+			COLLISION_HANDLER, const json&)
+		{
+			return level_progression["level_11"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_11")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} },
+		{ "select_level_12", [](vec2 location, vec2 size, float rotation,
+			COLLISION_HANDLER,
+			COLLISION_HANDLER, const json&)
+		{
+			return level_progression["level_12"] > 0 ? Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_level_button_overlap("level_12")) : Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_button_overlap(""));
+		} }
 };
 
 /**

@@ -24,7 +24,7 @@ float SoldierAISystem::pathTicker = 0.f;
 float SoldierAISystem::weaponTicker = 0.f;
 
 // TODO: debug pathfinding / decision making for A* algorithm, and set this value back to 200.f
-float SoldierAISystem::updateRate = 500.f; 
+float SoldierAISystem::updateRate = 200.f; 
 
 void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {

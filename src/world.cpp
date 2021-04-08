@@ -390,7 +390,7 @@ void WorldSystem::checkEndGame()
             resetTimer();
             restart("lose");
         }
-		if (endGameTimer > 1000000.f) {
+		if (endGameTimer > 100000.f) {
 			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
 				restart("lose");
@@ -436,7 +436,6 @@ void WorldSystem::handle_collisions()
 				{
 					// Scream, reset timer, and make the soldier sink
 					ECS::registry<DeathTimer>.emplace(entity);
-
 				}
 			}
 		}
