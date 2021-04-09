@@ -76,7 +76,6 @@ public:
     float damage = 1.0;
     int penetration_counter = 0;
     static std::unordered_map<WeaponType, float> bulletDamage;
-
     static std::unordered_map<WeaponType, std::function<void(ECS::Entity, ECS::Entity, float)>> bulletEffect;
     static void heal_soldier(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);
     static void freeze_enemy(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);

@@ -43,14 +43,14 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     physicsObject.mass = 30;
     physicsObject.object_type = ENEMY;
     physicsObject.vertex = {
-            {
-                    PhysicsVertex{{-0.4, 0.4, -0.02}},
-                    PhysicsVertex{{0.2, 0.2, -0.02}},
-                    PhysicsVertex{{0.3, 0, -0.02}},
-                    PhysicsVertex{{0.2, -0.2, -0.02}},
-                    PhysicsVertex{{-0.4, -0.4, -0.02}},
-                    PhysicsVertex{{0, 0, -0.02}},
-            }
+        {
+            PhysicsVertex{{-0.4, 0.4, -0.02}},
+            PhysicsVertex{{0.2, 0.2, -0.02}},
+            PhysicsVertex{{0.3, 0, -0.02}},
+            PhysicsVertex{{0.2, -0.2, -0.02}},
+            PhysicsVertex{{-0.4, -0.4, -0.02}},
+            PhysicsVertex{{0, 0, -0.02}}
+        }
     };
     physicsObject.non_convex = true;
     physicsObject.decompose_key = "enemy_basic";

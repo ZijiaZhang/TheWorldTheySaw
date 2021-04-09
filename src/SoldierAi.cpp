@@ -22,6 +22,7 @@ std::unordered_map<WeaponType , std::function<void(ECS::Entity, float)>> Soldier
 
 float SoldierAISystem::pathTicker = 0.f;
 float SoldierAISystem::weaponTicker = 0.f;
+float SoldierAISystem::updateRate = 200.f;
 
 // TODO: debug pathfinding / decision making for A* algorithm, and set this value back to 200.f
 float SoldierAISystem::updateRate = 500.f; 
