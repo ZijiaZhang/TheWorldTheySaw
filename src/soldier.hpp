@@ -9,6 +9,7 @@
 #include "GameInstance.hpp"
 #include "render_components.hpp"
 #include "WeaponTimer.hpp"
+#include "explosion.hpp"
 
 #define DEFAULT_LIGHT_INTENSITY 200
 
