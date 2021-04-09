@@ -12,7 +12,7 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
     elite_shoot_time += elapsed_ms;
 	if (!ECS::registry<Enemy>.components.empty())
 	{
-        if (timeTicker > enemyMovementRefresh) {
+        if (timeTicker > ENEMY_MOVEMENT_REFRESH) {
             for (auto& enemy : ECS::registry<Enemy>.entities)
             {
                 if (EnemyAISystem::underEffectControl(enemy, elapsed_ms)) {
@@ -22,7 +22,7 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             }
             timeTicker = 0;
         }
-        if (shoot_time > shoot_interval){
+        if (shoot_time > SHOOT_INTERVAL){
             for (auto& enemy_entity : ECS::registry<Enemy>.entities)
             {
                 if (EnemyAISystem::underEffectControl(enemy_entity, elapsed_ms)) {
@@ -37,7 +37,7 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             }
             shoot_time = 0;
         }
-        if (elite_shoot_time > elite_shoot_interval) {
+        if (elite_shoot_time > ELITE_SHOOT_INTERVAL) {
             for (auto& enemy_entity : ECS::registry<Enemy>.entities)
             {
                 if (EnemyAISystem::underEffectControl(enemy_entity, elapsed_ms)) {
