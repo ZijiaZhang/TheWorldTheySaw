@@ -58,6 +58,8 @@ private:
     void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
     void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
 
+	void drawInstanced(const mat3& projection, std::list<Motion>& motion, const ShadedMesh& texmesh, GLuint translation_buffer);
+
 	void drawToScreen(vec2 window_size_in_game_units);
 
 	// Window handle
