@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "tiny_ecs.hpp"
 #include "render_components.hpp"
+#include "soldier.hpp"
 
 struct InstancedMesh;
 struct ShadedMesh;
@@ -48,6 +49,7 @@ public:
     static RenderSystem* renderSystem;
     void create_light_texture(float quality);
 	void recreate_light_texture(float quality);
+	void createWeaponTimer(mat3 projection_2D, Motion timer_mesh_motion, ECS::Entity weaponTimer_entity);
 private:
 	// Initialize the screeen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the water shader
