@@ -199,15 +199,15 @@ void RenderSystem::drawTexturedMesh(const mat3 &projection, Motion &motion, cons
 }
 
 
-void RenderSystem::drawInstanced(const mat3& projection, std::list<Motion>& motions, const ShadedMesh& texmesh, GLuint translation_buffer) {
+void RenderSystem::drawInstanced(const mat3& projection, Particle& particle) {
     auto& screen = screen_state_entity.get<ScreenState>();
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     // Transformation code, see Rendering and Transformation in the template specification for more info
 // Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
 
     // Setting shaders
-    glUseProgram(texmesh.effect.program);
-    glBindVertexArray(texmesh.mesh.vao);
+    glUseProgram(particle.mesh.effect.program);
+    glBindVertexArray(particle.mesh.mesh.vao);
     gl_has_errors();
 
     // Enabling alpha channel for textures
@@ -216,20 +216,22 @@ void RenderSystem::drawInstanced(const mat3& projection, std::list<Motion>& moti
     glDisable(GL_DEPTH_TEST);
     gl_has_errors();
 
-    GLint projection_uloc = glGetUniformLocation(texmesh.effect.program, "projection");
+    GLint projection_uloc = glGetUniformLocation(particle.mesh.effect.program, "projection");
     gl_has_errors();
     // Setting vertex and index buffers
-    glBindBuffer(GL_ARRAY_BUFFER, texmesh.mesh.vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texmesh.mesh.ibo);
+    glBindBuffer(GL_ARRAY_BUFFER, particle.mesh.mesh.vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, particle.mesh.mesh.ibo);
     gl_has_errors();
 
     // Input data location as in the vertex buffer
-    GLint in_position_loc = glGetAttribLocation(texmesh.effect.program, "in_position");
-    GLint in_texcoord_loc = glGetAttribLocation(texmesh.effect.program, "in_texcoord");
-
-    GLuint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
-
+    GLint in_position_loc = glGetAttribLocation(particle.mesh.effect.program, "in_position");
+    GLint in_texcoord_loc = glGetAttribLocation(particle.mesh.effect.program, "in_texcoord");
     
+    GLuint color_uloc = glGetUniformLocation(particle.mesh.effect.program, "fcolor");
+    GLuint camera_position_uloc = glGetUniformLocation(particle.mesh.effect.program, "camera_position");
+    GLuint delta_second_uloc = glGetUniformLocation(particle.mesh.effect.program, "delta_second");
+    glUniform1f(delta_second_uloc, static_cast<float>(glfwGetTime()) - particle.start_time);
+
     glEnableVertexAttribArray(in_position_loc);
     glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
     glEnableVertexAttribArray(in_texcoord_loc);
@@ -238,11 +240,11 @@ void RenderSystem::drawInstanced(const mat3& projection, std::list<Motion>& moti
     // Enabling and binding texture to slot 0
     glActiveTexture(GL_TEXTURE0);
     gl_has_errors();
-    glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
+    glBindTexture(GL_TEXTURE_2D, particle.mesh.texture.texture_id);
     gl_has_errors();
 
-    GLint in_transform_loc = glGetAttribLocation(texmesh.effect.program, "transform");
-    glBindBuffer(GL_ARRAY_BUFFER, translation_buffer);
+    GLint in_transform_loc = glGetAttribLocation(particle.mesh.effect.program, "transform");
+    glBindBuffer(GL_ARRAY_BUFFER, particle.motion_buffer);
     gl_has_errors();
     for (int i = 0; i < 3; i++) {
         gl_has_errors();
@@ -251,16 +253,22 @@ void RenderSystem::drawInstanced(const mat3& projection, std::list<Motion>& moti
         glVertexAttribPointer(in_transform_loc + i, 3, GL_FLOAT, GL_FALSE, sizeof(mat3), (GLvoid*)(sizeof(vec3) * i));
         glVertexAttribDivisor(in_transform_loc + i, 1);
     }
-    std::vector<mat3> t;
-    for (auto& motion: motions) {
-        Transform transform;
-        transform.translate(motion.position - camera.get_position());
-        transform.rotate(motion.angle);
-        transform.scale(motion.scale);
-        t.emplace_back(transform.mat);
-    }
-     
-    glBufferData(GL_ARRAY_BUFFER, sizeof(mat3) * t.size(), t.data(), GL_STATIC_DRAW);
+
+    GLint in_scale_speed_loc = glGetAttribLocation(particle.mesh.effect.program, "scale_speed");
+    GLint in_speed_loc = glGetAttribLocation(particle.mesh.effect.program, "speed");
+    glBindBuffer(GL_ARRAY_BUFFER, particle.scale_speed_buffer);
+    glEnableVertexAttribArray(in_scale_speed_loc);
+    gl_has_errors();
+    glVertexAttribPointer(in_scale_speed_loc, 1, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+    glVertexAttribDivisor(in_scale_speed_loc, 1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, particle.speed_buffer);
+    glEnableVertexAttribArray(in_speed_loc);
+    gl_has_errors();
+    glVertexAttribPointer(in_speed_loc, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), 0);
+    glVertexAttribDivisor(in_speed_loc, 1);
+
+
     // glBindBuffer(GL_ARRAY_BUFFER, texmesh.mesh.vbo);
 
     
@@ -269,7 +277,7 @@ void RenderSystem::drawInstanced(const mat3& projection, std::list<Motion>& moti
 
     // Getting uniform locations for glUniform* calls
 
-    glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
+    glUniform3fv(color_uloc, 1, (float*)&particle.mesh.texture.color);
     gl_has_errors();
 
     // Get number of indices from index buffer, which has elements uint16_t
@@ -281,9 +289,12 @@ void RenderSystem::drawInstanced(const mat3& projection, std::list<Motion>& moti
 
     // Setting uniform values to the currently bound program
     glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
+    vec2 camera_position = camera.get_position();
+    glUniform2fv(camera_position_uloc, 1, (float*)&camera_position);
+
     gl_has_errors();
     // Drawing of num_indices/3 triangles specified in the index buffer
-    glDrawElementsInstanced(GL_TRIANGLES,num_indices, GL_UNSIGNED_SHORT, nullptr, t.size());
+    glDrawElementsInstanced(GL_TRIANGLES,num_indices, GL_UNSIGNED_SHORT, nullptr, particle.motions.size());
     // glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
 
     glBindVertexArray(0);
@@ -565,7 +576,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     for (auto entity : ECS::registry<Particle>.entities) {
         auto& p = entity.get<Particle>();
         //drawTexturedMesh(entity, projection_2D, p.motions[5], p.mesh);
-        drawInstanced(projection_2D, p.motions, p.mesh, p.motion_buffer);
+        drawInstanced(projection_2D, p);
     }
     for (auto entity : ECS::registry<MagicParticle>.entities) {
         auto& p = entity.get<MagicParticle>();
@@ -641,7 +652,7 @@ const std::string RenderSystem::build_anim_vertex_shader(int frames) {
            << "uniform mat3 projection;\n"
            << "\n"
            << "void main()\n"
-           << "{\n"
+           << "{\n" 
            << "    float mytime = floor(mod(int(time), "<< frames <<".0));\n"
            << "    float x_offset = mod(mytime, "<< width<<".0); \n"
            << "    float y_offset = mod(floor(mytime/"<< width << "), "<< width<<".0); \n"
