@@ -33,7 +33,7 @@
             },
             "overlap": "enemy_bullet_hit_death",
             "additionalProperties": {
-                "health": 10,
+                "enemy_type": "elite",
                 "team_id": 1
             }
         }

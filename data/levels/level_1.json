@@ -50,7 +50,7 @@
             },
             "overlap": "enemy_bullet_hit_death",
             "additionalProperties": {
-                "enemy_type": "suicide",
+                "enemy_type": "standard",
                 "team_id": 1
             }
         },
@@ -65,7 +65,7 @@
             },
             "overlap": "enemy_bullet_hit_death",
             "additionalProperties": {
-                "enemy_type": "suicide",
+                "enemy_type": "standard",
                 "team_id": 1
             }
         },

@@ -33,7 +33,7 @@
             },
             "overlap": "enemy_bullet_hit_death",
             "additionalProperties": {
-                "health": 5,
+                "enemy_type": "standard",
                 "team_id": 1
             }
         },
@@ -48,7 +48,7 @@
             },
             "overlap": "enemy_bullet_hit_death",
             "additionalProperties": {
-                "health": 5,
+                "enemy_type": "standard",
                 "team_id": 1
             }
         },
@@ -63,7 +63,7 @@
             },
             "overlap": "enemy_bullet_hit_death",
             "additionalProperties": {
-                "health": 5,
+                "enemy_type": "standard",
                 "team_id": 1
             }
         },
@@ -78,7 +78,7 @@
             },
             "overlap": "enemy_bullet_hit_death",
             "additionalProperties": {
-                "health": 5,
+                "enemy_type": "standard",
                 "team_id": 1
             }
         }
