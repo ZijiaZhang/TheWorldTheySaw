@@ -6,7 +6,7 @@
 std::unordered_map<WeaponType, float> Bullet::bulletDamage {
         {W_AMMO, 2.0},
         {W_LASER, 1.0},
-        {W_BULLET, 2.0},
+        {W_BULLET, 0.0},
         {W_ROCKET, 5.0}
 };
 
@@ -20,8 +20,6 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     // Reserve en entity
     auto entity = ECS::Entity();
     // Create the rendering components
-
-
 
     std::string key = "bullet_" + texture_name;
     ShadedMesh& resource = cache_resource(key);

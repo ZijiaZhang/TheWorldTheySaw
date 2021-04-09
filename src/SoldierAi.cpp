@@ -22,7 +22,6 @@ std::unordered_map<WeaponType , std::function<void(ECS::Entity, float)>> Soldier
 
 float SoldierAISystem::pathTicker = 0.f;
 float SoldierAISystem::weaponTicker = 0.f;
-float SoldierAISystem::updateRate = 200.f;
 
 // TODO: debug pathfinding / decision making for A* algorithm, and set this value back to 200.f
 float SoldierAISystem::updateRate = 500.f; 
@@ -57,7 +56,6 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
 //                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
                 Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
                 // std::cout << "fire_bullet \n";
-
                 if (gun_fire == nullptr)
                     throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
                         audio_path("gun_fire.wav"));
