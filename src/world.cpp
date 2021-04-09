@@ -458,7 +458,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				{ 380, 0 },
 				0,
 				FIREBALL);
-			Particle::createParticle({ 100,100 }, { 50,50 }, 1000);
         }
     }
 
