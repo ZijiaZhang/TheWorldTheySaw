@@ -589,13 +589,13 @@ void gl_has_errors()
 
 void RenderSystem::createWeaponTimer(mat3 projection_2D, Motion timer_mesh_motion, ECS::Entity weaponTimer_entity) {
     auto wt = ECS::registry<WeaponTimer>.get(weaponTimer_entity);
-    if (wt.type == W_LASER) {
-        ShadedMesh laserMesh = ShadedMesh();
-        RenderSystem::createSprite(laserMesh, textures_path("/bullet/"+wt.texture_path+".png"), "textured");
-        drawTexturedMesh(projection_2D, timer_mesh_motion, laserMesh);
-    } else if (wt.type == W_AMMO) {
-        ShadedMesh ammoMesh = ShadedMesh();
-        RenderSystem::createSprite(ammoMesh, textures_path("/bullet/"+wt.texture_path+".png"), "textured");
-        drawTexturedMesh(projection_2D, timer_mesh_motion, ammoMesh);
+    std::string key = "weaponTimer_" + wt.texture_path;
+    ShadedMesh& resource = cache_resource(key);
+    if (resource.effect.program.resource == 0) {
+        resource = ShadedMesh();
+        RenderSystem::createSprite(resource, textures_path("/bullet/"+wt.texture_path+".png"), "textured");
+        drawTexturedMesh(projection_2D, timer_mesh_motion, resource);
+    } else {
+        drawTexturedMesh(projection_2D, timer_mesh_motion, resource);
     }
 }
