@@ -4,7 +4,7 @@
 
 ECS::Entity Fish::createFish(vec2 position)
 {
-	// Reserve en entity
+	// Reserve en entity 
 	auto entity = ECS::Entity();
 
 	// Create the rendering components
