@@ -48,7 +48,6 @@ bool DRAWING = false;
 int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
 bool WorldSystem::selecting = false;
-float WorldSystem::game_world_speed = 1.f;
 bool WorldSystem::pause = false;
 
 int KILL_SIZE = 3000;
@@ -268,13 +267,9 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
+	pause = pause && GameInstance::isPlayableLevel();
+
 	endGameTimer += elapsed_ms;
-	if (pause && GameInstance::isPlayableLevel()) {
-		game_world_speed = 0.f;
-	}
-	else {
-		game_world_speed = 1.f;
-	}
 	runTimer(elapsed_ms);
 	checkEndGame();
     if(player_soldier.has<Motion>()) {
