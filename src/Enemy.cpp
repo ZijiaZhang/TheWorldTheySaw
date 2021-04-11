@@ -24,7 +24,7 @@ std::unordered_map<std::string, EnemyType> Enemy::enemy_type_map = {
 
 ECS::Entity Enemy::createEnemy(vec2 position,
                                COLLISION_HANDLER overlap,
-                               COLLISION_HANDLER hit, int teamID, EnemyType type){
+                               COLLISION_HANDLER hit, int teamID, EnemyType type, float hp){
     auto entity = ECS::Entity();
 
     Enemy::set_shader(entity);
@@ -64,23 +64,29 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     e.type = type;
 
     auto& health_component = entity.emplace<Health>();
-    float health = 5;
+    float max_health = 5;
     switch (e.type) {
         case STANDARD:
-            health = 5;
+            max_health = 5;
             break;
         case SUICIDE:
-            health = 1;
+            max_health = 1;
             break;
         case ELITE:
-            health = 10;
+            max_health = 10;
             break;
         default:
-            health = 5;
+            max_health = 5;
             break;
     }
-    health_component.hp = health;
-    health_component.max_hp = health;
+    if (hp < max_health && hp > 0) {
+        health_component.hp = hp;
+    }
+    else {
+        health_component.hp = max_health;
+    }
+    
+    health_component.max_hp = max_health;
 
     entity.emplace<AIPath>();
     

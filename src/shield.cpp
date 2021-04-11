@@ -4,7 +4,7 @@
 #include "PhysicsObject.hpp"
 #include "Bullet.hpp"
 
-ECS::Entity Shield::createShield(vec2 position,  int teamID)
+ECS::Entity Shield::createShield(vec2 position,  int teamID, float hp)
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();
@@ -48,9 +48,15 @@ ECS::Entity Shield::createShield(vec2 position,  int teamID)
 	auto& shield = ECS::registry<Shield>.emplace(entity);
     shield.teamID = teamID;
 
-    auto& health = ECS::registry<Health>.emplace(entity);
-    health.hp = 20;
-    health.max_hp = 20;
+    auto& health_component = ECS::registry<Health>.emplace(entity);
+    float max_health = 20.f;
+    if (hp < max_health && hp > 0) {
+        health_component.hp = hp;
+    }
+    else {
+        health_component.hp = max_health;
+    }
+    health_component.max_hp = max_health;
 
 	return entity;
 }

@@ -584,8 +584,13 @@ void LevelLoader::save_level_objects(std::string level)
 			vec2 position = entity.get<Motion>().position;
 			COLLISION_HANDLER overlap = entity.get<PhysicsObject>().collisionHandler[Overlap];
 			COLLISION_HANDLER hit = entity.get<PhysicsObject>().collisionHandler[Hit];
+			float light_intensity = entity.get<Soldier>().light_intensity;
+			float hp = -1;
+			if (entity.has<Health>()) {
+				hp = entity.get<Health>().hp;
+			}
 
-			saved_level_states[level].soldiers.push_back(SoldierArg(position, overlap, hit));
+			saved_level_states[level].soldiers.push_back(SoldierArg(position, overlap, hit, light_intensity, hp));
 		}
 		else if ((entity.has<Wall>() || entity.has<MoveableWall>()) && entity.has<Motion>() && entity.has<PhysicsObject>()) {
 			vec2 location = entity.get<Motion>().position;
@@ -608,8 +613,22 @@ void LevelLoader::save_level_objects(std::string level)
 			COLLISION_HANDLER hit = entity.get<PhysicsObject>().collisionHandler[Hit];
 			int teamID = entity.get<Enemy>().teamID;
 			EnemyType type = entity.get<Enemy>().type;
+			float hp = -1;
+			if (entity.has<Health>()) {
+				hp = entity.get<Health>().hp;
+			}
 
-			saved_level_states[level].enemies.push_back(EnemyArg(position, overlap, hit, teamID, type));
+			saved_level_states[level].enemies.push_back(EnemyArg(position, overlap, hit, teamID, type, hp));
+		}
+		else if (entity.has<Shield>() && entity.has<Motion>() && entity.has<PhysicsObject>()) {
+			vec2 position = entity.get<Motion>().position;
+			int teamID = entity.get<Shield>().teamID;
+			float hp = -1;
+			if (entity.has<Health>()) {
+				hp = entity.get<Health>().hp;
+			}
+
+			saved_level_states[level].shields.push_back(ShieldArg(position, teamID, hp));
 		}
 	}
 }
@@ -622,7 +641,7 @@ void LevelLoader::load_level_objects(std::string level)
 	LevelEntityState current_level = saved_level_states[level];
 
 	if (current_level.soldiers.size() > 0) {
-		Soldier::createSoldier(std::get<0>(current_level.soldiers[0]), std::get<1>(current_level.soldiers[0]), std::get<2>(current_level.soldiers[0]));
+		Soldier::createSoldier(std::get<0>(current_level.soldiers[0]), std::get<1>(current_level.soldiers[0]), std::get<2>(current_level.soldiers[0]), std::get<3>(current_level.soldiers[0]), std::get<4>(current_level.soldiers[0]));
 	}
 	for (auto wall_arg : current_level.walls) {
 		auto& motion = Wall::createWall(std::get<0>(wall_arg), std::get<1>(wall_arg), std::get<2>(wall_arg), std::get<3>(wall_arg), std::get<4>(wall_arg)).get<Motion>();
@@ -633,7 +652,12 @@ void LevelLoader::load_level_objects(std::string level)
 		motion.preserve_world_velocity = std::get<5>(moveable_wall_arg);
 	}
 	for (auto enemy_arg : current_level.enemies) {
-		Enemy::createEnemy(std::get<0>(enemy_arg), std::get<1>(enemy_arg), std::get<2>(enemy_arg), std::get<3>(enemy_arg), std::get<4>(enemy_arg));
+		Enemy::createEnemy(std::get<0>(enemy_arg), std::get<1>(enemy_arg), std::get<2>(enemy_arg), std::get<3>(enemy_arg), std::get<4>(enemy_arg), std::get<5>(enemy_arg));
+	}
+	if (current_level.shields.size() > 0) {
+		WorldSystem::hasShield = true;
+		WorldSystem::shield = Shield::createShield(std::get<0>(current_level.shields[0]), std::get<1>(current_level.shields[0]), std::get<2>(current_level.shields[0]));
+		WorldSystem::SHIELDUP = true;
 	}
 
 	GameInstance::algorithm = current_level.ai;

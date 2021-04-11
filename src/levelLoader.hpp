@@ -18,8 +18,9 @@ using json = nlohmann::json;
 
 using WallArg = std::tuple<vec2, vec2, float, COLLISION_HANDLER, COLLISION_HANDLER, vec2>;
 using MoveableWallArg = std::tuple<vec2, vec2, float, COLLISION_HANDLER, COLLISION_HANDLER, vec2>;
-using SoldierArg = std::tuple<vec2, COLLISION_HANDLER, COLLISION_HANDLER>;
-using EnemyArg = std::tuple<vec2, COLLISION_HANDLER, COLLISION_HANDLER, int, EnemyType>;
+using SoldierArg = std::tuple<vec2, COLLISION_HANDLER, COLLISION_HANDLER, float, float>;
+using EnemyArg = std::tuple<vec2, COLLISION_HANDLER, COLLISION_HANDLER, int, EnemyType, float>;
+using ShieldArg = std::tuple<vec2, int, float>;
 
 struct IntersectionResult{
     bool has_intersect = false;
@@ -33,6 +34,7 @@ struct LevelEntityState {
     std::vector<MoveableWallArg> moveable_walls;
     std::vector<SoldierArg> soldiers;
     std::vector<EnemyArg> enemies;
+    std::vector<ShieldArg> shields;
 };
 
 class LevelLoader {
