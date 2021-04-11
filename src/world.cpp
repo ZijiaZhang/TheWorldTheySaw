@@ -19,7 +19,6 @@
 #include "Weapon.hpp"
 #include "Explosion.hpp"
 #include "MagicParticle.hpp"
-#include "GameInstance.hpp"
 #include "WeaponTimer.hpp"
 
 // stlib

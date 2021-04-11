@@ -7,6 +7,7 @@
 #include "Camera.hpp"
 #include "button.hpp"
 #include "health_bar.hpp"
+#include "GameInstance.hpp"
 
 // stlib
 #include <vector>
