@@ -12,13 +12,14 @@
 #include "PhysicsObject.hpp"
 #include "GameInstance.hpp"
 #include <nlohmann/json.hpp>
+#include "Enemy.hpp"
 
 using json = nlohmann::json;
 
 using WallArg = std::tuple<vec2, vec2, float, COLLISION_HANDLER, COLLISION_HANDLER, vec2>;
 using MoveableWallArg = std::tuple<vec2, vec2, float, COLLISION_HANDLER, COLLISION_HANDLER, vec2>;
 using SoldierArg = std::tuple<vec2, COLLISION_HANDLER, COLLISION_HANDLER>;
-using EnemyArg = std::tuple<vec2, COLLISION_HANDLER, COLLISION_HANDLER, int, float>;
+using EnemyArg = std::tuple<vec2, COLLISION_HANDLER, COLLISION_HANDLER, int, EnemyType>;
 
 struct IntersectionResult{
     bool has_intersect = false;

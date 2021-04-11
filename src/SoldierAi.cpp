@@ -22,7 +22,7 @@ std::unordered_map<WeaponType , std::function<void(ECS::Entity, float)>> Soldier
 
 float SoldierAISystem::pathTicker = 0.f;
 float SoldierAISystem::weaponTicker = 0.f;
-float SoldierAISystem::updateRate = 200.f;
+float SoldierAISystem::updateRate = 500.f;
 
 void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
@@ -51,7 +51,7 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet");
+                Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet", 1200);
 //                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
                 Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
                 std::cout << "fire_bullet \n";
@@ -84,7 +84,7 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
                 motion.offset_angle = rad - soldier_motion.angle;
                 auto callback = [](ECS::Entity e){
                     if(e.has<Motion>()) {
-                        Explosion::CreateExplosion(e.get<Motion>().position, 20, 0);
+                        Explosion::CreateExplosion(e.get<Motion>().position, 20, 0, 1);
                     }
                     ECS::ContainerInterface::remove_all_components_of(e);
                 };
@@ -117,7 +117,7 @@ void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) 
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {400, 0}, 0, W_LASER, "laser");
+                Bullet::createBullet(motion.position, rad, {400, 0}, 0, W_LASER, "laser", 750);
                 //Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
                 std::cout << "fire_laser \n";
                 Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("laser.wav").c_str());
@@ -146,7 +146,7 @@ void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo");
+                Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo", 1600);
                 // Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
 
                 std::cout << "fire_ammo \n";
@@ -183,7 +183,7 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float 
                         soldier.soldierState = AiState::WALK_FORWARD;
                         soldier_entity.get<AIPath>().path = AISystem::find_path_to_location(soldier_entity,
                                                                                             enemyMotion.position, 100);
-                        soldier_entity.get<AIPath>().progress = 0;
+                        soldier_entity.get<AIPath>().progress = 1;
                         soldier_entity.get<AIPath>().desired_speed = {70, 0};
                         pathTicker = 0.f;
                         return;

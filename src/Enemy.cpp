@@ -16,11 +16,16 @@ std::string Enemy::frozen_texture_path = "/enemy/frozen.jpeg";
 std::string Enemy::ori_shader_name = "textured";
 std::string Enemy::frozen_shader_name = "frozen";
 
+std::unordered_map<std::string, EnemyType> Enemy::enemy_type_map = {
+    {"standard", EnemyType::STANDARD},
+    {"suicide", EnemyType::SUICIDE},
+    {"elite", EnemyType::ELITE}
+};
+
 ECS::Entity Enemy::createEnemy(vec2 position,
                                COLLISION_HANDLER overlap,
-                               COLLISION_HANDLER hit, int teamID, float health){
+                               COLLISION_HANDLER hit, int teamID, EnemyType type){
     auto entity = ECS::Entity();
-
 
     Enemy::set_shader(entity);
 
@@ -54,16 +59,31 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     physicsObject.attach(Hit, std::move(hit));
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 
-    if(health > 0){
-        auto& health_component = entity.emplace<Health>();
-        health_component.hp = health;
-        health_component.max_hp = health;
+    auto& e = ECS::registry<Enemy>.emplace(entity);
+    e.teamID = teamID;
+    e.type = type;
+
+    auto& health_component = entity.emplace<Health>();
+    float health = 5;
+    switch (e.type) {
+        case STANDARD:
+            health = 5;
+            break;
+        case SUICIDE:
+            health = 1;
+            break;
+        case ELITE:
+            health = 10;
+            break;
+        default:
+            health = 5;
+            break;
     }
+    health_component.hp = health;
+    health_component.max_hp = health;
 
     entity.emplace<AIPath>();
-    // Create and (empty) Salmon component to be able to refer to all turtles
-    auto& e =ECS::registry<Enemy>.emplace(entity);
-    e.teamID = teamID;
+    
     return entity;
 }
 
@@ -76,26 +96,19 @@ void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Collis
 
         auto bullet_type = e.get<Bullet>().bullet_indicator;
         // bullet
-        if (bullet_type == "bullet") {
-            EnemyAISystem::takeDamage(self, 0.4);
-        }
-        // rocket
-        else if (bullet_type == "rocket") {
-            EnemyAISystem::takeDamage(self, 0.7);
-        }
-        // laser
-        else if (bullet_type == "laser") {
-            EnemyAISystem::takeDamage(self, 0.3);
-        }
-        // ammo
-        else {
-            EnemyAISystem::takeDamage(self, 0.6);
-        }
-        // EnemyAISystem::takeDamage(self, 1);
+        EnemyAISystem::takeDamage(self, e.get<Bullet>().damage);
 
-    } else if (e.has<Explosion>() && e.get<Explosion>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()){
-        EnemyAISystem::takeDamage(self, 0.5);
     }
+    else if (e.has<Explosion>() && e.get<Explosion>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
+        EnemyAISystem::takeDamage(self, e.get<Explosion>().damage);
+        e.get<Explosion>().damage = 0.f;
+    }
+    /*
+    else if ((e.has<Soldier>() || e.has<Shield>()) && (self.has<Enemy>() && self.get<Enemy>().type == EnemyType::SUICIDE) && self.has<Health>() && !self.has<DeathTimer>()) {
+        std::cout << "explode\n";
+        EnemyAISystem::takeDamage(self, self.get<Health>().max_hp);
+    }
+    */
 };
 
 void Enemy::set_shader(ECS::Entity self, bool effect, std::string texture_path, std::string shader_name) {

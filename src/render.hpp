@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "tiny_ecs.hpp"
 #include "render_components.hpp"
+#include "Particle.hpp"
 
 struct InstancedMesh;
 struct ShadedMesh;
@@ -51,12 +52,14 @@ public:
 private:
 	// Initialize the screeen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the water shader
-	void initScreenTexture();
+	void initScreenTexture(); 
 
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(ECS::Entity entity, const mat3& projection);
     void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
     void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
+
+	void drawInstanced(const mat3& projection, Particle& particle);
 
 	void drawToScreen(vec2 window_size_in_game_units);
 

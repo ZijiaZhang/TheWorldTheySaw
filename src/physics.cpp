@@ -66,27 +66,29 @@ CollisionType PhysicsSystem::advanced_collision(ECS::Entity e1, ECS::Entity e2) 
 	if (ret && p1.collide && p2.collide && PhysicsObject::getCollisionType(p1.object_type, p2.object_type) == Hit) {
 
 
-        float delta_p1 = p2.fixed ? c1.penitration : c1.penitration * p1.mass / (p2.mass + p1.mass);
-        float delta_p2 = p1.fixed ? c1.penitration : c1.penitration * p2.mass / (p2.mass + p1.mass);
-        if( !e1.get<Motion>().has_parent) {
-            m1.position += p1.fixed ? vec2{0, 0} : delta_p1 * c1.normal * mul;
-        } else{
-            m1.offset_move += p1.fixed ? vec2{0, 0} : delta_p1 * c1.normal * mul;
-        } if(!e2.get<Motion>().has_parent) {
-            m2.position -= p2.fixed ? vec2{0, 0} : delta_p2 * c1.normal * mul;
-        } else {
-            m2.offset_move -= p2.fixed ? vec2{0, 0} : delta_p2 * c1.normal * mul;
-        };
+		float delta_p1 = p2.fixed ? c1.penitration : c1.penitration * p1.mass / (p2.mass + p1.mass);
+		float delta_p2 = p1.fixed ? c1.penitration : c1.penitration * p2.mass / (p2.mass + p1.mass);
+		if (!e1.get<Motion>().has_parent) {
+			m1.position += p1.fixed ? vec2{ 0, 0 } : delta_p1 * c1.normal * mul;
+		}
+		else {
+			m1.offset_move += p1.fixed ? vec2{ 0, 0 } : delta_p1 * c1.normal * mul;
+		} if (!e2.get<Motion>().has_parent) {
+			m2.position -= p2.fixed ? vec2{ 0, 0 } : delta_p2 * c1.normal * mul;
+		}
+		else {
+			m2.offset_move -= p2.fixed ? vec2{ 0, 0 } : delta_p2 * c1.normal * mul;
+		};
 
 	}
 	// If two objects overlap / hit
 	auto result = PhysicsObject::getCollisionType(p1.object_type, p2.object_type);
-    if (result != NoCollision) {
-        p1.physicsEvent(result, e1, e2, c1);
-        // The vector may resize, re-obtain reference here.
-        auto& p2_a = ECS::registry<PhysicsObject>.get(e2);
-        p2_a.physicsEvent(result, e2, e1, c1);
-    }
+	if (result != NoCollision) {
+		p1.physicsEvent(result, e1, e2, c1);
+		// The vector may resize, re-obtain reference here.
+		auto& p2_a = ECS::registry<PhysicsObject>.get(e2);
+		p2_a.physicsEvent(result, e2, e1, c1);
+	}
 	return result;
 }
 
@@ -248,77 +250,94 @@ CollisionResult PhysicsSystem::collision(ECS::Entity e1, ECS::Entity e2) {
 
 void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units, float multiplier)
 {
-    float step_seconds = multiplier * (elapsed_ms / 1000.f);
-    for(auto& entity: ECS::registry<AIPath>.entities){
-        if(entity.has<Motion>()){
+	float step_seconds = multiplier * (elapsed_ms / 1000.f);
+	for (auto& entity : ECS::registry<AIPath>.entities) {
+		if (entity.has<Motion>()) {
 
-            auto& motion = entity.get<Motion>();
-            auto& aiPath = entity.get<AIPath>();
-            if (!aiPath.active)
-                continue;
-            if(aiPath.path.path.empty()){
-                motion.velocity = vec2{0.f,0.f};
-                continue;
-            }
-            while(aiPath.progress < aiPath.path.path.size() &&
-            length(AISystem::get_grid_location(aiPath.path.path[aiPath.progress]) - motion.position) < AISystem::GRID_SIZE * 0.2){
-                aiPath.progress++;
-            }
-            if (aiPath.progress < aiPath.path.path.size()) {
-                auto target = aiPath.path.path[aiPath.progress];
-                auto target_position = AISystem::get_grid_location(target);
-                auto dir =  target_position - motion.position;
-                // Enemy will always face the player
-                motion.angle = atan2(dir.y, dir.x);
-                aiPath.desired_speed = { 100.f, 0.f };
-            }
-            else {
-                aiPath.desired_speed = { 0.f, 0.f };
-                aiPath.path.path.clear();
-                aiPath.progress = 0;
-            }
-            motion.velocity -= (motion.velocity - aiPath.desired_speed) * elapsed_ms / 1000.f;
-        }
-    }
+			auto& motion = entity.get<Motion>();
+			auto& aiPath = entity.get<AIPath>();
+			if (!aiPath.active)
+				continue;
+			if (aiPath.path.path.empty()) {
+				motion.velocity = vec2{ 0.f,0.f };
+				continue;
+			}
+			while (aiPath.progress < aiPath.path.path.size() &&
+				length(AISystem::get_grid_location(aiPath.path.path[aiPath.progress]) - motion.position) < AISystem::GRID_SIZE * 0.2) {
+				aiPath.progress++;
+			}
+			if (aiPath.progress < aiPath.path.path.size()) {
+				auto target = aiPath.path.path[aiPath.progress];
+				auto target_position = AISystem::get_grid_location(target);
+				auto dir = target_position - motion.position;
+				// Enemy will always face the player
+				motion.angle = atan2(dir.y, dir.x);
+				aiPath.desired_speed = { 100.f, 0.f };
+				if (entity.has<Enemy>()) {
+					switch (entity.get<Enemy>().type) {
+						case EnemyType::STANDARD:
+							aiPath.desired_speed = { 100.f, 0.f };
+							break;
+						case EnemyType::ELITE:
+							aiPath.desired_speed = { 50.f, 0.f };
+							break;
+						case EnemyType::SUICIDE:
+							aiPath.desired_speed = { 180.f, 0.f };
+							break;
+						default:
+							aiPath.desired_speed = { 100.f, 0.f };
+							break;
+					}
+					
+				}
+			}
+			else {
+				aiPath.desired_speed = { 0.f, 0.f };
+				aiPath.path.path.clear();
+				aiPath.progress = 0;
+			}
+			motion.velocity -= (motion.velocity - aiPath.desired_speed) * elapsed_ms / 1000.f;
+		}
+	}
 
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
-    for(auto& entity: ECS::registry<ParentEntity>.entities){
-        auto& parent = entity.get<ParentEntity>();
-        if(entity.has<PhysicsObject>() && parent.parent.has<PhysicsObject>()){
-            auto& physicsObject = entity.get<PhysicsObject>();
-            auto& parent_physics = parent.parent.get<PhysicsObject>();
-            parent_physics.force.insert( parent_physics.force.end(),physicsObject.force.begin(), physicsObject.force.end());
-            physicsObject.force.clear();
-        }
-    }
+	for (auto& entity : ECS::registry<ParentEntity>.entities) {
+		auto& parent = entity.get<ParentEntity>();
+		if (entity.has<PhysicsObject>() && parent.parent.has<PhysicsObject>()) {
+			auto& physicsObject = entity.get<PhysicsObject>();
+			auto& parent_physics = parent.parent.get<PhysicsObject>();
+			parent_physics.force.insert(parent_physics.force.end(), physicsObject.force.begin(), physicsObject.force.end());
+			physicsObject.force.clear();
+		}
+	}
 
-    for (auto& entity : ECS::registry<PhysicsObject>.entities){
-        auto& physics = entity.get<PhysicsObject>();
-        if(physics.fixed) {
-            physics.force.clear();
-            continue;
-        }
-        auto& motion = entity.get<Motion>();
-        for(auto& f: physics.force) {
-            motion.preserve_world_velocity += f.force / physics.mass;
-            vec2 rad = f.position - motion.position;
-            float radius = static_cast<float>(sqrt(dot(rad,rad)));
-            float I = physics.mass/2.0f * static_cast<float>(pow(max(motion.scale.x, motion.scale.y), 2));
-            vec2 rotate_force = f.force - dot(f.force, rad) * rad / radius/ radius;
-            float mul = rotate_force.x * rad.y - rotate_force.y * rad.x < 0? 1: -1;
-            float alpha = sqrt(dot(rotate_force, rotate_force)) * radius/ I * mul;
+	for (auto& entity : ECS::registry<PhysicsObject>.entities) {
+		auto& physics = entity.get<PhysicsObject>();
+		if (physics.fixed) {
+			physics.force.clear();
+			continue;
+		}
+		auto& motion = entity.get<Motion>();
+		for (auto& f : physics.force) {
+			motion.preserve_world_velocity += f.force / physics.mass;
+			vec2 rad = f.position - motion.position;
+			float radius = static_cast<float>(sqrt(dot(rad, rad)));
+			float I = physics.mass / 2.0f * static_cast<float>(pow(max(motion.scale.x, motion.scale.y), 2));
+			vec2 rotate_force = f.force - dot(f.force, rad) * rad / radius / radius;
+			float mul = rotate_force.x * rad.y - rotate_force.y * rad.x < 0 ? 1 : -1;
+			float alpha = sqrt(dot(rotate_force, rotate_force)) * radius / I * mul;
 
-            motion.angular_velocity += alpha;
+			motion.angular_velocity += alpha;
 
-        }
-        physics.force.clear();
-    }
+		}
+		physics.force.clear();
+	}
 
-    for(auto& player: ECS::registry<Soldier>.entities){
-        player.get<Motion>().preserve_world_velocity*= 0.9;
-        player.get<Motion>().angular_velocity*= 0.9;
-    }
+	for (auto& player : ECS::registry<Soldier>.entities) {
+		player.get<Motion>().preserve_world_velocity *= 0.9;
+		player.get<Motion>().angular_velocity *= 0.9;
+	}
 
 
 
@@ -329,16 +348,16 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units, float
 			motion.position += v * step_seconds;
 			motion.angle += motion.angular_velocity * step_seconds;
 			motion.angular_velocity *= pow(0.9, step_seconds);
-            motion.preserve_world_velocity *= pow(0.9, step_seconds);
+			motion.preserve_world_velocity *= pow(0.9, step_seconds);
 		}
 		else {
 			if (motion.parent.has<Motion>()) {
 				Transform t1{};
 				t1.rotate(motion.parent.get<Motion>().angle);
 				vec3 world_translate = t1.mat * vec3{ motion.offset, 0.f };
-                motion.parent.get<Motion>().position += motion.offset_move;
-                motion.offset_move = vec2 {0.f,0.f};
-                vec2 old_position = motion.position;
+				motion.parent.get<Motion>().position += motion.offset_move;
+				motion.offset_move = vec2{ 0.f,0.f };
+				vec2 old_position = motion.position;
 				motion.position = motion.parent.get<Motion>().position + vec2{ world_translate };
 				motion.angle = motion.offset_angle + motion.parent.get<Motion>().angle;
 				motion.velocity = motion.parent.get<Motion>().velocity;
@@ -376,9 +395,9 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units, float
 				DebugSystem::createLine(vec2{ world.x, world.y }, vec2{ 10,10 });
 			}
 		}
-        for (auto& m : ECS::registry<Motion>.components) {
-            DebugSystem::createLine(m.position, {10.f, 10.f});
-        }
+		for (auto& m : ECS::registry<Motion>.components) {
+			DebugSystem::createLine(m.position, { 10.f, 10.f });
+		}
 
 		for (auto& e : ECS::registry<AIPath>.components) {
 
@@ -400,12 +419,12 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units, float
 	auto& physics_object_container = ECS::registry<PhysicsObject>;
 	// for (auto [i, motion_i] : enumerate(motion_container.components)) // in c++ 17 we will be able to do this instead of the next three lines
 	unsigned int size = physics_object_container.components.size();
-	for (int i = size - 1; i >= 0 ; i--)
+	for (int i = size - 1; i >= 0; i--)
 	{
 		ECS::Entity entity_i = physics_object_container.entities[i];
 		auto& motion_i = entity_i.get<Motion>();
 		// std::cout << "entity i addr: " << &entity_i << "\n";
-		for (int j = i - 1; j >= 0 ; j--)
+		for (int j = i - 1; j >= 0; j--)
 		{
 
 			ECS::Entity entity_j = physics_object_container.entities[j];
@@ -416,9 +435,9 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units, float
 				 // Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
 				CollisionType result = advanced_collision(entity_i, entity_j);
 
-//                if(entity_j.has<Soldier>() || entity_i.has<Soldier>()){
-//                    printf("Soldier collide with %d, %d\n", entity_i.get<PhysicsObject>().object_type, result);
-//                }
+				//                if(entity_j.has<Soldier>() || entity_i.has<Soldier>()){
+				//                    printf("Soldier collide with %d, %d\n", entity_i.get<PhysicsObject>().object_type, result);
+				//                }
 
 			}
 		}
