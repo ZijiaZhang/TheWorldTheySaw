@@ -19,7 +19,6 @@
 #include "Weapon.hpp"
 #include "Explosion.hpp"
 #include "MagicParticle.hpp"
-#include "GameInstance.hpp"
 #include "WeaponTimer.hpp"
 
 // stlib
@@ -267,7 +266,12 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
-	pause = pause && GameInstance::isPlayableLevel();
+	if (pause && GameInstance::isPlayableLevel()) {
+		GameInstance::game_world_speed = 0.f;
+	}
+	else {
+		GameInstance::game_world_speed = 1.f;
+	}
 
 	endGameTimer += elapsed_ms;
 	runTimer(elapsed_ms);

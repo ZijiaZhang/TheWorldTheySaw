@@ -9,6 +9,7 @@ WeaponType GameInstance::selectedWeapon = W_BULLET;
 AIAlgorithm GameInstance::algorithm = DIRECT;
 MagicWeapon GameInstance::selectedMagic = FIREBALL;
 float GameInstance::light_quality = 32.f;
+float GameInstance::game_world_speed = 1.0f;
 
 static std::map<std::string, bool> playableLevelMap = {
         {"menu", false},

@@ -56,10 +56,8 @@ int main()
 
 		// Calculating elapsed times in milliseconds from the previous iteration
 		auto now = Clock::now();
-		float elapsed_ms = static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count()) / 1000.f;
-		if (WorldSystem::pause) {
-			elapsed_ms = 0;
-		}
+		float elapsed_ms = GameInstance::game_world_speed * static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count()) / 1000.f;
+		
 		//elapsed_ms = 16.f;
 		t = now;
 
