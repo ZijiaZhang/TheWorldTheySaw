@@ -57,7 +57,6 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(ECS::Entity entity, const mat3& projection);
     void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
-    void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
 
 	void drawInstanced(const mat3& projection, Particle& particle);
 
