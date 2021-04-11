@@ -28,6 +28,7 @@ public:
     MagicWeapon magic = FIREBALL;
 	int teamID = 0;
 	float light_intensity = 200;
+    bool forcefield_on = false;
 	static void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult);
 
 	static void addHealth(ECS::Entity self, float bloodIn) {
@@ -80,4 +81,13 @@ public:
 
         GameInstance::selectedWeapon = type;
 	}
+    
+    static std::string ori_texture_path;
+    static std::string field_texture_path;
+    static std::string ori_shader_name;
+    static std::string field_shader_name;
+
+    static void set_shader(ECS::Entity self, bool effect = false, std::string texture_path = Soldier::ori_texture_path, std::string shader_name = Soldier::ori_shader_name);
+    static void set_field_shader(ECS::Entity self);
+    static void set_field(ECS::Entity self);
 };
