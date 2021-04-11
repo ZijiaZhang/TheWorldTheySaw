@@ -6,7 +6,7 @@
 std::unordered_map<WeaponType, float> Bullet::bulletDamage {
         {W_AMMO, 0.3},
         {W_LASER, 0.5},
-        {W_BULLET, 0.0},
+        {W_BULLET, 1.0},
         {W_ROCKET, 3.0}
 };
 

@@ -99,7 +99,7 @@ void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Collis
             Bullet::bulletEffect[e.get<Bullet>().type](e, self, 0.0);
         }
         // EnemyAISystem::takeDamage(self, e.get<Bullet>().damage);
-
+        std::cout << "hit\n";
         auto bullet_type = e.get<Bullet>().bullet_indicator;
         // bullet
         EnemyAISystem::takeDamage(self, e.get<Bullet>().damage);

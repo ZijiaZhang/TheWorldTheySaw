@@ -10,6 +10,7 @@
 #include "MoveableWall.hpp"
 #include "Bullet.hpp"
 #include "MagicParticle.hpp"
+#include "levelLoader.hpp"
 
 ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation,
                              COLLISION_HANDLER overlap,

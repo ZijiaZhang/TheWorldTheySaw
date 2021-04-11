@@ -7,12 +7,9 @@
 
 #include "levelLoader.hpp"
 #include <nlohmann/json.hpp>
-#include "Wall.hpp"
-#include "soldier.hpp"
 #include "background.hpp"
 #include "start.hpp"
 #include "tiny_ecs.hpp"
-#include "MoveableWall.hpp"
 #include "Bullet.hpp"
 #include "render_components.hpp"
 #include "button.hpp"
@@ -580,55 +577,20 @@ void LevelLoader::save_level_objects(std::string level)
 	saved_level_states[level].weapon = GameInstance::selectedWeapon;
 
 	for (auto entity : physics_entities) {
-		if (entity.has<Soldier>() && entity.has<Motion>() && entity.has<PhysicsObject>()) {
-			vec2 position = entity.get<Motion>().position;
-			COLLISION_HANDLER overlap = entity.get<PhysicsObject>().collisionHandler[Overlap];
-			COLLISION_HANDLER hit = entity.get<PhysicsObject>().collisionHandler[Hit];
-			float light_intensity = entity.get<Soldier>().light_intensity;
-			float hp = -1;
-			if (entity.has<Health>()) {
-				hp = entity.get<Health>().hp;
-			}
-
-			saved_level_states[level].soldiers.push_back(SoldierArg(position, overlap, hit, light_intensity, hp));
+		if (entity.has<Soldier>() && entity.has<Motion>() && entity.has<PhysicsObject>() && entity.has<AIPath>() && entity.has<Health>()) {
+			saved_level_states[level].soldiers.push_back(SoldierArg(entity.get<Motion>(), entity.get<Soldier>(), entity.get<Health>(), entity.get<AIPath>(), entity.get<PhysicsObject>()));
 		}
-		else if ((entity.has<Wall>() || entity.has<MoveableWall>()) && entity.has<Motion>() && entity.has<PhysicsObject>()) {
-			vec2 location = entity.get<Motion>().position;
-			vec2 size = entity.get<Motion>().scale;
-			float rotation = entity.get<Motion>().angle;
-			COLLISION_HANDLER overlap = entity.get<PhysicsObject>().collisionHandler[Overlap];
-			COLLISION_HANDLER hit = entity.get<PhysicsObject>().collisionHandler[Hit];
-			vec2 preserve_world_velocity = entity.get<Motion>().preserve_world_velocity;
-
-			if (entity.has<Wall>()) {
-				saved_level_states[level].walls.push_back(WallArg(location, size, rotation, overlap, hit, preserve_world_velocity));
-			}
-			else if (entity.has<MoveableWall>()) {
-				saved_level_states[level].moveable_walls.push_back(MoveableWallArg(location, size, rotation, overlap, hit, preserve_world_velocity));
-			}
+		else if (entity.has<Wall>() && entity.has<Motion>() && entity.has<PhysicsObject>()) {
+			saved_level_states[level].walls.push_back(WallArg(entity.get<Motion>(), entity.get<Wall>(), entity.get<PhysicsObject>()));
 		}
-		else if (entity.has<Enemy>() && entity.has<Motion>() && entity.has<PhysicsObject>()) {
-			vec2 position = entity.get<Motion>().position;
-			COLLISION_HANDLER overlap = entity.get<PhysicsObject>().collisionHandler[Overlap];
-			COLLISION_HANDLER hit = entity.get<PhysicsObject>().collisionHandler[Hit];
-			int teamID = entity.get<Enemy>().teamID;
-			EnemyType type = entity.get<Enemy>().type;
-			float hp = -1;
-			if (entity.has<Health>()) {
-				hp = entity.get<Health>().hp;
-			}
-
-			saved_level_states[level].enemies.push_back(EnemyArg(position, overlap, hit, teamID, type, hp));
+		else if (entity.has<MoveableWall>() && entity.has<Motion>() && entity.has<PhysicsObject>()) {
+			saved_level_states[level].moveable_walls.push_back(MoveableWallArg(entity.get<Motion>(), entity.get<MoveableWall>(), entity.get<PhysicsObject>()));
+		}
+		else if (entity.has<Enemy>() && entity.has<Motion>() && entity.has<PhysicsObject>() && entity.has<AIPath>() && entity.has<Health>()) {
+			saved_level_states[level].enemies.push_back(EnemyArg(entity.get<Motion>(), entity.get<Enemy>(), entity.get<Health>(), entity.get<AIPath>(), entity.get<PhysicsObject>()));
 		}
 		else if (entity.has<Shield>() && entity.has<Motion>() && entity.has<PhysicsObject>()) {
-			vec2 position = entity.get<Motion>().position;
-			int teamID = entity.get<Shield>().teamID;
-			float hp = -1;
-			if (entity.has<Health>()) {
-				hp = entity.get<Health>().hp;
-			}
-
-			saved_level_states[level].shields.push_back(ShieldArg(position, teamID, hp));
+			saved_level_states[level].shields.push_back(ShieldArg(entity.get<Motion>(), entity.get<Shield>(), entity.get<Health>(), entity.get<PhysicsObject>()));
 		}
 	}
 }
@@ -641,22 +603,64 @@ void LevelLoader::load_level_objects(std::string level)
 	LevelEntityState current_level = saved_level_states[level];
 
 	if (current_level.soldiers.size() > 0) {
-		Soldier::createSoldier(std::get<0>(current_level.soldiers[0]), std::get<1>(current_level.soldiers[0]), std::get<2>(current_level.soldiers[0]), std::get<3>(current_level.soldiers[0]), std::get<4>(current_level.soldiers[0]));
+		auto e = Soldier::createSoldier({ 0, 0 });
+		ECS::registry<Motion>.remove(e);
+		ECS::registry<Soldier>.remove(e);
+		ECS::registry<Health>.remove(e);
+		ECS::registry<AIPath>.remove(e);
+		ECS::registry<PhysicsObject>.remove(e);
+		e.emplace<Motion>(std::get<0>(current_level.soldiers[0]));
+		e.emplace<Soldier>(std::get<1>(current_level.soldiers[0]));
+		e.emplace<Health>(std::get<2>(current_level.soldiers[0]));
+		e.emplace<AIPath>(std::get<3>(current_level.soldiers[0]));
+		e.emplace<PhysicsObject>(std::get<4>(current_level.soldiers[0]));
+
+		auto& children_comp = e.get<ChildrenEntities>();
+		auto& soldier_comp = e.get<Soldier>();
+		soldier_comp.weapon = *children_comp.children.begin();
 	}
 	for (auto wall_arg : current_level.walls) {
-		auto& motion = Wall::createWall(std::get<0>(wall_arg), std::get<1>(wall_arg), std::get<2>(wall_arg), std::get<3>(wall_arg), std::get<4>(wall_arg)).get<Motion>();
-		motion.preserve_world_velocity = std::get<5>(wall_arg);
+		auto e = Wall::createWall({ 0, 0 }, { 0, 0 }, 0, 0, 0);
+		ECS::registry<Motion>.remove(e);
+		ECS::registry<Wall>.remove(e);
+		ECS::registry<PhysicsObject>.remove(e);
+		e.emplace<Motion>(std::get<0>(wall_arg));
+		e.emplace<Wall>(std::get<1>(wall_arg));
+		e.emplace<PhysicsObject>(std::get<2>(wall_arg));
 	}
 	for (auto moveable_wall_arg : current_level.moveable_walls) {
-		auto& motion = MoveableWall::createMoveableWall(std::get<0>(moveable_wall_arg), std::get<1>(moveable_wall_arg), std::get<2>(moveable_wall_arg), std::get<3>(moveable_wall_arg), std::get<4>(moveable_wall_arg)).get<Motion>();
-		motion.preserve_world_velocity = std::get<5>(moveable_wall_arg);
+		auto e = MoveableWall::createMoveableWall({ 0, 0 }, { 0, 0 }, 0, 0, 0);
+		ECS::registry<Motion>.remove(e);
+		ECS::registry<MoveableWall>.remove(e);
+		ECS::registry<PhysicsObject>.remove(e);
+		e.emplace<Motion>(std::get<0>(moveable_wall_arg));
+		e.emplace<MoveableWall>(std::get<1>(moveable_wall_arg));
+		e.emplace<PhysicsObject>(std::get<2>(moveable_wall_arg));
 	}
 	for (auto enemy_arg : current_level.enemies) {
-		Enemy::createEnemy(std::get<0>(enemy_arg), std::get<1>(enemy_arg), std::get<2>(enemy_arg), std::get<3>(enemy_arg), std::get<4>(enemy_arg), std::get<5>(enemy_arg));
+		auto e = Enemy::createEnemy({0, 0});
+		ECS::registry<Motion>.remove(e);
+		ECS::registry<Enemy>.remove(e);
+		ECS::registry<Health>.remove(e);
+		ECS::registry<AIPath>.remove(e);
+		ECS::registry<PhysicsObject>.remove(e);
+		e.emplace<Motion>(std::get<0>(enemy_arg));
+		e.emplace<Enemy>(std::get<1>(enemy_arg));
+		e.emplace<Health>(std::get<2>(enemy_arg));
+		e.emplace<AIPath>(std::get<3>(enemy_arg));
+		e.emplace<PhysicsObject>(std::get<4>(enemy_arg));
 	}
 	if (current_level.shields.size() > 0) {
 		WorldSystem::hasShield = true;
-		WorldSystem::shield = Shield::createShield(std::get<0>(current_level.shields[0]), std::get<1>(current_level.shields[0]), std::get<2>(current_level.shields[0]));
+		WorldSystem::shield = Shield::createShield({ 0, 0 }, 0, 0);
+		ECS::registry<Motion>.remove(WorldSystem::shield);
+		ECS::registry<Shield>.remove(WorldSystem::shield);
+		ECS::registry<Health>.remove(WorldSystem::shield);
+		ECS::registry<PhysicsObject>.remove(WorldSystem::shield);
+		WorldSystem::shield.emplace<Motion>(std::get<0>(current_level.shields[0]));
+		WorldSystem::shield.emplace<Shield>(std::get<1>(current_level.shields[0]));
+		WorldSystem::shield.emplace<Health>(std::get<2>(current_level.shields[0]));
+		WorldSystem::shield.emplace<PhysicsObject>(std::get<3>(current_level.shields[0]));
 		WorldSystem::SHIELDUP = true;
 	}
 
