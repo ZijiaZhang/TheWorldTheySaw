@@ -30,6 +30,7 @@
 #include <deque>
 #include <nlohmann/json.hpp>
 #include <Particle.hpp>
+#include <highlight_circle.hpp>
 
 // for convenience
 using json = nlohmann::json;
@@ -589,6 +590,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
             aiPath.progress = 0;
             aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
         }
+		HighLightCircle::createHighLightCircle(getWorldMousePosition(last_mouse_pos), 100);
         DRAWING = true;
         mouse_points.clear();
     }
