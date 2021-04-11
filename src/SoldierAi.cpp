@@ -182,7 +182,7 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float 
                         soldier.soldierState = AiState::WALK_FORWARD;
                         soldier_entity.get<AIPath>().path = AISystem::find_path_to_location(soldier_entity,
                                                                                             enemyMotion.position, 100);
-                        soldier_entity.get<AIPath>().progress = 0;
+                        soldier_entity.get<AIPath>().progress = 1;
                         soldier_entity.get<AIPath>().desired_speed = {70, 0};
                         pathTicker = 0.f;
                         return;
