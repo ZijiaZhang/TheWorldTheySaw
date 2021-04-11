@@ -203,10 +203,12 @@ auto select_save_data() {
 	};
 }
 
-auto select_load_data() {
+auto select_continue() {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
 		if (other.has<Soldier>() && WorldSystem::selecting) {
 			load_level_data();
+			WorldSystem::reload_level = true;
+			WorldSystem::reload_level_name = "level_select";
 		}
 	};
 }
@@ -315,11 +317,11 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 				  {
 		return Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_save_data());
 	}},
-		{"button_load", [](vec2 location, vec2 size, float rotation,
+		{"button_continue", [](vec2 location, vec2 size, float rotation,
 				  COLLISION_HANDLER,
 				  COLLISION_HANDLER, const json&)
 				  {
-		return Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_load_data());
+		return Button::createButton(ButtonIcon::DEFAULT_BUTTON, location, select_continue());
 	}},
 	{"button_setting", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,

@@ -89,15 +89,15 @@
         {
             "position": {
                 "x": 480,
-                "y": 775
+                "y": 875
             }
         }
     ],
-    "button_load": [
+    "button_continue": [
         {
             "position": {
                 "x": 480,
-                "y": 875
+                "y": 775
             }
         }
     ],
