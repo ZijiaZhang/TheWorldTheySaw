@@ -667,6 +667,7 @@ void LevelLoader::update_level_state(std::string level, int state)
 		level_progression[level] = state;
 		if (!is_level_unlocked(get_next_level_name(level))) {
 			level_progression[get_next_level_name(level)] = 1;
+			save_level_data();
 		}
 	}
 }
