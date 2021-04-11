@@ -68,7 +68,7 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 }
 
 
-void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult c) {
     if (!self.has<DeathTimer>()) {
         if (e.has<Bullet>() && (e.get<Bullet>().teamID != self.get<Soldier>().teamID)) {
             auto& health = self.get<Health>();
@@ -78,6 +78,8 @@ void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Co
 
             if (health.hp <= 0)
                 self.emplace<DeathTimer>();
+            Particle::createParticle(c.vertex, { 50,50 }, 1000);
+
         }
         else if (e.has<Explosion>() && (e.get<Explosion>().teamID != self.get<Soldier>().teamID)) {
             auto& health = self.get<Health>();

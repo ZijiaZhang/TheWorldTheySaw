@@ -29,6 +29,7 @@
 #include <iostream>
 #include <deque>
 #include <nlohmann/json.hpp>
+#include <Particle.hpp>
 
 // for convenience
 using json = nlohmann::json;
@@ -446,16 +447,16 @@ bool WorldSystem::is_over() const
 // TODO A1: check out https://www.glfw.org/docs/3.3/input_guide.html
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
-  
+   
 	double soldier_speed = 200;
   
     if(key == GLFW_KEY_Q && action == GLFW_PRESS && !pause && GameInstance::isPlayableLevel()) {
         if(player_soldier.has<Soldier>()) {
-            MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
-                                               player_soldier.get<Motion>().angle,
-                                               {380, 0},
-                                               0,
-                                               FIREBALL);
+			MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
+				player_soldier.get<Motion>().angle,
+				{ 380, 0 },
+				0,
+				FIREBALL);
         }
     }
 
