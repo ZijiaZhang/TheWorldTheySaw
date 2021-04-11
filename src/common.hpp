@@ -78,7 +78,9 @@ static std::unordered_map<std::string, int> level_progression = {
     {"level_7", 0},
     {"level_8", 0},
     {"level_9", 0},
-    {"level_10", 0}
+    {"level_10", 0},
+    {"level_11", 0},
+    {"level_12", 0},
 };
 
 // For the order of drawing

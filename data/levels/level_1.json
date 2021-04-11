@@ -68,21 +68,6 @@
                 "enemy_type": "standard",
                 "team_id": 1
             }
-        },
-        {
-            "position": {
-                "x": 800,
-                "y": 800
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
         }
     ]
 }

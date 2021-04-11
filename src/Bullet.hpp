@@ -37,6 +37,9 @@ public:
                 return;
             }
         }
+        if (e.has<Explosion>()) {
+            return;
+        }
         self.get<Bullet>().on_destroy(self);
     };
 
@@ -55,6 +58,9 @@ public:
             if (e.get<Soldier>().teamID == self.get<Bullet>().teamID) {
                 return;
             }
+        }
+        if (e.has<Explosion>()) {
+            return;
         }
         self.get<Bullet>().penetration_counter--;
 

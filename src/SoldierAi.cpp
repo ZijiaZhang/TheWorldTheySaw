@@ -84,12 +84,11 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
                 motion.offset_angle = rad - soldier_motion.angle;
                 auto callback = [](ECS::Entity e){
                     if(e.has<Motion>()) {
-                        Explosion::CreateExplosion(e.get<Motion>().position, 20, 0, 1);
+                        Explosion::CreateExplosion(e.get<Motion>().position, 80, 0, 5);
                     }
                     ECS::ContainerInterface::remove_all_components_of(e);
                 };
-                Bullet::createBullet(motion.position, rad, {150, 0},  0, W_ROCKET, "rocket", 2000,
-                                     callback);
+                Bullet::createBullet(motion.position, rad, {150, 0},  0, W_ROCKET, "rocket", 2000, callback);
 
                 Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("firework.wav").c_str());
                 if (gun_fire == nullptr)

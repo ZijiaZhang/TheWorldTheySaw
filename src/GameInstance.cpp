@@ -26,7 +26,9 @@ static std::map<std::string, bool> playableLevelMap = {
         {"level_7", true},
         {"level_8", true},
         {"level_9", true},
-        {"level_10", true}
+        {"level_10", true},
+        {"level_11", true},
+        {"level_12", true}
 };
 
 bool GameInstance::isPlayableLevel(std::string level)
