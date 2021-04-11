@@ -7,6 +7,10 @@
 #include "Weapon.hpp"
 #include "Bullet.hpp"
 
+std::string Soldier::ori_texture_path = "/soldier/soldier_basic.png";
+std::string Soldier::field_texture_path = "/soldier/forcefield.png";
+std::string Soldier::ori_shader_name = "textured";
+std::string Soldier::field_shader_name = "frozen";
 
 ECS::Entity Soldier::createSoldier(vec2 position,
                                    COLLISION_HANDLER overlap,
@@ -14,23 +18,23 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 {
 	auto entity = ECS::Entity();
 
-
-    std::string key = "soldier";
-    ShadedMesh& resource = cache_resource(key);
-    if (resource.effect.program.resource == 0)
-    {
-        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "textured");
-    }
+    Soldier::set_shader(entity);
+//    std::string key = "soldier";
+//    ShadedMesh& resource = cache_resource(key);
+//    if (resource.effect.program.resource == 0)
+//    {
+//        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "textured");
+//    }
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	//ECS::registry<ShadedMeshRef>.emplace(entity, resource);
 
 	// Setting initial motion values
 	Motion& motion = ECS::registry<Motion>.emplace(entity);
 	motion.position = position;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = resource.mesh.original_size * 70.f;
+	motion.scale = entity.get<ShadedMeshRef>().reference_to_cache->mesh.original_size * 70.f;
 	motion.scale.x *= -1; // point front to the right
     motion.zValue = ZValuesMap["Soldier"];
 
@@ -74,8 +78,10 @@ void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Co
             auto& health = self.get<Health>();
             // auto& bullet_indicator = e.get<Bullet>().velocity_indicator;
             // std::cout << bullet_indicator << "!!!!!";
-            health.hp -= Bullet::bulletDamage[e.get<Bullet>().type];
-
+            if(!ECS::registry<Soldier>.get(self).forcefield_on){
+               health.hp -= Bullet::bulletDamage[e.get<Bullet>().type];
+        }
+            
             if (health.hp <= 0)
                 self.emplace<DeathTimer>();
             Particle::createParticle(c.vertex, { 50,50 }, 1000);
@@ -83,7 +89,9 @@ void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Co
         }
         else if (e.has<Explosion>() && (e.get<Explosion>().teamID != self.get<Soldier>().teamID)) {
             auto& health = self.get<Health>();
-            health.hp -= e.get<Explosion>().damage;
+             if(!ECS::registry<Soldier>.get(self).forcefield_on){
+              health.hp -= e.get<Explosion>().damage;
+        }
             e.get<Explosion>().damage = 0.f;
 
             if (health.hp <= 0)
@@ -94,3 +102,29 @@ void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Co
 
     // explosion
 };
+
+void Soldier::set_shader(ECS::Entity self, bool effect, std::string texture_path, std::string shader_name) {
+    if (ECS::registry<ShadedMeshRef>.has(self)) {
+        ECS::registry<ShadedMeshRef>.remove(self);
+    }
+    std::string key = effect ? "soldier" + std::to_string(self.id) : "soldier";
+    ShadedMesh& resource = cache_resource(key);
+    if (resource.mesh.vertices.size() == 0)
+    {
+        resource = ShadedMesh();
+        RenderSystem::createSprite(resource, textures_path(texture_path), shader_name);
+    }
+
+    ECS::registry<ShadedMeshRef>.emplace(self, resource);
+}
+
+void Soldier::set_field_shader(ECS::Entity self) {
+    set_shader(self, true, Soldier::field_texture_path);
+}
+
+void Soldier::set_field(ECS::Entity self) {
+    ECS::registry<Soldier>.get(self).forcefield_on = true;
+    if (!ECS::registry<FieldTimer>.has(self)) {
+        ECS::registry<FieldTimer>.emplace(self);
+    }
+}
