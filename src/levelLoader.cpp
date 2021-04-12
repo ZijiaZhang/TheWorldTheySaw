@@ -680,7 +680,7 @@ std::string LevelLoader::get_next_level_name(std::string level)
 
 void LevelLoader::update_level_state(std::string level, int state)
 {
-	if (std::count(level_order.begin(), level_order.end(), level)) {
+	if (std::find(level_order.begin(), level_order.end(), level) != level_order.end()) {
 		if (state == 1) {
 			level_progression[level] = state;
 			if (!is_level_unlocked(get_next_level_name(level))) {
