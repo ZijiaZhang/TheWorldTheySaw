@@ -504,7 +504,9 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
         if (entity.has<Motion>()) {
             auto& motion = ECS::registry<Motion>.get(entity);
             auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
-            drawTexturedMesh(entity, projection_2D, motion, PopUP::get_background(), true);
+            auto back_graound_motion = motion;
+            back_graound_motion.scale *= 1.1f;
+            drawTexturedMesh(entity, projection_2D, back_graound_motion, PopUP::get_background(), true);
             drawTexturedMesh(entity, projection_2D, motion, texmesh, true);
         }
     }
