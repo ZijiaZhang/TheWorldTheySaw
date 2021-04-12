@@ -19,10 +19,10 @@
 #include <levelLoader.hpp>
 #include <button.hpp>
 
-typedef enum {
+enum class ControlState {
 	NORMAL,
 	USING_MAGIC
-} ControlState;
+};
 
 // Container for all our entities and game logic. Individual rendering / update is 
 // deferred to the relative update() methods
@@ -98,7 +98,8 @@ private:
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
 	vec2 last_mouse_pos;
-	ControlState control_state = NORMAL;
+	ControlState control_state = ControlState::NORMAL;
+	bool show_ability_tutorial = false;
 	void on_mouse(int key, int action, int mod);
 
     vec2 getWorldMousePosition(vec2 mouse_pos) const;

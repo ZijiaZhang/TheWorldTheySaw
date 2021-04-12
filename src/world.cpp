@@ -347,7 +347,7 @@ void WorldSystem::restart(std::string level)
 	GameInstance::ability_speed = 1.f;
 	GameInstance::global_speed = 1.f;
 	GameInstance::popup_speed = 1.f;
-	control_state = NORMAL;
+	control_state = ControlState::NORMAL;
     // Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
 	while (!ECS::registry<Motion>.entities.empty())
@@ -440,6 +440,7 @@ void WorldSystem::restart(std::string level)
 			HighLightCircle::createHighLightCircle({ 500,500 }, 30, 5));
 		pop_up.on_destroy = [=]() {
 			auto e = PopUP::createPopUP(textures_path("/tutorial/Ability.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+			show_ability_tutorial = true;
 		};
 	}
 
@@ -535,18 +536,23 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	double soldier_speed = 200;
   
     if(key == GLFW_KEY_Q && action == GLFW_PRESS && GameInstance::get_current_speed() != 0 && GameInstance::isPlayableLevel()) {
-		if (control_state == USING_MAGIC) {
+		if (control_state == ControlState::USING_MAGIC) {
 			GameInstance::ability_speed = 1.0;
-			control_state = NORMAL;
+			control_state = ControlState::NORMAL;
 		} else if(player_soldier.has<Soldier>() && GameInstance::charges_left > 0) {
 			GameInstance::charges_left--;
 			if (GameInstance::selectedMagic == FIREBALL) {
 				// Slowdown the world speed
-				if (control_state == NORMAL) {
-					control_state = USING_MAGIC;
+				if (control_state == ControlState::NORMAL) {
+					control_state = ControlState::USING_MAGIC;
 					GameInstance::ability_speed = 0.2;
 				}
-
+				if (show_ability_tutorial) {
+					GameInstance::popup_speed = 0.0;
+					auto e = PopUP::createPopUP(textures_path("/tutorial/UseMagic.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 }); 
+					show_ability_tutorial = false;
+				}
+				show_ability_tutorial = false;
 			}
 			else if (GameInstance::selectedMagic == FIELD) {
 				
@@ -694,7 +700,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 			return;
 		}
 
-		if (control_state == USING_MAGIC) {
+		if (control_state == ControlState::USING_MAGIC) {
 			vec2 mouse_pos = getWorldMousePosition(last_mouse_pos);
 			vec2 dir = mouse_pos.y - player_soldier.get<Motion>().position;
 			float rad = atan2(dir.y, dir.x);
@@ -703,7 +709,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 				{ 380, 0 },
 				0,
 				FIREBALL);
-			control_state = NORMAL;
+			control_state = ControlState::NORMAL;
 			GameInstance::ability_speed = 1.f;
 		}
 
