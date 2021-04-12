@@ -655,7 +655,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		reload_level = true;
 	}
 
-	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel()) {
+	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && GameInstance::currentLevel != TUTORIAL_NAME) {
 		pause = !pause;
 		if (pause) {
 			GameInstance::global_speed = 0.f;
@@ -676,7 +676,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
 
-    if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
+    if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT && !pause)
     {
 		if (!ECS::registry<PopUP>.entities.empty()) {
 			auto& entity = ECS::registry<PopUP>.entities.back();
