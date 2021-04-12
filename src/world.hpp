@@ -59,6 +59,7 @@ public:
 	static bool pause;
     static std::string reload_level_name;
     static std::string selected_level;
+	vec2 screen;
 
 private:
 	// Input callback functions
@@ -90,7 +91,7 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
-	vec2 screen;
+
 	vec2 last_mouse_pos;
 
 	void on_mouse(int key, int action, int mod);
