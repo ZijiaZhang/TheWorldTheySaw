@@ -31,6 +31,7 @@
 #include <nlohmann/json.hpp>
 #include <Particle.hpp>
 #include <highlight_circle.hpp>
+#include <pop_up.hpp>
 
 // for convenience
 using json = nlohmann::json;
@@ -611,8 +612,9 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
             aiPath.progress = 0;
             aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
         }
-		HighLightCircle::createHighLightCircle(getWorldMousePosition(last_mouse_pos), 100);
-        DRAWING = true;
+		//HighLightCircle::createHighLightCircle(getWorldMousePosition(last_mouse_pos), 100);
+		PopUP::createPopUP(textures_path("/enemy/cannon/alien.png"), screen / 2.f, { 200, 100 });
+		DRAWING = true;
         mouse_points.clear();
     }
     else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
