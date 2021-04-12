@@ -366,6 +366,8 @@ void WorldSystem::restart(std::string level)
 		throw std::runtime_error("Can only have one soldier");
 	}
 
+	GameInstance::charges_left = GameInstance::getDefaultChargeOfMagic(GameInstance::selectedMagic);
+
 	player_soldier = soldiers.front();
 	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
@@ -470,12 +472,19 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	double soldier_speed = 200;
   
     if(key == GLFW_KEY_Q && action == GLFW_PRESS && !pause && GameInstance::isPlayableLevel()) {
-        if(player_soldier.has<Soldier>()) {
-			MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
-				player_soldier.get<Motion>().angle,
-				{ 380, 0 },
-				0,
-				FIREBALL);
+        if(player_soldier.has<Soldier>() && GameInstance::charges_left > 0) {
+			GameInstance::charges_left--;
+			if (GameInstance::selectedMagic == FIREBALL) {
+				MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
+					player_soldier.get<Motion>().angle,
+					{ 380, 0 },
+					0,
+					FIREBALL);
+			}
+			else if (GameInstance::selectedMagic == FIELD) {
+				Soldier::set_field_shader(player_soldier);
+				Soldier::set_field(player_soldier);
+			}
         }
     }
 

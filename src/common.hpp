@@ -114,7 +114,8 @@ typedef enum
 } CollisionObjectType;
 
 typedef enum{
-    FIREBALL
+    FIREBALL,
+    FIELD
 }MagicWeapon;
 
 

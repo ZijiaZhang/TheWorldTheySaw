@@ -9,6 +9,7 @@ WeaponType GameInstance::selectedWeapon = W_BULLET;
 AIAlgorithm GameInstance::algorithm = DIRECT;
 MagicWeapon GameInstance::selectedMagic = FIREBALL;
 float GameInstance::light_quality = 32.f;
+int GameInstance::charges_left = 0;
 
 static std::map<std::string, bool> playableLevelMap = {
         {"menu", false},
@@ -29,6 +30,12 @@ static std::map<std::string, bool> playableLevelMap = {
         {"level_10", true}
 };
 
+
+static std::map<MagicWeapon, int> charge_of_magic = {
+    {FIREBALL, 5},
+    {FIELD, 3}
+};
+
 bool GameInstance::isPlayableLevel(std::string level)
 {
     return playableLevelMap[level];
@@ -37,4 +44,8 @@ bool GameInstance::isPlayableLevel(std::string level)
 bool GameInstance::isPlayableLevel()
 {
     return playableLevelMap[currentLevel];
+}
+
+int GameInstance::getDefaultChargeOfMagic(MagicWeapon m) {
+    return charge_of_magic[m];
 }
