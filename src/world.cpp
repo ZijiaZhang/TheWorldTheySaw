@@ -212,13 +212,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
-	for (int i = static_cast<int>(ECS::registry<Motion>.components.size()) - 1; i >= 0; --i)
-	{
-		auto& m = ECS::registry<Motion>.components[i];
-		if (abs(m.position.x) > KILL_SIZE || abs(m.position.y) > KILL_SIZE) {
-			ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities[i]);
-		}
-	}
 
 	if (screen != window_size_in_game_units) {
 		screen = window_size_in_game_units;
@@ -236,9 +229,20 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		counter.counter_ms -= elapsed_ms;
 
 		// Restart the game once the death timer expired
-		if (counter.counter_ms < 0)
+		if (counter.counter_ms <= 0)
 		{
+			bool is_pop_up = entity.has<PopUP>();
+			if (is_pop_up) {
+				auto& popup = entity.get<PopUP>();
+				for (auto& e : popup.relative_entities) {
+					ECS::ContainerInterface::remove_all_components_of(e);
+				}
+			}
 			ECS::ContainerInterface::remove_all_components_of(entity);
+			if (is_pop_up && ECS::registry<PopUP>.entities.empty()) {
+				GameInstance::global_speed = 1.0;
+			}
+
 		}
 	}
 
@@ -343,7 +347,7 @@ void WorldSystem::restart(std::string level)
 
 
 	// Reset the game speed
-	current_speed = 1.f;
+	GameInstance::global_speed = 1.f;
 
     // Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -386,6 +390,18 @@ void WorldSystem::restart(std::string level)
     if (aiControl) {
         WeaponTimer::createAllWeaponTimers();
     }
+
+	if (GameInstance::fist_enter_level(level)) {
+		if (level == MENU_NAME) {
+			GameInstance::global_speed = 0.0;
+			auto e = PopUP::createPopUP(textures_path("/tutorial/You.png"), screen / 2.f - vec2{0.0, 200}, { 200, 100 });
+			auto& pop_up = e.get<PopUP>();
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle(player_soldier.get<Motion>().position, 30, 5));
+		}
+	}
+	GameInstance::set_enter_level(level);
+
 }
 
 
@@ -604,16 +620,26 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 
     if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
     {
-        if(!aiControl && player_soldier.has<AIPath>()){
-            auto& aiPath = player_soldier.get<AIPath>();
-            aiPath.active = true;
+
+		
+		if (!ECS::registry<PopUP>.entities.empty()) {
+			auto& entity = ECS::registry<PopUP>.entities.back();
+			if (!entity.has<DeathTimer>()) {
+				entity.emplace<DeathTimer>();
+			}
+			return;
+		}
+		if (!aiControl && player_soldier.has<AIPath>()) {
+			auto& aiPath = player_soldier.get<AIPath>();
+			aiPath.active = true;
 			player_soldier.get<Motion>().velocity = { 200.f, 0.f };
-            aiPath.path.path.clear();
-            aiPath.progress = 0;
-            aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
-        }
+			aiPath.path.path.clear();
+			aiPath.progress = 0;
+			aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
+		}
 		//HighLightCircle::createHighLightCircle(getWorldMousePosition(last_mouse_pos), 100);
-		PopUP::createPopUP(textures_path("/enemy/cannon/alien.png"), screen / 2.f, { 200, 100 });
+
+		// PopUP::createPopUP(textures_path("/enemy/cannon/alien.png"), screen / 2.f, { 200, 100 });
 		DRAWING = true;
         mouse_points.clear();
     }

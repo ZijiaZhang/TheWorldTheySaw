@@ -40,6 +40,7 @@ int main()
 	SoldierAISystem soldierAi;
 	EnemyAISystem enemyAi;
 
+	world.screen = window_size_in_game_units;
 	// Set all states to default
 	world.restart("menu");
 	auto t = Clock::now();
@@ -57,7 +58,7 @@ int main()
 		// Calculating elapsed times in milliseconds from the previous iteration
 		auto now = Clock::now();
 		float elapsed_ms = static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count()) / 1000.f;
-		//elapsed_ms = 16.f;
+		elapsed_ms *= GameInstance::global_speed;
 		t = now;
 
 		DebugSystem::clearDebugComponents();

@@ -491,26 +491,23 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
                 drawTexturedMesh(entity, projection_2D, mask_motion, weaponTimerMask);
             }
         }
-
-        auto& circles = ECS::registry<HighLightCircle>.entities;
-        for (auto& entity : circles) {
-            if (entity.has<Motion>()) {
-                drawTexturedMesh(entity, projection_2D);
-            }
+    }
+    auto& circles = ECS::registry<HighLightCircle>.entities;
+    for (auto& entity : circles) {
+        if (entity.has<Motion>()) {
+            drawTexturedMesh(entity, projection_2D);
         }
-
-        auto& pop_ups = ECS::registry<PopUP>.entities;
-        for (auto& entity : pop_ups) {
-            if (entity.has<Motion>()) {
-                auto& motion = ECS::registry<Motion>.get(entity);
-                auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
-                drawTexturedMesh(entity, projection_2D, motion, PopUP::get_background(), true);
-                drawTexturedMesh(entity, projection_2D, motion, texmesh, true);
-            }
-        }
-
     }
 
+    auto& pop_ups = ECS::registry<PopUP>.entities;
+    for (auto& entity : pop_ups) {
+        if (entity.has<Motion>()) {
+            auto& motion = ECS::registry<Motion>.get(entity);
+            auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
+            drawTexturedMesh(entity, projection_2D, motion, PopUP::get_background(), true);
+            drawTexturedMesh(entity, projection_2D, motion, texmesh, true);
+        }
+    }
     // First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     gl_has_errors();
