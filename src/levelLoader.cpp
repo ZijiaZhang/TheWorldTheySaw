@@ -618,64 +618,20 @@ void LevelLoader::load_level_objects(std::string level)
 	LevelEntityState current_level = saved_level_states[level];
 
 	if (current_level.soldiers.size() > 0) {
-		auto e = Soldier::createSoldier({ 0, 0 });
-		ECS::registry<Motion>.remove(e);
-		ECS::registry<Soldier>.remove(e);
-		ECS::registry<Health>.remove(e);
-		ECS::registry<AIPath>.remove(e);
-		ECS::registry<PhysicsObject>.remove(e);
-		e.emplace<Motion>(std::get<0>(current_level.soldiers[0]));
-		e.emplace<Soldier>(std::get<1>(current_level.soldiers[0]));
-		e.emplace<Health>(std::get<2>(current_level.soldiers[0]));
-		e.emplace<AIPath>(std::get<3>(current_level.soldiers[0]));
-		e.emplace<PhysicsObject>(std::get<4>(current_level.soldiers[0]));
-
-		auto& children_comp = e.get<ChildrenEntities>();
-		auto& soldier_comp = e.get<Soldier>();
-		soldier_comp.weapon = *children_comp.children.begin();
+		Soldier::createSoldier(std::get<0>(current_level.soldiers[0]), std::get<1>(current_level.soldiers[0]), std::get<2>(current_level.soldiers[0]), std::get<3>(current_level.soldiers[0]), std::get<4>(current_level.soldiers[0]));
 	}
 	for (auto wall_arg : current_level.walls) {
-		auto e = Wall::createWall({ 0, 0 }, { 0, 0 }, 0, 0, 0);
-		ECS::registry<Motion>.remove(e);
-		ECS::registry<Wall>.remove(e);
-		ECS::registry<PhysicsObject>.remove(e);
-		e.emplace<Motion>(std::get<0>(wall_arg));
-		e.emplace<Wall>(std::get<1>(wall_arg));
-		e.emplace<PhysicsObject>(std::get<2>(wall_arg));
+		Wall::createWall(std::get<0>(wall_arg), std::get<1>(wall_arg), std::get<2>(wall_arg));
 	}
 	for (auto moveable_wall_arg : current_level.moveable_walls) {
-		auto e = MoveableWall::createMoveableWall({ 0, 0 }, { 0, 0 }, 0, 0, 0);
-		ECS::registry<Motion>.remove(e);
-		ECS::registry<MoveableWall>.remove(e);
-		ECS::registry<PhysicsObject>.remove(e);
-		e.emplace<Motion>(std::get<0>(moveable_wall_arg));
-		e.emplace<MoveableWall>(std::get<1>(moveable_wall_arg));
-		e.emplace<PhysicsObject>(std::get<2>(moveable_wall_arg));
+		MoveableWall::createMoveableWall(std::get<0>(moveable_wall_arg), std::get<1>(moveable_wall_arg), std::get<2>(moveable_wall_arg));
 	}
 	for (auto enemy_arg : current_level.enemies) {
-		auto e = Enemy::createEnemy({0, 0});
-		ECS::registry<Motion>.remove(e);
-		ECS::registry<Enemy>.remove(e);
-		ECS::registry<Health>.remove(e);
-		ECS::registry<AIPath>.remove(e);
-		ECS::registry<PhysicsObject>.remove(e);
-		e.emplace<Motion>(std::get<0>(enemy_arg));
-		e.emplace<Enemy>(std::get<1>(enemy_arg));
-		e.emplace<Health>(std::get<2>(enemy_arg));
-		e.emplace<AIPath>(std::get<3>(enemy_arg));
-		e.emplace<PhysicsObject>(std::get<4>(enemy_arg));
+		Enemy::createEnemy(std::get<0>(enemy_arg), std::get<1>(enemy_arg), std::get<2>(enemy_arg), std::get<3>(enemy_arg), std::get<4>(enemy_arg));
 	}
 	if (current_level.shields.size() > 0) {
 		WorldSystem::hasShield = true;
-		WorldSystem::shield = Shield::createShield({ 0, 0 }, 0, 0);
-		ECS::registry<Motion>.remove(WorldSystem::shield);
-		ECS::registry<Shield>.remove(WorldSystem::shield);
-		ECS::registry<Health>.remove(WorldSystem::shield);
-		ECS::registry<PhysicsObject>.remove(WorldSystem::shield);
-		WorldSystem::shield.emplace<Motion>(std::get<0>(current_level.shields[0]));
-		WorldSystem::shield.emplace<Shield>(std::get<1>(current_level.shields[0]));
-		WorldSystem::shield.emplace<Health>(std::get<2>(current_level.shields[0]));
-		WorldSystem::shield.emplace<PhysicsObject>(std::get<3>(current_level.shields[0]));
+		WorldSystem::shield = Shield::createShield(std::get<0>(current_level.shields[0]), std::get<1>(current_level.shields[0]), std::get<2>(current_level.shields[0]), std::get<3>(current_level.shields[0]));
 		WorldSystem::SHIELDUP = true;
 	}
 

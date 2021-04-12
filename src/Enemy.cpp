@@ -93,6 +93,21 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     return entity;
 }
 
+ECS::Entity Enemy::createEnemy(Motion m, Enemy e, Health h, AIPath ai, PhysicsObject po)
+{
+    auto entity = ECS::Entity();
+
+    Enemy::set_shader(entity);
+
+    entity.emplace<Motion>(m);
+    entity.emplace<Enemy>(e);
+    entity.emplace<Health>(h);
+    entity.emplace<AIPath>(ai);
+    entity.emplace<PhysicsObject>(po);
+
+    return entity;
+}
+
 void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
     if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
         if (Bullet::bulletEffect[e.get<Bullet>().type]) {

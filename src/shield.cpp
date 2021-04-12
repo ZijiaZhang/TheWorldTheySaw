@@ -61,6 +61,30 @@ ECS::Entity Shield::createShield(vec2 position,  int teamID, float hp)
 	return entity;
 }
 
+ECS::Entity Shield::createShield(Motion m, Shield s, Health h, PhysicsObject po)
+{
+    auto entity = ECS::Entity();
+
+    // Create the rendering components
+    std::string key = "shield";
+    ShadedMesh& resource = cache_resource(key);
+    if (resource.effect.program.resource == 0)
+    {
+        resource = ShadedMesh();
+        RenderSystem::createSprite(resource, textures_path("/shield/shield3.png"), "textured");
+    }
+
+    // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+    ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+
+    entity.emplace<Motion>(m);
+    entity.emplace<Shield>(s);
+    entity.emplace<Health>(h);
+    entity.emplace<PhysicsObject>(po);
+
+    return entity;
+}
+
 void Shield::shield_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
     if (e.has<Bullet>() && (e.get<Bullet>().teamID != self.get<Shield>().teamID) && !self.has<DeathTimer>()) {
         auto& health = self.get<Health>();

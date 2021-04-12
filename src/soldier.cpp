@@ -77,6 +77,25 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	return entity;
 }
 
+ECS::Entity Soldier::createSoldier(Motion m, Soldier s, Health h, AIPath ai, PhysicsObject po)
+{
+    auto e = ECS::Entity();
+
+    Soldier::set_shader(e);
+
+    ECS::Entity weapon = Weapon::createWeapon(vec2{ 0,20.f }, 0, e);
+    auto& children_entity = e.emplace<ChildrenEntities>();
+    children_entity.children.insert(weapon);
+
+    e.emplace<Motion>(m);
+    e.emplace<Soldier>(s).weapon = weapon;
+    e.emplace<Health>(h);
+    e.emplace<AIPath>(ai);
+    e.emplace<PhysicsObject>(po);
+
+    return e;
+}
+
 
 void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult c) {
     if (!self.has<DeathTimer>()) {

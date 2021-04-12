@@ -23,6 +23,7 @@ public:
 	// Creates all the associated render resources and default transform
 	static ECS::Entity createSoldier(vec2 pos, COLLISION_HANDLER overlap = [](ECS::Entity, const ECS::Entity, CollisionResult) {},
                                      COLLISION_HANDLER hit = [](ECS::Entity, const ECS::Entity, CollisionResult) {}, float light_intensity = DEFAULT_LIGHT_INTENSITY, float health = -1);
+	static ECS::Entity createSoldier(Motion m, Soldier s, Health h, AIPath ai, PhysicsObject po);
 
 	AiState soldierState = AiState::IDLE;
 	ECS::Entity weapon;

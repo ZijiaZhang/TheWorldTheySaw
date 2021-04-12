@@ -20,6 +20,7 @@ public:
                                                 float rotation,
                                           COLLISION_HANDLER overlap = [](ECS::Entity, const ECS::Entity , CollisionResult) {},
                                           COLLISION_HANDLER hit = wall_hit);
+    static ECS::Entity createMoveableWall(Motion m, MoveableWall mw, PhysicsObject po);
 
     static void wall_hit(ECS::Entity self, ECS::Entity e, CollisionResult collision);
 
