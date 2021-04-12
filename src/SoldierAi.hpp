@@ -53,7 +53,8 @@ private:
 
     static void walkForward(Motion& soldierMotion, Motion& enemyMotion);
 
-
+    static void underEffectControl(ECS::Entity soldier, float elapsed_ms);
+    
     static std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity, float)>> algorithmMap;
     static std::unordered_map<WeaponType, std::function<void(ECS::Entity, float)>> weaponMap;
 };

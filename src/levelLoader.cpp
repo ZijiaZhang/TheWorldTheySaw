@@ -298,7 +298,10 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"player", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER overlap,
 			COLLISION_HANDLER hit, const json& additional) {
-		float light_intensity = additional.contains("light_intensity") ? additional["light_intensity"] : DEFAULT_LIGHT_INTENSITY;
+        float light_intensity = DEFAULT_LIGHT_INTENSITY;
+        if(additional.contains("light_intensity")){
+            light_intensity = additional["light_intensity"];
+        }
 		return Soldier::createSoldier(location, overlap, hit, light_intensity);
 	}},
 	{"enemy", [](vec2 location, vec2 size, float rotation,

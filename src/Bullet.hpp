@@ -98,6 +98,10 @@ struct FrozenTimer {
     float executing_ms = 2000;
 };
 
+struct FieldTimer {
+    float counter_ms = 5000;
+};
+
 struct Activating {
     // empty, only used for Activating shader
 };

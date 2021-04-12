@@ -22,6 +22,7 @@ struct WeaponTimer {
     static std::vector<float> bullet_attr;
     static ECS::Entity createWeaponTimer(vec2 offset, WeaponType type, std::string texture_path);
     WeaponType type;
+    std::string texture_path;
     static void createAllWeaponTimers() {
         WeaponTimer::createWeaponTimer({400, 200}, W_ROCKET, "rocket");
         WeaponTimer::createWeaponTimer({400, 130}, W_AMMO, "ammo");
