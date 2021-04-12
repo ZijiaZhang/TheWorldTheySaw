@@ -290,14 +290,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
-	pause = pause && GameInstance::isPlayableLevel();
-
-	if (pause) {
-		GameInstance::global_speed = 0.f;
-	}
-	else {
-		GameInstance::global_speed = 1.f;
-	}
+	// pause = pause && GameInstance::isPlayableLevel();
 
 	endGameTimer += elapsed_ms;
 	runTimer(elapsed_ms);
@@ -349,6 +342,7 @@ void WorldSystem::restart(std::string level)
 
 
 	// Reset the game speed
+	pause = false;
 	GameInstance::global_speed = 1.f;
 
     // Remove all entities that we created
@@ -663,6 +657,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel()) {
 		pause = !pause;
+		if (pause) {
+			GameInstance::global_speed = 0.f;
+		}
+		else {
+			GameInstance::global_speed = 1.f;
+		}
 	}
 
 	if (key == GLFW_KEY_C && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
