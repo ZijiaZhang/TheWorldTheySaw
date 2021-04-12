@@ -290,14 +290,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
-	pause = pause && GameInstance::isPlayableLevel();
-
-	if (pause) {
-		GameInstance::global_speed = 0.f;
-	}
-	else {
-		GameInstance::global_speed = 1.f;
-	}
+	// pause = pause && GameInstance::isPlayableLevel();
 
 	endGameTimer += elapsed_ms;
 	runTimer(elapsed_ms);
@@ -349,6 +342,7 @@ void WorldSystem::restart(std::string level)
 
 
 	// Reset the game speed
+	pause = false;
 	GameInstance::global_speed = 1.f;
 
     // Remove all entities that we created
@@ -372,6 +366,8 @@ void WorldSystem::restart(std::string level)
 	if (soldiers.size() != 1) {
 		throw std::runtime_error("Can only have one soldier");
 	}
+
+	GameInstance::charges_left = GameInstance::getDefaultChargeOfMagic(GameInstance::selectedMagic);
 
 	player_soldier = soldiers.front();
 	// std::cout << "soldier addr: " << &player_soldier << "\n";
@@ -536,12 +532,19 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	double soldier_speed = 200;
   
     if(key == GLFW_KEY_Q && action == GLFW_PRESS && !pause && GameInstance::isPlayableLevel()) {
-        if(player_soldier.has<Soldier>()) {
-			MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
-				player_soldier.get<Motion>().angle,
-				{ 380, 0 },
-				0,
-				FIREBALL);
+        if(player_soldier.has<Soldier>() && GameInstance::charges_left > 0) {
+			GameInstance::charges_left--;
+			if (GameInstance::selectedMagic == FIREBALL) {
+				MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
+					player_soldier.get<Motion>().angle,
+					{ 380, 0 },
+					0,
+					FIREBALL);
+			}
+			else if (GameInstance::selectedMagic == FIELD) {
+				Soldier::set_field_shader(player_soldier);
+				Soldier::set_field(player_soldier);
+			}
         }
     }
 
@@ -652,8 +655,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		reload_level = true;
 	}
 
-	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel()) {
+	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && GameInstance::currentLevel != TUTORIAL_NAME) {
 		pause = !pause;
+		if (pause) {
+			GameInstance::global_speed = 0.f;
+		}
+		else {
+			GameInstance::global_speed = 1.f;
+		}
 	}
 
 	if (key == GLFW_KEY_C && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
@@ -667,7 +676,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
 
-    if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
+    if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT && !pause)
     {
 		if (!ECS::registry<PopUP>.entities.empty()) {
 			auto& entity = ECS::registry<PopUP>.entities.back();
