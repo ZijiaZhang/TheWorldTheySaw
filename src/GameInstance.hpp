@@ -20,7 +20,12 @@ class GameInstance {
         static MagicWeapon selectedMagic;
         static int charges_left;
         static float light_quality;
+
+        // Game speed overrides
         static float global_speed;
+        static float popup_speed;
+        static float pause_speed;
+        static float ability_speed;
 
     static bool isPlayableLevel(std::string level);
 
@@ -29,6 +34,6 @@ class GameInstance {
 
     static bool fist_enter_level(std::string level);
     static void set_enter_level(std::string level);
-
+    static float get_current_speed();
 };
 
