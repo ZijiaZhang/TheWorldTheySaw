@@ -20,6 +20,7 @@
 #include "Explosion.hpp"
 #include "MagicParticle.hpp"
 #include "WeaponTimer.hpp"
+#include "mainMenu.hpp"
 
 // stlib
 #include <string.h>
@@ -717,6 +718,9 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
     {
         auto& motion = ECS::registry<Motion>.get(player_soldier);
         // Get world mouse position
+//        if(!(ECS::registry<MainMenu>.has(player_soldier) || ECS::registry<Start>.has(player_soldier) || ECS::registry<Button>.components[1].buttonType == ButtonIcon::START)){
+//            mouse_pos = getWorldMousePosition(mouse_pos);
+//        }
         mouse_pos = getWorldMousePosition(mouse_pos);
         float disY = mouse_pos.y - motion.position.y;
         float disX = mouse_pos.x - motion.position.x;

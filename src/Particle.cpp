@@ -31,7 +31,7 @@ ECS::Entity Particle::createParticle(vec2 position, vec2 size, float lifetime){
 
     // RenderSystem::createColoredMesh(particle.mesh, "particle");
     //RenderSystem::createSpriteAnimation(particle.mesh, textures_path("/enemy/cannon/alien.png"), 4);
-    RenderSystem::createSprite(particle.mesh, textures_path("/enemy/cannon/alien.png"), "particle");
+    RenderSystem::createSprite(particle.mesh, textures_path("/explosion/blood5.png"), "particle");
 
     for (int x = 0; x < 10; x++) {
         Motion m;

@@ -5,6 +5,8 @@
 #include "Camera.hpp"
 #include "Explosion.hpp"
 #include "button.hpp"
+#include "mainMenu.hpp"
+#include "start.hpp"
 #include "GameInstance.hpp"
 #include "WeaponTimer.hpp"
 
