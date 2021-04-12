@@ -10,6 +10,7 @@
 #include "Wall.hpp"
 #include "soldier.hpp"
 #include "background.hpp"
+#include "mainMenu.hpp"
 #include "start.hpp"
 #include "tiny_ecs.hpp"
 #include "MoveableWall.hpp"
@@ -379,6 +380,24 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	}
 		Background::createBackground(vec2{500, 500}, name, depth, scale);
 	}},
+    {"mainmenu", [](vec2 location, vec2 size, float rotation,
+            COLLISION_HANDLER,
+                    COLLISION_HANDLER, json additional) {
+        std::string name = "mainmenu";
+        float depth = 0.f;
+      float scale = 1.5f;
+
+        if (additional.contains("name")) {
+            name = additional["name"];
+        }
+    if (additional.contains("depth")) {
+            depth = additional["depth"];
+        }
+    if (additional.contains("scale")) {
+        scale = additional["scale"];
+    }
+        MainMenu::createMainMenu(vec2{500, 500}, name, depth, scale);
+    }},
 	{"quality_slider", [](vec2 location, vec2 size, float,
 			COLLISION_HANDLER overlap,
 					COLLISION_HANDLER hit, json additional) {

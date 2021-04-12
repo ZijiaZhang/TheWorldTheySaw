@@ -5,6 +5,8 @@
 #include "Camera.hpp"
 #include "Explosion.hpp"
 #include "button.hpp"
+#include "mainMenu.hpp"
+#include "start.hpp"
 #include "GameInstance.hpp"
 #include "WeaponTimer.hpp"
 
@@ -30,6 +32,12 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
     // Transformation code, see Rendering and Transformation in the template specification for more info
 // Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
     Transform transform;
+//    if (ECS::registry<MainMenu>.has(entity) || ECS::registry<Start>.has(entity) || ECS::registry<Button>.components[1].buttonType == ButtonIcon::START){
+//        transform.translate(motion.position);
+//    } else {
+//        transform.translate(motion.position - camera.get_position());
+//    }
+    //transform.translate(motion.position);
     transform.translate(motion.position - camera.get_position());
     transform.rotate(motion.angle);
     transform.scale(motion.scale);
