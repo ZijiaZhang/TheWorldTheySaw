@@ -485,7 +485,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
                 } else {
                     mask_motion.scale.x = 0;
                 }
-                drawTexturedMesh(entity, projection_2D, motion, weaponTimerMask);
+                drawTexturedMesh(entity, projection_2D, mask_motion, weaponTimerMask);
             }
         }
 
@@ -663,8 +663,8 @@ void RenderSystem::createWeaponTimer(mat3 projection_2D, Motion timer_mesh_motio
     if (resource.effect.program.resource == 0) {
         resource = ShadedMesh();
         RenderSystem::createSprite(resource, textures_path("/bullet/"+wt.texture_path+".png"), "textured");
-        drawTexturedMesh(projection_2D, timer_mesh_motion, resource);
+        drawTexturedMesh(weaponTimer_entity, projection_2D, timer_mesh_motion, resource);
     } else {
-        drawTexturedMesh(projection_2D, timer_mesh_motion, resource);
+        drawTexturedMesh(weaponTimer_entity, projection_2D, timer_mesh_motion, resource);
     }
 }

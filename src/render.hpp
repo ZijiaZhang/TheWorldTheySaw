@@ -85,14 +85,9 @@ private:
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;
 	ECS::Entity screen_state_entity;
 
-    ECS::Entity get_camera();
-
-
     static const std::string build_anim_vertex_shader(int frames);
 
     void drawLights(vec2 window_size_in_game_units);
-	void drawTexturedMesh(const mat3& projection, Motion& motion, const ShadedMesh& texmesh) const;
-
 
 
 
