@@ -30,6 +30,7 @@
 #include <deque>
 #include <nlohmann/json.hpp>
 #include <Particle.hpp>
+#include <highlight_circle.hpp>
 
 // for convenience
 using json = nlohmann::json;
@@ -254,6 +255,23 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             counter.callback(entity);
         }
     }
+//    
+//    for (int i = static_cast<int>(ECS::registry<FieldTimer>.components.size()) - 1; i >= 0; --i)
+//    {
+//        auto entity = ECS::registry<FieldTimer>.entities[i];
+//        // Progress timer
+//        auto& counter = ECS::registry<FieldTimer>.get(entity);
+//        counter.counter_ms -= elapsed_ms;
+//
+//        // Restart the game once the death timer expired
+//        if (counter.counter_ms < 0)
+//        {
+//            ECS::registry<FieldTimer>.remove(player_soldier);
+//            //ECS::registry<Activating>.remove(player_soldier);
+//            Soldier::set_shader(player_soldier, true, Soldier::ori_texture_path, Soldier::ori_shader_name);
+//            ECS::registry<Soldier>.get(player_soldier).forcefield_on = false;
+//        }
+//    }
 
 	aiControl = GameInstance::isPlayableLevel();
 //	if(player_soldier.has<AIPath>())
@@ -576,6 +594,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (key == GLFW_KEY_C && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
 		SHIELDUP = true;
 	}
+    if (key == GLFW_KEY_K && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
+        Soldier::set_field_shader(player_soldier);
+        Soldier::set_field(player_soldier);
+    }
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
@@ -590,6 +612,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
             aiPath.progress = 0;
             aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
         }
+		HighLightCircle::createHighLightCircle(getWorldMousePosition(last_mouse_pos), 100);
         DRAWING = true;
         mouse_points.clear();
     }

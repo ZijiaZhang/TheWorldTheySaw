@@ -3,6 +3,7 @@
 #include "common.hpp"
 #include "tiny_ecs.hpp"
 #include "render_components.hpp"
+#include "soldier.hpp"
 #include "Particle.hpp"
 
 struct InstancedMesh;
@@ -49,6 +50,7 @@ public:
     static RenderSystem* renderSystem;
     void create_light_texture(float quality);
 	void recreate_light_texture(float quality);
+	void createWeaponTimer(mat3 projection_2D, Motion timer_mesh_motion, ECS::Entity weaponTimer_entity);
 private:
 	// Initialize the screeen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the water shader
@@ -57,7 +59,6 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(ECS::Entity entity, const mat3& projection);
     void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
-    void drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
 
 	void drawInstanced(const mat3& projection, Particle& particle);
 
@@ -84,14 +85,9 @@ private:
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;
 	ECS::Entity screen_state_entity;
 
-    ECS::Entity get_camera();
-
-
     static const std::string build_anim_vertex_shader(int frames);
 
     void drawLights(vec2 window_size_in_game_units);
-	void drawTexturedMesh(const mat3& projection, Motion& motion, const ShadedMesh& texmesh) const;
-
 
 
 
