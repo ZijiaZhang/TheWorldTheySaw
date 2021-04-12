@@ -76,7 +76,8 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 
             if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 80.f) && enemy_entity.get<Enemy>().type == EnemyType::SUICIDE) {
                 Explosion::CreateExplosion(enemy_motion.position, 100, 1, 1);
-                enemy_entity.emplace<DeathTimer>();
+                if(!enemy_entity.has<DeathTimer>())
+                    enemy_entity.emplace<DeathTimer>();
             }
 
 			else if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 500.f)) {
