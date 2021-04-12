@@ -107,7 +107,7 @@ Path_with_heuristics AISystem::find_path_to_location(const ECS::Entity agent, ve
             return path;
         }
         counter--;
-        visited.insert(last_node);
+        visited.insert(last_node); 
         for (auto n : neighbors) {
             std::pair<int, int> next_node{ last_node.first + n.first, last_node.second + n.second };
             if (collisions.find(next_node) == collisions.end() && visited.find(next_node) == visited.end()) {

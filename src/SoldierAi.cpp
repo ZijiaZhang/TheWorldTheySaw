@@ -36,6 +36,7 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         if(soldier.get<Soldier>().weapon.has<Weapon>()) {
             weaponMap[GameInstance::selectedWeapon](soldier, elapsed_ms);
         }
+        SoldierAISystem::underEffectControl(soldier, elapsed_ms);
 	}
 }
 void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms) {
@@ -182,7 +183,7 @@ void SoldierAISystem::a_star_to_closest_enemy(ECS::Entity soldier_entity, float 
                         soldier.soldierState = AiState::WALK_FORWARD;
                         soldier_entity.get<AIPath>().path = AISystem::find_path_to_location(soldier_entity,
                                                                                             enemyMotion.position, 100);
-                        soldier_entity.get<AIPath>().progress = 0;
+                        soldier_entity.get<AIPath>().progress = 1;
                         soldier_entity.get<AIPath>().desired_speed = {70, 0};
                         pathTicker = 0.f;
                         return;
@@ -305,3 +306,20 @@ ECS::Entity SoldierAISystem::getCloestEnemy(Motion& soldierMotion)
     }
 	return closestEnemy;
 }
+
+void SoldierAISystem::underEffectControl(ECS::Entity soldier, float elapsed_ms) {
+    if (ECS::registry<FieldTimer>.has(soldier)) {
+        auto& fc = soldier.get<FieldTimer>();
+        fc.counter_ms -= elapsed_ms;
+        if (fc.counter_ms <= 0.) {
+            ECS::registry<FieldTimer>.remove(soldier);
+            //ECS::registry<Activating>.remove(soldier);
+            ECS::registry<Soldier>.get(soldier).forcefield_on = false;
+            Soldier::set_shader(soldier, true, Soldier::ori_texture_path, Soldier::ori_shader_name);
+        } else {
+            soldier.get<Soldier>().soldierState = AiState::IDLE;
+            SoldierAISystem::idle(ECS::registry<Motion>.get(soldier));
+        }
+    }
+}
+

@@ -112,7 +112,7 @@ void RenderSystem::recreate_light_texture(float quality) {
 }
 
 RenderSystem::~RenderSystem()
-{
+{ 
 	// delete allocated resources
 	glDeleteFramebuffers(1, &frame_buffer);
 

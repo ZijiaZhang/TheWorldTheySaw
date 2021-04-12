@@ -133,6 +133,7 @@ ShadedMesh& cache_resource(std::string key);
 struct ShadedMeshRef
 {
 	ShadedMesh* reference_to_cache;
+	bool is_ui = false;
 	ShadedMeshRef(ShadedMesh& mesh);
 };
 

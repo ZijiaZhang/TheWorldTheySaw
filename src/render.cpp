@@ -13,6 +13,9 @@
 #include <soldier.hpp>
 #include <Wall.hpp>
 #include <MoveableWall.hpp>
+#include <Particle.hpp>
+#include <MagicParticle.hpp>
+#include <highlight_circle.hpp>
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
 {
@@ -65,15 +68,20 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
 		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
 		glEnableVertexAttribArray(in_texcoord_loc);
 		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
+        
+
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
-	} else if (in_color_loc >= 0) {
-		glEnableVertexAttribArray(in_position_loc);
-		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
-		glEnableVertexAttribArray(in_color_loc);
-		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(sizeof(vec3)));
-
+    }
+    else if (in_color_loc >= 0) {
+        glEnableVertexAttribArray(in_position_loc);
+        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(in_color_loc);
+        glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(sizeof(vec3)));
+    } else if (in_position_loc >= 0) {
+        glEnableVertexAttribArray(in_position_loc);
+        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
 	} else {
 		throw std::runtime_error("This type of entity is not yet supported");
 	}
@@ -109,25 +117,39 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
         }
     }
 
+    GLint radius_uloc = glGetUniformLocation(texmesh.effect.program, "radius");
+    if (radius_uloc >= 0) {
+        if (entity.has<HighLightCircle>()) {
+            glUniform1f(radius_uloc, entity.get<HighLightCircle>().radius);
+        }
+    }
+    gl_has_errors();
+    GLint thickness_uloc = glGetUniformLocation(texmesh.effect.program, "thickness");
+    if (thickness_uloc >= 0) {
+        if (entity.has<HighLightCircle>()) {
+            glUniform1f(thickness_uloc, entity.get<HighLightCircle>().thickness);
+        }
+    }
+    gl_has_errors();
+    GLint center_uloc = glGetUniformLocation(texmesh.effect.program, "center");
+    if (center_uloc >= 0) { 
+        glUniform2fv(center_uloc, 1, (float*)&(motion.position - camera.get_position()));
+    }
+    gl_has_errors();
     // Drawing of num_indices/3 triangles specified in the index buffer
     glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
     glBindVertexArray(0);
 }
 
-void RenderSystem::drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) {
+void RenderSystem::drawInstanced(const mat3& projection, Particle& particle) {
     auto& screen = screen_state_entity.get<ScreenState>();
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     // Transformation code, see Rendering and Transformation in the template specification for more info
 // Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
-    Transform transform;
-    transform.translate(motion.position - camera.get_position());
-    transform.rotate(motion.angle);
-    transform.scale(motion.scale);
-    // !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
 
     // Setting shaders
-    glUseProgram(texmesh.effect.program);
-    glBindVertexArray(texmesh.mesh.vao);
+    glUseProgram(particle.mesh.effect.program);
+    glBindVertexArray(particle.mesh.mesh.vao);
     gl_has_errors();
 
     // Enabling alpha channel for textures
@@ -136,44 +158,68 @@ void RenderSystem::drawTexturedMesh(const mat3 &projection, Motion &motion, cons
     glDisable(GL_DEPTH_TEST);
     gl_has_errors();
 
-    GLint transform_uloc = glGetUniformLocation(texmesh.effect.program, "transform");
-    GLint projection_uloc = glGetUniformLocation(texmesh.effect.program, "projection");
+    GLint projection_uloc = glGetUniformLocation(particle.mesh.effect.program, "projection");
     gl_has_errors();
-
     // Setting vertex and index buffers
-    glBindBuffer(GL_ARRAY_BUFFER, texmesh.mesh.vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texmesh.mesh.ibo);
+    glBindBuffer(GL_ARRAY_BUFFER, particle.mesh.mesh.vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, particle.mesh.mesh.ibo);
     gl_has_errors();
 
     // Input data location as in the vertex buffer
-    GLuint time_uloc       = glGetUniformLocation(texmesh.effect.program, "time");
-    GLint in_position_loc = glGetAttribLocation(texmesh.effect.program, "in_position");
-    GLint in_texcoord_loc = glGetAttribLocation(texmesh.effect.program, "in_texcoord");
-    GLint in_color_loc = glGetAttribLocation(texmesh.effect.program, "in_color");
-    glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
-    if (in_texcoord_loc >= 0)
-    {
-        glEnableVertexAttribArray(in_position_loc);
-        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(in_texcoord_loc);
-        glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
-        // Enabling and binding texture to slot 0
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
-    } else if (in_color_loc >= 0) {
-        glEnableVertexAttribArray(in_position_loc);
-        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(in_color_loc);
-        glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(sizeof(vec3)));
+    GLint in_position_loc = glGetAttribLocation(particle.mesh.effect.program, "in_position");
+    GLint in_texcoord_loc = glGetAttribLocation(particle.mesh.effect.program, "in_texcoord");
+    
+    GLuint color_uloc = glGetUniformLocation(particle.mesh.effect.program, "fcolor");
+    GLuint camera_position_uloc = glGetUniformLocation(particle.mesh.effect.program, "camera_position");
+    GLuint delta_second_uloc = glGetUniformLocation(particle.mesh.effect.program, "delta_second");
+    glUniform1f(delta_second_uloc, static_cast<float>(glfwGetTime()) - particle.start_time);
 
-    } else {
-        throw std::runtime_error("This type of entity is not yet supported");
-    }
+    glEnableVertexAttribArray(in_position_loc);
+    glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
+    glEnableVertexAttribArray(in_texcoord_loc);
+    gl_has_errors();
+    glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
+    // Enabling and binding texture to slot 0
+    glActiveTexture(GL_TEXTURE0);
+    gl_has_errors();
+    glBindTexture(GL_TEXTURE_2D, particle.mesh.texture.texture_id);
     gl_has_errors();
 
+    GLint in_transform_loc = glGetAttribLocation(particle.mesh.effect.program, "transform");
+    glBindBuffer(GL_ARRAY_BUFFER, particle.motion_buffer);
+    gl_has_errors();
+    for (int i = 0; i < 3; i++) {
+        gl_has_errors();
+        glEnableVertexAttribArray(in_transform_loc + i);
+        gl_has_errors();
+        glVertexAttribPointer(in_transform_loc + i, 3, GL_FLOAT, GL_FALSE, sizeof(mat3), (GLvoid*)(sizeof(vec3) * i));
+        glVertexAttribDivisor(in_transform_loc + i, 1);
+    }
+
+    GLint in_scale_speed_loc = glGetAttribLocation(particle.mesh.effect.program, "scale_speed");
+    GLint in_speed_loc = glGetAttribLocation(particle.mesh.effect.program, "speed");
+    glBindBuffer(GL_ARRAY_BUFFER, particle.scale_speed_buffer);
+    glEnableVertexAttribArray(in_scale_speed_loc);
+    gl_has_errors();
+    glVertexAttribPointer(in_scale_speed_loc, 1, GL_FLOAT, GL_FALSE, sizeof(float), 0);
+    glVertexAttribDivisor(in_scale_speed_loc, 1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, particle.speed_buffer);
+    glEnableVertexAttribArray(in_speed_loc);
+    gl_has_errors();
+    glVertexAttribPointer(in_speed_loc, 2, GL_FLOAT, GL_FALSE, sizeof(vec2), 0);
+    glVertexAttribDivisor(in_speed_loc, 1);
+
+
+    // glBindBuffer(GL_ARRAY_BUFFER, texmesh.mesh.vbo);
+
+    
+    gl_has_errors();
+
+
     // Getting uniform locations for glUniform* calls
-    GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
-    glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
+
+    glUniform3fv(color_uloc, 1, (float*)&particle.mesh.texture.color);
     gl_has_errors();
 
     // Get number of indices from index buffer, which has elements uint16_t
@@ -184,15 +230,20 @@ void RenderSystem::drawTexturedMesh(const mat3 &projection, Motion &motion, cons
     //GLsizei num_triangles = num_indices / 3;
 
     // Setting uniform values to the currently bound program
-    glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform.mat);
     glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
-    gl_has_errors();
+    vec2 camera_position = camera.get_position();
+    glUniform2fv(camera_position_uloc, 1, (float*)&camera_position);
 
+    gl_has_errors();
     // Drawing of num_indices/3 triangles specified in the index buffer
-    glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
+    glDrawElementsInstanced(GL_TRIANGLES,num_indices, GL_UNSIGNED_SHORT, nullptr, particle.motions.size());
+    // glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
 
     glBindVertexArray(0);
+    gl_has_errors();
 }
+
+
 
 // Draw the intermediate texture to the screen, with some distortion to simulate water
 void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
@@ -406,9 +457,9 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
                 motion.scale = {50,5};
                 motion.position.x -= motion.scale.x /2;
                 motion.angle = 0;
-                drawTexturedMesh(projection_2D, motion, health_bar_background);
+                drawTexturedMesh(entity, projection_2D, motion, health_bar_background);
                 motion.scale.x *= health.hp / health.max_hp;
-                drawTexturedMesh(projection_2D, motion, health_bar);
+                drawTexturedMesh(entity, projection_2D, motion, health_bar);
             }
         }
 
@@ -434,11 +485,17 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
                 } else {
                     mask_motion.scale.x = 0;
                 }
-
-                drawTexturedMesh(projection_2D, mask_motion, weaponTimerMask);
-
+                drawTexturedMesh(entity, projection_2D, motion, weaponTimerMask);
             }
         }
+
+        auto circles = ECS::registry<HighLightCircle>.entities;
+        for (auto& entity : circles) {
+            if (entity.has<Motion>()) {
+                drawTexturedMesh(entity, projection_2D);
+            }
+        }
+
     }
 
     // First render to the custom framebuffer
@@ -466,12 +523,24 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
     for (ECS::Entity entity : entities)
     {
-        if (!ECS::registry<Motion>.has(entity))
+        if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui)
             continue;
         // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
         drawTexturedMesh(entity, projection_2D);
         gl_has_errors();
     }
+
+    for (auto entity : ECS::registry<Particle>.entities) {
+        auto& p = entity.get<Particle>();
+        //drawTexturedMesh(entity, projection_2D, p.motions[5], p.mesh);
+        drawInstanced(projection_2D, p);
+    }
+    for (auto entity : ECS::registry<MagicParticle>.entities) {
+        auto& p = entity.get<MagicParticle>();
+        // drawTexturedMesh(entity, projection_2D, entity.get<Motion>(), *entity.get<ShadedMeshRef>().reference_to_cache);
+        //drawInstanced(projection_2D, p.motions, p.mesh, p.motion_buffer);
+    }
+    
 
 
     glBindFramebuffer(GL_FRAMEBUFFER, wall_frame_buffer);
@@ -540,7 +609,7 @@ const std::string RenderSystem::build_anim_vertex_shader(int frames) {
            << "uniform mat3 projection;\n"
            << "\n"
            << "void main()\n"
-           << "{\n"
+           << "{\n" 
            << "    float mytime = floor(mod(int(time), "<< frames <<".0));\n"
            << "    float x_offset = mod(mytime, "<< width<<".0); \n"
            << "    float y_offset = mod(floor(mytime/"<< width << "), "<< width<<".0); \n"
