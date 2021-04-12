@@ -237,6 +237,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				for (auto& e : popup.relative_entities) {
 					ECS::ContainerInterface::remove_all_components_of(e);
 				}
+				popup.on_destroy();
 			}
 			ECS::ContainerInterface::remove_all_components_of(entity);
 			if (is_pop_up && ECS::registry<PopUP>.entities.empty()) {
@@ -398,6 +399,12 @@ void WorldSystem::restart(std::string level)
 			auto& pop_up = e.get<PopUP>();
 			pop_up.relative_entities.push_back(
 				HighLightCircle::createHighLightCircle(player_soldier.get<Motion>().position, 30, 5));
+			pop_up.on_destroy = [=]() {
+				auto e = PopUP::createPopUP(textures_path("/tutorial/Movement.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+				auto& pop_up = e.get<PopUP>();
+				pop_up.relative_entities.push_back(
+					HighLightCircle::createHighLightCircle({ 480, 675 }, 50, 5));
+			};
 		}
 	}
 	GameInstance::set_enter_level(level);
@@ -620,8 +627,6 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 
     if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
     {
-
-		
 		if (!ECS::registry<PopUP>.entities.empty()) {
 			auto& entity = ECS::registry<PopUP>.entities.back();
 			if (!entity.has<DeathTimer>()) {

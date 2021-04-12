@@ -12,4 +12,5 @@ struct PopUP
 	static ECS::Entity createPopUP(std::string texture_path, vec2 position, vec2 size);
 	static ShadedMesh& get_background();
 	std::vector<ECS::Entity> relative_entities;
+	std::function<void()> on_destroy = [] (){};
 };
