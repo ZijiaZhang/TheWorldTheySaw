@@ -15,6 +15,7 @@ static std::map<std::string, bool> playableLevelMap = {
         {"menu", false},
         {"level_select", false},
         {"loadout", false},
+        {TUTORIAL_NAME, true},
         {"win", false},
         {"lose", false},
         {"intro", false},

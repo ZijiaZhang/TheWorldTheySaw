@@ -19,6 +19,7 @@
 #include "world.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "GameInstance.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -97,7 +98,7 @@ std::string get_save_directory() {
 static void save_level_data()
 {
 	std::ofstream data(get_save_directory(), std::ofstream::trunc);
-	for (int i = 0; i < level_progression.size(); i++) {
+	for (int i = 0; i < LevelLoader::level_order.size(); i++) {
 		data << level_progression[LevelLoader::level_order[i]] << "\n";
 	}
 	data.close();

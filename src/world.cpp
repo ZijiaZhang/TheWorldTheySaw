@@ -406,7 +406,43 @@ void WorldSystem::restart(std::string level)
 					HighLightCircle::createHighLightCircle({ 480, 675 }, 50, 5));
 			};
 		}
+
+		if (level == WEAPON_SELECT_NAME) {
+			GameInstance::global_speed = 0.0;
+			auto e = PopUP::createPopUP(textures_path("/tutorial/Loadout_pick.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 });
+			auto& pop_up = e.get<PopUP>();
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 80,60 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 340,60 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 340,137 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 80,137 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 80,405 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 340,405 }, 30, 5));
+			pop_up.on_destroy = [=]() {
+				auto e = PopUP::createPopUP(textures_path("/tutorial/Enter_level.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+				auto& pop_up = e.get<PopUP>();
+				pop_up.relative_entities.push_back(
+					HighLightCircle::createHighLightCircle({ 315, 540 }, 50, 5));
+			};
+		}
 	}
+
+	if (level == TUTORIAL_NAME) {
+		GameInstance::global_speed = 0.0;
+		auto e = PopUP::createPopUP(textures_path("/tutorial/Enemy.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 });
+		auto& pop_up = e.get<PopUP>();
+		pop_up.relative_entities.push_back(
+			HighLightCircle::createHighLightCircle({ 500,500 }, 30, 5));
+		pop_up.on_destroy = [=]() {
+			auto e = PopUP::createPopUP(textures_path("/tutorial/Ability.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+		};
+	}
+
 	GameInstance::set_enter_level(level);
 
 }
@@ -416,18 +452,24 @@ void WorldSystem::checkEndGame()
 {
 	if (GameInstance::isPlayableLevel()) {
         if (ECS::registry<Enemy>.entities.empty()) {
-			level_loader.update_level_state(GameInstance::currentLevel, 1);
-            resetTimer();
-            restart("win");
+			resetTimer();
+			if (GameInstance::currentLevel == TUTORIAL_NAME) {
+				restart(MENU_NAME);
+			}
+			else {
+				level_loader.update_level_state(GameInstance::currentLevel, 1);
+				restart("win");
+			}
+
         }
         if (ECS::registry<Soldier>.entities.empty()) {
             resetTimer();
-            restart("lose");
+            restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
         }
 		if (endGameTimer > 1000000.f) {
 			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
-				restart("lose");
+				restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
 			}
 		}
 	}
@@ -593,7 +635,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         // level_loader.set_level("level_3");
         // level_loader.at_level = "level_3";
         reload_level = true;
-        reload_level_name = "level_5";
+        reload_level_name = TUTORIAL_NAME;
     }
 
 	// Debugging
