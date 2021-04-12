@@ -60,9 +60,7 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
                 if (gun_fire == nullptr)
                     throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
                         audio_path("gun_fire.wav"));
-
-                auto a = Mix_PlayChannel(-1, gun_fire, 0);
-                Mix_ChannelFinished([](auto a) {Mix_FreeChunk(Mix_GetChunk(a)); });
+                Mix_PlayChannel(-1, gun_fire, 0);
                 //Mix_FreeChunk(gun_fire);
                 
             }
