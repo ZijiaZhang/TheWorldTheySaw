@@ -146,7 +146,7 @@ struct DebugComponent
 // A timer that will be associated to dying object
 struct DeathTimer
 {
-	float counter_ms = 1;
+	float counter_ms = 0.0;
 };
 
 struct PressTimer

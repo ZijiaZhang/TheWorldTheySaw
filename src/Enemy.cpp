@@ -43,14 +43,14 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     physicsObject.mass = 30;
     physicsObject.object_type = ENEMY;
     physicsObject.vertex = {
-            {
-                    PhysicsVertex{{-0.4, 0.4, -0.02}},
-                    PhysicsVertex{{0.2, 0.2, -0.02}},
-                    PhysicsVertex{{0.3, 0, -0.02}},
-                    PhysicsVertex{{0.2, -0.2, -0.02}},
-                    PhysicsVertex{{-0.4, -0.4, -0.02}},
-                    PhysicsVertex{{0, 0, -0.02}},
-            }
+        {
+            PhysicsVertex{{-0.4, 0.4, -0.02}},
+            PhysicsVertex{{0.2, 0.2, -0.02}},
+            PhysicsVertex{{0.3, 0, -0.02}},
+            PhysicsVertex{{0.2, -0.2, -0.02}},
+            PhysicsVertex{{-0.4, -0.4, -0.02}},
+            PhysicsVertex{{0, 0, -0.02}}
+        }
     };
     physicsObject.non_convex = true;
     physicsObject.decompose_key = "enemy_basic";
@@ -102,8 +102,7 @@ void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Collis
         std::cout << "hit\n";
         auto bullet_type = e.get<Bullet>().bullet_indicator;
         // bullet
-        EnemyAISystem::takeDamage(self, e.get<Bullet>().damage);
-
+        EnemyAISystem::takeDamage(self, Bullet::bulletDamage[e.get<Bullet>().type]);
     }
     else if (e.has<Explosion>() && e.get<Explosion>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
         EnemyAISystem::takeDamage(self, e.get<Explosion>().damage);

@@ -16,6 +16,7 @@
 #include "world.hpp"
 #include "loading.hpp"
 #include "Weapon.hpp"
+#include "GameInstance.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -40,6 +41,11 @@ std::vector<std::string> LevelLoader::existing_level = {
 	"level_5",
 	"level_6",
 	"level_7",
+	"level_8",
+	"level_9",
+	"level_10",
+	"level_11",
+	"level_12"
 };
 
 /*
@@ -69,6 +75,8 @@ std::vector<std::string> LevelLoader::level_order = {
 	"level_8",
 	"level_9",
 	"level_10",
+	"level_11",
+	"level_12"
 };
 
 std::unordered_map<std::string, LevelEntityState> LevelLoader::saved_level_states = {};
@@ -83,7 +91,9 @@ std::unordered_map<std::string, bool> LevelLoader::saved_flag = {
 	{"level_7", false},
 	{"level_8", false},
 	{"level_9", false},
-	{"level_10", false}
+	{"level_10", false},
+	{"level_11", false},
+	{"level_12", false}
 };
 
 std::string get_save_directory() {
@@ -94,7 +104,7 @@ std::string get_save_directory() {
 static void save_level_data()
 {
 	std::ofstream data(get_save_directory(), std::ofstream::trunc);
-	for (int i = 0; i < level_progression.size(); i++) {
+	for (int i = 0; i < LevelLoader::level_order.size(); i++) {
 		data << level_progression[LevelLoader::level_order[i]] << "\n";
 	}
 	data.close();

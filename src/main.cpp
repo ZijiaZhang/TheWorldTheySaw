@@ -40,6 +40,7 @@ int main()
 	SoldierAISystem soldierAi;
 	EnemyAISystem enemyAi;
 
+	world.screen = window_size_in_game_units;
 	// Set all states to default
 	world.restart("menu");
 	auto t = Clock::now();
@@ -57,7 +58,7 @@ int main()
 		// Calculating elapsed times in milliseconds from the previous iteration
 		auto now = Clock::now();
 		float elapsed_ms = static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count()) / 1000.f;
-		//elapsed_ms = 16.f;
+		elapsed_ms *= GameInstance::global_speed;
 		t = now;
 
 		DebugSystem::clearDebugComponents();
@@ -79,7 +80,7 @@ int main()
         auto world_time = Clock::now();
         if(DebugSystem::in_profile_mode)
             printf("World: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(world_time - ai_time)).count()) / 1000.f);
-		physics.step(elapsed_ms, window_size_in_game_units, WorldSystem::game_world_speed);
+		physics.step(elapsed_ms, window_size_in_game_units);
         auto physics_time = Clock::now();
         if(DebugSystem::in_profile_mode)
             printf("Physics: %f\n", static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(physics_time - world_time)).count()) / 1000.f);

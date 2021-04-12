@@ -16,22 +16,23 @@
 #include <Particle.hpp>
 #include <MagicParticle.hpp>
 #include <highlight_circle.hpp>
+#include <pop_up.hpp>
 
-void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
+void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen)
 {
 	auto& motion = ECS::registry<Motion>.get(entity);
 	auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
-    drawTexturedMesh(entity, projection, motion, texmesh);
+    drawTexturedMesh(entity, projection, motion, texmesh, relative_to_screen);
 
 }
 
-void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) {
+void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh, bool relative_to_screen) {
     auto& screen = screen_state_entity.get<ScreenState>();
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     // Transformation code, see Rendering and Transformation in the template specification for more info
 // Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
     Transform transform;
-    transform.translate(motion.position - camera.get_position());
+    transform.translate(relative_to_screen? motion.position: (motion.position - camera.get_position()));
     transform.rotate(motion.angle);
     transform.scale(motion.scale);
     // !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
@@ -447,7 +448,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
     // Render UI
     if(GameInstance::isPlayableLevel()){
-        auto e = ECS::registry<Health>.entities;
+        auto& e = ECS::registry<Health>.entities;
         for(auto& entity: e){
             if (entity.has<Motion>()) {
                 auto& health = entity.get<Health>();
@@ -459,11 +460,13 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
                 motion.angle = 0;
                 drawTexturedMesh(entity, projection_2D, motion, health_bar_background);
                 motion.scale.x *= health.hp / health.max_hp;
-                drawTexturedMesh(entity, projection_2D, motion, health_bar);
+                if (health.hp >= 0) {
+                    drawTexturedMesh(entity, projection_2D, motion, health_bar);
+                }
             }
         }
 
-        auto wts = ECS::registry<WeaponTimer>.entities;
+        auto& wts = ECS::registry<WeaponTimer>.entities;
         for(auto& entity: wts){
             if (entity.has<Motion>()) {
                 auto& et = ECS::registry<EffectTimer>.get(entity);
@@ -488,16 +491,25 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
                 drawTexturedMesh(entity, projection_2D, mask_motion, weaponTimerMask);
             }
         }
-
-        auto circles = ECS::registry<HighLightCircle>.entities;
-        for (auto& entity : circles) {
-            if (entity.has<Motion>()) {
-                drawTexturedMesh(entity, projection_2D);
-            }
+    }
+    auto& circles = ECS::registry<HighLightCircle>.entities;
+    for (auto& entity : circles) {
+        if (entity.has<Motion>()) {
+            drawTexturedMesh(entity, projection_2D);
         }
-
     }
 
+    auto& pop_ups = ECS::registry<PopUP>.entities;
+    for (auto& entity : pop_ups) {
+        if (entity.has<Motion>()) {
+            auto& motion = ECS::registry<Motion>.get(entity);
+            auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
+            auto back_graound_motion = motion;
+            back_graound_motion.scale *= 1.1f;
+            drawTexturedMesh(entity, projection_2D, back_graound_motion, PopUP::get_background(), true);
+            drawTexturedMesh(entity, projection_2D, motion, texmesh, true);
+        }
+    }
     // First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     gl_has_errors();

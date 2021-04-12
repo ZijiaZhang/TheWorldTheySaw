@@ -57,8 +57,8 @@ private:
 	void initScreenTexture(); 
 
 	// Internal drawing functions for each entity type
-	void drawTexturedMesh(ECS::Entity entity, const mat3& projection);
-    void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh);
+	void drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen = false);
+    void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh, bool relative_to_screen = false);
 
 	void drawInstanced(const mat3& projection, Particle& particle);
 
