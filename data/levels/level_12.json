@@ -2,8 +2,8 @@
     "player": [
         {
             "position": {
-                "x": 100,
-                "y": 200
+                "x": 500,
+                "y": 500
             },
             "velocity": {
                 "X": 100,
@@ -70,8 +70,8 @@
     "enemy": [
         {
             "position": {
-                "x": 600,
-                "y": 600
+                "x": 100,
+                "y": 100
             },
             "velocity": {
                 "x": 50,
@@ -79,39 +79,100 @@
             },
             "overlap": "enemy_bullet_hit_death",
             "additionalProperties": {
-                "enemy_type": "suicide",
+                "enemy_type": "elite",
                 "team_id": 1
             }
+        },
+        {
+            "position": {
+                "x": 100,
+                "y": 900
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "elite",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 900,
+                "y": 100
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "elite",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 900,
+                "y": 900
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "elite",
+                "team_id": 1
+            }
+        }
+    ],
+    "blocks": [
+        {
+            "position": {
+                "x": 500,
+                "y": 300
+            },
+            "size": {
+                "x": 350,
+                "y": 30
+            },
+            "rotation": 0
         },
         {
             "position": {
                 "x": 500,
+                "y": 700
+            },
+            "size": {
+                "x": 350,
+                "y": 30
+            },
+            "rotation": 0
+        },
+        {
+            "position": {
+                "x": 300,
                 "y": 500
             },
-            "velocity": {
-                "x": 50,
-                "y": 50
+            "size": {
+                "x": 30,
+                "y": 350
             },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
+            "rotation": 0
         },
         {
             "position": {
                 "x": 700,
-                "y": 700
+                "y": 500
             },
-            "velocity": {
-                "x": 50,
-                "y": 50
+            "size": {
+                "x": 30,
+                "y": 350
             },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
+            "rotation": 0
         }
     ]
 }

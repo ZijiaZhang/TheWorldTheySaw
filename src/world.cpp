@@ -19,7 +19,6 @@
 #include "Weapon.hpp"
 #include "Explosion.hpp"
 #include "MagicParticle.hpp"
-#include "GameInstance.hpp"
 #include "WeaponTimer.hpp"
 
 // stlib
@@ -31,6 +30,7 @@
 #include <nlohmann/json.hpp>
 #include <Particle.hpp>
 #include <highlight_circle.hpp>
+#include <pop_up.hpp>
 
 // for convenience
 using json = nlohmann::json;
@@ -49,7 +49,6 @@ bool DRAWING = false;
 int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
 bool WorldSystem::selecting = false;
-float WorldSystem::game_world_speed = 1.f;
 bool WorldSystem::pause = false;
 
 int KILL_SIZE = 3000;
@@ -165,7 +164,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Playing background music indefinitely
 	init_audio();
 	//Mix_PlayMusic(background_music, -1);
-	std::cout << "Loaded music\n";
+	// std::cout << "Loaded music\n";
 	Mix_PlayMusic(background_music, -1);
 
 }
@@ -211,13 +210,6 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	std::stringstream title_ss;
 	title_ss << "Points: " << points;
 	glfwSetWindowTitle(window, title_ss.str().c_str());
-	for (int i = static_cast<int>(ECS::registry<Motion>.components.size()) - 1; i >= 0; --i)
-	{
-		auto& m = ECS::registry<Motion>.components[i];
-		if (abs(m.position.x) > KILL_SIZE || abs(m.position.y) > KILL_SIZE) {
-			ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities[i]);
-		}
-	}
 
 	if (screen != window_size_in_game_units) {
 		screen = window_size_in_game_units;
@@ -235,9 +227,21 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		counter.counter_ms -= elapsed_ms;
 
 		// Restart the game once the death timer expired
-		if (counter.counter_ms < 0)
+		if (counter.counter_ms <= 0)
 		{
+			bool is_pop_up = entity.has<PopUP>();
+			if (is_pop_up) {
+				auto& popup = entity.get<PopUP>();
+				for (auto& e : popup.relative_entities) {
+					ECS::ContainerInterface::remove_all_components_of(e);
+				}
+				popup.on_destroy();
+			}
 			ECS::ContainerInterface::remove_all_components_of(entity);
+			if (is_pop_up && ECS::registry<PopUP>.entities.empty()) {
+				GameInstance::global_speed = 1.0;
+			}
+
 		}
 	}
 
@@ -286,13 +290,16 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
-	endGameTimer += elapsed_ms;
-	if (pause && GameInstance::isPlayableLevel()) {
-		game_world_speed = 0.f;
+	pause = pause && GameInstance::isPlayableLevel();
+
+	if (pause) {
+		GameInstance::global_speed = 0.f;
 	}
 	else {
-		game_world_speed = 1.f;
+		GameInstance::global_speed = 1.f;
 	}
+
+	endGameTimer += elapsed_ms;
 	runTimer(elapsed_ms);
 	checkEndGame();
     if(player_soldier.has<Motion>()) {
@@ -342,7 +349,7 @@ void WorldSystem::restart(std::string level)
 
 
 	// Reset the game speed
-	current_speed = 1.f;
+	GameInstance::global_speed = 1.f;
 
     // Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
@@ -387,6 +394,60 @@ void WorldSystem::restart(std::string level)
     if (aiControl) {
         WeaponTimer::createAllWeaponTimers();
     }
+
+	if (GameInstance::fist_enter_level(level)) {
+		if (level == MENU_NAME) {
+			GameInstance::global_speed = 0.0;
+			auto e = PopUP::createPopUP(textures_path("/tutorial/You.png"), screen / 2.f - vec2{0.0, 200}, { 200, 100 });
+			auto& pop_up = e.get<PopUP>();
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle(player_soldier.get<Motion>().position, 30, 5));
+			pop_up.on_destroy = [=]() {
+				auto e = PopUP::createPopUP(textures_path("/tutorial/Movement.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+				auto& pop_up = e.get<PopUP>();
+				pop_up.relative_entities.push_back(
+					HighLightCircle::createHighLightCircle({ 480, 675 }, 50, 5));
+			};
+		}
+
+		if (level == WEAPON_SELECT_NAME) {
+			GameInstance::global_speed = 0.0;
+			auto e = PopUP::createPopUP(textures_path("/tutorial/Loadout_pick.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 });
+			auto& pop_up = e.get<PopUP>();
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 80,60 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 340,60 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 340,137 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 80,137 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 80,405 }, 30, 5));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 340,405 }, 30, 5));
+			pop_up.on_destroy = [=]() {
+				auto e = PopUP::createPopUP(textures_path("/tutorial/Enter_level.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+				auto& pop_up = e.get<PopUP>();
+				pop_up.relative_entities.push_back(
+					HighLightCircle::createHighLightCircle({ 315, 540 }, 50, 5));
+			};
+		}
+	}
+
+	if (level == TUTORIAL_NAME) {
+		GameInstance::global_speed = 0.0;
+		auto e = PopUP::createPopUP(textures_path("/tutorial/Enemy.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 });
+		auto& pop_up = e.get<PopUP>();
+		pop_up.relative_entities.push_back(
+			HighLightCircle::createHighLightCircle({ 500,500 }, 30, 5));
+		pop_up.on_destroy = [=]() {
+			auto e = PopUP::createPopUP(textures_path("/tutorial/Ability.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+		};
+	}
+
+	GameInstance::set_enter_level(level);
+
 }
 
 
@@ -394,18 +455,24 @@ void WorldSystem::checkEndGame()
 {
 	if (GameInstance::isPlayableLevel()) {
         if (ECS::registry<Enemy>.entities.empty()) {
-			level_loader.update_level_state(GameInstance::currentLevel, 1);
-            resetTimer();
-            restart("win");
+			resetTimer();
+			if (GameInstance::currentLevel == TUTORIAL_NAME) {
+				restart(MENU_NAME);
+			}
+			else {
+				level_loader.update_level_state(GameInstance::currentLevel, 1);
+				restart("win");
+			}
+
         }
         if (ECS::registry<Soldier>.entities.empty()) {
             resetTimer();
-            restart("lose");
+            restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
         }
-		if (endGameTimer > 1000000.f) {
+		if (endGameTimer > 100000.f) {
 			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
-				restart("lose");
+				restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
 			}
 		}
 	}
@@ -448,7 +515,6 @@ void WorldSystem::handle_collisions()
 				{
 					// Scream, reset timer, and make the soldier sink
 					ECS::registry<DeathTimer>.emplace(entity);
-
 				}
 			}
 		}
@@ -578,7 +644,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         // level_loader.set_level("level_3");
         // level_loader.at_level = "level_3";
         reload_level = true;
-        reload_level_name = "level_5";
+        reload_level_name = TUTORIAL_NAME;
     }
 
 	// Debugging
@@ -612,16 +678,25 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 
     if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
     {
-        if(!aiControl && player_soldier.has<AIPath>()){
-            auto& aiPath = player_soldier.get<AIPath>();
-            aiPath.active = true;
+		if (!ECS::registry<PopUP>.entities.empty()) {
+			auto& entity = ECS::registry<PopUP>.entities.back();
+			if (!entity.has<DeathTimer>()) {
+				entity.emplace<DeathTimer>();
+			}
+			return;
+		}
+		if (!aiControl && player_soldier.has<AIPath>()) {
+			auto& aiPath = player_soldier.get<AIPath>();
+			aiPath.active = true;
 			player_soldier.get<Motion>().velocity = { 200.f, 0.f };
-            aiPath.path.path.clear();
-            aiPath.progress = 0;
-            aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
-        }
-		HighLightCircle::createHighLightCircle(getWorldMousePosition(last_mouse_pos), 100);
-        DRAWING = true;
+			aiPath.path.path.clear();
+			aiPath.progress = 0;
+			aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
+		}
+		//HighLightCircle::createHighLightCircle(getWorldMousePosition(last_mouse_pos), 100);
+
+		// PopUP::createPopUP(textures_path("/enemy/cannon/alien.png"), screen / 2.f, { 200, 100 });
+		DRAWING = true;
         mouse_points.clear();
     }
     else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
