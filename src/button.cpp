@@ -19,12 +19,21 @@ std::map<ButtonIcon, std::string> Button::buttonNamesMap = {
     {ButtonIcon::NEXT, "next"},
     {ButtonIcon::RESTART, "RESTART"},
     {ButtonIcon::RETURN, "return"},
+    {ButtonIcon::SAVE, "save"},
+    {ButtonIcon::CONTINUE, "continue"},
+    {ButtonIcon::LOCKED, "locked"},
     {ButtonIcon::LEVEL1, "level1"},
     {ButtonIcon::LEVEL2, "level2"},
 	{ButtonIcon::LEVEL3, "level3"},
     {ButtonIcon::LEVEL4, "level4"},
     {ButtonIcon::LEVEL5, "level5"},
-    {ButtonIcon::LEVEL6, "level6"}
+    {ButtonIcon::LEVEL6, "level6"},
+    {ButtonIcon::LEVEL7, "level7"},
+    {ButtonIcon::LEVEL8, "level8"},
+    {ButtonIcon::LEVEL9, "level9"},
+    {ButtonIcon::LEVEL10, "level10"},
+    {ButtonIcon::LEVEL11, "level11"},
+    {ButtonIcon::LEVEL12, "level12"}
 };
 
 

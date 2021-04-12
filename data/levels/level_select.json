@@ -30,7 +30,7 @@
     "select_level_2": [
         {
             "position": {
-                "x": 650,
+                "x": 450,
                 "y": 450
             }
         }
@@ -38,8 +38,8 @@
     "select_level_3": [
             {
                 "position": {
-                    "x": 350,
-                    "y": 550
+                    "x": 550,
+                    "y": 450
                 }
             }
         ],
@@ -47,7 +47,7 @@
             {
                 "position": {
                     "x": 650,
-                    "y": 550
+                    "y": 450
                 }
             }
         ],
@@ -55,11 +55,59 @@
             {
                 "position": {
                     "x": 350,
-                    "y": 650
+                    "y": 550
                 }
             }
         ],
         "select_level_6": [
+            {
+                "position": {
+                    "x": 450,
+                    "y": 550
+                }
+            }
+        ],
+        "select_level_7": [
+            {
+                "position": {
+                    "x": 550,
+                    "y": 550
+                }
+            }
+        ],
+        "select_level_8": [
+            {
+                "position": {
+                    "x": 650,
+                    "y": 550
+                }
+            }
+        ],
+        "select_level_9": [
+            {
+                "position": {
+                    "x": 350,
+                    "y": 650
+                }
+            }
+        ],
+        "select_level_10": [
+            {
+                "position": {
+                    "x": 450,
+                    "y": 650
+                }
+            }
+        ],
+        "select_level_11": [
+            {
+                "position": {
+                    "x": 550,
+                    "y": 650
+                }
+            }
+        ],
+        "select_level_12": [
             {
                 "position": {
                     "x": 650,
@@ -67,11 +115,11 @@
                 }
             }
         ],
-    "return_to_menu": [
+        "return_to_menu": [
         {
             "position": {
                 "x": 200,
-                "y": 725
+                "y": 775
             }
         }
     ]
