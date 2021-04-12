@@ -16,13 +16,16 @@
                 "x": 500,
                 "y": 500
             },
-            "additionalProperties": { "name": "levelSelect", "scale": 0.5 }
+            "additionalProperties": {
+                "name": "levelSelect",
+                "scale": 0.5
+            }
         }
     ],
     "select_level_1": [
         {
             "position": {
-                "x": 350,
+                "x": 200,
                 "y": 450
             }
         }

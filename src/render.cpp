@@ -17,28 +17,24 @@
 #include <MoveableWall.hpp>
 #include <Particle.hpp>
 #include <MagicParticle.hpp>
+#include <highlight_circle.hpp>
+#include <pop_up.hpp>
 
-void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection)
+void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen)
 {
 	auto& motion = ECS::registry<Motion>.get(entity);
 	auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
-    drawTexturedMesh(entity, projection, motion, texmesh);
+    drawTexturedMesh(entity, projection, motion, texmesh, relative_to_screen);
 
 }
 
-void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) {
+void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh, bool relative_to_screen) {
     auto& screen = screen_state_entity.get<ScreenState>();
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     // Transformation code, see Rendering and Transformation in the template specification for more info
 // Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
     Transform transform;
-//    if (ECS::registry<MainMenu>.has(entity) || ECS::registry<Start>.has(entity) || ECS::registry<Button>.components[1].buttonType == ButtonIcon::START){
-//        transform.translate(motion.position);
-//    } else {
-//        transform.translate(motion.position - camera.get_position());
-//    }
-    //transform.translate(motion.position);
-    transform.translate(motion.position - camera.get_position());
+    transform.translate(relative_to_screen? motion.position: (motion.position - camera.get_position()));
     transform.rotate(motion.angle);
     transform.scale(motion.scale);
     // !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
@@ -80,12 +76,15 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
-	} else if (in_color_loc >= 0) {
-		glEnableVertexAttribArray(in_position_loc);
-		glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
-		glEnableVertexAttribArray(in_color_loc);
-		glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(sizeof(vec3)));
-
+    }
+    else if (in_color_loc >= 0) {
+        glEnableVertexAttribArray(in_position_loc);
+        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
+        glEnableVertexAttribArray(in_color_loc);
+        glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(sizeof(vec3)));
+    } else if (in_position_loc >= 0) {
+        glEnableVertexAttribArray(in_position_loc);
+        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
 	} else {
 		throw std::runtime_error("This type of entity is not yet supported");
 	}
@@ -121,91 +120,30 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
         }
     }
 
+    GLint radius_uloc = glGetUniformLocation(texmesh.effect.program, "radius");
+    if (radius_uloc >= 0) {
+        if (entity.has<HighLightCircle>()) {
+            glUniform1f(radius_uloc, entity.get<HighLightCircle>().radius);
+        }
+    }
+    gl_has_errors();
+    GLint thickness_uloc = glGetUniformLocation(texmesh.effect.program, "thickness");
+    if (thickness_uloc >= 0) {
+        if (entity.has<HighLightCircle>()) {
+            glUniform1f(thickness_uloc, entity.get<HighLightCircle>().thickness);
+        }
+    }
+    gl_has_errors();
+    GLint center_uloc = glGetUniformLocation(texmesh.effect.program, "center");
+    if (center_uloc >= 0) { 
+        vec2 center_loc = motion.position - camera.get_position();
+        glUniform2fv(center_uloc, 1, (float*)&(center_loc));
+    }
+    gl_has_errors();
     // Drawing of num_indices/3 triangles specified in the index buffer
     glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
     glBindVertexArray(0);
 }
-
-void RenderSystem::drawTexturedMesh(const mat3 &projection, Motion &motion, const ShadedMesh &texmesh) {
-    auto& screen = screen_state_entity.get<ScreenState>();
-    auto& camera = ECS::registry<Camera>.get(screen.camera);
-    // Transformation code, see Rendering and Transformation in the template specification for more info
-// Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
-    Transform transform;
-    transform.translate(motion.position - camera.get_position());
-    transform.rotate(motion.angle);
-    transform.scale(motion.scale);
-    // !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
-
-    // Setting shaders
-    glUseProgram(texmesh.effect.program);
-    glBindVertexArray(texmesh.mesh.vao);
-    gl_has_errors();
-
-    // Enabling alpha channel for textures
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_DEPTH_TEST);
-    gl_has_errors();
-
-    GLint transform_uloc = glGetUniformLocation(texmesh.effect.program, "transform");
-    GLint projection_uloc = glGetUniformLocation(texmesh.effect.program, "projection");
-    gl_has_errors();
-
-    // Setting vertex and index buffers
-    glBindBuffer(GL_ARRAY_BUFFER, texmesh.mesh.vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, texmesh.mesh.ibo);
-    gl_has_errors();
-
-    // Input data location as in the vertex buffer
-    GLuint time_uloc       = glGetUniformLocation(texmesh.effect.program, "time");
-    GLint in_position_loc = glGetAttribLocation(texmesh.effect.program, "in_position");
-    GLint in_texcoord_loc = glGetAttribLocation(texmesh.effect.program, "in_texcoord");
-    GLint in_color_loc = glGetAttribLocation(texmesh.effect.program, "in_color");
-    glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
-    if (in_texcoord_loc >= 0)
-    {
-        glEnableVertexAttribArray(in_position_loc);
-        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(in_texcoord_loc);
-        glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
-        // Enabling and binding texture to slot 0
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
-    } else if (in_color_loc >= 0) {
-        glEnableVertexAttribArray(in_position_loc);
-        glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(0));
-        glEnableVertexAttribArray(in_color_loc);
-        glVertexAttribPointer(in_color_loc, 3, GL_FLOAT, GL_FALSE, sizeof(ColoredVertex), reinterpret_cast<void*>(sizeof(vec3)));
-
-    } else {
-        throw std::runtime_error("This type of entity is not yet supported");
-    } 
-    gl_has_errors();
-
-    // Getting uniform locations for glUniform* calls
-    GLint color_uloc = glGetUniformLocation(texmesh.effect.program, "fcolor");
-    glUniform3fv(color_uloc, 1, (float*)&texmesh.texture.color);
-    gl_has_errors();
-
-    // Get number of indices from index buffer, which has elements uint16_t
-    GLint size = 0;
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    gl_has_errors();
-    GLsizei num_indices = size / sizeof(uint16_t);
-    //GLsizei num_triangles = num_indices / 3;
-
-    // Setting uniform values to the currently bound program
-    glUniformMatrix3fv(transform_uloc, 1, GL_FALSE, (float*)&transform.mat);
-    glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
-    gl_has_errors();
-
-    // Drawing of num_indices/3 triangles specified in the index buffer
-    glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
-
-    glBindVertexArray(0);
-}
-
 
 void RenderSystem::drawInstanced(const mat3& projection, Particle& particle) {
     auto& screen = screen_state_entity.get<ScreenState>();
@@ -513,7 +451,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
     // Render UI
     if(GameInstance::isPlayableLevel()){
-        auto e = ECS::registry<Health>.entities;
+        auto& e = ECS::registry<Health>.entities;
         for(auto& entity: e){
             if (entity.has<Motion>()) {
                 auto& health = entity.get<Health>();
@@ -523,32 +461,58 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
                 motion.scale = {50,5};
                 motion.position.x -= motion.scale.x /2;
                 motion.angle = 0;
-                drawTexturedMesh(projection_2D, motion, health_bar_background);
+                drawTexturedMesh(entity, projection_2D, motion, health_bar_background);
                 motion.scale.x *= health.hp / health.max_hp;
-                drawTexturedMesh(projection_2D, motion, health_bar);
+                if (health.hp >= 0) {
+                    drawTexturedMesh(entity, projection_2D, motion, health_bar);
+                }
             }
         }
 
-        auto wts = ECS::registry<WeaponTimer>.entities;
+        auto& wts = ECS::registry<WeaponTimer>.entities;
         for(auto& entity: wts){
             if (entity.has<Motion>()) {
                 auto& et = ECS::registry<EffectTimer>.get(entity);
-                auto& enemy_motion = entity.get<Motion>();
-                Motion motion{};
-                motion.position = enemy_motion.position;
-                motion.scale = enemy_motion.scale;
-                motion.position.x -= motion.scale.x /2;
-                motion.angle = 0;
+                auto& entity_motion = entity.get<Motion>();
+
+                Motion timer_mesh_motion{};
+                timer_mesh_motion.position = entity_motion.position;
+                timer_mesh_motion.scale = entity_motion.scale;
+                timer_mesh_motion.angle = 0;
+                RenderSystem::createWeaponTimer(projection_2D, timer_mesh_motion, entity);
+
+                Motion mask_motion{};
+                mask_motion.position = entity_motion.position;
+                mask_motion.scale = entity_motion.scale;
+                mask_motion.position.x -= mask_motion.scale.x / 2;
+                mask_motion.angle = 0;
                 if (et.status == COOLDOWN) {
-                    motion.scale.x *= et.cooldown_ms / WeaponTimer::effectAttributes[et.type][1];
+                    mask_motion.scale.x *= et.cooldown_ms / WeaponTimer::effectAttributes[et.type][1];
                 } else {
-                    motion.scale.x = 0;
+                    mask_motion.scale.x = 0;
                 }
-                drawTexturedMesh(projection_2D, motion, weaponTimerMask);
+                drawTexturedMesh(entity, projection_2D, mask_motion, weaponTimerMask);
             }
         }
     }
+    auto& circles = ECS::registry<HighLightCircle>.entities;
+    for (auto& entity : circles) {
+        if (entity.has<Motion>()) {
+            drawTexturedMesh(entity, projection_2D);
+        }
+    }
 
+    auto& pop_ups = ECS::registry<PopUP>.entities;
+    for (auto& entity : pop_ups) {
+        if (entity.has<Motion>()) {
+            auto& motion = ECS::registry<Motion>.get(entity);
+            auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
+            auto back_graound_motion = motion;
+            back_graound_motion.scale *= 1.1f;
+            drawTexturedMesh(entity, projection_2D, back_graound_motion, PopUP::get_background(), true);
+            drawTexturedMesh(entity, projection_2D, motion, texmesh, true);
+        }
+    }
     // First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     gl_has_errors();
@@ -574,7 +538,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
     for (ECS::Entity entity : entities)
     {
-        if (!ECS::registry<Motion>.has(entity))
+        if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui)
             continue;
         // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
         drawTexturedMesh(entity, projection_2D);
@@ -705,4 +669,17 @@ void gl_has_errors()
 		error = glGetError();
 	}
 	throw std::runtime_error("last OpenGL error:" + std::string(error_str));
+}
+
+void RenderSystem::createWeaponTimer(mat3 projection_2D, Motion timer_mesh_motion, ECS::Entity weaponTimer_entity) {
+    auto wt = ECS::registry<WeaponTimer>.get(weaponTimer_entity);
+    std::string key = "weaponTimer_" + wt.texture_path;
+    ShadedMesh& resource = cache_resource(key);
+    if (resource.effect.program.resource == 0) {
+        resource = ShadedMesh();
+        RenderSystem::createSprite(resource, textures_path("/bullet/"+wt.texture_path+".png"), "textured");
+        drawTexturedMesh(weaponTimer_entity, projection_2D, timer_mesh_motion, resource);
+    } else {
+        drawTexturedMesh(weaponTimer_entity, projection_2D, timer_mesh_motion, resource);
+    }
 }
