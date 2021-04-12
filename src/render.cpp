@@ -467,16 +467,23 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
         for(auto& entity: wts){
             if (entity.has<Motion>()) {
                 auto& et = ECS::registry<EffectTimer>.get(entity);
-                auto& enemy_motion = entity.get<Motion>();
-                Motion motion{};
-                motion.position = enemy_motion.position;
-                motion.scale = enemy_motion.scale;
-                motion.position.x -= motion.scale.x /2;
-                motion.angle = 0;
+                auto& entity_motion = entity.get<Motion>();
+
+                Motion timer_mesh_motion{};
+                timer_mesh_motion.position = entity_motion.position;
+                timer_mesh_motion.scale = entity_motion.scale;
+                timer_mesh_motion.angle = 0;
+                RenderSystem::createWeaponTimer(projection_2D, timer_mesh_motion, entity);
+
+                Motion mask_motion{};
+                mask_motion.position = entity_motion.position;
+                mask_motion.scale = entity_motion.scale;
+                mask_motion.position.x -= mask_motion.scale.x / 2;
+                mask_motion.angle = 0;
                 if (et.status == COOLDOWN) {
-                    motion.scale.x *= et.cooldown_ms / WeaponTimer::effectAttributes[et.type][1];
+                    mask_motion.scale.x *= et.cooldown_ms / WeaponTimer::effectAttributes[et.type][1];
                 } else {
-                    motion.scale.x = 0;
+                    mask_motion.scale.x = 0;
                 }
                 drawTexturedMesh(entity, projection_2D, motion, weaponTimerMask);
             }
@@ -647,4 +654,17 @@ void gl_has_errors()
 		error = glGetError();
 	}
 	throw std::runtime_error("last OpenGL error:" + std::string(error_str));
+}
+
+void RenderSystem::createWeaponTimer(mat3 projection_2D, Motion timer_mesh_motion, ECS::Entity weaponTimer_entity) {
+    auto wt = ECS::registry<WeaponTimer>.get(weaponTimer_entity);
+    std::string key = "weaponTimer_" + wt.texture_path;
+    ShadedMesh& resource = cache_resource(key);
+    if (resource.effect.program.resource == 0) {
+        resource = ShadedMesh();
+        RenderSystem::createSprite(resource, textures_path("/bullet/"+wt.texture_path+".png"), "textured");
+        drawTexturedMesh(projection_2D, timer_mesh_motion, resource);
+    } else {
+        drawTexturedMesh(projection_2D, timer_mesh_motion, resource);
+    }
 }
