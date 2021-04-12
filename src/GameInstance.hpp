@@ -7,6 +7,11 @@
 #include "common.hpp"
 #include "SoldierAi.hpp"
 
+#define MENU_NAME "menu"
+#define TUTORIAL_NAME "tutorial"
+#define WEAPON_SELECT_NAME "loadout"
+
+
 class GameInstance {
     public:
         static std::string currentLevel;
@@ -14,10 +19,12 @@ class GameInstance {
         static AIAlgorithm algorithm;
         static MagicWeapon selectedMagic;
         static float light_quality;
-        static float game_world_speed;
+        static float global_speed;
 
     static bool isPlayableLevel(std::string level);
 
     static bool isPlayableLevel();
+    static bool fist_enter_level(std::string level);
+    static void set_enter_level(std::string level);
 };
 

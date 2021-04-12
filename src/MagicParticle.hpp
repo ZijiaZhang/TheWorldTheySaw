@@ -41,7 +41,9 @@ public:
                 return;
             }
         }
-
+        if (e.has<Explosion>()) {
+            return;
+        }
         if (!self.has<DeathTimer>()) {
             self.emplace<DeathTimer>();
         }

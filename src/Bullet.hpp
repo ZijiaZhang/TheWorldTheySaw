@@ -37,8 +37,38 @@ public:
                 return;
             }
         }
+        if (e.has<Explosion>()) {
+            return;
+        }
         self.get<Bullet>().on_destroy(self);
     };
+
+    static void lazer_penetrate(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+        if (e.has<Shield>()) {
+            if (e.get<Shield>().teamID == self.get<Bullet>().teamID) {
+                return;
+            }
+        }
+        if (e.has<Enemy>()) {
+            if (e.get<Enemy>().teamID == self.get<Bullet>().teamID) {
+                return;
+            }
+        }
+        if (e.has<Soldier>()) {
+            if (e.get<Soldier>().teamID == self.get<Bullet>().teamID) {
+                return;
+            }
+        }
+        if (e.has<Explosion>()) {
+            return;
+        }
+        self.get<Bullet>().penetration_counter--;
+
+        if (self.get<Bullet>().penetration_counter <= 0) {
+            self.get<Bullet>().on_destroy(self);
+        }
+    };
+
     int teamID = 0;
     std::string bullet_indicator = "";
     std::function<void(ECS::Entity)> on_destroy = [](ECS::Entity e){
@@ -50,8 +80,8 @@ public:
 
     WeaponType type;
     float damage = 1.0;
+    int penetration_counter = 0;
     static std::unordered_map<WeaponType, float> bulletDamage;
-
     static std::unordered_map<WeaponType, std::function<void(ECS::Entity, ECS::Entity, float)>> bulletEffect;
     static void heal_soldier(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);
     static void freeze_enemy(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);
@@ -66,6 +96,10 @@ struct ExplodeTimer
 
 struct FrozenTimer {
     float executing_ms = 2000;
+};
+
+struct FieldTimer {
+    float counter_ms = 5000;
 };
 
 struct Activating {
