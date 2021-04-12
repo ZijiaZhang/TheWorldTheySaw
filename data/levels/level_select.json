@@ -16,13 +16,16 @@
                 "x": 500,
                 "y": 500
             },
-            "additionalProperties": { "name": "levelSelect", "scale": 0.5 }
+            "additionalProperties": {
+                "name": "levelSelect",
+                "scale": 0.5
+            }
         }
     ],
     "select_level_1": [
         {
             "position": {
-                "x": 350,
+                "x": 200,
                 "y": 450
             }
         }
@@ -30,43 +33,91 @@
     "select_level_2": [
         {
             "position": {
-                "x": 650,
+                "x": 400,
                 "y": 450
             }
         }
     ],
     "select_level_3": [
-            {
-                "position": {
-                    "x": 350,
-                    "y": 550
-                }
+        {
+            "position": {
+                "x": 600,
+                "y": 450
             }
-        ],
-        "select_level_4": [
-            {
-                "position": {
-                    "x": 650,
-                    "y": 550
-                }
+        }
+    ],
+    "select_level_4": [
+        {
+            "position": {
+                "x": 800,
+                "y": 450
             }
-        ],
-        "select_level_5": [
-            {
-                "position": {
-                    "x": 350,
-                    "y": 650
-                }
+        }
+    ],
+    "select_level_5": [
+        {
+            "position": {
+                "x": 200,
+                "y": 550
             }
-        ],
-        "select_level_6": [
-            {
-                "position": {
-                    "x": 650,
-                    "y": 650
-                }
+        }
+    ],
+    "select_level_6": [
+        {
+            "position": {
+                "x": 400,
+                "y": 550
             }
-        ],
+        }
+    ],
+    "select_level_7": [
+        {
+            "position": {
+                "x": 600,
+                "y": 550
+            }
+        }
+    ],
+    "select_level_8": [
+        {
+            "position": {
+                "x": 800,
+                "y": 550
+            }
+        }
+    ],
+    "select_level_9": [
+        {
+            "position": {
+                "x": 200,
+                "y": 650
+            }
+        }
+    ],
+    "select_level_10": [
+        {
+            "position": {
+                "x": 400,
+                "y": 650
+            }
+        }
+    ],
+    "select_level_11": [
+        {
+            "position": {
+                "x": 600,
+                "y": 650
+            }
+        }
+    ],
+    "select_level_12": [
+        {
+            "position": {
+                "x": 800,
+                "y": 650
+            }
+        }
+    ],
     "return_to_menu": [
         {
             "position": {

@@ -3,7 +3,7 @@
         {
             "position": {
                 "x": 100,
-                "y": 200
+                "y": 500
             },
             "velocity": {
                 "X": 100,
@@ -20,114 +20,6 @@
             },
             "additionalProperties": { "name": "background" }
         }
-    ],
-    "enemy": [
-        {
-            "position": {
-                "x": 650,
-                "y": 550
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 700,
-                "y": 550
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 750,
-                "y": 550
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 800,
-                "y": 500
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 300,
-                "y": 600
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 400,
-                "y": 600
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 500,
-                "y": 600
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        }
-
     ],
     "borders": [
         {
@@ -175,46 +67,195 @@
             "rotation": 0
         }
     ],
-    "movable_wall": [
-
-        {
-            "position": {
-                "x": 300,
-                "y": 300
-            },
-            "size": {
-                "x": 50,
-                "y": 50
-            },
-            "rotation": 0
-        },
+    "enemy": [
         {
             "position": {
                 "x": 400,
                 "y": 300
             },
-            "size": {
+            "velocity": {
                 "x": 50,
                 "y": 50
             },
-            "rotation": 0
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
         },
         {
             "position": {
                 "x": 500,
                 "y": 300
             },
-            "size": {
+            "velocity": {
                 "x": 50,
                 "y": 50
             },
-            "rotation": 0
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
         },
         {
             "position": {
                 "x": 600,
                 "y": 300
             },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 700,
+                "y": 300
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 800,
+                "y": 300
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 900,
+                "y": 300
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 400,
+                "y": 700
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 500,
+                "y": 700
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 600,
+                "y": 700
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 700,
+                "y": 700
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 800,
+                "y": 700
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        },
+        {
+            "position": {
+                "x": 900,
+                "y": 700
+            },
+            "velocity": {
+                "x": 50,
+                "y": 50
+            },
+            "overlap": "enemy_bullet_hit_death",
+            "additionalProperties": {
+                "enemy_type": "suicide",
+                "team_id": 1
+            }
+        }
+    ],
+    "movable_wall": [
+
+        {
+            "position": {
+                "x": 350,
+                "y": 300
+            },
             "size": {
                 "x": 50,
                 "y": 50
@@ -223,7 +264,40 @@
         },
         {
             "position": {
-                "x": 700,
+                "x": 450,
+                "y": 300
+            },
+            "size": {
+                "x": 50,
+                "y": 50
+            },
+            "rotation": 0
+        },
+        {
+            "position": {
+                "x": 550,
+                "y": 300
+            },
+            "size": {
+                "x": 50,
+                "y": 50
+            },
+            "rotation": 0
+        },
+        {
+            "position": {
+                "x": 650,
+                "y": 300
+            },
+            "size": {
+                "x": 50,
+                "y": 50
+            },
+            "rotation": 0
+        },
+        {
+            "position": {
+                "x": 750,
                 "y": 300
             },
             "size": {
@@ -235,8 +309,8 @@
 
         {
             "position": {
-                "x": 300,
-                "y": 400
+                "x": 850,
+                "y": 300
             },
             "size": {
                 "x": 50,
@@ -246,8 +320,8 @@
         },
         {
             "position": {
-                "x": 400,
-                "y": 400
+                "x": 350,
+                "y": 700
             },
             "size": {
                 "x": 50,
@@ -257,31 +331,8 @@
         },
         {
             "position": {
-                "x": 500,
-                "y": 400
-            },
-            "size": {
-                "x": 50,
-                "y": 50
-            },
-            "rotation": 0
-        },
-
-        {
-            "position": {
-                "x": 300,
-                "y": 500
-            },
-            "size": {
-                "x": 50,
-                "y": 50
-            },
-            "rotation": 0
-        },
-        {
-            "position": {
-                "x": 400,
-                "y": 500
+                "x": 450,
+                "y": 700
             },
             "size": {
                 "x": 50,
@@ -292,8 +343,8 @@
 
         {
             "position": {
-                "x": 300,
-                "y": 600
+                "x": 550,
+                "y": 700
             },
             "size": {
                 "x": 50,
@@ -303,8 +354,31 @@
         },
         {
             "position": {
-                "x": 400,
-                "y": 600
+                "x": 650,
+                "y": 700
+            },
+            "size": {
+                "x": 50,
+                "y": 50
+            },
+            "rotation": 0
+        },
+
+        {
+            "position": {
+                "x": 750,
+                "y": 700
+            },
+            "size": {
+                "x": 50,
+                "y": 50
+            },
+            "rotation": 0
+        },
+        {
+            "position": {
+                "x": 850,
+                "y": 700
             },
             "size": {
                 "x": 50,

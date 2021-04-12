@@ -165,7 +165,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	// Playing background music indefinitely
 	init_audio();
 	//Mix_PlayMusic(background_music, -1);
-	std::cout << "Loaded music\n";
+	// std::cout << "Loaded music\n";
 	Mix_PlayMusic(background_music, -1);
 
 }
@@ -400,7 +400,7 @@ void WorldSystem::checkEndGame()
             resetTimer();
             restart("lose");
         }
-		if (endGameTimer > 1000000.f) {
+		if (endGameTimer > 100000.f) {
 			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
 				restart("lose");
@@ -446,7 +446,6 @@ void WorldSystem::handle_collisions()
 				{
 					// Scream, reset timer, and make the soldier sink
 					ECS::registry<DeathTimer>.emplace(entity);
-
 				}
 			}
 		}
