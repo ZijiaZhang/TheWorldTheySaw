@@ -72,8 +72,8 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
 
     switch (type) {
         case W_LASER:
-            bullet.penetration_counter = 3;
-            physics.attach(Hit, lazer_penetrate);
+            bullet.penetration_counter = 10;
+            physics.attach(Hit, [](ECS::Entity self, const ECS::Entity e, CollisionResult) {return; });
             physics.attach(Overlap, lazer_penetrate);
             break;
         default:
