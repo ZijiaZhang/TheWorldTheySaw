@@ -1,0 +1,56 @@
+initialize
+player hp: 1, lazer dmg: 1 reload: 100, bullet dmg: 1 reload: 100, ammo dmg: 1 reload: 100, rocket dmg: 1 reload: 100, bomber enemy hp: 1, standard enemy hp: 1, elite enemy hp: 1
+
+update weapon reload time
+player hp: 1, lazer dmg: 1 reload: 100, bullet dmg: 1 reload: 200, ammo dmg: 1 reload: 100, rocket dmg: 1 reload: 300, bomber enemy hp: 1, standard enemy hp: 1, elite enemy hp: 1
+
+increase player hp
+player hp: 3, lazer dmg: 1 reload: 100, bullet dmg: 1 reload: 200, ammo dmg: 1 reload: 100, rocket dmg: 1 reload: 300, bomber enemy hp: 1, standard enemy hp: 1, elite enemy hp: 1
+
+decrease weapon damage
+player hp: 3, lazer dmg: 0.3 reload: 100, bullet dmg: 0.4 reload: 200, ammo dmg: 0.6 reload: 250, rocket dmg: 0.7 reload: 300, bomber enemy hp: 2, standard enemy hp: 2, elite enemy hp: 2
+
+increase weapon reload
+player hp: 3, lazer dmg: 0.3 reload: 800, bullet dmg: 0.4 reload: 1000, ammo dmg: 0.6 reload: 1100, rocket dmg: 0.7 reload: 1200, bomber enemy hp: 2, standard enemy hp: 2, elite enemy hp: 2
+
+increase player hp
+player hp: 5, lazer dmg: 0.3 reload: 800, bullet dmg: 0.4 reload: 1000, ammo dmg: 0.6 reload: 1100, rocket dmg: 0.7 reload: 1200, bomber enemy hp: 2, standard enemy hp: 2, elite enemy hp: 2
+
+increase enemy hp
+player hp: 5, lazer dmg: 0.3 reload: 800, bullet dmg: 0.4 reload: 1000, ammo dmg: 0.6 reload: 1100, rocket dmg: 0.7 reload: 1200, bomber enemy hp: 3, standard enemy hp: 3, elite enemy hp: 3
+
+increase enemy hp
+player hp: 5, lazer dmg: 0.3 reload: 800, bullet dmg: 0.4 reload: 1000, ammo dmg: 0.6 reload: 1100, rocket dmg: 0.7 reload: 1200, bomber enemy hp: 5, standard enemy hp: 5, elite enemy hp: 5
+
+increase weapon damage
+player hp: 5, lazer dmg: 1 reload: 800, bullet dmg: 2 reload: 1000, ammo dmg: 2 reload: 1100, rocket dmg: 5 reload: 1200, bomber enemy hp: 5, standard enemy hp: 5, elite enemy hp: 5
+
+decrease weapon reload
+player hp: 5, lazer dmg: 1 reload: 150, bullet dmg: 2 reload: 200, ammo dmg: 2 reload: 300, rocket dmg: 5 reload: 800, bomber enemy hp: 5, standard enemy hp: 5, elite enemy hp: 5
+
+decrease bomber health
+player hp: 5, lazer dmg: 1 reload: 150, bullet dmg: 2 reload: 200, ammo dmg: 2 reload: 300, rocket dmg: 5 reload: 800, bomber enemy hp: 1, standard enemy hp: 5, elite enemy hp: 5
+
+increase elite health
+player hp: 5, lazer dmg: 1 reload: 150, bullet dmg: 2 reload: 200, ammo dmg: 2 reload: 300, rocket dmg: 5 reload: 800, bomber enemy hp: 1, standard enemy hp: 5, elite enemy hp: 10
+
+increase elite health
+player hp: 5, lazer dmg: 1 reload: 150, bullet dmg: 2 reload: 200, ammo dmg: 2 reload: 300, rocket dmg: 5 reload: 800, bomber enemy hp: 1, standard enemy hp: 5, elite enemy hp: 10
+
+increase player health
+player hp: 10, lazer dmg: 1 reload: 150, bullet dmg: 2 reload: 200, ammo dmg: 2 reload: 300, rocket dmg: 5 reload: 800, bomber enemy hp: 1, standard enemy hp: 5, elite enemy hp: 10
+
+decrease bullet reload
+player hp: 10, lazer dmg: 1 reload: 300, bullet dmg: 2 reload: 500, ammo dmg: 2 reload: 650, rocket dmg: 5 reload: 1300, bomber enemy hp: 1, standard enemy hp: 5, elite enemy hp: 10
+
+dynamic player hp
+player hp: 3 + 0.3 * level, lazer dmg: 1 reload: 300, bullet dmg: 2 reload: 500, ammo dmg: 2 reload: 650, rocket dmg: 5 reload: 1300, bomber enemy hp: 1, standard enemy hp: 5, elite enemy hp: 10
+
+increase player hp
+player hp: 3 + 0.5 * level, lazer dmg: 1 reload: 300, bullet dmg: 2 reload: 500, ammo dmg: 2 reload: 650, rocket dmg: 5 reload: 1300, bomber enemy hp: 1, standard enemy hp: 5, elite enemy hp: 10
+
+decrease weapon damage
+player hp: 3 + 0.5 * level, lazer dmg: 0.3 reload: 300, bullet dmg: 1 reload: 500, ammo dmg: 0.5 reload: 650, rocket dmg: 5 reload: 1300, bomber enemy hp: 1, standard enemy hp: 5, elite enemy hp: 10
+
+increase player hp
+player hp: 5 + 0.5 * level, lazer dmg: 0.3 reload: 300, bullet dmg: 1 reload: 500, ammo dmg: 0.5 reload: 650, rocket dmg: 5 reload: 1300, bomber enemy hp: 1, standard enemy hp: 5, elite enemy hp: 10

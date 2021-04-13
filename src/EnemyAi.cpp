@@ -74,8 +74,8 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			ECS::Entity soldier = ECS::registry<Soldier>.entities[0];
 			auto& soldierMotion = ECS::registry<Motion>.get(soldier);
 
-            if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 80.f) && enemy_entity.get<Enemy>().type == EnemyType::SUICIDE) {
-                Explosion::CreateExplosion(enemy_motion.position, 100, 1, 1);
+            if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 100.f) && enemy_entity.get<Enemy>().type == EnemyType::SUICIDE) {
+                Explosion::CreateExplosion(enemy_motion.position, 100, 1, 7);
                 if(!enemy_entity.has<DeathTimer>())
                     enemy_entity.emplace<DeathTimer>();
             }
