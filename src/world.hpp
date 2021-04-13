@@ -64,6 +64,9 @@ public:
 	static bool pause;
     static std::string reload_level_name;
     static std::string selected_level;
+	static bool SHIELDUP;
+	static bool hasShield;
+	static ECS::Entity shield;
 	vec2 screen;
 
 private:
@@ -88,7 +91,6 @@ private:
 
 	float endGameTimer;
 	ECS::Entity player_soldier;
-	ECS::Entity shield;
 
 	// music references
 	Mix_Music* background_music = nullptr;

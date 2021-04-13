@@ -152,6 +152,35 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
     return entity;
 }
 
+ECS::Entity MoveableWall::createMoveableWall(Motion m, MoveableWall mw, PhysicsObject po)
+{
+    auto e = ECS::Entity();
+
+    std::string key = "wall";
+    ShadedMesh& resource = cache_resource(key);
+    if (resource.mesh.vertices.empty())
+    {
+        resource = ShadedMesh();
+        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3 {-0.5, 0.5, -0.02}, vec3{0.0,0.0,0.0} });
+        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{0.5, 0.5, -0.02}, vec3{0.0,0.0,0.0} });
+        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{0.5, -0.5, -0.02}, vec3{0.0,0.0,0.0} });
+        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{-0.5, -0.5, -0.02}, vec3{0.0,0.0,0.0} });
+
+        resource.mesh.vertex_indices = std::vector<uint16_t>({ 0, 2, 1, 0, 3, 2 });
+
+        RenderSystem::createColoredMesh(resource, "salmon");
+    }
+
+    // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+    ECS::registry<ShadedMeshRef>.emplace(e, resource);
+    resource.texture.color = { 0,0,1 };
+
+    e.emplace<Motion>(m);
+    e.emplace<MoveableWall>(mw);
+    e.emplace<PhysicsObject>(po);
+    return e;
+}
+
 void MoveableWall::wall_hit(ECS::Entity self, ECS::Entity e, CollisionResult collision) {
     PhysicsObject::handle_collision(self, e, collision);
 }

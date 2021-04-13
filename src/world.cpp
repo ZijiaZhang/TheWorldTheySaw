@@ -39,8 +39,9 @@ using json = nlohmann::json;
 // Game configuration
 LevelLoader level_loader;
 //const size_t GUNFIRE_DELAY_MS = 1500;
-bool SHIELDUP = false;
-bool hasShield = false;
+bool WorldSystem::SHIELDUP = false;
+bool WorldSystem::hasShield = false;
+ECS::Entity WorldSystem::shield;
 bool fired = false;
 std::deque<vec2> mouse_points;
 int MOUSE_POINTS_COUNT = 600;

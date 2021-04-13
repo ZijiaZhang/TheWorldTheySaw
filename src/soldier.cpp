@@ -14,7 +14,7 @@ std::string Soldier::field_shader_name = "frozen";
 
 ECS::Entity Soldier::createSoldier(vec2 position,
                                    COLLISION_HANDLER overlap,
-                                   COLLISION_HANDLER hit, float light_intensity)
+                                   COLLISION_HANDLER hit, float light_intensity, float hp)
 {
 	auto entity = ECS::Entity();
 
@@ -68,9 +68,28 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	health.hp = 5;
 	health.max_hp = 5;
 
-    update_health_with_level(entity, GameInstance::currentLevel);
+  update_health_with_level(entity, GameInstance::currentLevel);
 	
 	return entity;
+}
+
+ECS::Entity Soldier::createSoldier(Motion m, Soldier s, Health h, AIPath ai, PhysicsObject po)
+{
+    auto e = ECS::Entity();
+
+    Soldier::set_shader(e);
+
+    ECS::Entity weapon = Weapon::createWeapon(vec2{ 0,20.f }, 0, e);
+    auto& children_entity = e.emplace<ChildrenEntities>();
+    children_entity.children.insert(weapon);
+
+    e.emplace<Motion>(m);
+    e.emplace<Soldier>(s).weapon = weapon;
+    e.emplace<Health>(h);
+    e.emplace<AIPath>(ai);
+    e.emplace<PhysicsObject>(po);
+
+    return e;
 }
 
 
