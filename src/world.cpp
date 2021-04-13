@@ -393,12 +393,12 @@ void WorldSystem::restart(std::string level)
 	if (GameInstance::fist_enter_level(level)) {
 		if (level == MENU_NAME) {
 			GameInstance::global_speed = 0.0;
-			auto e = PopUP::createPopUP(textures_path("/tutorial/You.png"), screen / 2.f - vec2{0.0, 200}, { 200, 100 });
+            auto e = PopUP::createPopUP(textures_path("/tutorial/You.png"), screen / 2.f - vec2{ 110, 0.0 }, { 800, 400 });
 			auto& pop_up = e.get<PopUP>();
 			pop_up.relative_entities.push_back(
 				HighLightCircle::createHighLightCircle(player_soldier.get<Motion>().position, 30, 5));
 			pop_up.on_destroy = [=]() {
-				auto e = PopUP::createPopUP(textures_path("/tutorial/Movement.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+				auto e = PopUP::createPopUP(textures_path("/tutorial/Movement.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
 				auto& pop_up = e.get<PopUP>();
 				pop_up.relative_entities.push_back(
 					HighLightCircle::createHighLightCircle({ 480, 675 }, 50, 5));
@@ -407,7 +407,7 @@ void WorldSystem::restart(std::string level)
 
 		if (level == WEAPON_SELECT_NAME) {
 			GameInstance::global_speed = 0.0;
-			auto e = PopUP::createPopUP(textures_path("/tutorial/Loadout_pick.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 });
+			auto e = PopUP::createPopUP(textures_path("/tutorial/Loadout_pick.png"), screen / 2.f - vec2{ 0.0, 200 }, { 800, 400 });
 			auto& pop_up = e.get<PopUP>();
 			pop_up.relative_entities.push_back(
 				HighLightCircle::createHighLightCircle({ 80,60 }, 30, 5));
@@ -422,7 +422,7 @@ void WorldSystem::restart(std::string level)
 			pop_up.relative_entities.push_back(
 				HighLightCircle::createHighLightCircle({ 340,405 }, 30, 5));
 			pop_up.on_destroy = [=]() {
-				auto e = PopUP::createPopUP(textures_path("/tutorial/Enter_level.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+				auto e = PopUP::createPopUP(textures_path("/tutorial/Enter_level.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
 				auto& pop_up = e.get<PopUP>();
 				pop_up.relative_entities.push_back(
 					HighLightCircle::createHighLightCircle({ 315, 540 }, 50, 5));
@@ -432,12 +432,12 @@ void WorldSystem::restart(std::string level)
 
 	if (level == TUTORIAL_NAME) {
 		GameInstance::global_speed = 0.0;
-		auto e = PopUP::createPopUP(textures_path("/tutorial/Enemy.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 });
+		auto e = PopUP::createPopUP(textures_path("/tutorial/Enemy.png"), screen / 2.f - vec2{ 0.0, 200 }, { 800, 400 });
 		auto& pop_up = e.get<PopUP>();
 		pop_up.relative_entities.push_back(
 			HighLightCircle::createHighLightCircle({ 500,500 }, 30, 5));
 		pop_up.on_destroy = [=]() {
-			auto e = PopUP::createPopUP(textures_path("/tutorial/Ability.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+			auto e = PopUP::createPopUP(textures_path("/tutorial/Ability.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
 		};
 	}
 
