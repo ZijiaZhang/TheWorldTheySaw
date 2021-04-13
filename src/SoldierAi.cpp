@@ -55,12 +55,11 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
                 motion.offset_angle = rad - soldier_motion.angle;
                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet", 1200);
 //                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
-                Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
+                Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
                 // std::cout << "fire_bullet \n";
                 if (gun_fire == nullptr)
                     throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
                         audio_path("gun_fire.wav"));
-
                 Mix_PlayChannel(-1, gun_fire, 0);
                 //Mix_FreeChunk(gun_fire);
                 
