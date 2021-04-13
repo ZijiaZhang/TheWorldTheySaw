@@ -19,6 +19,11 @@
 #include <levelLoader.hpp>
 #include <button.hpp>
 
+enum class ControlState {
+	NORMAL,
+	USING_MAGIC
+};
+
 // Container for all our entities and game logic. Individual rendering / update is 
 // deferred to the relative update() methods
 class WorldSystem
@@ -59,6 +64,9 @@ public:
 	static bool pause;
     static std::string reload_level_name;
     static std::string selected_level;
+	static bool SHIELDUP;
+	static bool hasShield;
+	static ECS::Entity shield;
 	vec2 screen;
 
 private:
@@ -83,7 +91,6 @@ private:
 
 	float endGameTimer;
 	ECS::Entity player_soldier;
-	ECS::Entity shield;
 
 	// music references
 	Mix_Music* background_music = nullptr;
@@ -93,7 +100,8 @@ private:
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
 	vec2 last_mouse_pos;
-
+	ControlState control_state = ControlState::NORMAL;
+	bool show_ability_tutorial = false;
 	void on_mouse(int key, int action, int mod);
 
     vec2 getWorldMousePosition(vec2 mouse_pos) const;

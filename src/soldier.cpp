@@ -14,7 +14,7 @@ std::string Soldier::field_shader_name = "frozen";
 
 ECS::Entity Soldier::createSoldier(vec2 position,
                                    COLLISION_HANDLER overlap,
-                                   COLLISION_HANDLER hit, float light_intensity)
+                                   COLLISION_HANDLER hit, float light_intensity, float hp)
 {
 	auto entity = ECS::Entity();
 
@@ -65,10 +65,31 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	soldier.light_intensity = light_intensity;
 
 	auto& health = ECS::registry<Health>.emplace(entity);
-	health.hp = 10;
-	health.max_hp = 10;
+	health.hp = 5;
+	health.max_hp = 5;
+
+  update_health_with_level(entity, GameInstance::currentLevel);
 	
 	return entity;
+}
+
+ECS::Entity Soldier::createSoldier(Motion m, Soldier s, Health h, AIPath ai, PhysicsObject po)
+{
+    auto e = ECS::Entity();
+
+    Soldier::set_shader(e);
+
+    ECS::Entity weapon = Weapon::createWeapon(vec2{ 0,20.f }, 0, e);
+    auto& children_entity = e.emplace<ChildrenEntities>();
+    children_entity.children.insert(weapon);
+
+    e.emplace<Motion>(m);
+    e.emplace<Soldier>(s).weapon = weapon;
+    e.emplace<Health>(h);
+    e.emplace<AIPath>(ai);
+    e.emplace<PhysicsObject>(po);
+
+    return e;
 }
 
 
@@ -101,7 +122,19 @@ void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Co
     
 
     // explosion
-};
+}
+void Soldier::update_health_with_level(ECS::Entity entity, std::string level)
+{
+    if (level.find("level_") != std::string::npos && entity.has<Soldier>() && entity.has<Health>() && GameInstance::isPlayableLevel(level)) {
+        auto& health = entity.get<Health>();
+        std::string levelNumStr = level.substr(level.find("_") + 1);
+        int levelNum = std::stoi(levelNumStr);
+        float health_bonus = 0.5 * levelNum;
+
+        health.max_hp += health_bonus;
+        health.hp += health_bonus;
+    }
+}
 
 void Soldier::set_shader(ECS::Entity self, bool effect, std::string texture_path, std::string shader_name) {
     if (ECS::registry<ShadedMeshRef>.has(self)) {

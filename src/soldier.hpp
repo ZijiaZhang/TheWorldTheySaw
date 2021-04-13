@@ -22,7 +22,8 @@ struct Soldier
 public:
 	// Creates all the associated render resources and default transform
 	static ECS::Entity createSoldier(vec2 pos, COLLISION_HANDLER overlap = [](ECS::Entity, const ECS::Entity, CollisionResult) {},
-                                     COLLISION_HANDLER hit = [](ECS::Entity, const ECS::Entity, CollisionResult) {}, float light_intensity = DEFAULT_LIGHT_INTENSITY);
+                                     COLLISION_HANDLER hit = [](ECS::Entity, const ECS::Entity, CollisionResult) {}, float light_intensity = DEFAULT_LIGHT_INTENSITY, float health = -1);
+	static ECS::Entity createSoldier(Motion m, Soldier s, Health h, AIPath ai, PhysicsObject po);
 
 	AiState soldierState = AiState::IDLE;
 	ECS::Entity weapon;
@@ -31,6 +32,8 @@ public:
 	float light_intensity = 200;
     bool forcefield_on = false;
 	static void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult);
+
+	static void update_health_with_level(ECS::Entity entity, std::string level);
 
 	static void addHealth(ECS::Entity self, float bloodIn) {
 	    if (self.has<Health>()) {

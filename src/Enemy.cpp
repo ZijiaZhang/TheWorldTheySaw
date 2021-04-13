@@ -24,7 +24,7 @@ std::unordered_map<std::string, EnemyType> Enemy::enemy_type_map = {
 
 ECS::Entity Enemy::createEnemy(vec2 position,
                                COLLISION_HANDLER overlap,
-                               COLLISION_HANDLER hit, int teamID, EnemyType type){
+                               COLLISION_HANDLER hit, int teamID, EnemyType type, float hp){
     auto entity = ECS::Entity();
 
     Enemy::set_shader(entity);
@@ -64,26 +64,47 @@ ECS::Entity Enemy::createEnemy(vec2 position,
     e.type = type;
 
     auto& health_component = entity.emplace<Health>();
-    float health = 5;
+    float max_health = 5;
     switch (e.type) {
         case STANDARD:
-            health = 5;
+            max_health = 5;
             break;
         case SUICIDE:
-            health = 1;
+            max_health = 1;
             break;
         case ELITE:
-            health = 10;
+            max_health = 10;
             break;
         default:
-            health = 5;
+            max_health = 5;
             break;
     }
-    health_component.hp = health;
-    health_component.max_hp = health;
+    if (hp < max_health && hp > 0) {
+        health_component.hp = hp;
+    }
+    else {
+        health_component.hp = max_health;
+    }
+    
+    health_component.max_hp = max_health;
 
     entity.emplace<AIPath>();
     
+    return entity;
+}
+
+ECS::Entity Enemy::createEnemy(Motion m, Enemy e, Health h, AIPath ai, PhysicsObject po)
+{
+    auto entity = ECS::Entity();
+
+    Enemy::set_shader(entity);
+
+    entity.emplace<Motion>(m);
+    entity.emplace<Enemy>(e);
+    entity.emplace<Health>(h);
+    entity.emplace<AIPath>(ai);
+    entity.emplace<PhysicsObject>(po);
+
     return entity;
 }
 
@@ -93,7 +114,7 @@ void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Collis
             Bullet::bulletEffect[e.get<Bullet>().type](e, self, 0.0);
         }
         // EnemyAISystem::takeDamage(self, e.get<Bullet>().damage);
-
+        std::cout << "hit\n";
         auto bullet_type = e.get<Bullet>().bullet_indicator;
         // bullet
         EnemyAISystem::takeDamage(self, Bullet::bulletDamage[e.get<Bullet>().type]);
