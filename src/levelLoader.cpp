@@ -140,13 +140,6 @@ void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResu
 auto select_algo_of_type(AIAlgorithm algo) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
 		if (other.has<Soldier>() && WorldSystem::selecting) {
-
-			for (auto& button : ECS::registry<Button>.components) {
-				if (button.buttonClass == ButtonClass::ALGORITHM_SELECTION) {
-					button.selected = false;
-				}
-			}
-			self.get<Button>().selected = true;
 			GameInstance::algorithm = algo;
 			if (!self.has<PressTimer>()) {
 				self.emplace<PressTimer>();
@@ -159,12 +152,6 @@ auto select_algo_of_type(AIAlgorithm algo) {
 auto select_weapon_of_type(WeaponType type) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
 		if (other.has<Soldier>() && WorldSystem::selecting) {
-			for (auto& button : ECS::registry<Button>.components) {
-				if (button.buttonClass == ButtonClass::WEAPON_SELECTION) {
-					button.selected = false;
-				}
-			}
-			self.get<Button>().selected = true;
 			GameInstance::selectedWeapon = type;
 			if (!self.has<PressTimer>()) {
 				self.emplace<PressTimer>();
