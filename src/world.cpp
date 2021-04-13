@@ -371,7 +371,6 @@ void WorldSystem::restart(std::string level)
 	GameInstance::charges_left = GameInstance::getDefaultChargeOfMagic(GameInstance::selectedMagic);
 
 	player_soldier = soldiers.front();
-	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 	while (!ECS::registry<Camera>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());

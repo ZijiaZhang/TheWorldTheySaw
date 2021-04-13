@@ -4,9 +4,9 @@
 
 #include "Bullet.hpp"
 std::unordered_map<WeaponType, float> Bullet::bulletDamage {
-        {W_AMMO, 2.0},
-        {W_LASER, 1.0},
-        {W_BULLET, 2.0},
+        {W_AMMO, 0.5},
+        {W_LASER, 0.3},
+        {W_BULLET, 1.0},
         {W_ROCKET, 5.0}
 };
 

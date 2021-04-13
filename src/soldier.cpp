@@ -65,8 +65,10 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	soldier.light_intensity = light_intensity;
 
 	auto& health = ECS::registry<Health>.emplace(entity);
-	health.hp = 10;
-	health.max_hp = 10;
+	health.hp = 5;
+	health.max_hp = 5;
+
+    update_health_with_level(entity, GameInstance::currentLevel);
 	
 	return entity;
 }
@@ -101,7 +103,19 @@ void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Co
     
 
     // explosion
-};
+}
+void Soldier::update_health_with_level(ECS::Entity entity, std::string level)
+{
+    if (level.find("level_") != std::string::npos && entity.has<Soldier>() && entity.has<Health>() && GameInstance::isPlayableLevel(level)) {
+        auto& health = entity.get<Health>();
+        std::string levelNumStr = level.substr(level.find("_") + 1);
+        int levelNum = std::stoi(levelNumStr);
+        float health_bonus = 0.5 * levelNum;
+
+        health.max_hp += health_bonus;
+        health.hp += health_bonus;
+    }
+}
 
 void Soldier::set_shader(ECS::Entity self, bool effect, std::string texture_path, std::string shader_name) {
     if (ECS::registry<ShadedMeshRef>.has(self)) {
