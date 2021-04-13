@@ -36,6 +36,7 @@ std::vector<std::string> LevelLoader::existing_level = {
 	"lose",
 	"level_1",
 	"intro",
+    "settings",
 	"level_2",
 	"level_3",
 	"level_4",
@@ -539,7 +540,13 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER,
 	COLLISION_HANDLER, const json&)
 {
-	return Button::createButton(ButtonIcon::LEVEL12, location, select_button_overlap(TUTORIAL_NAME));
+	return Button::createButton(ButtonIcon::TUTORIAL, location, select_button_overlap(TUTORIAL_NAME));
+} },
+    { "select_setting", [](vec2 location, vec2 size, float rotation,
+COLLISION_HANDLER,
+COLLISION_HANDLER, const json&)
+{
+return Button::createButton(ButtonIcon::SETTING, location, select_button_overlap("settings"));
 } }
 };
 

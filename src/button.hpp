@@ -21,6 +21,8 @@ enum class ButtonIcon {
     SAVE,
     CONTINUE,
     LOCKED,
+    TUTORIAL,
+    SETTING,
     LEVEL1,
     LEVEL2,
 	LEVEL3,

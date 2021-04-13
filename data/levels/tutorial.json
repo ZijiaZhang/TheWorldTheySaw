@@ -67,6 +67,19 @@
       "rotation": 0
     }
   ],
+  "blocks": [
+    {
+      "position": {
+        "x": 200,
+        "y": 400
+      },
+      "size": {
+        "x": 20,
+        "y": 200
+      },
+      "rotation": 0
+    }
+  ],
   "enemy": [
     {
       "position": {

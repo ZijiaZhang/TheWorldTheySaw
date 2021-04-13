@@ -403,12 +403,12 @@ void WorldSystem::restart(std::string level)
             auto e = PopUP::createPopUP(textures_path("/tutorial/You.png"), screen / 2.f - vec2{ 110, 0.0 }, { 800, 400 });
 			auto& pop_up = e.get<PopUP>();
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle(player_soldier.get<Motion>().position, 30, 5));
+				HighLightCircle::createHighLightCircle(player_soldier.get<Motion>().position, 30, 4));
 			pop_up.on_destroy = [=]() {
 				auto e = PopUP::createPopUP(textures_path("/tutorial/Movement.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
 				auto& pop_up = e.get<PopUP>();
 				pop_up.relative_entities.push_back(
-					HighLightCircle::createHighLightCircle({ 485, 500 }, 50, 5));
+					HighLightCircle::createHighLightCircle({ 485, 500 }, 50, 4));
 			};
 		}
 
@@ -417,22 +417,22 @@ void WorldSystem::restart(std::string level)
 			auto e = PopUP::createPopUP(textures_path("/tutorial/Loadout_pick.png"), screen / 2.f - vec2{ 0.0, 200 }, { 800, 400 });
 			auto& pop_up = e.get<PopUP>();
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 80,60 }, 30, 5));
+				HighLightCircle::createHighLightCircle({ 80,60 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 340,60 }, 30, 5));
+				HighLightCircle::createHighLightCircle({ 340,60 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 340,137 }, 30, 5));
+				HighLightCircle::createHighLightCircle({ 340,137 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 80,137 }, 30, 5));
+				HighLightCircle::createHighLightCircle({ 80,137 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 80,405 }, 30, 5));
+				HighLightCircle::createHighLightCircle({ 80,405 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 340,405 }, 30, 5));
+				HighLightCircle::createHighLightCircle({ 340,405 }, 30, 4));
 			pop_up.on_destroy = [=]() {
 				auto e = PopUP::createPopUP(textures_path("/tutorial/Enter_level.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
 				auto& pop_up = e.get<PopUP>();
 				pop_up.relative_entities.push_back(
-					HighLightCircle::createHighLightCircle({ 315, 540 }, 50, 5));
+					HighLightCircle::createHighLightCircle({ 315, 540 }, 50, 4));
 			};
 		}
 	}
@@ -442,7 +442,7 @@ void WorldSystem::restart(std::string level)
 		auto e = PopUP::createPopUP(textures_path("/tutorial/Enemy.png"), screen / 2.f - vec2{ 0.0, 200 }, { 800, 400 });
 		auto& pop_up = e.get<PopUP>();
 		pop_up.relative_entities.push_back(
-			HighLightCircle::createHighLightCircle({ 500,500 }, 30, 5));
+			HighLightCircle::createHighLightCircle({ 500,500 }, 30, 4));
 		pop_up.on_destroy = [=]() {
 			auto e = PopUP::createPopUP(textures_path("/tutorial/Ability.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
 			show_ability_tutorial = true;
@@ -561,7 +561,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				}
 				if (show_ability_tutorial) {
 					GameInstance::popup_speed = 0.0;
-					auto e = PopUP::createPopUP(textures_path("/tutorial/UseMagic.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 }); 
+					auto e = PopUP::createPopUP(textures_path("/tutorial/UseMagic.png"), screen / 2.f - vec2{ 0.0, 200 }, { 800, 400 }); 
 					show_ability_tutorial = false;
 				}
 				show_ability_tutorial = false;

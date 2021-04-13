@@ -16,6 +16,5 @@ void main()
 {
 	if(length(world_position - center) < radius || length(world_position - center) > radius + thickness)
 		discard;
-	color = vec4(1.0, 0.0, 0.0, 1.0);
-	
+	color = vec4(0.765, 0.976, 1.0, 1.0);
 }
