@@ -53,6 +53,7 @@ int SECTION_POINT_NUM = 2;
 bool WorldSystem::selecting = false;
 bool WorldSystem::pause = false;
 
+
 int KILL_SIZE = 3000;
 vec2 prev_pl_pos = {0,0};
 
@@ -167,6 +168,7 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	init_audio();
 	//Mix_PlayMusic(background_music, -1);
 	// std::cout << "Loaded music\n";
+	
 	Mix_PlayMusic(background_music, -1);
 
 }
@@ -195,6 +197,7 @@ void WorldSystem::init_audio()
 		throw std::runtime_error("Failed to open audio device");
 
 	background_music = Mix_LoadMUS(audio_path("background.wav").c_str());
+
 	//gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
 	//gun_reload = Mix_LoadWAV(audio_path("firework.mp3").c_str());
 
@@ -547,6 +550,13 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				if (control_state == ControlState::NORMAL) {
 					control_state = ControlState::USING_MAGIC;
 					GameInstance::ability_speed = 0.2;
+					Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("magic.wav").c_str());
+					// std::cout << "fire_bullet \n";
+					if (gun_fire == nullptr)
+						throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
+							audio_path("gun_fire.wav"));
+
+					Mix_PlayChannel(-1, gun_fire, 0);
 				}
 				if (show_ability_tutorial) {
 					GameInstance::popup_speed = 0.0;
