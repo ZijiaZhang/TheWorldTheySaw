@@ -620,33 +620,15 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		restart(GameInstance::currentLevel);
 	}
 
-	if (key == GLFW_KEY_1 && action == GLFW_PRESS) {
-		restart("settings"); 
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS && GameInstance::isPlayableLevel() && (pause || GameInstance::get_current_speed() != 0)) {
+		pause = !pause;
+		if (pause) {
+			GameInstance::pause_speed = 0.f;
+		}
+		else {
+			GameInstance::pause_speed = 1.f;
+		}
 	}
-
-	if (key == GLFW_KEY_2 && action == GLFW_PRESS) {
-		// level_loader.set_level("level_2");
-		// level_loader.at_level = "level_2";
-        restart("level_1");
-        //ECS::ContainerInterface::remove_all_components_of(player_soldier);
-
-    }
-	if (key == GLFW_KEY_3 && action == GLFW_PRESS) {
-		// level_loader.set_level("level_3");
-		// level_loader.at_level = "level_3";
-		restart("level_3");
-	}
-    if (key == GLFW_KEY_4 && action == GLFW_PRESS) {
-        // level_loader.set_level("level_3");
-        // level_loader.at_level = "level_3";
-        restart("level_4");
-    }
-    if (key == GLFW_KEY_5 && action == GLFW_PRESS) {
-        // level_loader.set_level("level_3");
-        // level_loader.at_level = "level_3";
-        reload_level = true;
-        reload_level_name = TUTORIAL_NAME;
-    }
 
 	// Debugging
 	if (key == GLFW_KEY_O)
@@ -662,13 +644,9 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		reload_level = true;
 	}
 
-	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel()  && (pause || GameInstance::get_current_speed() != 0)) {
-		pause = !pause;
-		if (pause) {
-			GameInstance::pause_speed = 0.f;
-		}
-		else {
-			GameInstance::pause_speed = 1.f;
+	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
+		if (!player_soldier.has<DeathTimer>()) {
+			player_soldier.emplace<DeathTimer>();
 		}
 	}
 
