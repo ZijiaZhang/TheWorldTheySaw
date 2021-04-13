@@ -53,7 +53,9 @@ static std::map<std::string, bool> entered_level = {
         {"level_7", false},
         {"level_8", false},
         {"level_9", false},
-        {"level_10", false}
+        {"level_10", false},
+        {"level_11", false},
+        {"level_12", false}
 };
 
 

@@ -42,7 +42,7 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 }
 void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > 200.f) {
+    if(weaponTicker > BULLET_RELOAD) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
         ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
@@ -72,7 +72,7 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
 }
 
 void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > 800.f) {
+    if(weaponTicker > ROCKET_RELOAD) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
         ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
@@ -89,7 +89,7 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
                     }
                     ECS::ContainerInterface::remove_all_components_of(e);
                 };
-                Bullet::createBullet(motion.position, rad, {150, 0},  0, W_ROCKET, "rocket", 2000, callback);
+                Bullet::createBullet(motion.position, rad, {150, 0},  0, W_ROCKET, "rocket", 2500, callback);
 
                 Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("firework.wav").c_str());
                 if (gun_fire == nullptr)
@@ -106,7 +106,7 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
 }
 
 void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > 150.f) {
+    if(weaponTicker > LAZER_RELOAD) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
         ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
@@ -135,7 +135,7 @@ void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) 
 }
 
 void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > 300.f) {
+    if(weaponTicker > AMMO_RELOAD) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
         ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
@@ -146,7 +146,7 @@ void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo", 1600);
+                Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo", 1800);
                 // Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
 
                 // std::cout << "fire_ammo \n";

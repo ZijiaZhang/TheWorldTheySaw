@@ -4,10 +4,14 @@
 #include "tiny_ecs.hpp"
 #include "PhysicsObject.hpp"
 
-
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mixer.h>
+
+#define LAZER_RELOAD 300.f
+#define BULLET_RELOAD 500.f
+#define AMMO_RELOAD 650.f
+#define ROCKET_RELOAD 1300.f
 
 typedef enum{
     DIRECT,
