@@ -21,7 +21,7 @@ layout(location = 0) out vec4 color;
 void main()
 {
 	vec4 ui_color = texture(ui_texture, texcoord);
-	if(ui_color.a > 0.5){
+	if(ui_color.a > 0.0){
 		color = ui_color;
 		return;
 	}
