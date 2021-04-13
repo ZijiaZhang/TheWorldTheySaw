@@ -404,7 +404,7 @@ void WorldSystem::restart(std::string level)
 				auto e = PopUP::createPopUP(textures_path("/tutorial/Movement.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
 				auto& pop_up = e.get<PopUP>();
 				pop_up.relative_entities.push_back(
-					HighLightCircle::createHighLightCircle({ 480, 675 }, 50, 5));
+					HighLightCircle::createHighLightCircle({ 485, 500 }, 50, 5));
 			};
 		}
 
