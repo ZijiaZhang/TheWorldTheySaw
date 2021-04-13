@@ -46,6 +46,21 @@ std::map<ButtonIcon, ButtonClass> Button::buttonClassMap = {
         {ButtonIcon::SELECT_A_STAR,  ButtonClass::ALGORITHM_SELECTION},
 };
 
+
+std::map<ButtonIcon, WeaponType> Button::weaponTypeMap = {
+        {ButtonIcon::SELECT_ROCKET,  WeaponType::W_ROCKET},
+        {ButtonIcon::SELECT_AMMO,     WeaponType::W_AMMO},
+        {ButtonIcon::SELECT_LASER,    WeaponType::W_LASER},
+        {ButtonIcon::SELECT_BULLET,   WeaponType::W_BULLET},
+};
+
+std::map<ButtonIcon, AIAlgorithm> Button::algorithmMap = {
+        {ButtonIcon::SELECT_DIRECT,   AIAlgorithm::DIRECT},
+        {ButtonIcon::SELECT_A_STAR,  AIAlgorithm::A_STAR},
+};
+
+
+
 ECS::Entity Button::createButton(ButtonIcon buttonType, vec2 position, COLLISION_HANDLER overlap)
 {
 	// Reserve en entity
