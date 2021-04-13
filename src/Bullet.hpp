@@ -10,6 +10,8 @@
 #include "shield.hpp"
 #include "Enemy.hpp"
 #include "soldier.hpp"
+#include <Wall.hpp>
+#include <MoveableWall.hpp>
 
 class Bullet {
 public:
@@ -44,6 +46,7 @@ public:
     };
 
     static void lazer_penetrate(ECS::Entity self, const ECS::Entity e, CollisionResult) {
+        /*
         if (e.has<Shield>()) {
             if (e.get<Shield>().teamID == self.get<Bullet>().teamID) {
                 return;
@@ -62,12 +65,33 @@ public:
         if (e.has<Explosion>()) {
             return;
         }
+
         self.get<Bullet>().penetration_counter--;
 
         if (self.get<Bullet>().penetration_counter <= 0) {
             self.get<Bullet>().on_destroy(self);
         }
-    };
+        */
+
+        if (e.has<Enemy>()) {
+            if (e.get<Enemy>().teamID != self.get<Bullet>().teamID) {
+                self.get<Bullet>().on_destroy(self);
+            }
+        }
+        if (e.has<Soldier>()) {
+            if (e.get<Soldier>().teamID != self.get<Bullet>().teamID) {
+                self.get<Bullet>().on_destroy(self);
+            }
+        }
+        if (e.has<Wall>() || e.has<MoveableWall>()) {
+                self.get<Bullet>().penetration_counter-= GameInstance::game_time;
+        }
+
+        if (self.get<Bullet>().penetration_counter <= 0) {
+            self.get<Bullet>().on_destroy(self);
+        }
+        
+    }
 
     int teamID = 0;
     std::string bullet_indicator = "";
@@ -80,7 +104,7 @@ public:
 
     WeaponType type;
     float damage = 1.0;
-    int penetration_counter = 0;
+    float penetration_counter = 0;
     static std::unordered_map<WeaponType, float> bulletDamage;
     static std::unordered_map<WeaponType, std::function<void(ECS::Entity, ECS::Entity, float)>> bulletEffect;
     static void heal_soldier(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);

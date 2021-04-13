@@ -20,6 +20,8 @@ class GameInstance {
         static MagicWeapon selectedMagic;
         static int charges_left;
         static float light_quality;
+        static float frame_time;
+        static float game_time;
 
         // Game speed overrides
         static float global_speed;
