@@ -84,7 +84,7 @@ public:
             }
         }
         if (e.has<Wall>() || e.has<MoveableWall>()) {
-                self.get<Bullet>().penetration_counter--;
+                self.get<Bullet>().penetration_counter-= GameInstance::game_time;
         }
 
         if (self.get<Bullet>().penetration_counter <= 0) {
@@ -104,7 +104,7 @@ public:
 
     WeaponType type;
     float damage = 1.0;
-    int penetration_counter = 0;
+    float penetration_counter = 0;
     static std::unordered_map<WeaponType, float> bulletDamage;
     static std::unordered_map<WeaponType, std::function<void(ECS::Entity, ECS::Entity, float)>> bulletEffect;
     static void heal_soldier(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);

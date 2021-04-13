@@ -58,7 +58,9 @@ int main()
 		// Calculating elapsed times in milliseconds from the previous iteration
 		auto now = Clock::now();
 		float elapsed_ms = static_cast<float>((std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count()) / 1000.f;
+		GameInstance::frame_time = elapsed_ms;
 		elapsed_ms *= GameInstance::get_current_speed();
+		GameInstance::game_time = elapsed_ms;
 		t = now;
 
 		DebugSystem::clearDebugComponents();
