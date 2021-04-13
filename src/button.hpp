@@ -47,7 +47,16 @@ struct Button {
 
 	ButtonIcon buttonType = ButtonIcon::DEFAULT_BUTTON;
 	ButtonClass buttonClass = ButtonClass::BUTTON_CLASS_OTHER;
-    bool selected = false;
+    bool selected() {
+        if (buttonClass == ButtonClass::WEAPON_SELECTION) {
+            return weaponTypeMap[buttonType] == GameInstance::selectedWeapon;
+        } else if (buttonClass == ButtonClass::ALGORITHM_SELECTION) {
+                return algorithmMap[buttonType] == GameInstance::algorithm;
+        }
+        return false;
+    }
 	static std::map<ButtonIcon, std::string> buttonNamesMap;
 	static std::map<ButtonIcon, ButtonClass> buttonClassMap;
+    static std::map<ButtonIcon, WeaponType> weaponTypeMap;
+    static std::map<ButtonIcon, AIAlgorithm> algorithmMap;
 };
