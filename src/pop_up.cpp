@@ -37,7 +37,7 @@ ShadedMesh& PopUP::get_background()
 	if (pop_up_background.effect.program.resource == 0)
 	{
 		pop_up_background = ShadedMesh();
-		RenderSystem::createSprite(pop_up_background, textures_path("/main scene/background2.png"), "textured");
+		RenderSystem::createSprite(pop_up_background, textures_path("/tutorial/help.png"), "textured");
 	}
 	return pop_up_background;
 }
