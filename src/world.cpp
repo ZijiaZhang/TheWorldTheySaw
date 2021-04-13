@@ -563,12 +563,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         }
     }
 
-	if (key == GLFW_KEY_E && action == GLFW_PRESS) {
-		if (player_soldier.has<Soldier>()) {
-			Bullet::createBullet(player_soldier.get<Motion>().position, player_soldier.get<Motion>().angle, { 380, 0 }, 0, W_BULLET, "bullet");
-		}
-	}
-
 
     if(key == GLFW_KEY_A && action == GLFW_PRESS) {
         Soldier::switchWeapon(player_soldier, W_LASER);
@@ -590,6 +584,8 @@ void WorldSystem::on_key(int key, int, int action, int mod)
                 if (player_soldier.has<AIPath>()) {
                     auto &aiPath = player_soldier.get<AIPath>();
                     aiPath.active = false;
+					aiPath.progress = 0;
+					aiPath.path.path.clear();
                 }
                 player_soldier.get<Motion>().velocity =
                         vec2{ soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
@@ -597,27 +593,12 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 			if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
 				selecting = true;
-//                auto& registry = ECS::registry<Button>;
-//                for (unsigned int i=0; i< registry.components.size(); i++)
-//                {
-//                    auto entity = registry.entities[i];
-//                    ECS::registry<PressTimer>.emplace(entity);
-//                }
 			}
 			else {
 				selecting = false;
 			}
         }
 
-    }
-
-    if (key == GLFW_KEY_H && action == GLFW_PRESS) {
-        if(RenderSystem::renderSystem)
-            RenderSystem::renderSystem->create_light_texture(1);
-    }
-    if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-        if(RenderSystem::renderSystem)
-            RenderSystem::renderSystem->create_light_texture(0.2);
     }
 
 	// Resetting game
@@ -683,10 +664,6 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (key == GLFW_KEY_C && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
 		SHIELDUP = true;
 	}
-    if (key == GLFW_KEY_K && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
-        Soldier::set_field_shader(player_soldier);
-        Soldier::set_field(player_soldier);
-    }
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
@@ -703,7 +680,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 
 		if (control_state == ControlState::USING_MAGIC) {
 			vec2 mouse_pos = getWorldMousePosition(last_mouse_pos);
-			vec2 dir = mouse_pos.y - player_soldier.get<Motion>().position;
+			vec2 dir = mouse_pos - player_soldier.get<Motion>().position;
 			float rad = atan2(dir.y, dir.x);
 			MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
 				rad,
