@@ -20,6 +20,7 @@
 #include "Explosion.hpp"
 #include "MagicParticle.hpp"
 #include "WeaponTimer.hpp"
+#include "mainMenu.hpp"
 
 // stlib
 #include <string.h>
@@ -240,7 +241,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			}
 			ECS::ContainerInterface::remove_all_components_of(entity);
 			if (is_pop_up && ECS::registry<PopUP>.entities.empty()) {
-				GameInstance::global_speed = 1.0;
+				GameInstance::popup_speed = 1.0;
 			}
 
 		}
@@ -291,14 +292,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
 
-	pause = pause && GameInstance::isPlayableLevel();
-
-	if (pause) {
-		GameInstance::global_speed = 0.f;
-	}
-	else {
-		GameInstance::global_speed = 1.f;
-	}
+	// pause = pause && GameInstance::isPlayableLevel();
 
 	endGameTimer += elapsed_ms;
 	runTimer(elapsed_ms);
@@ -350,8 +344,12 @@ void WorldSystem::restart(std::string level)
 
 
 	// Reset the game speed
+	pause = false;
+	GameInstance::pause_speed = 1.f;
+	GameInstance::ability_speed = 1.f;
 	GameInstance::global_speed = 1.f;
-
+	GameInstance::popup_speed = 1.f;
+	control_state = ControlState::NORMAL;
     // Remove all entities that we created
 	// All that have a motion, we could also iterate over all fish, turtles, ... but that would be more cumbersome
 	while (!ECS::registry<Motion>.entities.empty())
@@ -374,8 +372,9 @@ void WorldSystem::restart(std::string level)
 		throw std::runtime_error("Can only have one soldier");
 	}
 
+	GameInstance::charges_left = GameInstance::getDefaultChargeOfMagic(GameInstance::selectedMagic);
+
 	player_soldier = soldiers.front();
-	// std::cout << "soldier addr: " << &player_soldier << "\n";
 
 	while (!ECS::registry<Camera>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
@@ -396,7 +395,7 @@ void WorldSystem::restart(std::string level)
 
 	if (GameInstance::fist_enter_level(level)) {
 		if (level == MENU_NAME) {
-			GameInstance::global_speed = 0.0;
+			GameInstance::popup_speed = 0.0;
 			auto e = PopUP::createPopUP(textures_path("/tutorial/You.png"), screen / 2.f - vec2{0.0, 200}, { 200, 100 });
 			auto& pop_up = e.get<PopUP>();
 			pop_up.relative_entities.push_back(
@@ -410,7 +409,7 @@ void WorldSystem::restart(std::string level)
 		}
 
 		if (level == WEAPON_SELECT_NAME) {
-			GameInstance::global_speed = 0.0;
+			GameInstance::popup_speed = 0.0;
 			auto e = PopUP::createPopUP(textures_path("/tutorial/Loadout_pick.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 });
 			auto& pop_up = e.get<PopUP>();
 			pop_up.relative_entities.push_back(
@@ -435,13 +434,14 @@ void WorldSystem::restart(std::string level)
 	}
 
 	if (level == TUTORIAL_NAME) {
-		GameInstance::global_speed = 0.0;
+		GameInstance::popup_speed = 0.0;
 		auto e = PopUP::createPopUP(textures_path("/tutorial/Enemy.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 });
 		auto& pop_up = e.get<PopUP>();
 		pop_up.relative_entities.push_back(
 			HighLightCircle::createHighLightCircle({ 500,500 }, 30, 5));
 		pop_up.on_destroy = [=]() {
 			auto e = PopUP::createPopUP(textures_path("/tutorial/Ability.png"), screen / 2.f - vec2{ 0.0, 100 }, { 200, 100 });
+			show_ability_tutorial = true;
 		};
 	}
 
@@ -536,13 +536,30 @@ void WorldSystem::on_key(int key, int, int action, int mod)
    
 	double soldier_speed = 200;
   
-    if(key == GLFW_KEY_Q && action == GLFW_PRESS && !pause && GameInstance::isPlayableLevel()) {
-        if(player_soldier.has<Soldier>()) {
-			MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
-				player_soldier.get<Motion>().angle,
-				{ 380, 0 },
-				0,
-				FIREBALL);
+    if(key == GLFW_KEY_Q && action == GLFW_PRESS && GameInstance::get_current_speed() != 0 && GameInstance::isPlayableLevel()) {
+		if (control_state == ControlState::USING_MAGIC) {
+			GameInstance::ability_speed = 1.0;
+			control_state = ControlState::NORMAL;
+		} else if(player_soldier.has<Soldier>() && GameInstance::charges_left > 0) {
+			GameInstance::charges_left--;
+			if (GameInstance::selectedMagic == FIREBALL) {
+				// Slowdown the world speed
+				if (control_state == ControlState::NORMAL) {
+					control_state = ControlState::USING_MAGIC;
+					GameInstance::ability_speed = 0.2;
+				}
+				if (show_ability_tutorial) {
+					GameInstance::popup_speed = 0.0;
+					auto e = PopUP::createPopUP(textures_path("/tutorial/UseMagic.png"), screen / 2.f - vec2{ 0.0, 200 }, { 200, 100 }); 
+					show_ability_tutorial = false;
+				}
+				show_ability_tutorial = false;
+			}
+			else if (GameInstance::selectedMagic == FIELD) {
+				
+				Soldier::set_field_shader(player_soldier);
+				Soldier::set_field(player_soldier);
+			}
         }
     }
 
@@ -653,8 +670,14 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 		reload_level = true;
 	}
 
-	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel()) {
+	if (key == GLFW_KEY_X && action == GLFW_RELEASE && GameInstance::isPlayableLevel()  && (pause || GameInstance::get_current_speed() != 0)) {
 		pause = !pause;
+		if (pause) {
+			GameInstance::pause_speed = 0.f;
+		}
+		else {
+			GameInstance::pause_speed = 1.f;
+		}
 	}
 
 	if (key == GLFW_KEY_C && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
@@ -668,7 +691,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
 
-    if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT)
+    if (action == GLFW_PRESS && key == GLFW_MOUSE_BUTTON_LEFT && !pause)
     {
 		if (!ECS::registry<PopUP>.entities.empty()) {
 			auto& entity = ECS::registry<PopUP>.entities.back();
@@ -677,6 +700,20 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 			}
 			return;
 		}
+
+		if (control_state == ControlState::USING_MAGIC) {
+			vec2 mouse_pos = getWorldMousePosition(last_mouse_pos);
+			vec2 dir = mouse_pos.y - player_soldier.get<Motion>().position;
+			float rad = atan2(dir.y, dir.x);
+			MagicParticle::createMagicParticle(player_soldier.get<Motion>().position,
+				rad,
+				{ 380, 0 },
+				0,
+				FIREBALL);
+			control_state = ControlState::NORMAL;
+			GameInstance::ability_speed = 1.f;
+		}
+
 		if (!aiControl && player_soldier.has<AIPath>()) {
 			auto& aiPath = player_soldier.get<AIPath>();
 			aiPath.active = true;
@@ -709,6 +746,9 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
     {
         auto& motion = ECS::registry<Motion>.get(player_soldier);
         // Get world mouse position
+//        if(!(ECS::registry<MainMenu>.has(player_soldier) || ECS::registry<Start>.has(player_soldier) || ECS::registry<Button>.components[1].buttonType == ButtonIcon::START)){
+//            mouse_pos = getWorldMousePosition(mouse_pos);
+//        }
         mouse_pos = getWorldMousePosition(mouse_pos);
         float disY = mouse_pos.y - motion.position.y;
         float disX = mouse_pos.x - motion.position.x;

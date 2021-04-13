@@ -33,6 +33,8 @@ public:
     bool forcefield_on = false;
 	static void soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult);
 
+	static void update_health_with_level(ECS::Entity entity, std::string level);
+
 	static void addHealth(ECS::Entity self, float bloodIn) {
 	    if (self.has<Health>()) {
 	        auto& health = ECS::registry<Health>.get(self);

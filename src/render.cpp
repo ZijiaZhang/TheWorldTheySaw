@@ -5,6 +5,8 @@
 #include "Camera.hpp"
 #include "Explosion.hpp"
 #include "button.hpp"
+#include "mainMenu.hpp"
+#include "start.hpp"
 #include "GameInstance.hpp"
 #include "WeaponTimer.hpp"
 
@@ -134,7 +136,8 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
     gl_has_errors();
     GLint center_uloc = glGetUniformLocation(texmesh.effect.program, "center");
     if (center_uloc >= 0) { 
-        glUniform2fv(center_uloc, 1, (float*)&(motion.position - camera.get_position()));
+        vec2 center_loc = motion.position - camera.get_position();
+        glUniform2fv(center_uloc, 1, (float*)&(center_loc));
     }
     gl_has_errors();
     // Drawing of num_indices/3 triangles specified in the index buffer
