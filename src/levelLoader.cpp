@@ -420,6 +420,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	}
 
 	auto e = MoveableWall::createMoveableWall(location, size, 0, overlap, get_slider_callback(val_min, val_max, x_min, x_max, y_min, y_max));
+	e.get<Motion>().position.x = (GameInstance::light_quality - val_min) / (val_max - val_min) * (x_max - x_min) + x_min;
 	e.get<PhysicsObject>().mass = 100.f;
 	}
 	},
