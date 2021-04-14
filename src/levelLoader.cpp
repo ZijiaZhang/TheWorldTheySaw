@@ -295,7 +295,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
     {"avatar", [](vec2 location, vec2 size, float rotation,
             COLLISION_HANDLER overlap,
             COLLISION_HANDLER hit, const json& additional) {
-            return Avatar::createAvatar(location, AvatarType::AVATAR);
+            return;
     }},
 	{"enemy", [](vec2 location, vec2 size, float rotation,
 				 COLLISION_HANDLER overlap,

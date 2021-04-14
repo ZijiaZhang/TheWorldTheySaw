@@ -137,6 +137,12 @@ struct ShadedMeshRef
 	ShadedMeshRef(ShadedMesh& mesh);
 };
 
+struct ShadedMeshRefUI
+{
+	ShadedMesh* reference_to_cache;
+	ShadedMeshRefUI(ShadedMesh& mesh);
+};
+
 // A struct to refer to debugging graphics in the ECS
 struct DebugComponent
 {
