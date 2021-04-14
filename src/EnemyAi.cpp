@@ -172,7 +172,9 @@ bool EnemyAISystem::underEffectControl(ECS::Entity enemy, float elapsed_ms) {
         if (fc.executing_ms <= 0.) {
             ECS::registry<FrozenTimer>.remove(enemy);
             ECS::registry<Activating>.remove(enemy);
-            Enemy::set_shader(enemy);
+            if (enemy.has<Enemy>()) {
+                Enemy::set_shader(enemy, false, Enemy::enemy_texture_map[enemy.get<Enemy>().type]);
+            }
             return false;
         } else {
             enemy.get<Enemy>().enemyState = AiState::IDLE;

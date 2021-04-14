@@ -66,8 +66,8 @@ static std::map<std::string, bool> entered_level = {
 
 
 static std::map<MagicWeapon, int> charge_of_magic = {
-    {FIREBALL, 5},
-    {FIELD, 3}
+    {FIREBALL, 3},
+    {FIELD, 1}
 };
 
 bool GameInstance::isPlayableLevel(std::string level)

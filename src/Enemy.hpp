@@ -6,10 +6,15 @@
 #include "tiny_ecs.hpp"
 #include "common.hpp"
 #include "ai.hpp"
-#include "SoldierAi.hpp"
 #include <AiState.hpp>
 #define ENEMY_DEFAULT_TEAM_ID 1
 #define ENEMY_DEFAULT_HEALTH 2
+
+#define ALIEN "/enemy/cannon/alien.png"
+#define ALIEN_2 "/enemy/cannon/alien2.png"
+#define ALIEN_3 "/enemy/cannon/alien3.png"
+
+
 
 typedef enum {
     STANDARD,
@@ -32,7 +37,7 @@ public:
     static std::string frozen_texture_path;
     static std::string ori_shader_name;
     static std::string frozen_shader_name;
-
+    static std::unordered_map< EnemyType, std::string> enemy_texture_map;
     static void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult);
 
     static void set_shader(ECS::Entity self, bool effect = false, std::string texture_path = Enemy::ori_texture_path, std::string shader_name = Enemy::ori_shader_name);
@@ -40,6 +45,4 @@ public:
     static void set_activating_shader(ECS::Entity self);
     static std::unordered_map<std::string, EnemyType> enemy_type_map;
 };
-
-
 
