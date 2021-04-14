@@ -11,10 +11,19 @@
 #include "Explosion.hpp"
 #include "EnemyAi.hpp"
 
+
+
 std::string Enemy::ori_texture_path = "/enemy/cannon/alien.png";
 std::string Enemy::frozen_texture_path = "/enemy/frozen.jpeg";
 std::string Enemy::ori_shader_name = "textured";
 std::string Enemy::frozen_shader_name = "frozen";
+
+std::unordered_map< EnemyType, std::string> Enemy::enemy_texture_map = {
+    {EnemyType::STANDARD, ALIEN},
+    {EnemyType::SUICIDE, ALIEN_3},
+    {EnemyType::ELITE, ALIEN_2}
+};
+
 
 std::unordered_map<std::string, EnemyType> Enemy::enemy_type_map = {
     {"standard", EnemyType::STANDARD},
@@ -27,8 +36,8 @@ ECS::Entity Enemy::createEnemy(vec2 position,
                                COLLISION_HANDLER hit, int teamID, EnemyType type, float hp){
     auto entity = ECS::Entity();
 
-    Enemy::set_shader(entity);
-
+    Enemy::set_shader(entity, false, enemy_texture_map[type]);
+    
     // Setting initial motion values
     Motion& motion = ECS::registry<Motion>.emplace(entity);
     motion.position = position;
@@ -97,7 +106,7 @@ ECS::Entity Enemy::createEnemy(Motion m, Enemy e, Health h, AIPath ai, PhysicsOb
 {
     auto entity = ECS::Entity();
 
-    Enemy::set_shader(entity);
+    Enemy::set_shader(entity, false, enemy_texture_map[e.type]);
 
     entity.emplace<Motion>(m);
     entity.emplace<Enemy>(e);
