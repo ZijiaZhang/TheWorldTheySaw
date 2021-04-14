@@ -152,6 +152,14 @@ auto select_algo_of_type(AIAlgorithm algo) {
 	};
 }
 
+auto select_ability_of_type(MagicWeapon magic) {
+	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (other.has<Soldier>() && WorldSystem::selecting) {
+			GameInstance::selectedMagic = magic;
+		}
+	};
+}
+
 auto select_weapon_of_type(WeaponType type) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
 		if (other.has<Soldier>() && WorldSystem::selecting) {
@@ -357,6 +365,14 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 								COLLISION_HANDLER,
 								COLLISION_HANDLER, const json&) {
 		return Button::createButton(ButtonIcon::SELECT_A_STAR, location, select_algo_of_type(A_STAR)); }},
+			{"button_select_fire_ball", [](vec2 location, vec2 size, float rotation,
+								COLLISION_HANDLER,
+								COLLISION_HANDLER, const json&) {
+		return Button::createButton(ButtonIcon::SELECT_FIREBALL, location, select_ability_of_type(FIREBALL)); }},
+			{"button_select_force_sphere", [](vec2 location, vec2 size, float rotation,
+								COLLISION_HANDLER,
+								COLLISION_HANDLER, const json&) {
+		return Button::createButton(ButtonIcon::SELECT_FIELD, location, select_ability_of_type(FIELD)); }},
 	{"button_enter_level", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
