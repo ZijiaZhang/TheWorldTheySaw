@@ -9,10 +9,10 @@
 #include "render_components.hpp"
 #include "render.hpp"
 std::unordered_map<WeaponType, std::string> Weapon::weaponTexturePath {
-        {W_AMMO, "/shield/shield2.png"},
-        {W_LASER, "/shield/shield.png"},
+        {W_AMMO, "/soldier/weapon_frozen.png"},
+        {W_LASER, "/soldier/sword.png"},
         {W_BULLET, "/soldier/weapon_heavy.png"},
-        {W_ROCKET, "/soldier/weapon_heavy.png"}
+        {W_ROCKET, "/soldier/weapon_rocket.png"}
 };
 ECS::Entity Weapon::createWeapon(vec2 offset, float offset_angle, ECS::Entity parent, std::string texture_path){
     auto entity = ECS::Entity();
