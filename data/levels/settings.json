@@ -3,7 +3,7 @@
     {
       "position": {
         "x": 300,
-        "y": 400
+        "y": 600
       },
       "velocity": {
         "X": 100,
@@ -128,11 +128,53 @@
     }
 
   ],
+  "volume_slider": [
+    {
+      "position": {
+        "x": 340,
+        "y": 600
+      },
+      "size": {
+        "x": 50,
+        "y": 50
+      },
+      "rotation": 0,
+      "additionalProperties": {
+        "val_min": 0,
+        "val_max": 120,
+        "x_min": 300,
+        "x_max": 700
+      }
+    }
+
+  ],
+
+  "effect_volume_slider": [
+    {
+      "position": {
+        "x": 340,
+        "y": 800
+      },
+      "size": {
+        "x": 50,
+        "y": 50
+      },
+      "rotation": 0,
+      "additionalProperties": {
+        "val_min": 0,
+        "val_max": 120,
+        "x_min": 300,
+        "x_max": 700
+      }
+    }
+
+  ],
+
   "return_to_menu": [
     {
       "position": {
-        "x": 200,
-        "y": 700
+        "x": 100,
+        "y": 600
       }
     }
   ]

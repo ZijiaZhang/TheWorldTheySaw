@@ -22,6 +22,8 @@ class GameInstance {
         static float light_quality;
         static float frame_time;
         static float game_time;
+        static float volume;
+        static float effect_volume;
 
         // Game speed overrides
         static float global_speed;

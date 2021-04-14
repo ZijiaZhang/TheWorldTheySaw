@@ -274,6 +274,76 @@ COLLISION_HANDLER get_slider_callback(float val_min, float val_max, float x_min,
 }
 
 
+COLLISION_HANDLER get_effect_volume_call_back(float val_min, float val_max, float x_min, float x_max, float y_min, float y_max) {
+	return [val_min, val_max, x_min, x_max, y_min, y_max](ECS::Entity self, ECS::Entity e, CollisionResult) mutable {
+		if (self.has<Motion>() && e.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			auto& other_motion = e.get<Motion>();
+			if (motion.position.x > x_max) {
+				float delta = motion.position.x - x_max;
+				motion.position.x -= delta;
+				other_motion.position.x -= delta;
+			}
+			else 	if (motion.position.x < x_min) {
+				float delta = motion.position.x - x_min;
+				motion.position.x -= delta;
+				other_motion.position.x -= delta;
+			}
+
+			if (motion.position.y > y_max) {
+				float delta = motion.position.y - y_max;
+				motion.position.y -= delta;
+				other_motion.position.y -= delta;
+			}
+			else if (motion.position.y < y_min) {
+				float delta = motion.position.y - y_min;
+				motion.position.y -= delta;
+				other_motion.position.y -= delta;
+			}
+			float volume = floor((motion.position.x - x_min) / (x_max - x_min) * (val_max - val_min) + val_min);
+			if (GameInstance::effect_volume != volume) {
+				GameInstance::effect_volume = volume;
+				Mix_Volume(-1, volume);
+			}
+		}
+	};
+}
+
+COLLISION_HANDLER get_volume_call_back(float val_min, float val_max, float x_min, float x_max, float y_min, float y_max) {
+	return [val_min, val_max, x_min, x_max, y_min, y_max](ECS::Entity self, ECS::Entity e, CollisionResult) mutable {
+		if (self.has<Motion>() && e.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			auto& other_motion = e.get<Motion>();
+			if (motion.position.x > x_max) {
+				float delta = motion.position.x - x_max;
+				motion.position.x -= delta;
+				other_motion.position.x -= delta;
+			}
+			else 	if (motion.position.x < x_min) {
+				float delta = motion.position.x - x_min;
+				motion.position.x -= delta;
+				other_motion.position.x -= delta;
+			}
+
+			if (motion.position.y > y_max) {
+				float delta = motion.position.y - y_max;
+				motion.position.y -= delta;
+				other_motion.position.y -= delta;
+			}
+			else if (motion.position.y < y_min) {
+				float delta = motion.position.y - y_min;
+				motion.position.y -= delta;
+				other_motion.position.y -= delta;
+			}
+			float volume = floor((motion.position.x - x_min) / (x_max - x_min) * (val_max - val_min) + val_min);
+			if (GameInstance::volume != volume) {
+				GameInstance::volume = volume;
+				Mix_VolumeMusic(GameInstance::volume);
+			}
+		}
+	};
+}
+
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
@@ -446,6 +516,66 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	}
 	},
 
+	{ "volume_slider", [](vec2 location, vec2 size, float,
+		COLLISION_HANDLER overlap,
+				COLLISION_HANDLER hit, json additional) {
+	float val_min, val_max,
+	x_min = location.x, x_max = location.x,
+	y_min = location.y, y_max = location.y;
+	if (additional.contains("val_min")) {
+		val_min = additional["val_min"];
+	}
+if (additional.contains("val_max")) {
+	val_max = additional["val_max"];
+	}
+if (additional.contains("x_min")) {
+	x_min = additional["x_min"];
+}
+if (additional.contains("x_max")) {
+	x_max = additional["x_max"];
+}
+if (additional.contains("y_min")) {
+	y_min = additional["y_min"];
+}
+if (additional.contains("y_max")) {
+	y_max = additional["y_max"];
+}
+
+auto e = MoveableWall::createMoveableWall(location, size, 0, overlap, get_volume_call_back(val_min, val_max, x_min, x_max, y_min, y_max));
+e.get<Motion>().position.x = (GameInstance::volume - val_min) / (val_max - val_min) * (x_max - x_min) + x_min;
+e.get<PhysicsObject>().mass = 100.f;
+}
+	},
+{ "effect_volume_slider", [](vec2 location, vec2 size, float,
+COLLISION_HANDLER overlap,
+		COLLISION_HANDLER hit, json additional) {
+float val_min, val_max,
+x_min = location.x, x_max = location.x,
+y_min = location.y, y_max = location.y;
+if (additional.contains("val_min")) {
+	val_min = additional["val_min"];
+}
+if (additional.contains("val_max")) {
+	val_max = additional["val_max"];
+	}
+if (additional.contains("x_min")) {
+	x_min = additional["x_min"];
+}
+if (additional.contains("x_max")) {
+	x_max = additional["x_max"];
+}
+if (additional.contains("y_min")) {
+	y_min = additional["y_min"];
+}
+if (additional.contains("y_max")) {
+	y_max = additional["y_max"];
+}
+
+auto e = MoveableWall::createMoveableWall(location, size, 0, overlap, get_effect_volume_call_back(val_min, val_max, x_min, x_max, y_min, y_max));
+e.get<Motion>().position.x = (GameInstance::effect_volume - val_min) / (val_max - val_min) * (x_max - x_min) + x_min;
+e.get<PhysicsObject>().mass = 100.f;
+}
+},
 	{"title", [](vec2 location, vec2 , float ,
 					  COLLISION_HANDLER,
 					  COLLISION_HANDLER, const json&) {
