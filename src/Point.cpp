@@ -8,13 +8,17 @@
 #include "Point.hpp"
 
 Points::Points() {
+    // first no point
     pts = 0;
 }
 
 void Points::addPoint() {
-    pts++;
+    auto& p = pts;
+    p = pts;
+    pts = pts + 1;
 }
 
 int Points::getPoint() {
-    return pts;
+    auto temp = pts;
+    return temp;
 }

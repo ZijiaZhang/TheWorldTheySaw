@@ -4,10 +4,10 @@
 
 #include "Bullet.hpp"
 std::unordered_map<WeaponType, float> Bullet::bulletDamage {
-        {W_AMMO, 0.5},
-        {W_LASER, 0.3},
-        {W_BULLET, 1.0},
-        {W_ROCKET, 5.0}
+        {W_AMMO, 0.58},
+        {W_LASER, 0.73},
+        {W_BULLET, 1.1},
+        {W_ROCKET, 3.85}
 };
 
 std::unordered_map<WeaponType , std::function<void(ECS::Entity, ECS::Entity, float)>> Bullet::bulletEffect = {
