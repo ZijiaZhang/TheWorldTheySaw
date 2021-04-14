@@ -208,6 +208,8 @@ void WorldSystem::init_audio()
 			audio_path("gun_fire.wav") +
 			audio_path("gun_reload.wav"));
 	Mix_ChannelFinished([](auto a) {Mix_FreeChunk(Mix_GetChunk(a)); });
+	Mix_Volume(-1, GameInstance::effect_volume);
+	Mix_VolumeMusic(GameInstance::volume);
 }
 
 // Update our game world

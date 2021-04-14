@@ -17,6 +17,8 @@ float GameInstance::pause_speed = 1.f;
 float GameInstance::ability_speed = 1.f;
 float GameInstance::frame_time = 0.f;
 float GameInstance::game_time = 0.f;
+float GameInstance::volume = 50.f;
+float GameInstance::effect_volume = 50.f;
 
 static std::map<std::string, bool> playableLevelMap = {
         {"menu", false},

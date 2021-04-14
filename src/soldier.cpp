@@ -101,11 +101,12 @@ void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Co
             // std::cout << bullet_indicator << "!!!!!";
             if(!ECS::registry<Soldier>.get(self).forcefield_on){
                health.hp -= Bullet::bulletDamage[e.get<Bullet>().type];
+               Particle::createParticle(c.vertex, { 50,50 }, 1000);
         }
             
             if (health.hp <= 0)
                 self.emplace<DeathTimer>();
-            Particle::createParticle(c.vertex, { 50,50 }, 1000);
+           
 
         }
         else if (e.has<Explosion>() && (e.get<Explosion>().teamID != self.get<Soldier>().teamID)) {
