@@ -15,6 +15,8 @@ enum class ButtonIcon {
     SELECT_LASER,
     SELECT_DIRECT,
     SELECT_A_STAR,
+    SELECT_FIREBALL,
+    SELECT_FIELD,
     NEXT,
     RESTART,
     RETURN,
@@ -55,10 +57,14 @@ struct Button {
         } else if (buttonClass == ButtonClass::ALGORITHM_SELECTION) {
                 return algorithmMap[buttonType] == GameInstance::algorithm;
         }
+        else if (buttonClass == ButtonClass::MAGIC_SELECTION) {
+            return magicMap[buttonType] == GameInstance::selectedMagic;
+        }
         return false;
     }
 	static std::map<ButtonIcon, std::string> buttonNamesMap;
 	static std::map<ButtonIcon, ButtonClass> buttonClassMap;
     static std::map<ButtonIcon, WeaponType> weaponTypeMap;
     static std::map<ButtonIcon, AIAlgorithm> algorithmMap;
+    static std::map<ButtonIcon, MagicWeapon> magicMap;
 };

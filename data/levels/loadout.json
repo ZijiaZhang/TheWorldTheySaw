@@ -10,53 +10,92 @@
       }
     }
   ],
-    "weapon": [{
-        "position": {"x": 100, "y": 200}
-    }],
-    "button_select_rocket": [
-        {
-            "position": {"x": 80, "y":  60}
-        }
-    ],
-    "button_select_ammo": [
-        {
-            "position": {"x": 340, "y":  60}
-        }
-    ],
-    "button_select_laser": [
-        {
-            "position": {"x": 340, "y":  137}
-        }
-    ],
-    "button_select_bullet": [
-        {
-            "position": {"x": 80, "y":  137}
-        }
-    ],
-    "button_select_direct": [
-        {
-            "position": {"x": 80, "y":  405}
-        }
-    ],
-    "button_select_a_star": [
-        {
-            "position": {"x": 340, "y":  405}
-        }
-    ],
-    "button_enter_level": [
-        {
-            "position": {
-                "x": 315,
-                "y": 540
-            }
-        }
-    ],
-    "return_to_level_select": [
-        {
-            "position": {
-                "x": -150,
-                "y": 540
-            }
-        }
-    ]
+  "weapon": [
+    {
+      "position": {
+        "x": 100,
+        "y": 200
+      }
+    }
+  ],
+  "button_select_rocket": [
+    {
+      "position": {
+        "x": 80,
+        "y": 60
+      }
+    }
+  ],
+  "button_select_ammo": [
+    {
+      "position": {
+        "x": 340,
+        "y": 60
+      }
+    }
+  ],
+  "button_select_laser": [
+    {
+      "position": {
+        "x": 340,
+        "y": 137
+      }
+    }
+  ],
+  "button_select_bullet": [
+    {
+      "position": {
+        "x": 80,
+        "y": 137
+      }
+    }
+  ],
+  "button_select_direct": [
+    {
+      "position": {
+        "x": 80,
+        "y": 405
+      }
+    }
+  ],
+  "button_select_a_star": [
+    {
+      "position": {
+        "x": 340,
+        "y": 405
+      }
+    }
+  ],
+  "button_select_fire_ball": [
+    {
+      "position": {
+        "x": 80,
+        "y": 505
+      }
+    }
+  ],
+  "button_select_force_sphere": [
+    {
+      "position": {
+        "x": 340,
+        "y": 505
+      }
+    }
+  ],
+  "button_enter_level": [
+    {
+      "position": {
+        "x": 500,
+        "y": 200
+      }
+    }
+  ],
+  "return_to_level_select": [
+    {
+      "position": {
+        "x": 500,
+        "y": 440
+      }
+    }
+  ]
 }

@@ -16,6 +16,8 @@ std::map<ButtonIcon, std::string> Button::buttonNamesMap = {
     {ButtonIcon::SELECT_BULLET, "select_bullet"},
     {ButtonIcon::SELECT_DIRECT,"select_direct"},
     {ButtonIcon::SELECT_A_STAR, "select_a_star"},
+    {ButtonIcon::SELECT_FIREBALL, "select_fireball"},
+    {ButtonIcon::SELECT_FIELD, "select_field"},
     {ButtonIcon::NEXT, "next"},
     {ButtonIcon::RESTART, "RESTART"},
     {ButtonIcon::RETURN, "return"},
@@ -47,6 +49,8 @@ std::map<ButtonIcon, ButtonClass> Button::buttonClassMap = {
         {ButtonIcon::SELECT_BULLET,   ButtonClass::WEAPON_SELECTION},
         {ButtonIcon::SELECT_DIRECT,   ButtonClass::ALGORITHM_SELECTION},
         {ButtonIcon::SELECT_A_STAR,  ButtonClass::ALGORITHM_SELECTION},
+        {ButtonIcon::SELECT_FIREBALL, ButtonClass::MAGIC_SELECTION},
+        {ButtonIcon::SELECT_FIELD, ButtonClass::MAGIC_SELECTION},
 };
 
 
@@ -60,6 +64,11 @@ std::map<ButtonIcon, WeaponType> Button::weaponTypeMap = {
 std::map<ButtonIcon, AIAlgorithm> Button::algorithmMap = {
         {ButtonIcon::SELECT_DIRECT,   AIAlgorithm::DIRECT},
         {ButtonIcon::SELECT_A_STAR,  AIAlgorithm::A_STAR},
+};
+
+std::map<ButtonIcon, MagicWeapon> Button::magicMap = {
+        {ButtonIcon::SELECT_FIREBALL,   MagicWeapon::FIREBALL},
+        {ButtonIcon::SELECT_FIELD,  MagicWeapon::FIELD},
 };
 
 
