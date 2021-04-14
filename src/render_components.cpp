@@ -298,4 +298,8 @@ ShadedMeshRef::ShadedMeshRef(ShadedMesh& mesh) :
 	reference_to_cache(&mesh) 
 {};
 
+ShadedMeshRefUI::ShadedMeshRefUI(ShadedMesh& mesh) :
+	reference_to_cache(&mesh)
+{};
+
 std::list<ShadedMesh> Global_Meshes::meshes = std::list<ShadedMesh>();

@@ -445,6 +445,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     camera.set_screen_size(window_size_in_game_units);
 
     // Render UI
+
     if(GameInstance::isPlayableLevel()){
         auto& e = ECS::registry<Health>.entities;
         for(auto& entity: e){
@@ -490,7 +491,16 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
             }
         }
     }
+
+    auto& ui_entiries = ECS::registry<ShadedMeshRefUI>.entities;
+    for (auto& entity : ui_entiries) {
+        if (entity.has<Motion>()) {
+            drawTexturedMesh(entity, projection_2D, entity.get<Motion>(), *entity.get<ShadedMeshRefUI>().reference_to_cache, true);
+        }
+    }
+
     auto& circles = ECS::registry<HighLightCircle>.entities;
+
     for (auto& entity : circles) {
         if (entity.has<Motion>()) {
             drawTexturedMesh(entity, projection_2D);
@@ -508,6 +518,9 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
             drawTexturedMesh(entity, projection_2D, motion, texmesh, true);
         }
     }
+
+
+
     // First render to the custom framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     gl_has_errors();

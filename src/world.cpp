@@ -32,6 +32,7 @@
 #include <Particle.hpp>
 #include <highlight_circle.hpp>
 #include <pop_up.hpp>
+#include <avatar.hpp>
 
 // for convenience
 using json = nlohmann::json;
@@ -359,6 +360,9 @@ void WorldSystem::restart(std::string level)
 	while (!ECS::registry<Motion>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());
 
+	if (GameInstance::isPlayableLevel()) {
+		Avatar::createAvatar(screen / 2.f, AvatarType::AVATAR);
+	}
 
 	SHIELDUP = false;
 	hasShield = false;

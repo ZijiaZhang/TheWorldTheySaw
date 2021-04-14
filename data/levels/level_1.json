@@ -16,6 +16,9 @@
 		"position": {"x": 500, "y": 500},
         "additionalProperties": {"name": "background"}
 	}],
+    "avatar": [{
+        "position": {"x": 500, "y": 500}
+    }],
     "borders": [
         {
             "position": {"x" : 1000, "y": 500},
