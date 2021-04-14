@@ -18,6 +18,7 @@
 #include "loading.hpp"
 #include "Weapon.hpp"
 #include "GameInstance.hpp"
+#include "avatar.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -210,7 +211,6 @@ auto select_continue() {
 	};
 }
 
-
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callbacks = {
 		{"enemy_bullet_hit_death", Enemy::enemy_bullet_hit_death},
         {"soldier_bullet_hit_death", Soldier::soldier_bullet_hit_death},
@@ -292,6 +292,11 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
         }
 		return Soldier::createSoldier(location, overlap, hit, light_intensity);
 	}},
+    {"avatar", [](vec2 location, vec2 size, float rotation,
+            COLLISION_HANDLER overlap,
+            COLLISION_HANDLER hit, const json& additional) {
+            return Avatar::createAvatar(location, AvatarType::AVATAR);
+    }},
 	{"enemy", [](vec2 location, vec2 size, float rotation,
 				 COLLISION_HANDLER overlap,
 				 COLLISION_HANDLER hit, const json& additional) {
