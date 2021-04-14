@@ -21,80 +21,80 @@
   "button_select_rocket": [
     {
       "position": {
-        "x": 80,
-        "y": 60
+        "x": -55,
+        "y": 47
       }
     }
   ],
   "button_select_ammo": [
     {
       "position": {
-        "x": 340,
-        "y": 60
+        "x": 205,
+        "y": 47
       }
     }
   ],
   "button_select_laser": [
     {
       "position": {
-        "x": 340,
-        "y": 137
+        "x": 205,
+        "y": 124
       }
     }
   ],
   "button_select_bullet": [
     {
       "position": {
-        "x": 80,
-        "y": 137
+        "x": -55,
+        "y": 124
       }
     }
   ],
   "button_select_direct": [
     {
       "position": {
-        "x": 80,
-        "y": 405
+        "x": -50,
+        "y": 392
       }
     }
   ],
   "button_select_a_star": [
     {
       "position": {
-        "x": 340,
-        "y": 405
+        "x": 210,
+        "y": 392
       }
     }
   ],
   "button_select_fire_ball": [
     {
       "position": {
-        "x": 80,
-        "y": 505
+        "x": 545,
+        "y": 190
       }
     }
   ],
   "button_select_force_sphere": [
     {
       "position": {
-        "x": 340,
-        "y": 505
+        "x": 545,
+        "y": 320
       }
     }
   ],
   "button_enter_level": [
     {
       "position": {
-        "x": 500,
-        "y": 200
+        "x": 515,
+        "y": 540
       }
     }
   ],
   "return_to_level_select": [
     {
       "position": {
-        "x": 500,
-        "y": 440
+        "x": -250,
+        "y": 540
       }
     }
   ]
