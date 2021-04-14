@@ -421,22 +421,26 @@ void WorldSystem::restart(std::string level)
 			auto e = PopUP::createPopUP(textures_path("/tutorial/Loadout_pick.png"), screen / 2.f - vec2{ 0.0, 200 }, { 800, 400 });
 			auto& pop_up = e.get<PopUP>();
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 80,60 }, 30, 4));
+				HighLightCircle::createHighLightCircle({ -55,47 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 340,60 }, 30, 4));
+				HighLightCircle::createHighLightCircle({ 205,47 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 340,137 }, 30, 4));
+				HighLightCircle::createHighLightCircle({ 205,124 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 80,137 }, 30, 4));
+				HighLightCircle::createHighLightCircle({ -55,124 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 80,405 }, 30, 4));
+				HighLightCircle::createHighLightCircle({ -50,392 }, 30, 4));
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle({ 340,405 }, 30, 4));
+				HighLightCircle::createHighLightCircle({ 210,392 }, 30, 4));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 545,320 }, 30, 4));
+			pop_up.relative_entities.push_back(
+				HighLightCircle::createHighLightCircle({ 545,190 }, 30, 4));
 			pop_up.on_destroy = [=]() {
 				auto e = PopUP::createPopUP(textures_path("/tutorial/Enter_level.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
 				auto& pop_up = e.get<PopUP>();
 				pop_up.relative_entities.push_back(
-					HighLightCircle::createHighLightCircle({ 315, 540 }, 50, 4));
+					HighLightCircle::createHighLightCircle({ 515, 540 }, 50, 4));
 			};
 		}
 	}
