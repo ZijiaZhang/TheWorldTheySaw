@@ -84,7 +84,7 @@ private:
 	void resetTimer();
 
 	// Number of fish eaten by the salmon, displayed in the window title
-	unsigned int points;
+	unsigned int seconds;
 
 	// Game state
 	float current_speed;

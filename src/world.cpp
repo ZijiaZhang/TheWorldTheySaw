@@ -122,7 +122,7 @@ static bool checkCircle(ECS::Entity player_salmon)
 // Create the fish world
 // Note, this has a lot of OpenGL specific things, could be moved to the renderer; but it also defines the callbacks to the mouse and keyboard. That is why it is called here.
 WorldSystem::WorldSystem(ivec2 window_size_px) :
-	points(0)
+	seconds(90)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -217,7 +217,8 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	// Updating window title with points
 	std::stringstream title_ss;
-	title_ss << "Points: " << points;
+	//title_ss << "Time Remaining: " << seconds << "s";
+    title_ss << "The World They Saw";
 	glfwSetWindowTitle(window, title_ss.str().c_str());
 
 	if (screen != window_size_in_game_units) {
@@ -482,7 +483,7 @@ void WorldSystem::checkEndGame()
             resetTimer();
             restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
         }
-		if (endGameTimer > 100000.f) {
+		if (endGameTimer > 90000.f) {
 			if (!ECS::registry<Enemy>.entities.empty()) {
 				resetTimer();
 				restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
