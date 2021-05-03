@@ -49,14 +49,14 @@ void AISystem::build_grid() {
 
 using Clock = std::chrono::high_resolution_clock;
 
-void AISystem::enemy_ai_step(ECS::Entity enemy, float elapsed_ms, vec2 dest) {
+void AISystem::enemy_ai_step(ECS::Entity enemy, float elapsed_ms, vec2 dest, float distance) {
 
     if (!enemy.has<AIPath>()) {
         return;
     }
     auto& enemy_motion = ECS::registry<Motion>.get(enemy);
     auto& enemy_ai_data = ECS::registry<AIPath>.get(enemy);
-    auto path = find_path_to_location(enemy, dest, 100.f);
+    auto path = find_path_to_location(enemy, dest, distance);
     // printf("D: %d\n", path.path.size());
     enemy_ai_data.path = std::move(path);
     enemy_ai_data.progress = 1;

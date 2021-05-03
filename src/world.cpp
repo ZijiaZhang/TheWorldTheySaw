@@ -599,29 +599,29 @@ void WorldSystem::on_key(int key, int, int action, int mod)
         Soldier::switchWeapon(player_soldier, W_BULLET);
     }
 
-    if (!aiControl) {
-        // Move soldier if alive
-        if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
-            if (key == GLFW_KEY_W) {
-                if (player_soldier.has<AIPath>()) {
-                    auto &aiPath = player_soldier.get<AIPath>();
-                    aiPath.active = false;
-					aiPath.progress = 0;
-					aiPath.path.path.clear();
-                }
-                player_soldier.get<Motion>().velocity =
-                        vec2{ soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
+    
+    // Move soldier if alive
+    if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
+        if (key == GLFW_KEY_W) {
+            if (player_soldier.has<AIPath>()) {
+                auto &aiPath = player_soldier.get<AIPath>();
+                aiPath.active = false;
+				aiPath.progress = 0;
+				aiPath.path.path.clear();
             }
-
-			if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-				selecting = true;
-			}
-			else {
-				selecting = false;
-			}
+            player_soldier.get<Motion>().velocity =
+                    vec2{ soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
         }
 
+		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
+			selecting = true;
+		}
+		else {
+			selecting = false;
+		}
     }
+
+    
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
@@ -736,7 +736,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
         auto dir = mouse_pos - motion.position;
         // printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
         float rad = atan2(dir.y, dir.x);
-        if (!aiControl && player_soldier.has<AIPath>() && player_soldier.get<AIPath>().path.path.empty()) {
+        if (player_soldier.has<AIPath>() && player_soldier.get<AIPath>().path.path.empty()) {
             motion.angle = rad;
         }
         if (SHIELDUP && !hasShield) {

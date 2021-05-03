@@ -5,6 +5,15 @@
 #include "Explosion.hpp"
 #include <Bullet.hpp>
 
+
+std::unordered_map<EnemyType,EnemyStat> EnemyStats = {
+        {STANDARD, {500, 100, 100}},
+        {SUICIDE, {1000, 50, 500}},
+        {ELITE, {1000, 100, 300}}
+};
+
+
+
 void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	timeTicker += elapsed_ms;
@@ -12,6 +21,20 @@ void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
     elite_shoot_time += elapsed_ms;
 	if (!ECS::registry<Enemy>.components.empty())
 	{
+        for (auto& enemy_entity : ECS::registry<Enemy>.entities) {
+            auto& enemy_motion = ECS::registry<Motion>.get(enemy_entity);
+            auto& enemy = ECS::registry<Enemy>.get(enemy_entity);
+            if (EnemyAISystem::isSoldierExists())
+            {
+                ECS::Entity soldier = ECS::registry<Soldier>.entities[0];
+                auto& soldierMotion = ECS::registry<Motion>.get(soldier);
+                if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 100.f) && enemy_entity.get<Enemy>().type == EnemyType::SUICIDE) {
+                    Explosion::CreateExplosion(enemy_motion.position, 100, 1, 7);
+                    if (!enemy_entity.has<DeathTimer>())
+                        enemy_entity.emplace<DeathTimer>();
+                }
+            }
+        }
         if (timeTicker > ENEMY_MOVEMENT_REFRESH) {
             for (auto& enemy : ECS::registry<Enemy>.entities)
             {
@@ -74,15 +97,15 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			ECS::Entity soldier = ECS::registry<Soldier>.entities[0];
 			auto& soldierMotion = ECS::registry<Motion>.get(soldier);
       
-            if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 100.f) && enemy_entity.get<Enemy>().type == EnemyType::SUICIDE) {
-                Explosion::CreateExplosion(enemy_motion.position, 100, 1, 7);
-                if(!enemy_entity.has<DeathTimer>())
-                    enemy_entity.emplace<DeathTimer>();
-            }
-
-			else if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, 500.f)) {
+            if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, EnemyStats[enemy.type].act_distance)) {
 				enemy.enemyState = AiState::WALK_FORWARD;
-				EnemyAISystem::shortestPathToSoldier(enemy_entity, elapsed_ms, soldierMotion.position);
+                if (enemy_entity.has<AIPath>()) {
+                    EnemyAISystem::shortestPathToSoldier(enemy_entity, elapsed_ms, soldierMotion.position, EnemyStats[enemy.type].path_accuracy);
+                    enemy_entity.get<AIPath>().desired_speed = { EnemyStats[enemy.type].speed , 0.f };
+                }
+                
+
+                
 			}
 			else
 			{
@@ -145,10 +168,10 @@ void EnemyAISystem::walkRandom(Motion& enemyMotion)
 	enemyMotion.velocity = vec2{ rand() % 200 - 99, rand() % 200 - 99 };
 }
 
-void EnemyAISystem::shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest)
+void EnemyAISystem::shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest, float distance)
 {
 	auto& motion = e.get<Motion>();
-	ai.enemy_ai_step(e, elapsed_ms, dest);
+	ai.enemy_ai_step(e, elapsed_ms, dest, distance);
 }
 
 void EnemyAISystem::takeDamage(ECS::Entity enemy_entity, float damage) {

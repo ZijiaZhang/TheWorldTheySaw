@@ -272,24 +272,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				auto dir = target_position - motion.position;
 				// Enemy will always face the player
 				motion.angle = atan2(dir.y, dir.x);
-				aiPath.desired_speed = { 100.f, 0.f };
-				if (entity.has<Enemy>()) {
-					switch (entity.get<Enemy>().type) {
-						case EnemyType::STANDARD:
-							aiPath.desired_speed = { 100.f, 0.f };
-							break;
-						case EnemyType::ELITE:
-							aiPath.desired_speed = { 50.f, 0.f };
-							break;
-						case EnemyType::SUICIDE:
-							aiPath.desired_speed = { 180.f, 0.f };
-							break;
-						default:
-							aiPath.desired_speed = { 100.f, 0.f };
-							break;
-					}
-					
-				}
 			}
 			else {
 				aiPath.desired_speed = { 0.f, 0.f };

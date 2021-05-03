@@ -34,7 +34,8 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	if (!ECS::registry<Soldier>.components.empty())
 	{
 		auto& soldier = ECS::registry<Soldier>.entities[0];
-        algorithmMap[GameInstance::algorithm](soldier, elapsed_ms);
+        // Move manually
+        //algorithmMap[GameInstance::algorithm](soldier, elapsed_ms);
         if(soldier.get<Soldier>().weapon.has<Weapon>()) {
             weaponMap[GameInstance::selectedWeapon](soldier, elapsed_ms);
         }

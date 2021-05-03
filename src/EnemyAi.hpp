@@ -9,6 +9,13 @@
 #define SHOOT_INTERVAL 500.f
 #define ENEMY_MOVEMENT_REFRESH 30.f
 
+struct EnemyStat {
+    float act_distance;
+    float path_accuracy;
+    float speed;
+};
+
+
 class EnemyAISystem
 {
 public:
@@ -36,7 +43,7 @@ private:
 
     void walkRandom(Motion& enemyMotion);
 
-    void shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest);
+    void shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest, float distance);
 
     bool underEffectControl(ECS::Entity enemy, float elapsed_ms);
 };
