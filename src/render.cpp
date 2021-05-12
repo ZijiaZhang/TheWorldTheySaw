@@ -36,7 +36,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
     Transform transform;
     transform.translate(relative_to_screen? motion.position: (motion.position - camera.get_position()));
     transform.rotate(motion.angle);
-    transform.scale(motion.scale);
+    transform.scale(motion.scale * motion.render_scale_multiplier);
     // !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
 
     // Setting shaders
@@ -546,7 +546,8 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
     for (ECS::Entity entity : entities)
     {
-        if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui)
+        auto& entity_mesh = entity.get<ShadedMeshRef>();
+        if (!ECS::registry<Motion>.has(entity) || entity_mesh.is_ui || !entity_mesh.visible)
             continue;
         // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
         drawTexturedMesh(entity, projection_2D);
@@ -587,7 +588,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     auto wall_entities = ECS::registry<Wall>.entities;
     for (ECS::Entity entity : wall_entities)
     {
-        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity))
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity) || !entity.get<ShadedMeshRef>().visible)
             continue;
         // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
         drawTexturedMesh(entity, projection_2D);

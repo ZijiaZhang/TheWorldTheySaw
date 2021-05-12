@@ -162,6 +162,10 @@ auto select_ability_of_type(MagicWeapon magic) {
 
 auto select_weapon_of_type(WeaponType type) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.5 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting) {
 			GameInstance::selectedWeapon = type;
 			if (!self.has<PressTimer>()) {
@@ -174,6 +178,10 @@ auto select_weapon_of_type(WeaponType type) {
 
 auto select_button_overlap(const std::string& level) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>() && level != "") {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.5 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
 			WorldSystem::reload_level = true;
 			WorldSystem::reload_level_name = level;
@@ -183,6 +191,10 @@ auto select_button_overlap(const std::string& level) {
 
 auto select_level_button_overlap(const std::string& level) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.5 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
 			WorldSystem::selected_level = level;
 			WorldSystem::reload_level = true;
@@ -203,6 +215,10 @@ auto select_level_button_overlap(const std::string& level) {
 
 auto select_save_data() {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.5 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting) {
 			save_level_data();
 		}
@@ -211,6 +227,10 @@ auto select_save_data() {
 
 auto select_continue() {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.5 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting) {
 			load_level_data();
 			WorldSystem::reload_level = true;
@@ -348,12 +368,12 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
 					   COLLISION_HANDLER overlap, COLLISION_HANDLER, const json&) {
-		Wall::createWall(location, size, rotation, physics_callbacks["wall_scater"], Wall::wall_hit);
+		Wall::createWall(location, size, rotation, true);
 	}
 	},
 	{"borders", [](vec2 location, vec2 size, float rotation,
 				   COLLISION_HANDLER overlap, COLLISION_HANDLER hit, const json&) {
-		Wall::createWall(location, size, rotation, overlap, PhysicsObject::handle_collision);
+		Wall::createWall(location, size, rotation, false, overlap, PhysicsObject::handle_collision);
 	}
 	},
 	{"movable_wall", [](vec2 location, vec2 size, float rotation,
@@ -465,7 +485,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	if (additional.contains("scale")) {
 		scale = additional["scale"];
 	}
-		Background::createBackground(vec2{500, 500}, name, depth, scale);
+		Background::createBackground(vec2{500, 500}, name, depth, scale, additional.contains("zValue")? additional["zValue"]: ZValuesMap["Background"]);
 	}},
     {"mainmenu", [](vec2 location, vec2 size, float rotation,
             COLLISION_HANDLER,

@@ -41,20 +41,13 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	PhysicsObject physicsObject;
 	physicsObject.mass = 100;
 	physicsObject.object_type = PLAYER;
-	physicsObject.vertex = {
-            {
-                    PhysicsVertex{{-0.4, 0.2, -0.02}},
-                    PhysicsVertex{{0.3, 0.3, -0.02}},
-                    PhysicsVertex{{0.3, -0.3, -0.02}},
-                    PhysicsVertex{{-0.2, -0.2, -0.02}}
-            }
-	};
+
     physicsObject.faces = {{0,1}, {1,2 },{2,3 },{3,0 }};
     physicsObject.attach(Overlap, std::move(overlap));
     physicsObject.attach(Hit, std::move(hit));
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Soldier component to be able to refer to all turtles
-	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,20.f}, 0, entity);
+	ECS::Entity weapon = Weapon::createWeapon(vec2 {10,0}, 0, entity);
 	auto& children_entity = entity.emplace<ChildrenEntities>();
 	children_entity.children.insert(weapon);
     entity.emplace<AIPath>();
@@ -79,7 +72,7 @@ ECS::Entity Soldier::createSoldier(Motion m, Soldier s, Health h, AIPath ai, Phy
 
     Soldier::set_shader(e);
 
-    ECS::Entity weapon = Weapon::createWeapon(vec2{ 0,20.f }, 0, e);
+    ECS::Entity weapon = Weapon::createWeapon(vec2{ 10,0 }, 0, e);
     auto& children_entity = e.emplace<ChildrenEntities>();
     children_entity.children.insert(weapon);
 

@@ -331,6 +331,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			motion.angle += motion.angular_velocity * step_seconds;
 			motion.angular_velocity *= pow(0.9, step_seconds);
 			motion.preserve_world_velocity *= pow(0.9, step_seconds);
+			motion.render_scale_multiplier -= motion.render_scale_multiplier < 1 ? 0 : 0.005;
 		}
 		else {
 			if (motion.parent.has<Motion>()) {
@@ -345,7 +346,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 				motion.velocity = motion.parent.get<Motion>().velocity;
 				// Remove this because rotate will cause lots of force
 				// motion.velocity = get_local_velocity((motion.position - old_position) / step_seconds, motion);
-
 				// motion.preserve_world_velocity = vec2{0,0};
 			}
 		}
