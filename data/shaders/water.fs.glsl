@@ -5,6 +5,7 @@ uniform sampler2D ui_texture;
 uniform float time;
 uniform float darken_screen_factor;
 uniform sampler2D lighting_texture;
+uniform sampler2D background_mask_texture;
 uniform vec2 player_position;
 uniform float texture_size;
 uniform vec2 world_size;
@@ -18,6 +19,10 @@ const float accuracy = 255.0;
 
 layout(location = 0) out vec4 color;
 
+float rand(vec2 co){
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 void main()
 {
 	vec4 ui_color = texture(ui_texture, texcoord);
@@ -25,14 +30,20 @@ void main()
 		color = ui_color;
 		return;
 	}
+	vec4 in_color = texture(screen_texture, texcoord);
+	vec4 mask_color = texture(background_mask_texture, texcoord);
+	if(in_color.a == 0){
+		color = mask_color;
+		return;
+	}
 	vec2 coord = floor(texcoord * world_size);
 	float ray_count = texture_size * texture_size;
 
-    vec4 in_color = texture(screen_texture, texcoord);
+    
 	vec2 light_position = player_position * world_size;
 	vec2 delta = coord - light_position;
 	float radian = atan(delta.y , delta.x);
-	float distance = length(delta);
+	float distance = length(delta) + (rand(texcoord * time) - 0.5) * 0.1 * length(delta);
 	float index = floor(fract(radian / 2.0 / pi) * ray_count);
 	vec2 ray_loc = vec2(mod(index, texture_size)  + 0.5, floor((index) / texture_size)  + 0.5) / texture_size;
 	vec4 ray_data = texture(lighting_texture, ray_loc);
@@ -40,6 +51,7 @@ void main()
 	float ray_len = ray_data.x * accuracy * accuracy + ray_data.y* accuracy;
 	// vec4 auto = texture(lighting_texture, ray_loc);
 	float intensity = 0.8 / pow(2, pow(distance/light_intensity, 2)) + 0.2;
+	//intensity = floor(intensity * 30) / 30;
 	if(ray_len >= distance){
 		color = vec4(intensity,intensity,intensity,intensity) * in_color;
 	} else {

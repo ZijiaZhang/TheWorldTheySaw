@@ -485,7 +485,9 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	if (additional.contains("scale")) {
 		scale = additional["scale"];
 	}
-		Background::createBackground(vec2{500, 500}, name, depth, scale, additional.contains("zValue")? additional["zValue"]: ZValuesMap["Background"]);
+		Background::createBackground(vec2{500, 500}, name, depth, scale, 
+			additional.contains("zValue")? additional["zValue"]: ZValuesMap["Background"], 
+			additional.contains("mask") ? additional["mask"]: false);
 	}},
     {"mainmenu", [](vec2 location, vec2 size, float rotation,
             COLLISION_HANDLER,

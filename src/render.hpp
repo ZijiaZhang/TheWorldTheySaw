@@ -72,6 +72,7 @@ private:
 	GLuint ui_buffer;
 	GLuint light_frame_buffer;
 	GLuint wall_frame_buffer;
+	GLuint background_buffer;
 
 	ShadedMesh screen_sprite;
 	ShadedMesh health_bar;
@@ -81,6 +82,7 @@ private:
 
 	Texture light_frame_texture;
 	Texture ui_texture;
+	Texture background_texture;
 
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;
 	ECS::Entity screen_state_entity;

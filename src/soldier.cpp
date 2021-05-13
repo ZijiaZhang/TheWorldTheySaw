@@ -47,7 +47,7 @@ ECS::Entity Soldier::createSoldier(vec2 position,
     physicsObject.attach(Hit, std::move(hit));
     ECS::registry<PhysicsObject>.insert(entity, physicsObject);
 	// Create and (empty) Soldier component to be able to refer to all turtles
-	ECS::Entity weapon = Weapon::createWeapon(vec2 {10,0}, 0, entity);
+	ECS::Entity weapon = Weapon::createWeapon(vec2 {0,0}, 0, entity);
 	auto& children_entity = entity.emplace<ChildrenEntities>();
 	children_entity.children.insert(weapon);
     entity.emplace<AIPath>();

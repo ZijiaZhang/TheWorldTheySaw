@@ -307,18 +307,22 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
     GLint normal_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "screen_texture");
     GLint ui_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "ui_texture");
     GLint light_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "lighting_texture");
+    GLint background_mask_loc = glGetUniformLocation(screen_sprite.effect.program, "background_mask_texture");
+
     glUniform1i(normal_texture_loc, 0);
     glUniform1i(ui_texture_loc,  1);
     glUniform1i(light_texture_loc, 2);
+    glUniform1i(background_mask_loc, 3);
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, screen_sprite.texture.texture_id);
-
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, ui_texture.texture_id);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, light_frame_texture.texture_id);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, background_texture.texture_id);
 
 	// Draw
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr); // two triangles = 6 vertices; nullptr indicates that there is no offset from the bound index buffer
@@ -528,7 +532,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     // Clearing backbuffer
     glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
     glDepthRange(0.00001, 10);
-    glClearColor(0, 0, 0, 1.0);
+    glClearColor(0, 0, 0, 0);
     glClearDepth(1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gl_has_errors();
@@ -547,7 +551,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     for (ECS::Entity entity : entities)
     {
         auto& entity_mesh = entity.get<ShadedMeshRef>();
-        if (!ECS::registry<Motion>.has(entity) || entity_mesh.is_ui || !entity_mesh.visible)
+        if (!ECS::registry<Motion>.has(entity) || entity_mesh.is_ui || !entity_mesh.visible || entity.has<BackgroundBuffer>())
             continue;
         // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
         drawTexturedMesh(entity, projection_2D);
@@ -575,7 +579,6 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     glDepthRange(0.00001, 10);
     gl_has_errors();
 
-    glClearColor(1, 1, 1, 1.0);
     glClearColor(1, 1, 1, 0);
     gl_has_errors();
 
@@ -607,6 +610,37 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
 	// Truely render to the screen
     drawLights(window_size_in_game_units);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, background_buffer);
+    gl_has_errors();
+    // Clearing backbuffer
+    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    gl_has_errors();
+    glDepthRange(0.00001, 10);
+    gl_has_errors();
+
+    glClearColor(0, 0, 0, 0);
+    gl_has_errors();
+
+    glClearDepth(1.f);
+    gl_has_errors();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
+    // Draw all textured meshes that have a position and size component
+    // Draw by the order of motion zValue, the smaller zValue, draw earlier
+    auto background_masks = ECS::registry<BackgroundBuffer>.entities;
+    sort(background_masks.begin(), background_masks.end(), [](const ECS::Entity e1, const ECS::Entity e2)
+        {
+            return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
+        });
+    for (ECS::Entity entity : background_masks)
+    {
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity) || !entity.get<ShadedMeshRef>().visible)
+            continue;
+        // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
+        drawTexturedMesh(entity, projection_2D);
+        gl_has_errors();
+    }
 
     glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     gl_has_errors();

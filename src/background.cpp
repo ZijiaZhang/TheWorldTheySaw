@@ -2,7 +2,7 @@
 #include "background.hpp"
 #include "render.hpp"
 
-ECS::Entity Background::createBackground(vec2 position, std::string name, float depth, float size, int z_value)
+ECS::Entity Background::createBackground(vec2 position, std::string name, float depth, float size, int z_value, bool mask)
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();
@@ -34,6 +34,10 @@ ECS::Entity Background::createBackground(vec2 position, std::string name, float 
 	// Create and (empty) Fish component to be able to refer to all fish
     auto& bg = ECS::registry<Background>.emplace(entity);
     bg.depth = depth;
+
+	if (mask) {
+		entity.emplace<BackgroundBuffer>();
+	}
 
 	return entity;
 }
