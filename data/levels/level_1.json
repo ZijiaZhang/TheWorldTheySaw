@@ -21,8 +21,7 @@
       "additionalProperties": {
         "name": "desk",
         "zValue": 4,
-        "scale": 0.6,
-        "mask": true
+        "scale": 0.6
       }
     },
     {
@@ -34,8 +33,7 @@
         "name": "ground",
         "zValue": 3,
         "depth": 5,
-        "scale": 0.6,
-        "mask": true
+        "scale": 0.6
       }
     },
     {
@@ -46,7 +44,8 @@
       "additionalProperties": {
         "name": "backgroundPaper",
         "zValue": 5,
-        "scale": 0.25
+        "scale": 0.25,
+        "mask": true
       }
     }
   ],

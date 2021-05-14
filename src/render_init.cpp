@@ -53,6 +53,9 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     glBindFramebuffer(GL_FRAMEBUFFER, background_buffer);
     background_texture.create_from_screen(&window, depth_render_buffer_id.data());
 
+    glGenFramebuffers(1, &background_mask_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, background_mask_buffer);
+    background_mask_texture.create_from_screen(&window, depth_render_buffer_id.data());
 
     // Initialize the screen texture and its state
      glGenFramebuffers(1, &wall_frame_buffer);

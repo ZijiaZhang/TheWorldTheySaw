@@ -21,9 +21,33 @@
         "y": 500
       },
       "additionalProperties": {
+        "name": "desk",
+        "zValue": 4,
+        "scale": 0.6
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
+        "name": "ground",
+        "zValue": 3,
+        "depth": 5,
+        "scale": 0.6
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
         "name": "Setting",
-        "scale": 1.0,
-        "depth": 0.0
+        "zValue": 5,
+        "scale": 1,
+        "mask": true
       }
     }
   ],

@@ -36,7 +36,7 @@ ECS::Entity Background::createBackground(vec2 position, std::string name, float 
     bg.depth = depth;
 
 	if (mask) {
-		entity.emplace<BackgroundBuffer>();
+		entity.emplace<BackgroundMask>();
 	}
 
 	return entity;

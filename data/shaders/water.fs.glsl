@@ -5,6 +5,7 @@ uniform sampler2D ui_texture;
 uniform float time;
 uniform float darken_screen_factor;
 uniform sampler2D lighting_texture;
+uniform sampler2D background_texture;
 uniform sampler2D background_mask_texture;
 uniform vec2 player_position;
 uniform float texture_size;
@@ -31,11 +32,15 @@ void main()
 		return;
 	}
 	vec4 in_color = texture(screen_texture, texcoord);
+
+	vec4 background_color = texture(background_texture, texcoord);
 	vec4 mask_color = texture(background_mask_texture, texcoord);
-	if(in_color.a == 0){
-		color = mask_color;
+	if(mask_color.a == 0){
+		color = background_color;
 		return;
 	}
+	//in_color = vec4(in_color.xyz * in_color.a + mask_color * (1.0 - in_color.a), 1.0); 
+
 	vec2 coord = floor(texcoord * world_size);
 	float ray_count = texture_size * texture_size;
 
@@ -43,7 +48,7 @@ void main()
 	vec2 light_position = player_position * world_size;
 	vec2 delta = coord - light_position;
 	float radian = atan(delta.y , delta.x);
-	float distance = length(delta) + (rand(texcoord * time) - 0.5) * 0.1 * length(delta);
+	float distance = length(delta);
 	float index = floor(fract(radian / 2.0 / pi) * ray_count);
 	vec2 ray_loc = vec2(mod(index, texture_size)  + 0.5, floor((index) / texture_size)  + 0.5) / texture_size;
 	vec4 ray_data = texture(lighting_texture, ray_loc);

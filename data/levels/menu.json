@@ -14,18 +14,7 @@
       }
     }
   ],
-  "mainmenu": [
-    {
-      "position": {
-        "x": 300,
-        "y": 700
-      },
-      "additionalProperties": {
-        "name": "backgroundPaper",
-        "scale": 0.25
-      }
-    }
-  ],
+
   "borders": [
     {
       "position": {
@@ -134,6 +123,18 @@
         "zValue": 3,
         "depth": 5,
         "scale": 0.6
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
+        "name": "backgroundPaper",
+        "zValue": 5,
+        "scale": 0.25,
+        "mask": true
       }
     }
   ]
