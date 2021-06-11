@@ -25,6 +25,17 @@
         "y": 500
       },
       "additionalProperties": {
+        "name": "desk",
+        "zValue": 4,
+        "scale": 0.6
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
         "name": "ground",
         "zValue": 3,
         "depth": 5,
@@ -44,67 +55,67 @@
       }
     }
   ],
-  "button_select_rocket": [
+  "button_select_weapon": [
     {
       "position": {
-        "x": -55,
-        "y": 47
+        "x": 470,
+        "y": 500
+      },
+      "additionalProperties": {
+        "type": "bullet",
+        "scale": 0.4
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": 500
+      },
+      "additionalProperties": {
+        "type": "lazer",
+        "scale": 0.4
+      }
+    },
+    {
+      "position": {
+        "x": 470,
+        "y": 300
+      },
+      "additionalProperties": {
+        "type": "ammo",
+        "scale": 0.4
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": 300
+      },
+      "additionalProperties": {
+        "type": "rocket",
+        "scale": 0.4
       }
     }
   ],
-  "button_select_ammo": [
+  "button_select_ability": [
     {
       "position": {
-        "x": 205,
-        "y": 47
+        "x": 790,
+        "y": 300
+      },
+      "additionalProperties": {
+        "type": "fire_ball",
+        "scale": 0.4
       }
-    }
-  ],
-  "button_select_laser": [
+    },
     {
       "position": {
-        "x": 205,
-        "y": 124
-      }
-    }
-  ],
-  "button_select_bullet": [
-    {
-      "position": {
-        "x": -55,
-        "y": 124
-      }
-    }
-  ],
-  "button_select_direct": [
-    {
-      "position": {
-        "x": -50,
-        "y": 392
-      }
-    }
-  ],
-  "button_select_a_star": [
-    {
-      "position": {
-        "x": 210,
-        "y": 392
-      }
-    }
-  ],
-  "button_select_fire_ball": [
-    {
-      "position": {
-        "x": 545,
-        "y": 190
-      }
-    }
-  ],
-  "button_select_force_sphere": [
-    {
-      "position": {
-        "x": 545,
-        "y": 320
+        "x": 790,
+        "y": 500
+      },
+      "additionalProperties": {
+        "type": "force_field",
+        "scale": 0.4
       }
     }
   ],
@@ -112,7 +123,7 @@
     {
       "position": {
         "x": 515,
-        "y": 540
+        "y": 740
       }
     }
   ],

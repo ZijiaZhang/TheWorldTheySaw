@@ -73,7 +73,8 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
 		glEnableVertexAttribArray(in_texcoord_loc);
 		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
         
-
+        GLint texture_loc = glGetUniformLocation(texmesh.effect.program, "sampler0");
+        glUniform1i(texture_loc, 0);
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
@@ -108,11 +109,23 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
     glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
     gl_has_errors();
 
-    GLint shining_uloc = glGetUniformLocation(texmesh.effect.program, "shining");
-    if(color_uloc >= 0){
-        if(entity.has<Button>() && entity.get<Button>().selected()){
-            float color[] = { 0.f, 0.5f, 1.f };
-            glUniform3fv(color_uloc, 1, color);
+    GLint selected_uloc = glGetUniformLocation(texmesh.effect.program, "selected");
+    // Render button selected
+    if(selected_uloc >= 0){
+        if(entity.has<Button>()){
+            glUniform1i(selected_uloc, entity.get<Button>().selected());
+            ShadedMesh& resource = cache_resource("selected");
+
+            if (!resource.texture.is_valid())
+            {
+                std::string path = "/main scene/selected_background.png";
+                resource = ShadedMesh();
+                resource.texture.load_from_file(textures_path(path).c_str());
+            }
+            GLint selected_texture_loc = glGetUniformLocation(texmesh.effect.program, "selected_background");
+            glUniform1i(selected_texture_loc, 1);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, resource.texture.texture_id);
         }
     }
 

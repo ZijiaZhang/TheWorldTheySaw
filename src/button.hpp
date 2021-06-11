@@ -47,7 +47,7 @@ enum class ButtonClass{
 };
 
 struct Button {
-	static ECS::Entity createButton(ButtonIcon buttonType, vec2 position, COLLISION_HANDLER overlap);
+    static ECS::Entity createButton(ButtonIcon buttonType, vec2 position,  COLLISION_HANDLER overlap, float scale = 0.5);
 
 	ButtonIcon buttonType = ButtonIcon::DEFAULT_BUTTON;
 	ButtonClass buttonClass = ButtonClass::BUTTON_CLASS_OTHER;

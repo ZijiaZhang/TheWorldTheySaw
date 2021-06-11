@@ -17,6 +17,17 @@
         "y": 500
       },
       "additionalProperties": {
+        "name": "desk",
+        "zValue": 4,
+        "scale": 0.6
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
         "name": "ground",
         "zValue": 3,
         "depth": 5,
