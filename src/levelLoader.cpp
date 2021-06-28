@@ -26,6 +26,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <utility>
+#include <Countdown.hpp>
 
 using json = nlohmann::json;
 
@@ -758,6 +759,16 @@ e.get<PhysicsObject>().mass = 100.f;
 	COLLISION_HANDLER, const json&)
 {
 	return Button::createButton(ButtonIcon::TUTORIAL, location, select_button_overlap(TUTORIAL_NAME));
+} },
+{ "count_down_timer", [](vec2 location, vec2 size, float rotation, 
+	COLLISION_HANDLER,
+	COLLISION_HANDLER, const json& additional)
+{
+	float count = 0;
+	if (additional.contains("count")) {
+		count = additional["count"];
+	}
+	return Countdown::createCountdown(count);
 } },
     { "select_setting", [](vec2 location, vec2 size, float rotation,
 COLLISION_HANDLER,

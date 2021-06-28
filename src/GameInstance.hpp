@@ -30,6 +30,7 @@ class GameInstance {
         static float popup_speed;
         static float pause_speed;
         static float ability_speed;
+        static float cout_down_speed;
 
     static bool isPlayableLevel(std::string level);
 

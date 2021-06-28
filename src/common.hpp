@@ -149,5 +149,9 @@ struct BackgroundMask{
 };
 
 
+struct CountDownTimer {
+    float pause_time;
+};
+
 Transform getTransform(const Motion &m1);
 
