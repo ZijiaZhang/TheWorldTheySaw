@@ -12,7 +12,7 @@
 #include "MagicParticle.hpp"
 #include "levelLoader.hpp"
 
-ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation,
+ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation, bool visible,
                              COLLISION_HANDLER overlap,
                              COLLISION_HANDLER hit){
     auto entity = ECS::Entity();
@@ -33,7 +33,8 @@ ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation,
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-    ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+    auto& ref = ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+    ref.visible = visible;
 
     // Setting initial motion values
     Motion& motion = ECS::registry<Motion>.emplace(entity);

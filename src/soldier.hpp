@@ -78,7 +78,7 @@ public:
         ECS::ContainerInterface::remove_all_components_of(self.get<Soldier>().weapon);
         // new weapon
         std::string path = Weapon::weaponTexturePath[type];
-        ECS::Entity weapon = Weapon::createWeapon(vec2 {0,20.f}, 0, self, path);
+        ECS::Entity weapon = Weapon::createWeapon(vec2 {0,0}, 0, self, path);
         auto& children_entity = ECS::registry<ChildrenEntities>.get(self);
         children_entity.children.insert(weapon);
         self.get<Soldier>().weapon = weapon;

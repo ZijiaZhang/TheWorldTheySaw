@@ -1,129 +1,154 @@
 {
-    "player": [
-      {
-        "position": {
-          "x": 500,
-          "y": 500
-        },
-        "additionalProperties": {
-          "light_intensity": 500
-        }
+  "player": [
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
+        "light_intensity": 500
       }
-    ],
-    "background": [
-        {
-            "position": {
-                "x": 500,
-                "y": 500
-            },
-            "additionalProperties": {
-                "name": "levelSelect",
-                "scale": 0.5
-            }
-        }
-    ],
-    "select_level_1": [
-        {
-            "position": {
-                "x": 350,
-                "y": 450
-            }
-        }
-    ],
-    "select_level_2": [
-        {
-            "position": {
-                "x": 450,
-                "y": 450
-            }
-        }
-    ],
-    "select_level_3": [
-            {
-                "position": {
-                    "x": 550,
-                    "y": 450
-                }
-            }
-        ],
-        "select_level_4": [
-            {
-                "position": {
-                    "x": 650,
-                    "y": 450
-                }
-            }
-        ],
-        "select_level_5": [
-            {
-                "position": {
-                    "x": 350,
-                    "y": 550
-                }
-            }
-        ],
-        "select_level_6": [
-            {
-                "position": {
-                    "x": 450,
-                    "y": 550
-                }
-            }
-        ],
-        "select_level_7": [
-            {
-                "position": {
-                    "x": 550,
-                    "y": 550
-                }
-            }
-        ],
-        "select_level_8": [
-            {
-                "position": {
-                    "x": 650,
-                    "y": 550
-                }
-            }
-        ],
-        "select_level_9": [
-            {
-                "position": {
-                    "x": 350,
-                    "y": 650
-                }
-            }
-        ],
-        "select_level_10": [
-            {
-                "position": {
-                    "x": 450,
-                    "y": 650
-                }
-            }
-        ],
-        "select_level_11": [
-            {
-                "position": {
-                    "x": 550,
-                    "y": 650
-                }
-            }
-        ],
-        "select_level_12": [
-            {
-                "position": {
-                    "x": 650,
-                    "y": 650
-                }
-            }
-        ],
-        "return_to_menu": [
-        {
-            "position": {
-                "x": 200,
-                "y": 775
-            }
-        }
-    ]
+    }
+  ],
+  "background": [
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
+        "name": "desk",
+        "zValue": 4,
+        "scale": 0.6
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
+        "name": "ground",
+        "zValue": 3,
+        "depth": 5,
+        "scale": 0.6
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
+        "name": "backgroundPaper",
+        "zValue": 5,
+        "scale": 0.25,
+        "mask": true
+      }
+    }
+  ],
+  "select_level_1": [
+    {
+      "position": {
+        "x": 350,
+        "y": 450
+      }
+    }
+  ],
+  "select_level_2": [
+    {
+      "position": {
+        "x": 450,
+        "y": 450
+      }
+    }
+  ],
+  "select_level_3": [
+    {
+      "position": {
+        "x": 550,
+        "y": 450
+      }
+    }
+  ],
+  "select_level_4": [
+    {
+      "position": {
+        "x": 650,
+        "y": 450
+      }
+    }
+  ],
+  "select_level_5": [
+    {
+      "position": {
+        "x": 350,
+        "y": 550
+      }
+    }
+  ],
+  "select_level_6": [
+    {
+      "position": {
+        "x": 450,
+        "y": 550
+      }
+    }
+  ],
+  "select_level_7": [
+    {
+      "position": {
+        "x": 550,
+        "y": 550
+      }
+    }
+  ],
+  "select_level_8": [
+    {
+      "position": {
+        "x": 650,
+        "y": 550
+      }
+    }
+  ],
+  "select_level_9": [
+    {
+      "position": {
+        "x": 350,
+        "y": 650
+      }
+    }
+  ],
+  "select_level_10": [
+    {
+      "position": {
+        "x": 450,
+        "y": 650
+      }
+    }
+  ],
+  "select_level_11": [
+    {
+      "position": {
+        "x": 550,
+        "y": 650
+      }
+    }
+  ],
+  "select_level_12": [
+    {
+      "position": {
+        "x": 650,
+        "y": 650
+      }
+    }
+  ],
+  "return_to_menu": [
+    {
+      "position": {
+        "x": 200,
+        "y": 775
+      }
+    }
+  ]
 }

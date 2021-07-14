@@ -54,7 +54,7 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
                 auto dir = enemyMotion.position - motion.position;
                 float rad = atan2(dir.y, dir.x);
                 motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet", 1200);
+                Bullet::createBullet(motion.position + 30.f * normalize(dir), rad, {380, 0}, 0, W_BULLET, "bullet", 1200);
 //                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
                 Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
                 // std::cout << "fire_bullet \n";

@@ -26,6 +26,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <utility>
+#include <Countdown.hpp>
 
 using json = nlohmann::json;
 
@@ -105,6 +106,8 @@ std::string get_save_directory() {
 	return path;
 }
 
+
+
 static void save_level_data()
 {
 	std::ofstream data(get_save_directory(), std::ofstream::trunc);
@@ -154,6 +157,10 @@ auto select_algo_of_type(AIAlgorithm algo) {
 
 auto select_ability_of_type(MagicWeapon magic) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.2 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting) {
 			GameInstance::selectedMagic = magic;
 		}
@@ -162,6 +169,10 @@ auto select_ability_of_type(MagicWeapon magic) {
 
 auto select_weapon_of_type(WeaponType type) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.2 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting) {
 			GameInstance::selectedWeapon = type;
 			if (!self.has<PressTimer>()) {
@@ -170,10 +181,34 @@ auto select_weapon_of_type(WeaponType type) {
 		}
 	};
 }
+std::unordered_map<std::string, COLLISION_HANDLER> ability_callback_map = {
+	{"fire_ball", select_ability_of_type(FIREBALL)},
+	{"force_field", select_ability_of_type(FIELD)},
+};
+
+std::unordered_map<std::string, COLLISION_HANDLER> weapon_callback_map = {
+	{"bullet", select_weapon_of_type(W_BULLET)},
+	{"lazer", select_weapon_of_type(W_LASER)},
+	{"ammo", select_weapon_of_type(W_AMMO)},
+	{"rocket", select_weapon_of_type(W_ROCKET)},
+};
+
+std::unordered_map<std::string, ButtonIcon> button_icon_map = {
+	{"fire_ball", ButtonIcon::SELECT_FIREBALL},
+	{"force_field", ButtonIcon::SELECT_FIELD},
+	{"bullet", ButtonIcon::SELECT_BULLET},
+	{"lazer", ButtonIcon::SELECT_LASER},
+	{"ammo", ButtonIcon::SELECT_AMMO},
+	{"rocket", ButtonIcon::SELECT_ROCKET},
+};
 
 
 auto select_button_overlap(const std::string& level) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>() && level != "") {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.5 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
 			WorldSystem::reload_level = true;
 			WorldSystem::reload_level_name = level;
@@ -183,6 +218,10 @@ auto select_button_overlap(const std::string& level) {
 
 auto select_level_button_overlap(const std::string& level) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.5 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
 			WorldSystem::selected_level = level;
 			WorldSystem::reload_level = true;
@@ -203,6 +242,10 @@ auto select_level_button_overlap(const std::string& level) {
 
 auto select_save_data() {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.5 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting) {
 			save_level_data();
 		}
@@ -211,6 +254,10 @@ auto select_save_data() {
 
 auto select_continue() {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
+		if (self.has<Motion>()) {
+			auto& motion = self.get<Motion>();
+			motion.render_scale_multiplier += motion.render_scale_multiplier > 1.5 ? 0 : 0.01;
+		}
 		if (other.has<Soldier>() && WorldSystem::selecting) {
 			load_level_data();
 			WorldSystem::reload_level = true;
@@ -348,12 +395,12 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
 	{"blocks", [](vec2 location, vec2 size, float rotation,
 					   COLLISION_HANDLER overlap, COLLISION_HANDLER, const json&) {
-		Wall::createWall(location, size, rotation, physics_callbacks["wall_scater"], Wall::wall_hit);
+		Wall::createWall(location, size, rotation, true);
 	}
 	},
 	{"borders", [](vec2 location, vec2 size, float rotation,
 				   COLLISION_HANDLER overlap, COLLISION_HANDLER hit, const json&) {
-		Wall::createWall(location, size, rotation, overlap, PhysicsObject::handle_collision);
+		Wall::createWall(location, size, rotation, false, overlap, PhysicsObject::handle_collision);
 	}
 	},
 	{"movable_wall", [](vec2 location, vec2 size, float rotation,
@@ -411,38 +458,55 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 						COLLISION_HANDLER, const json&) {
 		return Button::createButton(ButtonIcon::LEVEL_SELECT, location, select_button_overlap("loadout")); }
 	},
-	{"button_select_rocket", [](vec2 location, vec2 size, float rotation,
-							  COLLISION_HANDLER,
-							  COLLISION_HANDLER, const json&) {
-			return Button::createButton(ButtonIcon::SELECT_ROCKET, location, select_weapon_of_type(W_ROCKET)); }},
-		{"button_select_ammo", [](vec2 location, vec2 size, float rotation,
-									COLLISION_HANDLER,
-									COLLISION_HANDLER, const json&) {
-			return Button::createButton(ButtonIcon::SELECT_AMMO, location, select_weapon_of_type(W_AMMO)); }},
-		{"button_select_laser", [](vec2 location, vec2 size, float rotation,
-									COLLISION_HANDLER,
-									COLLISION_HANDLER, const json&) {
-			return Button::createButton(ButtonIcon::SELECT_LASER, location, select_weapon_of_type(W_LASER)); }},
-		{"button_select_bullet", [](vec2 location, vec2 size, float rotation,
-									COLLISION_HANDLER,
-									COLLISION_HANDLER, const json&) {
-			return Button::createButton(ButtonIcon::SELECT_BULLET, location, select_weapon_of_type(W_BULLET)); }},
-		{"button_select_direct", [](vec2 location, vec2 size, float rotation,
+	//{"button_select_rocket", [](vec2 location, vec2 size, float rotation,
+	//						  COLLISION_HANDLER,
+	//						  COLLISION_HANDLER, const json&) {
+	//		return Button::createButton(ButtonIcon::SELECT_ROCKET, location, select_weapon_of_type(W_ROCKET)); }},
+	//	{"button_select_ammo", [](vec2 location, vec2 size, float rotation,
+	//								COLLISION_HANDLER,
+	//								COLLISION_HANDLER, const json&) {
+	//		return Button::createButton(ButtonIcon::SELECT_AMMO, location, select_weapon_of_type(W_AMMO)); }},
+	//	{"button_select_laser", [](vec2 location, vec2 size, float rotation,
+	//								COLLISION_HANDLER,
+	//								COLLISION_HANDLER, const json&) {
+	//		return Button::createButton(ButtonIcon::SELECT_LASER, location, select_weapon_of_type(W_LASER)); }},
+	//	{"button_select_bullet", [](vec2 location, vec2 size, float rotation,
+	//								COLLISION_HANDLER,
+	//								COLLISION_HANDLER, const json&) {
+	//		return Button::createButton(ButtonIcon::SELECT_BULLET, location, select_weapon_of_type(W_BULLET)); }},
+		/*{"button_select_direct", [](vec2 location, vec2 size, float rotation,
 								COLLISION_HANDLER,
 								COLLISION_HANDLER, const json&) {
 		return Button::createButton(ButtonIcon::SELECT_DIRECT, location, select_algo_of_type(DIRECT)); }},
 		{"button_select_a_star", [](vec2 location, vec2 size, float rotation,
 								COLLISION_HANDLER,
 								COLLISION_HANDLER, const json&) {
-		return Button::createButton(ButtonIcon::SELECT_A_STAR, location, select_algo_of_type(A_STAR)); }},
-			{"button_select_fire_ball", [](vec2 location, vec2 size, float rotation,
+		return Button::createButton(ButtonIcon::SELECT_A_STAR, location, select_algo_of_type(A_STAR)); }},*/
+			{"button_select_ability", [](vec2 location, vec2 size, float rotation,
 								COLLISION_HANDLER,
-								COLLISION_HANDLER, const json&) {
-		return Button::createButton(ButtonIcon::SELECT_FIREBALL, location, select_ability_of_type(FIREBALL)); }},
-			{"button_select_force_sphere", [](vec2 location, vec2 size, float rotation,
-								COLLISION_HANDLER,
-								COLLISION_HANDLER, const json&) {
-		return Button::createButton(ButtonIcon::SELECT_FIELD, location, select_ability_of_type(FIELD)); }},
+								COLLISION_HANDLER, const json& additional) {
+			if (!additional.contains("type")) {
+				return;
+			}
+			float scale = 0.5;
+			if (additional.contains("scale")) {
+				scale = additional["scale"];
+			}
+		Button::createButton(button_icon_map[additional["type"]], location, ability_callback_map[additional["type"]], scale); }
+		},
+		{ "button_select_weapon", [](vec2 location, vec2 size, float rotation,
+					COLLISION_HANDLER,
+					COLLISION_HANDLER, const json& additional) {
+		if (!additional.contains("type")) {
+			return;
+		}
+		float scale = 0.5;
+		if (additional.contains("scale")) {
+			scale = additional["scale"];
+		}
+		Button::createButton(button_icon_map[additional["type"]], location, weapon_callback_map[additional["type"]], scale); }
+				},
+
 	{"button_enter_level", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&)
@@ -465,7 +529,9 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	if (additional.contains("scale")) {
 		scale = additional["scale"];
 	}
-		Background::createBackground(vec2{500, 500}, name, depth, scale);
+		Background::createBackground(vec2{500, 500}, name, depth, scale, 
+			additional.contains("zValue")? additional["zValue"]: ZValuesMap["Background"], 
+			additional.contains("mask") ? additional["mask"]: false);
 	}},
     {"mainmenu", [](vec2 location, vec2 size, float rotation,
             COLLISION_HANDLER,
@@ -620,7 +686,7 @@ e.get<PhysicsObject>().mass = 100.f;
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return level_progression["level_1"] > 0 ? Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("intro")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
+					 return level_progression["level_1"] > 0 ? Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("level_1")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
 				 }},
 		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
@@ -693,6 +759,16 @@ e.get<PhysicsObject>().mass = 100.f;
 	COLLISION_HANDLER, const json&)
 {
 	return Button::createButton(ButtonIcon::TUTORIAL, location, select_button_overlap(TUTORIAL_NAME));
+} },
+{ "count_down_timer", [](vec2 location, vec2 size, float rotation, 
+	COLLISION_HANDLER,
+	COLLISION_HANDLER, const json& additional)
+{
+	float count = 0;
+	if (additional.contains("count")) {
+		count = additional["count"];
+	}
+	return Countdown::createCountdown(count);
 } },
     { "select_setting", [](vec2 location, vec2 size, float rotation,
 COLLISION_HANDLER,

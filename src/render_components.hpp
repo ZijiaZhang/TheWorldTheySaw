@@ -134,6 +134,7 @@ struct ShadedMeshRef
 {
 	ShadedMesh* reference_to_cache;
 	bool is_ui = false;
+	bool visible = true;
 	ShadedMeshRef(ShadedMesh& mesh);
 };
 

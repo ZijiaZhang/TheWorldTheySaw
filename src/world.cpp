@@ -33,6 +33,7 @@
 #include <highlight_circle.hpp>
 #include <pop_up.hpp>
 #include <avatar.hpp>
+#include <Countdown.hpp>
 
 // for convenience
 using json = nlohmann::json;
@@ -165,6 +166,9 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
 	glfwSetKeyCallback(window, key_redirect);
 
+	std::stringstream title_ss;
+	title_ss << "The World They Saw";
+	glfwSetWindowTitle(window, title_ss.str().c_str());
 	// Playing background music indefinitely
 	init_audio();
 	//Mix_PlayMusic(background_music, -1);
@@ -215,16 +219,15 @@ void WorldSystem::init_audio()
 // Update our game world
 void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
-	// Updating window title with points
-	std::stringstream title_ss;
-	//title_ss << "Time Remaining: " << seconds << "s";
-    title_ss << "The World They Saw";
-	glfwSetWindowTitle(window, title_ss.str().c_str());
+
 
 	if (screen != window_size_in_game_units) {
 		screen = window_size_in_game_units;
 	}
 
+	for (auto& cd : ECS::registry<Countdown>.entities) {
+		cd.get<Motion>().position = screen / 2.f;
+	}
 	assert(ECS::registry<ScreenState>.components.size() <= 1);
 
 
@@ -268,40 +271,23 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
             counter.callback(entity);
         }
     }
-//    
-//    for (int i = static_cast<int>(ECS::registry<FieldTimer>.components.size()) - 1; i >= 0; --i)
-//    {
-//        auto entity = ECS::registry<FieldTimer>.entities[i];
-//        // Progress timer
-//        auto& counter = ECS::registry<FieldTimer>.get(entity);
-//        counter.counter_ms -= elapsed_ms;
-//
-//        // Restart the game once the death timer expired
-//        if (counter.counter_ms < 0)
-//        {
-//            ECS::registry<FieldTimer>.remove(player_soldier);
-//            //ECS::registry<Activating>.remove(player_soldier);
-//            Soldier::set_shader(player_soldier, true, Soldier::ori_texture_path, Soldier::ori_shader_name);
-//            ECS::registry<Soldier>.get(player_soldier).forcefield_on = false;
-//        }
-//    }
 
 	aiControl = GameInstance::isPlayableLevel();
-//	if(player_soldier.has<AIPath>())
-//        player_soldier.get<AIPath>().active = aiControl;
 
-	/*
-	if (isPlayableLevel(currentLevel) && player_soldier.has<Motion>() && player_soldier.has<Health>()) {
-		auto& motion = player_soldier.get<Motion>();
-		auto& health = player_soldier.get<Health>();
-		Soldier::updateSoldierHealthBar(motion.position, motion.scale, health.hp, health.max_hp);
+	 for (int i = static_cast<int>(ECS::registry<CountDownTimer>.components.size()) - 1; i >= 0; --i) {
+		 auto entity = ECS::registry<CountDownTimer>.entities[i];
+		 auto& cd = entity.get<CountDownTimer>();
+		 cd.pause_time -= GameInstance::frame_time;// Use frame time instead of game time because the game is pause
+		 if (cd.pause_time < 1000) {
+			 entity.get<ShadedMeshRefUI>().reference_to_cache = &(cache_resource("countdown_1"));
+		 } else if (cd.pause_time < 2000) {
+			 entity.get<ShadedMeshRefUI>().reference_to_cache = &(cache_resource("countdown_2"));
+		 }
+		 if (cd.pause_time <= 0) {
+			 ECS::ContainerInterface::remove_all_components_of(entity);
+			 GameInstance::cout_down_speed = 1.f;
+		 }
 	}
-	*/
-
-	//Healthbar::updateHealthBar(player_soldier, isPlayableLevel(GameInstance::currentLevel));
-
-	// pause = pause && GameInstance::isPlayableLevel();
-
 	endGameTimer += elapsed_ms;
 	runTimer(elapsed_ms);
 	checkEndGame();
@@ -462,6 +448,10 @@ void WorldSystem::restart(std::string level)
 
 	GameInstance::set_enter_level(level);
 
+	// Set Countdown Timer;
+	if (!ECS::registry<CountDownTimer>.entities.empty()) {
+		GameInstance::cout_down_speed = 0.f;
+	}
 }
 
 

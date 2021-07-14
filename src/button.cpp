@@ -73,7 +73,7 @@ std::map<ButtonIcon, MagicWeapon> Button::magicMap = {
 
 
 
-ECS::Entity Button::createButton(ButtonIcon buttonType, vec2 position, COLLISION_HANDLER overlap)
+ECS::Entity Button::createButton(ButtonIcon buttonType, vec2 position, COLLISION_HANDLER overlap, float scale)
 {
 	// Reserve en entity
 	auto entity = ECS::Entity();
@@ -88,7 +88,7 @@ ECS::Entity Button::createButton(ButtonIcon buttonType, vec2 position, COLLISION
 		path.append(key);
 		path.append(".png");
 		resource = ShadedMesh();
-		RenderSystem::createSprite(resource, textures_path(path), "textured");
+		RenderSystem::createSprite(resource, textures_path(path), "button");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -100,7 +100,7 @@ ECS::Entity Button::createButton(ButtonIcon buttonType, vec2 position, COLLISION
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 
-	motion.scale = vec2({ 0.5f, 0.5f }) * static_cast<vec2>(resource.texture.size);
+	motion.scale = scale * static_cast<vec2>(resource.texture.size);
 
 	// Update ZValuesMap in common
 	motion.zValue = ZValuesMap["Fish"];

@@ -1,366 +1,394 @@
 {
-    "player": [
-        {
-            "position": {
-                "x": 100,
-                "y": 500
-            },
-            "velocity": {
-                "X": 100,
-                "y": 50
-            },
-            "overlap": "soldier_bullet_hit_death"
-        }
-    ],
-    "background": [
-        {
-            "position": {
-                "x": 500,
-                "y": 500
-            },
-            "additionalProperties": { "name": "background" }
-        }
-    ],
-    "borders": [
-        {
-            "position": {
-                "x": 1000,
-                "y": 500
-            },
-            "size": {
-                "x": 20,
-                "y": 1000
-            },
-            "rotation": 0
-        },
-        {
-            "position": {
-                "x": 0,
-                "y": 500
-            },
-            "size": {
-                "x": 20,
-                "y": 1000
-            },
-            "rotation": 0
-        },
-        {
-            "position": {
-                "x": 500,
-                "y": 0
-            },
-            "size": {
-                "x": 1000,
-                "y": 20
-            },
-            "rotation": 0
-        },
-        {
-            "position": {
-                "x": 500,
-                "y": 1000
-            },
-            "size": {
-                "x": 1000,
-                "y": 20
-            },
-            "rotation": 0
-        }
-    ],
-    "enemy": [
-        {
-            "position": {
-                "x": 500,
-                "y": 850
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 550,
-                "y": 850
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 600,
-                "y": 850
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 500,
-                "y": 900
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 550,
-                "y": 900
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 600,
-                "y": 900
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 800,
-                "y": 200
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 850,
-                "y": 200
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 900,
-                "y": 200
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 800,
-                "y": 150
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 850,
-                "y": 150
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 900,
-                "y": 150
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "standard",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 800,
-                "y": 250
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 850,
-                "y": 250
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 900,
-                "y": 250
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 800,
-                "y": 300
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 850,
-                "y": 300
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        },
-        {
-            "position": {
-                "x": 900,
-                "y": 300
-            },
-            "velocity": {
-                "x": 50,
-                "y": 50
-            },
-            "overlap": "enemy_bullet_hit_death",
-            "additionalProperties": {
-                "enemy_type": "suicide",
-                "team_id": 1
-            }
-        }
-    ],
-    "blocks": [
-        {
-            "position": {
-                "x": 600,
-                "y": 300
-            },
-            "size": {
-                "x": 30,
-                "y": 500
-            },
-            "rotation": 0
-        },
-        {
-            "position": {
-                "x": 300,
-                "y": 600
-            },
-            "size": {
-                "x": 400,
-                "y": 30
-            },
-            "rotation": 2.2
-        }
-    ]
+  "player": [
+    {
+      "position": {
+        "x": 100,
+        "y": 500
+      },
+      "velocity": {
+        "X": 100,
+        "y": 50
+      },
+      "overlap": "soldier_bullet_hit_death"
+    }
+  ],
+  "background": [
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
+        "name": "desk",
+        "zValue": 4,
+        "scale": 0.6
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
+        "name": "ground",
+        "zValue": 3,
+        "depth": 5,
+        "scale": 0.6
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 500
+      },
+      "additionalProperties": {
+        "name": "backgroundPaper",
+        "zValue": 5,
+        "scale": 0.25,
+        "mask": true
+      }
+    }
+  ],
+  "borders": [
+    {
+      "position": {
+        "x": 1000,
+        "y": 500
+      },
+      "size": {
+        "x": 20,
+        "y": 1000
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 500
+      },
+      "size": {
+        "x": 20,
+        "y": 1000
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 0
+      },
+      "size": {
+        "x": 1000,
+        "y": 20
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 1000
+      },
+      "size": {
+        "x": 1000,
+        "y": 20
+      },
+      "rotation": 0
+    }
+  ],
+  "enemy": [
+    {
+      "position": {
+        "x": 500,
+        "y": 850
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 550,
+        "y": 850
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": 850
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 500,
+        "y": 900
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 550,
+        "y": 900
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": 900
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 800,
+        "y": 200
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "standard",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 850,
+        "y": 200
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "standard",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 900,
+        "y": 200
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "standard",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 800,
+        "y": 150
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "standard",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 850,
+        "y": 150
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "standard",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 900,
+        "y": 150
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "standard",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 800,
+        "y": 250
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 850,
+        "y": 250
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 900,
+        "y": 250
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 800,
+        "y": 300
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 850,
+        "y": 300
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    },
+    {
+      "position": {
+        "x": 900,
+        "y": 300
+      },
+      "velocity": {
+        "x": 50,
+        "y": 50
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide",
+        "team_id": 1
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "position": {
+        "x": 600,
+        "y": 300
+      },
+      "size": {
+        "x": 30,
+        "y": 500
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": 600
+      },
+      "size": {
+        "x": 400,
+        "y": 30
+      },
+      "rotation": 2.2
+    }
+  ]
 }

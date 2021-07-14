@@ -48,7 +48,7 @@ struct Motion {
     float angular_velocity = 0.f;
 	vec2 scale = { 10, 10 };
     int zValue = 0;
-
+    float render_scale_multiplier = 1;
 	// Max speed on one axis
 	float max_control_speed = 100;
 
@@ -144,6 +144,14 @@ inline float cross(vec2 x, vec2 y){
     return (x.x * y.y - y.x* x.y);
 }
 
+struct BackgroundMask{
+
+};
+
+
+struct CountDownTimer {
+    float pause_time;
+};
 
 Transform getTransform(const Motion &m1);
 

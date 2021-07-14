@@ -19,6 +19,7 @@
 #include <MagicParticle.hpp>
 #include <highlight_circle.hpp>
 #include <pop_up.hpp>
+#include <background.hpp>
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen)
 {
@@ -36,7 +37,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
     Transform transform;
     transform.translate(relative_to_screen? motion.position: (motion.position - camera.get_position()));
     transform.rotate(motion.angle);
-    transform.scale(motion.scale);
+    transform.scale(motion.scale * motion.render_scale_multiplier);
     // !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
 
     // Setting shaders
@@ -72,7 +73,8 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
 		glEnableVertexAttribArray(in_texcoord_loc);
 		glVertexAttribPointer(in_texcoord_loc, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<void*>(sizeof(vec3))); // note the stride to skip the preceeding vertex position
         
-
+        GLint texture_loc = glGetUniformLocation(texmesh.effect.program, "sampler0");
+        glUniform1i(texture_loc, 0);
 		// Enabling and binding texture to slot 0
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texmesh.texture.texture_id);
@@ -107,11 +109,23 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
     glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (float*)&projection);
     gl_has_errors();
 
-    GLint shining_uloc = glGetUniformLocation(texmesh.effect.program, "shining");
-    if(color_uloc >= 0){
-        if(entity.has<Button>() && entity.get<Button>().selected()){
-            float color[] = { 0.f, 0.5f, 1.f };
-            glUniform3fv(color_uloc, 1, color);
+    GLint selected_uloc = glGetUniformLocation(texmesh.effect.program, "selected");
+    // Render button selected
+    if(selected_uloc >= 0){
+        if(entity.has<Button>()){
+            glUniform1i(selected_uloc, entity.get<Button>().selected());
+            ShadedMesh& resource = cache_resource("selected");
+
+            if (!resource.texture.is_valid())
+            {
+                std::string path = "/main scene/selected_background.png";
+                resource = ShadedMesh();
+                resource.texture.load_from_file(textures_path(path).c_str());
+            }
+            GLint selected_texture_loc = glGetUniformLocation(texmesh.effect.program, "selected_background");
+            glUniform1i(selected_texture_loc, 1);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, resource.texture.texture_id);
         }
     }
 
@@ -307,18 +321,26 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
     GLint normal_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "screen_texture");
     GLint ui_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "ui_texture");
     GLint light_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "lighting_texture");
+    GLint background_loc = glGetUniformLocation(screen_sprite.effect.program, "background_texture");
+    GLint background_mask_loc = glGetUniformLocation(screen_sprite.effect.program, "background_mask_texture");
+
     glUniform1i(normal_texture_loc, 0);
     glUniform1i(ui_texture_loc,  1);
     glUniform1i(light_texture_loc, 2);
+    glUniform1i(background_loc, 3);
+    glUniform1i(background_mask_loc, 4);
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, screen_sprite.texture.texture_id);
-
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, ui_texture.texture_id);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, light_frame_texture.texture_id);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, background_texture.texture_id);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, background_mask_texture.texture_id);
 
 	// Draw
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr); // two triangles = 6 vertices; nullptr indicates that there is no offset from the bound index buffer
@@ -528,7 +550,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     // Clearing backbuffer
     glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
     glDepthRange(0.00001, 10);
-    glClearColor(0, 0, 0, 1.0);
+    glClearColor(0, 0, 0, 0);
     glClearDepth(1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gl_has_errors();
@@ -546,7 +568,8 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
     for (ECS::Entity entity : entities)
     {
-        if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui)
+        auto& entity_mesh = entity.get<ShadedMeshRef>();
+        if (!ECS::registry<Motion>.has(entity) || entity_mesh.is_ui || !entity_mesh.visible)
             continue;
         // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
         drawTexturedMesh(entity, projection_2D);
@@ -574,7 +597,6 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     glDepthRange(0.00001, 10);
     gl_has_errors();
 
-    glClearColor(1, 1, 1, 1.0);
     glClearColor(1, 1, 1, 0);
     gl_has_errors();
 
@@ -587,7 +609,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     auto wall_entities = ECS::registry<Wall>.entities;
     for (ECS::Entity entity : wall_entities)
     {
-        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity))
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity) || !entity.get<ShadedMeshRef>().visible)
             continue;
         // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
         drawTexturedMesh(entity, projection_2D);
@@ -606,6 +628,69 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
 	// Truely render to the screen
     drawLights(window_size_in_game_units);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, background_buffer);
+    gl_has_errors();
+    // Clearing backbuffer
+    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    gl_has_errors();
+    glDepthRange(0.00001, 10);
+    gl_has_errors();
+
+    glClearColor(0, 0, 0, 0);
+    gl_has_errors();
+
+    glClearDepth(1.f);
+    gl_has_errors();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
+    // Draw all textured meshes that have a position and size component
+    // Draw by the order of motion zValue, the smaller zValue, draw earlier
+    auto backgrounds = ECS::registry<Background>.entities;
+    sort(backgrounds.begin(), backgrounds.end(), [](const ECS::Entity e1, const ECS::Entity e2)
+        {
+            return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
+        });
+    for (ECS::Entity entity : backgrounds)
+    {
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity) || !entity.get<ShadedMeshRef>().visible)
+            continue;
+        // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
+        drawTexturedMesh(entity, projection_2D);
+        gl_has_errors();
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, background_mask_buffer);
+    gl_has_errors();
+    // Clearing backbuffer
+    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    gl_has_errors();
+    glDepthRange(0.00001, 10);
+    gl_has_errors();
+
+    glClearColor(0, 0, 0, 0);
+    gl_has_errors();
+
+    glClearDepth(1.f);
+    gl_has_errors();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
+    // Draw all textured meshes that have a position and size component
+    // Draw by the order of motion zValue, the smaller zValue, draw earlier
+    auto background_masks = ECS::registry<BackgroundMask>.entities;
+    sort(background_masks.begin(), background_masks.end(), [](const ECS::Entity e1, const ECS::Entity e2)
+        {
+            return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
+        });
+    for (ECS::Entity entity : background_masks)
+    {
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity) || !entity.get<ShadedMeshRef>().visible)
+            continue;
+        // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
+        drawTexturedMesh(entity, projection_2D);
+        gl_has_errors();
+    }
+
 
     glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     gl_has_errors();
