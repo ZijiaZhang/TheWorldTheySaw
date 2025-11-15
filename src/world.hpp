@@ -106,5 +106,5 @@ private:
 	void on_mouse(int key, int action, int mod);
 
     vec2 getWorldMousePosition(vec2 mouse_pos) const;
-	bool tryClickButton(vec2 mouse_pos);
+	bool tryClickButton(vec2 mouse_pos, bool includePlayableLevels = false);
 };

@@ -686,10 +686,6 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 			return;
 		}
 
-		if (!GameInstance::isPlayableLevel() && GameInstance::currentLevel != "settings" && tryClickButton(last_mouse_pos)) {
-			return;
-		}
-
 		if (control_state == ControlState::USING_MAGIC) {
 			vec2 mouse_pos = getWorldMousePosition(last_mouse_pos);
 			vec2 dir = mouse_pos - player_soldier.get<Motion>().position;
@@ -701,15 +697,12 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 				FIREBALL);
 			control_state = ControlState::NORMAL;
 			GameInstance::ability_speed = 1.f;
+			return;
 		}
 
-		if (!aiControl && player_soldier.has<AIPath>()) {
-			auto& aiPath = player_soldier.get<AIPath>();
-			aiPath.active = true;
-			player_soldier.get<Motion>().velocity = { 200.f, 0.f };
-			aiPath.path.path.clear();
-			aiPath.progress = 0;
-			aiPath.path.path.push_back(AISystem::get_grid_from_loc(getWorldMousePosition(last_mouse_pos)));
+		bool allowButtonClick = !GameInstance::isPlayableLevel() || GameInstance::currentLevel == "settings";
+		if (allowButtonClick && tryClickButton(last_mouse_pos, GameInstance::currentLevel == "settings")) {
+			return;
 		}
 		//HighLightCircle::createHighLightCircle(getWorldMousePosition(last_mouse_pos), 100);
 
@@ -787,8 +780,9 @@ vec2 WorldSystem::getWorldMousePosition(vec2 mouse_pos) const {
     return mouse_pos;
 }
 
-bool WorldSystem::tryClickButton(vec2 mouse_pos) {
-    if (GameInstance::isPlayableLevel() || GameInstance::currentLevel == "settings" || ECS::registry<Button>.entities.empty()) {
+bool WorldSystem::tryClickButton(vec2 mouse_pos, bool includePlayableLevels) {
+    bool canClick = includePlayableLevels || (!GameInstance::isPlayableLevel() && GameInstance::currentLevel != "settings");
+    if (!canClick || ECS::registry<Button>.entities.empty()) {
         return false;
     }
 
