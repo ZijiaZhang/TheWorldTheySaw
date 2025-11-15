@@ -622,16 +622,31 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     
     // Move soldier if alive
     if (!ECS::registry<DeathTimer>.has(player_soldier) && player_soldier.has<Motion>()) {
-        if (key == GLFW_KEY_W) {
-            if (player_soldier.has<AIPath>()) {
-                auto &aiPath = player_soldier.get<AIPath>();
-                aiPath.active = false;
+		auto handle_direction_press = [&](vec2 direction) {
+			if (player_soldier.has<AIPath>()) {
+				auto& aiPath = player_soldier.get<AIPath>();
+				aiPath.active = false;
 				aiPath.progress = 0;
 				aiPath.path.path.clear();
-            }
-            player_soldier.get<Motion>().velocity =
-                    vec2{ soldier_speed, 0} * (float) (action == GLFW_PRESS || action == GLFW_REPEAT);
-        }
+			}
+			auto& motion = player_soldier.get<Motion>();
+			vec2 forward = { cos(motion.angle), sin(motion.angle) };
+			vec2 right = vec2{ -forward.y, forward.x };
+			vec2 move_dir = normalize(direction.x * right + direction.y * forward);
+			float speed = static_cast<float>(soldier_speed);
+			player_soldier.get<Motion>().velocity =
+				move_dir * speed * static_cast<float>(action == GLFW_PRESS || action == GLFW_REPEAT);
+		};
+
+        if (key == GLFW_KEY_W) {
+			handle_direction_press(vec2{0.f, 1.f});
+        } else if (key == GLFW_KEY_S) {
+			handle_direction_press(vec2{0.f, -1.f});
+		} else if (key == GLFW_KEY_A) {
+			handle_direction_press(vec2{-1.f, 0.f});
+		} else if (key == GLFW_KEY_D) {
+			handle_direction_press(vec2{1.f, 0.f});
+		}
 
 		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
 			selecting = true;
