@@ -465,31 +465,31 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
             }
         }
 
-        auto& wts = ECS::registry<WeaponTimer>.entities;
-        for(auto& entity: wts){
-            if (entity.has<Motion>()) {
-                auto& et = ECS::registry<EffectTimer>.get(entity);
-                auto& entity_motion = entity.get<Motion>();
+        // auto& wts = ECS::registry<WeaponTimer>.entities;
+        // for(auto& entity: wts){
+        //     if (entity.has<Motion>()) {
+        //         auto& et = ECS::registry<EffectTimer>.get(entity);
+        //         auto& entity_motion = entity.get<Motion>();
 
-                Motion timer_mesh_motion{};
-                timer_mesh_motion.position = entity_motion.position;
-                timer_mesh_motion.scale = entity_motion.scale;
-                timer_mesh_motion.angle = 0;
-                RenderSystem::createWeaponTimer(projection_2D, timer_mesh_motion, entity);
+        //         Motion timer_mesh_motion{};
+        //         timer_mesh_motion.position = entity_motion.position;
+        //         timer_mesh_motion.scale = entity_motion.scale;
+        //         timer_mesh_motion.angle = 0;
+        //         RenderSystem::createWeaponTimer(projection_2D, timer_mesh_motion, entity);
 
-                Motion mask_motion{};
-                mask_motion.position = entity_motion.position;
-                mask_motion.scale = entity_motion.scale;
-                mask_motion.position.x -= mask_motion.scale.x / 2;
-                mask_motion.angle = 0;
-                if (et.status == COOLDOWN) {
-                    mask_motion.scale.x *= et.cooldown_ms / WeaponTimer::effectAttributes[et.type][1];
-                } else {
-                    mask_motion.scale.x = 0;
-                }
-                drawTexturedMesh(entity, projection_2D, mask_motion, weaponTimerMask);
-            }
-        }
+        //         Motion mask_motion{};
+        //         mask_motion.position = entity_motion.position;
+        //         mask_motion.scale = entity_motion.scale;
+        //         mask_motion.position.x -= mask_motion.scale.x / 2;
+        //         mask_motion.angle = 0;
+        //         if (et.status == COOLDOWN) {
+        //             mask_motion.scale.x *= et.cooldown_ms / WeaponTimer::effectAttributes[et.type][1];
+        //         } else {
+        //             mask_motion.scale.x = 0;
+        //         }
+        //         drawTexturedMesh(entity, projection_2D, mask_motion, weaponTimerMask);
+        //     }
+        // }
     }
 
     auto& ui_entiries = ECS::registry<ShadedMeshRefUI>.entities;

@@ -578,18 +578,18 @@ void WorldSystem::on_key(int key, int, int action, int mod)
     }
 
 
-    if(key == GLFW_KEY_A && action == GLFW_PRESS) {
-        Soldier::switchWeapon(player_soldier, W_LASER);
-    }
-    if(key == GLFW_KEY_S && action == GLFW_PRESS) {
-        Soldier::switchWeapon(player_soldier, W_AMMO);
-    }
-    if(key == GLFW_KEY_D && action == GLFW_PRESS) {
-        Soldier::switchWeapon(player_soldier, W_ROCKET);
-    }
-    if(key == GLFW_KEY_F && action == GLFW_PRESS) {
-        Soldier::switchWeapon(player_soldier, W_BULLET);
-    }
+    // if(key == GLFW_KEY_A && action == GLFW_PRESS) {
+    //     Soldier::switchWeapon(player_soldier, W_LASER);
+    // }
+    // if(key == GLFW_KEY_S && action == GLFW_PRESS) {
+    //     Soldier::switchWeapon(player_soldier, W_AMMO);
+    // }
+    // if(key == GLFW_KEY_D && action == GLFW_PRESS) {
+    //     Soldier::switchWeapon(player_soldier, W_ROCKET);
+    // }
+    // if(key == GLFW_KEY_F && action == GLFW_PRESS) {
+    //     Soldier::switchWeapon(player_soldier, W_BULLET);
+    // }
 
     
     // Move soldier if alive
