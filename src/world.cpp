@@ -466,7 +466,10 @@ void WorldSystem::restart(std::string level)
 void WorldSystem::checkEndGame()
 {
 	if (GameInstance::isPlayableLevel()) {
-        if (ECS::registry<Enemy>.entities.empty()) {
+        bool enemies_remaining = !ECS::registry<Enemy>.entities.empty();
+        bool player_alive = !ECS::registry<Soldier>.entities.empty();
+
+        if (!enemies_remaining) {
 			resetTimer();
 			if (GameInstance::currentLevel == TUTORIAL_NAME) {
 				restart(MENU_NAME);
@@ -475,17 +478,18 @@ void WorldSystem::checkEndGame()
 				level_loader.update_level_state(GameInstance::currentLevel, 1);
 				restart("win");
 			}
-
+			return;
         }
-        if (ECS::registry<Soldier>.entities.empty()) {
+
+        if (!player_alive) {
             resetTimer();
             restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
+            return;
         }
-		if (endGameTimer > 90000.f) {
-			if (!ECS::registry<Enemy>.entities.empty()) {
-				resetTimer();
-				restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
-			}
+
+		if (endGameTimer > 90000.f && enemies_remaining) {
+			resetTimer();
+			restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
 		}
 	}
 }
