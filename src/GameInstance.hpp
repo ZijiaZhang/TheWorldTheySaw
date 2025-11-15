@@ -24,6 +24,7 @@ class GameInstance {
         static float game_time;
         static float volume;
         static float effect_volume;
+        static bool weaponAutoAim;
 
         // Game speed overrides
         static float global_speed;

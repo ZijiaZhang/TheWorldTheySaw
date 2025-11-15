@@ -46,13 +46,21 @@ void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms)
     if(weaponTicker > BULLET_RELOAD) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
-        ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
-        if (ECS::registry<Motion>.has(cloestEnemy)) {
-            auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
-            if (weapon.has<Motion>()) {
-                auto &motion = weapon.get<Motion>();
-                auto dir = enemyMotion.position - motion.position;
-                float rad = atan2(dir.y, dir.x);
+        if (weapon.has<Motion>()) {
+            auto &motion = weapon.get<Motion>();
+            float rad = soldier_motion.angle;
+            bool hasTarget = true;
+            if (GameInstance::weaponAutoAim) {
+                hasTarget = false;
+                ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+                if (ECS::registry<Motion>.has(cloestEnemy)) {
+                    auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+                    auto dir = enemyMotion.position - motion.position;
+                    rad = atan2(dir.y, dir.x);
+                    hasTarget = true;
+                }
+            }
+            if (hasTarget) {
                 motion.offset_angle = rad - soldier_motion.angle;
                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet", 1200);
 //                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
@@ -75,13 +83,21 @@ void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms)
     if(weaponTicker > ROCKET_RELOAD) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
-        ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
-        if (ECS::registry<Motion>.has(cloestEnemy)) {
-            auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
-            if (weapon.has<Motion>()) {
-                auto &motion = weapon.get<Motion>();
-                auto dir = enemyMotion.position - motion.position;
-                float rad = atan2(dir.y, dir.x);
+        if (weapon.has<Motion>()) {
+            auto &motion = weapon.get<Motion>();
+            float rad = soldier_motion.angle;
+            bool hasTarget = true;
+            if (GameInstance::weaponAutoAim) {
+                hasTarget = false;
+                ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+                if (ECS::registry<Motion>.has(cloestEnemy)) {
+                    auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+                    auto dir = enemyMotion.position - motion.position;
+                    rad = atan2(dir.y, dir.x);
+                    hasTarget = true;
+                }
+            }
+            if (hasTarget) {
                 motion.offset_angle = rad - soldier_motion.angle;
                 auto callback = [](ECS::Entity e){
                     if(e.has<Motion>()) {
@@ -109,13 +125,21 @@ void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) 
     if(weaponTicker > LAZER_RELOAD) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
-        ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
-        if (ECS::registry<Motion>.has(cloestEnemy)) {
-            auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
-            if (weapon.has<Motion>()) {
-                auto &motion = weapon.get<Motion>();
-                auto dir = enemyMotion.position - motion.position;
-                float rad = atan2(dir.y, dir.x);
+        if (weapon.has<Motion>()) {
+            auto &motion = weapon.get<Motion>();
+            float rad = soldier_motion.angle;
+            bool hasTarget = true;
+            if (GameInstance::weaponAutoAim) {
+                hasTarget = false;
+                ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+                if (ECS::registry<Motion>.has(cloestEnemy)) {
+                    auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+                    auto dir = enemyMotion.position - motion.position;
+                    rad = atan2(dir.y, dir.x);
+                    hasTarget = true;
+                }
+            }
+            if (hasTarget) {
                 motion.offset_angle = rad - soldier_motion.angle;
                 Bullet::createBullet(motion.position, rad, {400, 0}, 0, W_LASER, "laser", 750);
                 //Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
@@ -138,13 +162,21 @@ void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
     if(weaponTicker > AMMO_RELOAD) {
         auto& weapon = soldier_entity.get<Soldier>().weapon;
         auto& soldier_motion = soldier_entity.get<Motion>();
-        ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
-        if (ECS::registry<Motion>.has(cloestEnemy)) {
-            auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
-            if (weapon.has<Motion>()) {
-                auto &motion = weapon.get<Motion>();
-                auto dir = enemyMotion.position - motion.position;
-                float rad = atan2(dir.y, dir.x);
+        if (weapon.has<Motion>()) {
+            auto &motion = weapon.get<Motion>();
+            float rad = soldier_motion.angle;
+            bool hasTarget = true;
+            if (GameInstance::weaponAutoAim) {
+                hasTarget = false;
+                ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
+                if (ECS::registry<Motion>.has(cloestEnemy)) {
+                    auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+                    auto dir = enemyMotion.position - motion.position;
+                    rad = atan2(dir.y, dir.x);
+                    hasTarget = true;
+                }
+            }
+            if (hasTarget) {
                 motion.offset_angle = rad - soldier_motion.angle;
                 Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo", 1800);
                 // Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");

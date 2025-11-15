@@ -19,6 +19,7 @@ float GameInstance::frame_time = 0.f;
 float GameInstance::game_time = 0.f;
 float GameInstance::volume = 50.f;
 float GameInstance::effect_volume = 50.f;
+bool GameInstance::weaponAutoAim = false;
 
 static std::map<std::string, bool> playableLevelMap = {
         {"menu", false},

@@ -699,6 +699,10 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 	if (key == GLFW_KEY_C && action == GLFW_RELEASE && GameInstance::isPlayableLevel() && !pause) {
 		SHIELDUP = true;
 	}
+
+	if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+		GameInstance::weaponAutoAim = !GameInstance::weaponAutoAim;
+	}
 }
 
 void WorldSystem::on_mouse(int key, int action, int mod) {
