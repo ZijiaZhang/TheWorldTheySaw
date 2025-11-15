@@ -106,9 +106,6 @@ public:
     float damage = 1.0;
     float penetration_counter = 0;
     static std::unordered_map<WeaponType, float> bulletDamage;
-    static std::unordered_map<WeaponType, std::function<void(ECS::Entity, ECS::Entity, float)>> bulletEffect;
-    static void heal_soldier(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);
-    static void freeze_enemy(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms);
 };
 
 // A timer that will be associated to dying object
@@ -118,14 +115,7 @@ struct ExplodeTimer
     std::function<void(ECS::Entity)> callback;
 };
 
-struct FrozenTimer {
-    float executing_ms = 2000;
-};
-
 struct FieldTimer {
     float counter_ms = 5000;
 };
 
-struct Activating {
-    // empty, only used for Activating shader
-};

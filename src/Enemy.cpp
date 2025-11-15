@@ -119,9 +119,6 @@ ECS::Entity Enemy::createEnemy(Motion m, Enemy e, Health h, AIPath ai, PhysicsOb
 
 void Enemy::enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
     if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
-        if (Bullet::bulletEffect[e.get<Bullet>().type]) {
-            Bullet::bulletEffect[e.get<Bullet>().type](e, self, 0.0);
-        }
         // EnemyAISystem::takeDamage(self, e.get<Bullet>().damage);
         std::cout << "hit\n";
         auto bullet_type = e.get<Bullet>().bullet_indicator;

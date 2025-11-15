@@ -318,15 +318,7 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         }
 	}
 
-	// flash the frozen enemies when there is 1000ms left.
-	auto frozenEnemies = ECS::registry<FrozenTimer>.entities;
-	for (auto e: frozenEnemies) {
-	    auto executing_ms = ECS::registry<FrozenTimer>.get(e).executing_ms;
-	    if (executing_ms < 1000.f && !ECS::registry<Activating>.has(e)) {
-            ECS::registry<Activating>.emplace(e);
-            Enemy::set_activating_shader(e);
-	    }
-	}
+
 
 	// fix the weapon timer location.
 	auto weaponTimers = ECS::registry<WeaponTimer>.entities;

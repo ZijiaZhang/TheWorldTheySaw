@@ -189,21 +189,5 @@ void EnemyAISystem::takeDamage(ECS::Entity enemy_entity, float damage) {
 }
 
 bool EnemyAISystem::underEffectControl(ECS::Entity enemy, float elapsed_ms) {
-    if (ECS::registry<FrozenTimer>.has(enemy)) {
-        auto& fc = enemy.get<FrozenTimer>();
-        fc.executing_ms -= elapsed_ms;
-        if (fc.executing_ms <= 0.) {
-            ECS::registry<FrozenTimer>.remove(enemy);
-            ECS::registry<Activating>.remove(enemy);
-            if (enemy.has<Enemy>()) {
-                Enemy::set_shader(enemy, false, Enemy::enemy_texture_map[enemy.get<Enemy>().type]);
-            }
-            return false;
-        } else {
-            enemy.get<Enemy>().enemyState = AiState::IDLE;
-            EnemyAISystem::idle(ECS::registry<Motion>.get(enemy));
-            return true;
-        }
-    }
     return false;
 }

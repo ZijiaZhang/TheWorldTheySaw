@@ -10,11 +10,6 @@ std::unordered_map<WeaponType, float> Bullet::bulletDamage {
         {W_ROCKET, 3.85}
 };
 
-std::unordered_map<WeaponType , std::function<void(ECS::Entity, ECS::Entity, float)>> Bullet::bulletEffect = {
-        {W_ROCKET, heal_soldier},
-        {W_AMMO, freeze_enemy},
-};
-
 ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID, WeaponType type, std::string texture_name, float lifetime,
                                  std::function<void(ECS::Entity)> callback){
     // Reserve en entity
@@ -89,16 +84,3 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
 }
 
 
-void Bullet::heal_soldier(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms) {
-    auto entities = ECS::registry<Soldier>.entities;
-    for (auto e : entities) {
-        ECS::registry<Soldier>.get(e).addHealth(e, 1);
-    }
-}
-
-void Bullet::freeze_enemy(ECS::Entity soldier_entity, ECS::Entity enemy_entity, float elapsed_ms) {
-    if (!ECS::registry<FrozenTimer>.has(enemy_entity)) {
-        ECS::registry<FrozenTimer>.emplace(enemy_entity);
-        Enemy::set_frozen_shader(enemy_entity);
-    }
-}
