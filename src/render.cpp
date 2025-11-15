@@ -346,7 +346,7 @@ void RenderSystem::drawMenuScene(const mat3& projection_2D, ivec2 frame_buffer_s
     {
         if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui)
             continue;
-        drawTexturedMesh(entity, projection_2D, true);
+        drawTexturedMesh(entity, projection_2D);
         gl_has_errors();
     }
 
@@ -360,7 +360,7 @@ void RenderSystem::drawMenuScene(const mat3& projection_2D, ivec2 frame_buffer_s
     auto& circles = ECS::registry<HighLightCircle>.entities;
     for (auto& entity : circles) {
         if (entity.has<Motion>()) {
-            drawTexturedMesh(entity, projection_2D, true);
+            drawTexturedMesh(entity, projection_2D);
         }
     }
 

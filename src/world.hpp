@@ -69,6 +69,7 @@ public:
 	static bool hasShield;
 	static ECS::Entity shield;
 	vec2 screen;
+    static vec2 menuCameraTarget;
 
 private:
 	// Input callback functions

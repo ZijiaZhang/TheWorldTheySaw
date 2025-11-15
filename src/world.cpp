@@ -44,6 +44,7 @@ LevelLoader level_loader;
 bool WorldSystem::SHIELDUP = false;
 bool WorldSystem::hasShield = false;
 ECS::Entity WorldSystem::shield;
+vec2 WorldSystem::menuCameraTarget = { 0,0 };
 bool fired = false;
 std::deque<vec2> mouse_points;
 int MOUSE_POINTS_COUNT = 600;
@@ -400,8 +401,8 @@ void WorldSystem::restart(std::string level)
 		prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
 	}
 	else {
-		camera.insert(Camera({ 0,0 }));
-		prev_pl_pos = vec2{ 0,0 };
+		camera.insert(Camera(menuCameraTarget));
+		prev_pl_pos = menuCameraTarget;
 	}
 
     aiControl = GameInstance::isPlayableLevel();

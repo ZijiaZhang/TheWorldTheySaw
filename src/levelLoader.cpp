@@ -731,11 +731,12 @@ void LevelLoader::load_level() {
 	bool spawn_player = GameInstance::isPlayableLevel(at_level) || at_level == "settings";
 	for (auto& level_object : level_objects) {
 		if (current.contains(level_object.first)) {
-			if (!spawn_player && level_object.first == "player") {
-				continue;
-			}
 			for (json b : current[level_object.first]) {
 				vec2 position = b.contains("position") ? getVec2FromJson(b["position"]) : vec2{};
+				if (!spawn_player && level_object.first == "player") {
+					WorldSystem::menuCameraTarget = position;
+					continue;
+				}
 				vec2 size = b.contains("size") ? getVec2FromJson(b["size"]) : vec2{};
 				float rotation = b.contains("rotation") ? static_cast<float>(b["rotation"]) : 0.f;
 				auto overlap = b.contains("overlap") ? physics_callbacks[b["overlap"]] : [](ECS::Entity, const ECS::Entity e, CollisionResult) {};
