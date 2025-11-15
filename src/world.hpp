@@ -108,4 +108,8 @@ private:
 
     vec2 getWorldMousePosition(vec2 mouse_pos) const;
 	bool tryClickButton(vec2 mouse_pos, bool includePlayableLevels = false);
+
+	bool pendingRestart = false;
+	float pendingRestartTimer = 0.f;
+	std::string pendingRestartLevel = "";
 };

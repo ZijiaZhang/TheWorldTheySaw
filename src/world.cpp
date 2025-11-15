@@ -45,6 +45,7 @@ bool WorldSystem::SHIELDUP = false;
 bool WorldSystem::hasShield = false;
 ECS::Entity WorldSystem::shield;
 vec2 WorldSystem::menuCameraTarget = { 0,0 };
+constexpr float END_SCREEN_DELAY_MS = 2000.f;
 bool fired = false;
 std::deque<vec2> mouse_points;
 int MOUSE_POINTS_COUNT = 600;
@@ -308,6 +309,14 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	endGameTimer += elapsed_ms;
 	runTimer(elapsed_ms);
 	checkEndGame();
+	if (pendingRestart) {
+		pendingRestartTimer -= elapsed_ms;
+		if (pendingRestartTimer <= 0.f) {
+			pendingRestart = false;
+			restart(pendingRestartLevel);
+			return;
+		}
+	}
     if(player_soldier.has<Motion>()) {
         vec2 pl = ECS::registry<Motion>.get(player_soldier).position;
         for (auto e : ECS::registry<Background>.entities) {
@@ -465,6 +474,9 @@ void WorldSystem::restart(std::string level)
 
 void WorldSystem::checkEndGame()
 {
+	if (pendingRestart) {
+		return;
+	}
 	if (GameInstance::isPlayableLevel()) {
         bool enemies_remaining = !ECS::registry<Enemy>.entities.empty();
         bool player_alive = !ECS::registry<Soldier>.entities.empty();
@@ -472,24 +484,30 @@ void WorldSystem::checkEndGame()
         if (!enemies_remaining) {
 			resetTimer();
 			if (GameInstance::currentLevel == TUTORIAL_NAME) {
-				restart(MENU_NAME);
+				pendingRestartLevel = MENU_NAME;
 			}
 			else {
 				level_loader.update_level_state(GameInstance::currentLevel, 1);
-				restart("win");
+				pendingRestartLevel = "win";
 			}
+			pendingRestart = true;
+			pendingRestartTimer = END_SCREEN_DELAY_MS;
 			return;
         }
 
         if (!player_alive) {
             resetTimer();
-            restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
+            pendingRestartLevel = GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose";
+			pendingRestart = true;
+			pendingRestartTimer = END_SCREEN_DELAY_MS;
             return;
         }
 
 		if (endGameTimer > 90000.f && enemies_remaining) {
 			resetTimer();
-			restart(GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose");
+            pendingRestartLevel = GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose";
+			pendingRestart = true;
+			pendingRestartTimer = END_SCREEN_DELAY_MS;
 		}
 	}
 }
