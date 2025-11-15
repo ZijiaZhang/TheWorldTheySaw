@@ -62,6 +62,7 @@ public:
     static bool reload_level;
 	static bool selecting;
 	static bool pause;
+	static bool menuClickOverride;
     static std::string reload_level_name;
     static std::string selected_level;
 	static bool SHIELDUP;
@@ -105,4 +106,5 @@ private:
 	void on_mouse(int key, int action, int mod);
 
     vec2 getWorldMousePosition(vec2 mouse_pos) const;
+	bool tryClickButton(vec2 mouse_pos);
 };

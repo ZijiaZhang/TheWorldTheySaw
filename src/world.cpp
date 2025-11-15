@@ -21,6 +21,7 @@
 #include "MagicParticle.hpp"
 #include "WeaponTimer.hpp"
 #include "mainMenu.hpp"
+#include "PhysicsObject.hpp"
 
 // stlib
 #include <string.h>
@@ -53,6 +54,7 @@ int DEGREE_SIZE = 90;
 int SECTION_POINT_NUM = 2;
 bool WorldSystem::selecting = false;
 bool WorldSystem::pause = false;
+bool WorldSystem::menuClickOverride = false;
 
 
 int KILL_SIZE = 3000;
@@ -321,16 +323,18 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 
 
 	// fix the weapon timer location.
-	auto weaponTimers = ECS::registry<WeaponTimer>.entities;
-	for (auto e : weaponTimers) {
-	    auto& motion = ECS::registry<Motion>.get(e);
-	    motion.position = player_soldier.get<Motion>().position - motion.offset;
-	}
+	if (aiControl && player_soldier.has<Motion>()) {
+		auto weaponTimers = ECS::registry<WeaponTimer>.entities;
+		for (auto e : weaponTimers) {
+			auto& motion = ECS::registry<Motion>.get(e);
+			motion.position = player_soldier.get<Motion>().position - motion.offset;
+		}
 
-	bool executingDone = WeaponTimer::updateAllWeaponTimers(elapsed_ms);
-    if (executingDone) {
-        Soldier::switchWeapon(player_soldier, W_BULLET);
-    }
+		bool executingDone = WeaponTimer::updateAllWeaponTimers(elapsed_ms);
+		if (executingDone && player_soldier.has<Soldier>()) {
+			Soldier::switchWeapon(player_soldier, W_BULLET);
+		}
+	}
 }
 
 // Reset the world state to its initial state
@@ -371,13 +375,19 @@ void WorldSystem::restart(std::string level)
 	level_loader.load_level();
 
 	auto soldiers = ECS::registry<Soldier>.entities;
-	if (soldiers.size() != 1) {
-		throw std::runtime_error("Can only have one soldier");
+	bool needs_player = GameInstance::isPlayableLevel() || GameInstance::currentLevel == "settings";
+	if (needs_player) {
+		if (soldiers.size() != 1) {
+			throw std::runtime_error("Can only have one soldier");
+		}
+
+		player_soldier = soldiers.front();
+		GameInstance::charges_left = GameInstance::getDefaultChargeOfMagic(GameInstance::selectedMagic);
 	}
-
-	GameInstance::charges_left = GameInstance::getDefaultChargeOfMagic(GameInstance::selectedMagic);
-
-	player_soldier = soldiers.front();
+	else {
+		player_soldier = ECS::Entity();
+		GameInstance::charges_left = 0;
+	}
 
 	while (!ECS::registry<Camera>.entities.empty())
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Camera>.entities.back());
@@ -385,19 +395,25 @@ void WorldSystem::restart(std::string level)
 	Global_Meshes::meshes.clear();
 
 	ECS::Entity camera;
-	camera.insert(Camera({ 0,0 }, player_soldier));
+	if (player_soldier.has<Motion>()) {
+		camera.insert(Camera({ 0,0 }, player_soldier));
+		prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
+	}
+	else {
+		camera.insert(Camera({ 0,0 }));
+		prev_pl_pos = vec2{ 0,0 };
+	}
 
-	prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
     aiControl = GameInstance::isPlayableLevel();
     if(player_soldier.has<AIPath>()){
-        player_soldier.get<AIPath>().active = true;
+        player_soldier.get<AIPath>().active = aiControl;
     }
     if (aiControl) {
         WeaponTimer::createAllWeaponTimers();
     }
 
 	if (GameInstance::fist_enter_level(level)) {
-		if (level == MENU_NAME) {
+		if (level == MENU_NAME && player_soldier.has<Motion>()) {
 			GameInstance::popup_speed = 0.0;
             auto e = PopUP::createPopUP(textures_path("/tutorial/You.png"), screen / 2.f - vec2{ 110, 0.0 }, { 800, 400 });
 			auto& pop_up = e.get<PopUP>();
@@ -670,6 +686,10 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
 			return;
 		}
 
+		if (!GameInstance::isPlayableLevel() && GameInstance::currentLevel != "settings" && tryClickButton(last_mouse_pos)) {
+			return;
+		}
+
 		if (control_state == ControlState::USING_MAGIC) {
 			vec2 mouse_pos = getWorldMousePosition(last_mouse_pos);
 			vec2 dir = mouse_pos - player_soldier.get<Motion>().position;
@@ -700,7 +720,7 @@ void WorldSystem::on_mouse(int key, int action, int mod) {
     else if (action == GLFW_RELEASE && key == GLFW_MOUSE_BUTTON_LEFT)
     {
         DRAWING = false;
-        if (checkCircle(player_soldier))
+        if (player_soldier.has<Motion>() && checkCircle(player_soldier))
         {
             // SHIELDUP = true;
         }
@@ -753,6 +773,10 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 }
 
 vec2 WorldSystem::getWorldMousePosition(vec2 mouse_pos) const {
+    bool needs_player = GameInstance::isPlayableLevel() || GameInstance::currentLevel == "settings";
+    if (!needs_player) {
+        return mouse_pos;
+    }
     if (!ECS::registry<Camera>.entities.empty()) {
         auto& camera = ECS::registry<Camera>.entities[0];
         if (camera.has<Camera>()) {
@@ -761,6 +785,39 @@ vec2 WorldSystem::getWorldMousePosition(vec2 mouse_pos) const {
         }
     }
     return mouse_pos;
+}
+
+bool WorldSystem::tryClickButton(vec2 mouse_pos) {
+    if (GameInstance::isPlayableLevel() || GameInstance::currentLevel == "settings" || ECS::registry<Button>.entities.empty()) {
+        return false;
+    }
+
+    vec2 world_mouse = getWorldMousePosition(mouse_pos);
+    for (auto button_entity : ECS::registry<Button>.entities) {
+        if (!button_entity.has<Motion>() || !button_entity.has<PhysicsObject>()) {
+            continue;
+        }
+
+        auto& motion = button_entity.get<Motion>();
+        vec2 half_extent = vec2{ abs(motion.scale.x) * 0.5f, abs(motion.scale.y) * 0.5f };
+
+        bool inside_x = world_mouse.x >= motion.position.x - half_extent.x && world_mouse.x <= motion.position.x + half_extent.x;
+        bool inside_y = world_mouse.y >= motion.position.y - half_extent.y && world_mouse.y <= motion.position.y + half_extent.y;
+
+        if (!inside_x || !inside_y) {
+            continue;
+        }
+
+        bool previous_selecting = selecting;
+        selecting = true;
+        menuClickOverride = true;
+        button_entity.get<PhysicsObject>().physicsEvent(Overlap, button_entity, player_soldier, {});
+        menuClickOverride = false;
+        selecting = previous_selecting;
+        return true;
+    }
+
+    return false;
 }
 
 bool WorldSystem::reload_level = false;

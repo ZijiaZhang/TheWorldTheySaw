@@ -63,6 +63,7 @@ private:
 	void drawInstanced(const mat3& projection, Particle& particle);
 
 	void drawToScreen(vec2 window_size_in_game_units);
+	void drawMenuScene(const mat3& projection_2D, ivec2 frame_buffer_size);
 
 	// Window handle
 	GLFWwindow& window;

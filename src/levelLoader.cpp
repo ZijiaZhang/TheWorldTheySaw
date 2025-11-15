@@ -134,6 +134,10 @@ static void load_level_data()
 	return;
 }
 
+static bool can_trigger_button(const ECS::Entity other) {
+	return WorldSystem::menuClickOverride || (other.has<Soldier>() && WorldSystem::selecting);
+}
+
 void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
 	if (e.has<Bullet>() && e.get<Bullet>().teamID != self.get<Enemy>().teamID && !self.has<DeathTimer>()) {
 		self.emplace<DeathTimer>();
@@ -142,7 +146,7 @@ void enemy_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResu
 
 auto select_algo_of_type(AIAlgorithm algo) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>() && WorldSystem::selecting) {
+		if (can_trigger_button(other)) {
 			GameInstance::algorithm = algo;
 			if (!self.has<PressTimer>()) {
 				self.emplace<PressTimer>();
@@ -154,7 +158,7 @@ auto select_algo_of_type(AIAlgorithm algo) {
 
 auto select_ability_of_type(MagicWeapon magic) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>() && WorldSystem::selecting) {
+		if (can_trigger_button(other)) {
 			GameInstance::selectedMagic = magic;
 		}
 	};
@@ -162,7 +166,7 @@ auto select_ability_of_type(MagicWeapon magic) {
 
 auto select_weapon_of_type(WeaponType type) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>() && WorldSystem::selecting) {
+		if (can_trigger_button(other)) {
 			GameInstance::selectedWeapon = type;
 			if (!self.has<PressTimer>()) {
 				self.emplace<PressTimer>();
@@ -174,7 +178,7 @@ auto select_weapon_of_type(WeaponType type) {
 
 auto select_button_overlap(const std::string& level) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
+		if (can_trigger_button(other) && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
 			WorldSystem::reload_level = true;
 			WorldSystem::reload_level_name = level;
 		}
@@ -183,7 +187,7 @@ auto select_button_overlap(const std::string& level) {
 
 auto select_level_button_overlap(const std::string& level) {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>() && WorldSystem::selecting && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
+		if (can_trigger_button(other) && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
 			WorldSystem::selected_level = level;
 			WorldSystem::reload_level = true;
 
@@ -203,7 +207,7 @@ auto select_level_button_overlap(const std::string& level) {
 
 auto select_save_data() {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>() && WorldSystem::selecting) {
+		if (can_trigger_button(other)) {
 			save_level_data();
 		}
 	};
@@ -211,7 +215,7 @@ auto select_save_data() {
 
 auto select_continue() {
 	return [=](ECS::Entity self, const ECS::Entity other, CollisionResult) {
-		if (other.has<Soldier>() && WorldSystem::selecting) {
+		if (can_trigger_button(other)) {
 			load_level_data();
 			WorldSystem::reload_level = true;
 			WorldSystem::reload_level_name = "level_select";
@@ -724,8 +728,12 @@ static vec2 getVec2FromJson(json j) {
 
 void LevelLoader::load_level() {
 	json current = readLevelJsonFile(at_level);
+	bool spawn_player = GameInstance::isPlayableLevel(at_level) || at_level == "settings";
 	for (auto& level_object : level_objects) {
 		if (current.contains(level_object.first)) {
+			if (!spawn_player && level_object.first == "player") {
+				continue;
+			}
 			for (json b : current[level_object.first]) {
 				vec2 position = b.contains("position") ? getVec2FromJson(b["position"]) : vec2{};
 				vec2 size = b.contains("size") ? getVec2FromJson(b["size"]) : vec2{};

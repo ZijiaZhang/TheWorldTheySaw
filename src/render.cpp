@@ -325,6 +325,60 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
 	glBindVertexArray(0);
 	gl_has_errors();
 }
+
+void RenderSystem::drawMenuScene(const mat3& projection_2D, ivec2 frame_buffer_size)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    glDepthRange(0.00001, 10);
+    glClearColor(0, 0, 0, 1.0f);
+    glClearDepth(1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
+
+    auto entities = ECS::registry<ShadedMeshRef>.entities;
+    sort(entities.begin(), entities.end(), [](const ECS::Entity e1, const ECS::Entity e2)
+    {
+        return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
+    });
+
+    for (ECS::Entity entity : entities)
+    {
+        if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui)
+            continue;
+        drawTexturedMesh(entity, projection_2D, true);
+        gl_has_errors();
+    }
+
+    auto& ui_entities = ECS::registry<ShadedMeshRefUI>.entities;
+    for (auto& entity : ui_entities) {
+        if (entity.has<Motion>()) {
+            drawTexturedMesh(entity, projection_2D, entity.get<Motion>(), *entity.get<ShadedMeshRefUI>().reference_to_cache, true);
+        }
+    }
+
+    auto& circles = ECS::registry<HighLightCircle>.entities;
+    for (auto& entity : circles) {
+        if (entity.has<Motion>()) {
+            drawTexturedMesh(entity, projection_2D, true);
+        }
+    }
+
+    auto& pop_ups = ECS::registry<PopUP>.entities;
+    for (auto& entity : pop_ups) {
+        if (entity.has<Motion>()) {
+            auto& motion = ECS::registry<Motion>.get(entity);
+            auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
+            auto back_graound_motion = motion;
+            back_graound_motion.scale *= 1.1f;
+            drawTexturedMesh(entity, projection_2D, back_graound_motion, PopUP::get_background(), true);
+            drawTexturedMesh(entity, projection_2D, motion, texmesh, true);
+        }
+    }
+
+    glfwSwapInterval(0);
+    glfwSwapBuffers(&window);
+}
  
 
 // Draw the intermediate texture to the screen, with some distortion to simulate water
@@ -412,16 +466,6 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 	ivec2 frame_buffer_size; // in pixels
 	glfwGetFramebufferSize(&window, &frame_buffer_size.x, &frame_buffer_size.y);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, ui_buffer);
-    gl_has_errors();
-
-    // Clearing backbuffer
-    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
-    glDepthRange(0.00001, 10);
-    glClearColor(0, 0, 0, 0);
-    glClearDepth(1.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    gl_has_errors();
     // Fake projection matrix, scales with respect to window coordinates
     float left = 0.f;
     float top = 0.f;
@@ -443,6 +487,23 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     camera.set_screen_size(window_size_in_game_units);
+
+    bool has_player_pipeline = GameInstance::isPlayableLevel() || GameInstance::currentLevel == "settings";
+    if (!has_player_pipeline) {
+        drawMenuScene(projection_2D, frame_buffer_size);
+        return;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, ui_buffer);
+    gl_has_errors();
+
+    // Clearing backbuffer
+    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    glDepthRange(0.00001, 10);
+    glClearColor(0, 0, 0, 0);
+    glClearDepth(1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl_has_errors();
 
     // Render UI
 
