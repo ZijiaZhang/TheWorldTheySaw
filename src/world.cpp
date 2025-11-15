@@ -630,22 +630,22 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 				aiPath.path.path.clear();
 			}
 			auto& motion = player_soldier.get<Motion>();
-			vec2 forward = { cos(motion.angle), sin(motion.angle) };
-			vec2 right = vec2{ -forward.y, forward.x };
-			vec2 move_dir = normalize(direction.x * right + direction.y * forward);
+			vec2 move_dir = normalize(direction);
 			float speed = static_cast<float>(soldier_speed);
 			player_soldier.get<Motion>().velocity =
 				move_dir * speed * static_cast<float>(action == GLFW_PRESS || action == GLFW_REPEAT);
 		};
 
         if (key == GLFW_KEY_W) {
-			handle_direction_press(vec2{0.f, 1.f});
-        } else if (key == GLFW_KEY_S) {
-			handle_direction_press(vec2{0.f, -1.f});
-		} else if (key == GLFW_KEY_A) {
-			handle_direction_press(vec2{-1.f, 0.f});
-		} else if (key == GLFW_KEY_D) {
+
 			handle_direction_press(vec2{1.f, 0.f});
+			
+        } else if (key == GLFW_KEY_S) {
+			handle_direction_press(vec2{-1.f, 0.f});
+		} else if (key == GLFW_KEY_A) {
+			handle_direction_press(vec2{0.f, -1.f});
+		} else if (key == GLFW_KEY_D) {
+			handle_direction_press(vec2{0.f, 1.f});
 		}
 
 		if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
