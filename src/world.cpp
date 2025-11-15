@@ -413,13 +413,14 @@ void WorldSystem::restart(std::string level)
         WeaponTimer::createAllWeaponTimers();
     }
 
-	if (GameInstance::fist_enter_level(level)) {
-		if (level == MENU_NAME && player_soldier.has<Motion>()) {
+	if (GameInstance::fist_enter_level(level) && !GameInstance::isPlayableLevel(level) && level != "settings") {
+		if (level == MENU_NAME) {
 			GameInstance::popup_speed = 0.0;
-            auto e = PopUP::createPopUP(textures_path("/tutorial/You.png"), screen / 2.f - vec2{ 110, 0.0 }, { 800, 400 });
+			auto e = PopUP::createPopUP(textures_path("/tutorial/You.png"), screen / 2.f - vec2{ 110, 0.0 }, { 800, 400 });
 			auto& pop_up = e.get<PopUP>();
+			vec2 highlight_pos = player_soldier.has<Motion>() ? player_soldier.get<Motion>().position : menuCameraTarget;
 			pop_up.relative_entities.push_back(
-				HighLightCircle::createHighLightCircle(player_soldier.get<Motion>().position, 30, 4));
+				HighLightCircle::createHighLightCircle(highlight_pos, 30, 4));
 			pop_up.on_destroy = [=]() {
 				auto e = PopUP::createPopUP(textures_path("/tutorial/Movement.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
 				auto& pop_up = e.get<PopUP>();
@@ -455,18 +456,6 @@ void WorldSystem::restart(std::string level)
 					HighLightCircle::createHighLightCircle({ 515, 540 }, 50, 4));
 			};
 		}
-	}
-
-	if (level == TUTORIAL_NAME) {
-		GameInstance::popup_speed = 0.0;
-		auto e = PopUP::createPopUP(textures_path("/tutorial/Enemy.png"), screen / 2.f - vec2{ 0.0, 200 }, { 800, 400 });
-		auto& pop_up = e.get<PopUP>();
-		pop_up.relative_entities.push_back(
-			HighLightCircle::createHighLightCircle({ 500,500 }, 30, 4));
-		pop_up.on_destroy = [=]() {
-			auto e = PopUP::createPopUP(textures_path("/tutorial/Ability.png"), screen / 2.f - vec2{ 0.0, 100 }, { 800, 400 });
-			show_ability_tutorial = true;
-		};
 	}
 
 	GameInstance::set_enter_level(level);
@@ -767,10 +756,6 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 }
 
 vec2 WorldSystem::getWorldMousePosition(vec2 mouse_pos) const {
-    bool needs_player = GameInstance::isPlayableLevel() || GameInstance::currentLevel == "settings";
-    if (!needs_player) {
-        return mouse_pos;
-    }
     if (!ECS::registry<Camera>.entities.empty()) {
         auto& camera = ECS::registry<Camera>.entities[0];
         if (camera.has<Camera>()) {
