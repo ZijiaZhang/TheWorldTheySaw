@@ -17,6 +17,10 @@
 #include <SoldierAi.hpp>
 #include <EnemyAi.hpp>
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 using Clock = std::chrono::high_resolution_clock;
 int ai_count = 0;
 const ivec2 window_size_in_px = {1200, 800};
@@ -32,6 +36,12 @@ struct Description {
 // Entry point
 int main()
 {
+#if defined(_WIN32) && defined(NDEBUG)
+	HWND console_window = GetConsoleWindow();
+	if (console_window != nullptr) {
+		ShowWindow(console_window, SW_HIDE);
+	}
+#endif
 	// Initialize the main systems
 	WorldSystem world(window_size_in_px);
 	RenderSystem renderer(*world.window);
