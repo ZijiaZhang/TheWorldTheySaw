@@ -19,6 +19,7 @@
 #include <MagicParticle.hpp>
 #include <highlight_circle.hpp>
 #include <pop_up.hpp>
+#include <Enemy.hpp>
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen)
 {
@@ -510,7 +511,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     if(GameInstance::isPlayableLevel()){
         auto& e = ECS::registry<Health>.entities;
         for(auto& entity: e){
-            if (entity.has<Motion>()) {
+            if (entity.has<Motion>() && !entity.has<Enemy>()) {
                 auto& health = entity.get<Health>();
                 auto& enemy_motion = entity.get<Motion>();
                 Motion motion{};
