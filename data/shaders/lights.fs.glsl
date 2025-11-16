@@ -6,6 +6,8 @@ uniform float darken_screen_factor;
 uniform vec2 player_position;
 uniform float texture_size;
 uniform vec2 world_size;
+uniform vec2 player_forward;
+uniform float player_light_cos_half_angle;
 
 in vec2 texcoord;
 in vec2 world_pos;
@@ -23,6 +25,11 @@ void main()
 	float ray_of_current_pixel = coord.x + coord.y * texture_size;
 	float radian = 2.0 * pi * ray_of_current_pixel/ray_count;
 	vec2 angle = normalize(vec2(cos(radian), sin(radian)));
+
+	if(dot(angle, player_forward) < player_light_cos_half_angle){
+	    color = vec4(0.0, 0.0, 0.0, 1.0);
+	    return;
+	}
 
 	float t = 0.0;
 	for(float i = 0.0; i< max_step; i+=1.0){

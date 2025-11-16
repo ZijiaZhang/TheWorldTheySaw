@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cmath>
 #include <soldier.hpp>
 #include <Wall.hpp>
 #include <MoveableWall.hpp>
@@ -20,6 +21,10 @@
 #include <highlight_circle.hpp>
 #include <pop_up.hpp>
 #include <Enemy.hpp>
+
+namespace {
+    constexpr float PLAYER_LIGHT_CONE_DEGREES = 90.f;
+}
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen)
 {
@@ -421,6 +426,8 @@ void RenderSystem::drawLights(vec2 window_size_in_game_units)
     GLint in_player = glGetUniformLocation(wall_screen_sprite.effect.program, "player_position");
     GLint texture_size_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "texture_size");
     GLint world_size_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "world_size");
+    GLint player_forward_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "player_forward");
+    GLint player_light_cos_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "player_light_cos_half_angle");
 
 
     glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
@@ -430,13 +437,26 @@ void RenderSystem::drawLights(vec2 window_size_in_game_units)
     vec2 world_size{w,h};
     glUniform2fv(world_size_loc, 1, (float*)&world_size);
     glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
+    vec2 player_forward{1.f, 0.f};
+    float player_light_cos_half_angle = -1.f;
     if(!ECS::registry<Soldier>.entities.empty() && ECS::registry<Soldier>.entities[0].has<Motion>() && ECS::registry<Camera>.has(screen.camera)) {
-        auto player_loc = ECS::registry<Soldier>.entities[0].get<Motion>().position;
+        auto& player_entity = ECS::registry<Soldier>.entities[0];
+        auto& player_motion = player_entity.get<Motion>();
+        auto player_loc = player_motion.position;
         auto &camera = ECS::registry<Camera>.get(screen.camera);
         auto camera_loc = camera.get_position();
         vec2 player_loccation{(player_loc.x - camera_loc.x) / window_size_in_game_units.x, (player_loc.y - camera_loc.y) / window_size_in_game_units.y};
         glUniform2fv(in_player, 1, (float *) &player_loccation);
+        vec2 forward_dir{ std::cos(player_motion.angle), -std::sin(player_motion.angle) };
+        float magnitude = std::sqrt(forward_dir.x * forward_dir.x + forward_dir.y * forward_dir.y);
+        if (magnitude > 0.0001f) {
+            player_forward = forward_dir / magnitude;
+        }
+        float half_angle_radians = (PLAYER_LIGHT_CONE_DEGREES * 0.5f) * PI / 180.f;
+        player_light_cos_half_angle = std::cos(half_angle_radians);
     }
+    glUniform2fv(player_forward_loc, 1, (float*)&player_forward);
+    glUniform1f(player_light_cos_loc, player_light_cos_half_angle);
     gl_has_errors();
 
     // Set the vertex position and vertex texture coordinates (both stored in the same VBO)
