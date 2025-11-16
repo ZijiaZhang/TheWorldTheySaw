@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+#include <algorithm>
 #include <soldier.hpp>
 #include <Wall.hpp>
 #include <MoveableWall.hpp>
@@ -24,6 +25,7 @@
 
 namespace {
     constexpr float PLAYER_LIGHT_CONE_DEGREES = 90.f;
+    constexpr float PLAYER_LIGHT_INNER_RADIUS = 80.f;
 }
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen)
@@ -428,6 +430,7 @@ void RenderSystem::drawLights(vec2 window_size_in_game_units)
     GLint world_size_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "world_size");
     GLint player_forward_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "player_forward");
     GLint player_light_cos_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "player_light_cos_half_angle");
+    GLint player_light_inner_radius_loc = glGetUniformLocation(wall_screen_sprite.effect.program, "player_light_inner_radius");
 
 
     glUniform1f(time_uloc, static_cast<float>(glfwGetTime() * 10.0f));
@@ -439,6 +442,7 @@ void RenderSystem::drawLights(vec2 window_size_in_game_units)
     glUniform1f(dead_timer_uloc, screen.darken_screen_factor);
     vec2 player_forward{1.f, 0.f};
     float player_light_cos_half_angle = -1.f;
+    float player_light_inner_radius = 0.f;
     if(!ECS::registry<Soldier>.entities.empty() && ECS::registry<Soldier>.entities[0].has<Motion>() && ECS::registry<Camera>.has(screen.camera)) {
         auto& player_entity = ECS::registry<Soldier>.entities[0];
         auto& player_motion = player_entity.get<Motion>();
@@ -454,9 +458,14 @@ void RenderSystem::drawLights(vec2 window_size_in_game_units)
         }
         float half_angle_radians = (PLAYER_LIGHT_CONE_DEGREES * 0.5f) * PI / 180.f;
         player_light_cos_half_angle = std::cos(half_angle_radians);
+        float pixels_per_unit_x = static_cast<float>(w) / window_size_in_game_units.x;
+        float pixels_per_unit_y = static_cast<float>(h) / window_size_in_game_units.y;
+        float pixels_per_unit = std::min(pixels_per_unit_x, pixels_per_unit_y);
+        player_light_inner_radius = PLAYER_LIGHT_INNER_RADIUS * pixels_per_unit;
     }
     glUniform2fv(player_forward_loc, 1, (float*)&player_forward);
     glUniform1f(player_light_cos_loc, player_light_cos_half_angle);
+    glUniform1f(player_light_inner_radius_loc, player_light_inner_radius);
     gl_has_errors();
 
     // Set the vertex position and vertex texture coordinates (both stored in the same VBO)

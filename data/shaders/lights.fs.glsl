@@ -8,6 +8,7 @@ uniform float texture_size;
 uniform vec2 world_size;
 uniform vec2 player_forward;
 uniform float player_light_cos_half_angle;
+uniform float player_light_inner_radius;
 
 in vec2 texcoord;
 in vec2 world_pos;
@@ -25,14 +26,17 @@ void main()
 	float ray_of_current_pixel = coord.x + coord.y * texture_size;
 	float radian = 2.0 * pi * ray_of_current_pixel/ray_count;
 	vec2 angle = normalize(vec2(cos(radian), sin(radian)));
+	float forward_dot = dot(angle, player_forward);
+	bool outside_fov = forward_dot < player_light_cos_half_angle;
 
-	if(dot(angle, player_forward) < player_light_cos_half_angle){
+	if(outside_fov && player_light_inner_radius <= 0.0){
 	    color = vec4(0.0, 0.0, 0.0, 1.0);
 	    return;
 	}
 
+	float max_distance = outside_fov ? min(player_light_inner_radius, max_step) : max_step;
 	float t = 0.0;
-	for(float i = 0.0; i< max_step; i+=1.0){
+	for(float i = 0.0; i<= max_distance; i+=1.0){
 		t = i;
         vec2 texture_loc = (player_position * world_size + angle * i) / world_size;
 		if(texture_loc.x > 1.0 || texture_loc.x < 0.0 ||
