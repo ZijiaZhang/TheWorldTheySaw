@@ -34,7 +34,7 @@ void main()
 	    return;
 	}
 
-	float max_distance = outside_fov ? min(player_light_inner_radius, max_step) : max_step;
+    float max_distance = outside_fov ? min(player_light_inner_radius, max_step) : max_step;
 	float t = 0.0;
 	for(float i = 0.0; i<= max_distance; i+=1.0){
 		t = i;
@@ -44,7 +44,13 @@ void main()
 			break;
 		};
 	}
-	color = vec4(floor(t/ accuracy)/accuracy, mod(t, accuracy) / accuracy,0.0,1.0);
+    float inner_circle_flag = (outside_fov && player_light_inner_radius > 0.0) ? 1.0 : 0.0;
+
+    color = vec4(
+        floor(t/ accuracy)/accuracy,
+        mod(t, accuracy) / accuracy,
+        inner_circle_flag,
+        1.0);
 	// color = vec4(cos(radian), sin(radian), 0.0, 1.0);
 
 

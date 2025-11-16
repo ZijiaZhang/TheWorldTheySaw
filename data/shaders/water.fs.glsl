@@ -9,12 +9,20 @@ uniform vec2 player_position;
 uniform float texture_size;
 uniform vec2 world_size;
 uniform float light_intensity;
+uniform bool enable_full_black;
+uniform float player_inner_light_radius;
+uniform float player_inner_light_soft_edge;
 
 in vec2 texcoord;
 
 const float max_step = 255.0 * 255.0;
 const float pi = radians(180.0);
 const float accuracy = 255.0;
+const float light_visibility_threshold = 0.05;
+const float inner_circle_soft_edge_ratio = 0.35;
+const float inner_circle_soft_edge_min = 8.0;
+const vec4 full_dark = vec4(0.0, 0.0, 0.0, 1.0);
+const vec4 soft_dark = vec4(0.2, 0.2, 0.2, 1.0);
 
 layout(location = 0) out vec4 color;
 
@@ -38,12 +46,31 @@ void main()
 	vec4 ray_data = texture(lighting_texture, ray_loc);
 
 	float ray_len = ray_data.x * accuracy * accuracy + ray_data.y* accuracy;
-	// vec4 auto = texture(lighting_texture, ray_loc);
 	float intensity = 0.8 / pow(2, pow(distance/light_intensity, 2)) + 0.2;
-	if(ray_len >= distance){
-		color = vec4(intensity,intensity,intensity,intensity) * in_color;
+    vec4 lit_color = vec4(intensity,intensity,intensity,intensity) * in_color;
+    vec4 darkness = enable_full_black ? full_dark : soft_dark;
+    bool inner_circle_ray = ray_data.z > 0.5;
+    bool has_light = ray_len >= distance && (intensity >= light_visibility_threshold || inner_circle_ray);
+
+	if(has_light){
+        if(inner_circle_ray){
+            float effective_radius = ray_len;
+            if(player_inner_light_radius > 0.0){
+                effective_radius = min(player_inner_light_radius, ray_len);
+            }
+            float soft_edge = player_inner_light_soft_edge;
+            if(soft_edge <= 0.0){
+                soft_edge = max(effective_radius * inner_circle_soft_edge_ratio, inner_circle_soft_edge_min);
+            }
+            float inner_start = max(effective_radius - soft_edge, 0.0);
+            float circle_progress = smoothstep(inner_start, effective_radius, distance);
+            float blend = 1.0 - circle_progress;
+            color = mix(darkness * in_color, lit_color, blend);
+        } else {
+		    color = lit_color;
+        }
 	} else {
-		color = vec4(0.2,0.2,0.2,1.0) * in_color;
+		color = darkness * in_color;
 	}
 
 
