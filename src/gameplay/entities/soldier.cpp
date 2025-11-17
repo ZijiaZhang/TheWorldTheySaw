@@ -9,8 +9,8 @@
 
 std::string Soldier::ori_texture_path = "/soldier/soldier_basic.png";
 std::string Soldier::field_texture_path = "/soldier/forcefield.png";
-std::string Soldier::ori_shader_name = "textured";
-std::string Soldier::field_shader_name = "frozen";
+std::string Soldier::ori_shader_name = "sprite_textured";
+std::string Soldier::field_shader_name = "forcefield_pulse";
 
 ECS::Entity Soldier::createSoldier(vec2 position,
                                    COLLISION_HANDLER overlap,
@@ -23,7 +23,7 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 //    ShadedMesh& resource = cache_resource(key);
 //    if (resource.effect.program.resource == 0)
 //    {
-//        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "textured");
+//        RenderSystem::createSprite(resource, textures_path("/soldier/soldier_basic.png"), "sprite_textured");
 //    }
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

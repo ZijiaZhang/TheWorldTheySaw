@@ -435,7 +435,7 @@ void RenderSystem::drawMenuScene(const mat3& projection_2D, ivec2 frame_buffer_s
 }
  
 
-// Draw the intermediate texture to the screen, with some distortion to simulate water
+// Raycast the scene from the player to encode light reach per direction
 void RenderSystem::drawLights(vec2 window_size_in_game_units)
 {
     // Setting shaders
@@ -800,7 +800,7 @@ void RenderSystem::createWeaponTimer(mat3 projection_2D, Motion timer_mesh_motio
     ShadedMesh& resource = cache_resource(key);
     if (resource.effect.program.resource == 0) {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("/bullet/"+wt.texture_path+".png"), "textured");
+        RenderSystem::createSprite(resource, textures_path("/bullet/"+wt.texture_path+".png"), "sprite_textured");
         drawTexturedMesh(weaponTimer_entity, projection_2D, timer_mesh_motion, resource);
     } else {
         drawTexturedMesh(weaponTimer_entity, projection_2D, timer_mesh_motion, resource);

@@ -23,7 +23,7 @@ ECS::Entity Weapon::createWeapon(vec2 offset, float offset_angle, ECS::Entity pa
     if (resource.mesh.vertices.size() == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path(texture_path), "textured");
+        RenderSystem::createSprite(resource, textures_path(texture_path), "sprite_textured");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

@@ -29,7 +29,7 @@ ECS::Entity Wall::createWall(vec2 location, vec2 size, float rotation,
 
         resource.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
 
-        RenderSystem::createColoredMesh(resource, "salmon");
+        RenderSystem::createColoredMesh(resource, "mesh_flat_highlight");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -74,7 +74,7 @@ ECS::Entity Wall::createWall(Motion m, Wall w, PhysicsObject po)
 
         resource.mesh.vertex_indices = std::vector<uint16_t>({ 0, 2, 1, 0, 3, 2 });
 
-        RenderSystem::createColoredMesh(resource, "salmon");
+        RenderSystem::createColoredMesh(resource, "mesh_flat_highlight");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

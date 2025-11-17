@@ -15,8 +15,8 @@
 
 std::string Enemy::ori_texture_path = "/enemy/cannon/alien.png";
 std::string Enemy::frozen_texture_path = "/enemy/frozen.jpeg";
-std::string Enemy::ori_shader_name = "textured";
-std::string Enemy::frozen_shader_name = "frozen";
+std::string Enemy::ori_shader_name = "sprite_textured";
+std::string Enemy::frozen_shader_name = "forcefield_pulse";
 
 std::unordered_map< EnemyType, std::string> Enemy::enemy_texture_map = {
     {EnemyType::STANDARD, ALIEN},

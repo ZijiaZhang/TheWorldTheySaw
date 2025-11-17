@@ -16,7 +16,7 @@ ECS::Entity MainMenu::createMainMenu(vec2 position, std::string name, float dept
         std::string path = "/main scene/";
         path.append(name);
         path.append(".png");
-		RenderSystem::createSprite(resource, textures_path(path), "textured");
+		RenderSystem::createSprite(resource, textures_path(path), "sprite_textured");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

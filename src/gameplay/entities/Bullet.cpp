@@ -24,7 +24,7 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
         std::string path = "/bullet/";
         path.append(texture_name);
         path.append(".png");
-        RenderSystem::createSprite(resource, textures_path(path), "textured");
+        RenderSystem::createSprite(resource, textures_path(path), "sprite_textured");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

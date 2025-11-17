@@ -8,12 +8,12 @@ ECS::Entity HighLightCircle::createHighLightCircle(vec2 position, float radius, 
 	auto entity = ECS::Entity();
 
 	// Create the rendering components
-	std::string key = "highlight_circle";
+	std::string key = "selection_ring";
 	ShadedMesh& resource = cache_resource(key);
 	if (resource.effect.program.resource == 0)
 	{
 		resource = ShadedMesh();
-		RenderSystem::createSprite(resource, "", "highlight_circle");
+		RenderSystem::createSprite(resource, "", "selection_ring");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

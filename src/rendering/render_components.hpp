@@ -59,14 +59,14 @@ struct GLResource
 	};
 };
 
-// Single Vertex Buffer element for non-textured meshes (colored_mesh.vertex.glsl & soldier.vertex.glsl)
+// Single Vertex Buffer element for non-textured meshes (mesh_flat_color.vertex.glsl & mesh_flat_color_legacy.vertex.glsl)
 struct ColoredVertex
 {
 	vec3 position;
 	vec3 color;
 };
 
-// Single Vertex Buffer element for textured sprites (textured.vertex.glsl)
+// Single Vertex Buffer element for textured sprites (sprite_textured.vertex.glsl)
 struct TexturedVertex
 {
 	vec3 position;

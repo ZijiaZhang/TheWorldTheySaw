@@ -36,7 +36,7 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 
     health_bar.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
     health_bar.texture.color = vec3{1,0,0};
-    RenderSystem::createColoredMesh(health_bar, "salmon");
+    RenderSystem::createColoredMesh(health_bar, "mesh_flat_highlight");
 
 
     health_bar_background = ShadedMesh();
@@ -47,12 +47,12 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 
     health_bar_background.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
     health_bar_background.texture.color = vec3{0.1,0.1,0.1};
-    RenderSystem::createColoredMesh(health_bar_background, "salmon");
+    RenderSystem::createColoredMesh(health_bar_background, "mesh_flat_highlight");
 
     // Initialize the screen texture and its state
      glGenFramebuffers(1, &wall_frame_buffer);
     glBindFramebuffer(GL_FRAMEBUFFER, wall_frame_buffer);
-    createSprite(wall_screen_sprite, "", "lights");
+    createSprite(wall_screen_sprite, "", "lighting_raycast");
 
     wall_screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
 
@@ -65,7 +65,7 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{ vec3{0, -0.5, -0.02}, vec3{1.0,1.0,1.0} });
     weaponTimerMask.mesh.vertex_indices = std::vector<uint16_t>({ 0, 2, 1, 0, 3, 2 });
     weaponTimerMask.texture.color = vec3{ 0.2,.8,0.2 };
-    RenderSystem::createColoredMesh(weaponTimerMask, "salmon");
+    RenderSystem::createColoredMesh(weaponTimerMask, "mesh_flat_highlight");
 
     renderSystem = this;
 }
@@ -239,7 +239,7 @@ void RenderSystem::createColoredMesh(ShadedMesh& texmesh, std::string shader_nam
 void RenderSystem::initScreenTexture()
 {
 	// Create a sprite withour loading a texture
-	createSprite(screen_sprite, "", "water");
+    createSprite(screen_sprite, "", "lighting_composite");
 
 	// Initialize the screen texture and its state
 	screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());

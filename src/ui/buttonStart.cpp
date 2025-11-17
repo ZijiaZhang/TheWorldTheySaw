@@ -13,7 +13,7 @@ ECS::Entity ButtonStart::createButtonStart(vec2 position)
     if (resource.effect.program.resource == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("/main scene/button_start.png"), "textured");
+        RenderSystem::createSprite(resource, textures_path("/main scene/button_start.png"), "sprite_textured");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

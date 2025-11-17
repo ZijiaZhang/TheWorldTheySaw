@@ -63,7 +63,7 @@ ECS::Entity Healthbar::drawHealthBar(vec2 position, vec2 scale, float hp, float 
 		resource.mesh.vertex_indices.push_back(2);
 		resource.mesh.vertex_indices.push_back(3);
 
-		RenderSystem::createColoredMesh(resource, "colored_mesh");
+		RenderSystem::createColoredMesh(resource, "mesh_flat_color");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

@@ -15,7 +15,7 @@ ECS::Entity Shield::createShield(vec2 position,  int teamID, float hp)
 	if (resource.effect.program.resource == 0)
 	{
 		resource = ShadedMesh();
-		RenderSystem::createSprite(resource, textures_path("/shield/shield3.png"), "textured");
+		RenderSystem::createSprite(resource, textures_path("/shield/shield3.png"), "sprite_textured");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -71,7 +71,7 @@ ECS::Entity Shield::createShield(Motion m, Shield s, Health h, PhysicsObject po)
     if (resource.effect.program.resource == 0)
     {
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path("/shield/shield3.png"), "textured");
+        RenderSystem::createSprite(resource, textures_path("/shield/shield3.png"), "sprite_textured");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

@@ -16,7 +16,7 @@ ECS::Entity PopUP::createPopUP(std::string texture_path, vec2 position, vec2 siz
 	if (resource.effect.program.resource == 0)
 	{
 		resource = ShadedMesh();
-		RenderSystem::createSprite(resource, texture_path, "textured");
+		RenderSystem::createSprite(resource, texture_path, "sprite_textured");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -37,7 +37,7 @@ ShadedMesh& PopUP::get_background()
 	if (pop_up_background.effect.program.resource == 0)
 	{
 		pop_up_background = ShadedMesh();
-		RenderSystem::createSprite(pop_up_background, textures_path("/tutorial/help.png"), "textured");
+		RenderSystem::createSprite(pop_up_background, textures_path("/tutorial/help.png"), "sprite_textured");
 	}
 	return pop_up_background;
 }

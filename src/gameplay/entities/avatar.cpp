@@ -23,7 +23,7 @@ ECS::Entity Avatar::createAvatar(vec2 position,  AvatarType avatarType)
         path.append(key);
         path.append(".png");
         resource = ShadedMesh();
-        RenderSystem::createSprite(resource, textures_path(path), "textured");
+        RenderSystem::createSprite(resource, textures_path(path), "sprite_textured");
     }
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
     auto ref = ECS::registry<ShadedMeshRefUI>.emplace(entity, resource);

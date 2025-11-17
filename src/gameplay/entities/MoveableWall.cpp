@@ -26,7 +26,7 @@ ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rot
 
         resource.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
 
-        RenderSystem::createColoredMesh(resource, "salmon");
+        RenderSystem::createColoredMesh(resource, "mesh_flat_highlight");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -106,7 +106,7 @@ ECS::Entity MoveableWall::createCustomMoveableWall(vec2 location, vec2 scale, st
 
     //printf("%d\n", resource.mesh.vertices.size());
   
-    RenderSystem::createColoredMesh(resource, "salmon");
+    RenderSystem::createColoredMesh(resource, "mesh_flat_highlight");
 
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -168,7 +168,7 @@ ECS::Entity MoveableWall::createMoveableWall(Motion m, MoveableWall mw, PhysicsO
 
         resource.mesh.vertex_indices = std::vector<uint16_t>({ 0, 2, 1, 0, 3, 2 });
 
-        RenderSystem::createColoredMesh(resource, "salmon");
+        RenderSystem::createColoredMesh(resource, "mesh_flat_highlight");
     }
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)

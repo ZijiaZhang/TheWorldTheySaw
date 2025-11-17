@@ -88,7 +88,7 @@ ECS::Entity Button::createButton(ButtonIcon buttonType, vec2 position, COLLISION
 		path.append(key);
 		path.append(".png");
 		resource = ShadedMesh();
-		RenderSystem::createSprite(resource, textures_path(path), "textured");
+		RenderSystem::createSprite(resource, textures_path(path), "sprite_textured");
 	}
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
