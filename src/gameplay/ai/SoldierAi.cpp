@@ -13,12 +13,14 @@ std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity, float)>> Soldier
         {A_STAR, a_star_to_closest_enemy}
 };
 
-std::unordered_map<WeaponType , std::function<void(ECS::Entity, float)>> SoldierAISystem::weaponMap = {
-        {W_ROCKET, shoot_rocket},
-        {W_AMMO, shoot_ammo},
-        {W_LASER, shoot_laser},
-        {W_BULLET, shoot_bullet}
+std::unordered_map<WeaponType, WeaponFireConfig> SoldierAISystem::weaponConfigs = {
+        {W_BULLET, WeaponFireConfig{W_BULLET, BULLET_RELOAD, vec2{380.f, 0.f}, vec2{1.f, 1.f}, 1200.f, "bullet", "gun_fire.wav", false}},
+        {W_ROCKET, WeaponFireConfig{W_ROCKET, ROCKET_RELOAD, vec2{150.f, 0.f}, vec2{1.f, 1.f}, 2500.f, "rocket", "firework.wav", true}},
+        {W_LASER, WeaponFireConfig{W_LASER, LAZER_RELOAD, vec2{400.f, 0.f}, vec2{1.f, 1.f}, 750.f, "laser", "laser.wav", false}},
+        {W_AMMO, WeaponFireConfig{W_AMMO, AMMO_RELOAD, vec2{200.f, 0.f}, vec2{1.f, 1.f}, 1800.f, "ammo", "ammo.wav", false}}
 };
+
+std::unordered_map<std::string, BulletModifier> SoldierAISystem::bulletModifiers = {};
 
 float SoldierAISystem::pathTicker = 0.f;
 float SoldierAISystem::weaponTicker = 0.f;
@@ -37,163 +39,172 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         // Move manually
         //algorithmMap[GameInstance::algorithm](soldier, elapsed_ms);
         if(soldier.get<Soldier>().weapon.has<Weapon>()) {
-            weaponMap[GameInstance::selectedWeapon](soldier, elapsed_ms);
+            SoldierAISystem::handleWeaponFire(soldier, GameInstance::selectedWeapon);
         }
         SoldierAISystem::underEffectControl(soldier, elapsed_ms);
 	}
 }
-void SoldierAISystem::shoot_bullet(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > BULLET_RELOAD) {
-        auto& weapon = soldier_entity.get<Soldier>().weapon;
-        auto& soldier_motion = soldier_entity.get<Motion>();
-        if (weapon.has<Motion>()) {
-            auto &motion = weapon.get<Motion>();
-            float rad = soldier_motion.angle;
-            bool hasTarget = true;
-            if (GameInstance::weaponAutoAim) {
-                hasTarget = false;
-                ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
-                if (ECS::registry<Motion>.has(cloestEnemy)) {
-                    auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
-                    auto dir = enemyMotion.position - motion.position;
-                    rad = atan2(dir.y, dir.x);
-                    hasTarget = true;
-                }
-            }
-            if (hasTarget) {
-                motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {380, 0}, 0, W_BULLET, "bullet", 1200);
-//                 Bullet::createBullet(motion.position, rad, {380, 0}, 0, "bullet");
-                Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
-                // std::cout << "fire_bullet \n";
-                if (gun_fire == nullptr)
-                    throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
-                        audio_path("gun_fire.wav"));
-                Mix_PlayChannel(-1, gun_fire, 0);
-                //Mix_FreeChunk(gun_fire);
-                
-            }
-        }
+void SoldierAISystem::registerWeaponConfig(const WeaponFireConfig& config) {
+    weaponConfigs[config.type] = config;
+}
 
-        weaponTicker = 0;
+void SoldierAISystem::removeWeaponConfig(WeaponType type) {
+    weaponConfigs.erase(type);
+}
+
+void SoldierAISystem::registerBulletModifier(const std::string& id, const BulletModifier& modifier) {
+    bulletModifiers[id] = modifier;
+}
+
+void SoldierAISystem::unregisterBulletModifier(const std::string& id) {
+    bulletModifiers.erase(id);
+}
+
+void SoldierAISystem::clearBulletModifiers() {
+    bulletModifiers.clear();
+}
+
+void SoldierAISystem::handleWeaponFire(ECS::Entity soldier_entity, WeaponType weaponType) {
+    if (!ECS::registry<Soldier>.has(soldier_entity) || !ECS::registry<Motion>.has(soldier_entity)) {
+        return;
+    }
+
+    auto configIt = weaponConfigs.find(weaponType);
+    if (configIt == weaponConfigs.end()) {
+        return;
+    }
+
+    const auto& config = configIt->second;
+
+    if (weaponTicker <= config.reloadMs) {
+        return;
+    }
+
+    auto& soldier = ECS::registry<Soldier>.get(soldier_entity);
+    ECS::Entity weapon = soldier.weapon;
+
+    if (!weapon.has<Motion>()) {
+        return;
+    }
+
+    auto& soldier_motion = ECS::registry<Motion>.get(soldier_entity);
+    auto& weapon_motion = weapon.get<Motion>();
+
+    float rad = soldier_motion.angle;
+    if (!resolveAimAngle(soldier_motion, weapon_motion, rad)) {
+        return;
+    }
+
+    weapon_motion.offset_angle = rad - soldier_motion.angle;
+
+    auto spawnConfig = makeSpawnConfig(config, weapon_motion.position, rad, soldier.teamID);
+
+    applyPreSpawnModifiers(spawnConfig);
+
+    ECS::Entity bulletEntity = spawnBullet(spawnConfig);
+
+    applySpawnScale(bulletEntity, spawnConfig);
+    configureExplosionOnHit(bulletEntity, spawnConfig);
+    applyPostSpawnModifiers(bulletEntity, spawnConfig);
+
+    playWeaponSound(config);
+
+    weaponTicker = 0.f;
+}
+
+bool SoldierAISystem::resolveAimAngle(Motion& soldierMotion, Motion& weaponMotion, float& outAngle) {
+    outAngle = soldierMotion.angle;
+
+    if (!GameInstance::weaponAutoAim) {
+        return true;
+    }
+
+    ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldierMotion);
+    if (!ECS::registry<Motion>.has(cloestEnemy)) {
+        return false;
+    }
+
+    auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
+    auto dir = enemyMotion.position - weaponMotion.position;
+    outAngle = atan2(dir.y, dir.x);
+    return true;
+}
+
+BulletSpawnConfig SoldierAISystem::makeSpawnConfig(const WeaponFireConfig& config, vec2 position, float angle, int teamId) {
+    BulletSpawnConfig spawnConfig;
+    spawnConfig.position = position;
+    spawnConfig.angle = angle;
+    spawnConfig.velocity = config.muzzleVelocity;
+    spawnConfig.scaleMultiplier = config.scaleMultiplier;
+    spawnConfig.lifetime_ms = config.lifetime_ms;
+    spawnConfig.type = config.type;
+    spawnConfig.texture = config.texture;
+    spawnConfig.teamId = teamId;
+    spawnConfig.explodeOnHit = config.explodeOnHit;
+    return spawnConfig;
+}
+
+ECS::Entity SoldierAISystem::spawnBullet(const BulletSpawnConfig& config) {
+    return Bullet::createBullet(config.position, config.angle, config.velocity, config.teamId, config.type,
+                                config.texture, config.lifetime_ms);
+}
+
+void SoldierAISystem::applySpawnScale(ECS::Entity bulletEntity, const BulletSpawnConfig& config) {
+    if (!ECS::registry<Motion>.has(bulletEntity)) {
+        return;
+    }
+    if (config.scaleMultiplier.x == 1.f && config.scaleMultiplier.y == 1.f) {
+        return;
+    }
+    auto& motion = ECS::registry<Motion>.get(bulletEntity);
+    motion.scale.x *= config.scaleMultiplier.x;
+    motion.scale.y *= config.scaleMultiplier.y;
+}
+
+void SoldierAISystem::configureExplosionOnHit(ECS::Entity bulletEntity, const BulletSpawnConfig& config) {
+    if (!config.explodeOnHit) {
+        return;
+    }
+
+    if (!bulletEntity.has<Bullet>()) {
+        return;
+    }
+
+    bulletEntity.get<Bullet>().on_destroy = [](ECS::Entity e){
+        if(e.has<Motion>()) {
+            Explosion::CreateExplosion(e.get<Motion>().position, 80, 0, 5);
+        }
+        ECS::ContainerInterface::remove_all_components_of(e);
+    };
+}
+
+void SoldierAISystem::applyPreSpawnModifiers(BulletSpawnConfig& config) {
+    for (auto& entry : bulletModifiers) {
+        if (entry.second.adjustSpawnConfig) {
+            entry.second.adjustSpawnConfig(config);
+        }
     }
 }
 
-void SoldierAISystem::shoot_rocket(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > ROCKET_RELOAD) {
-        auto& weapon = soldier_entity.get<Soldier>().weapon;
-        auto& soldier_motion = soldier_entity.get<Motion>();
-        if (weapon.has<Motion>()) {
-            auto &motion = weapon.get<Motion>();
-            float rad = soldier_motion.angle;
-            bool hasTarget = true;
-            if (GameInstance::weaponAutoAim) {
-                hasTarget = false;
-                ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
-                if (ECS::registry<Motion>.has(cloestEnemy)) {
-                    auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
-                    auto dir = enemyMotion.position - motion.position;
-                    rad = atan2(dir.y, dir.x);
-                    hasTarget = true;
-                }
-            }
-            if (hasTarget) {
-                motion.offset_angle = rad - soldier_motion.angle;
-                auto callback = [](ECS::Entity e){
-                    if(e.has<Motion>()) {
-                        Explosion::CreateExplosion(e.get<Motion>().position, 80, 0, 5);
-                    }
-                    ECS::ContainerInterface::remove_all_components_of(e);
-                };
-                Bullet::createBullet(motion.position, rad, {150, 0},  0, W_ROCKET, "rocket", 2500, callback);
-
-                Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("firework.wav").c_str());
-                if (gun_fire == nullptr)
-                    throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
-                        audio_path("firework.wav"));
-
-                Mix_PlayChannel(-1, gun_fire, 0);
-                //Mix_FreeChunk(gun_fire);
-            }
+void SoldierAISystem::applyPostSpawnModifiers(ECS::Entity bulletEntity, const BulletSpawnConfig& config) {
+    for (auto& entry : bulletModifiers) {
+        if (entry.second.afterSpawn) {
+            entry.second.afterSpawn(bulletEntity, config);
         }
-
-        weaponTicker = 0;
     }
 }
 
-void SoldierAISystem::shoot_laser(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > LAZER_RELOAD) {
-        auto& weapon = soldier_entity.get<Soldier>().weapon;
-        auto& soldier_motion = soldier_entity.get<Motion>();
-        if (weapon.has<Motion>()) {
-            auto &motion = weapon.get<Motion>();
-            float rad = soldier_motion.angle;
-            bool hasTarget = true;
-            if (GameInstance::weaponAutoAim) {
-                hasTarget = false;
-                ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
-                if (ECS::registry<Motion>.has(cloestEnemy)) {
-                    auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
-                    auto dir = enemyMotion.position - motion.position;
-                    rad = atan2(dir.y, dir.x);
-                    hasTarget = true;
-                }
-            }
-            if (hasTarget) {
-                motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {400, 0}, 0, W_LASER, "laser", 750);
-                //Bullet::createBullet(motion.position, rad, {400, 0}, 0, "laser");
-                // std::cout << "fire_laser \n";
-                Mix_Chunk*  gun_fire = Mix_LoadWAV(audio_path("laser.wav").c_str());
-                if (gun_fire == nullptr)
-                    throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
-                        audio_path("laser.wav"));
-
-                Mix_PlayChannel(-1, gun_fire, 0);
-                //Mix_FreeChunk(gun_fire);
-            }
-        }
-
-        weaponTicker = 0;
+void SoldierAISystem::playWeaponSound(const WeaponFireConfig& config) {
+    if (config.soundEffect.empty()) {
+        return;
     }
-}
 
-void SoldierAISystem::shoot_ammo(ECS::Entity soldier_entity, float elapsed_ms) {
-    if(weaponTicker > AMMO_RELOAD) {
-        auto& weapon = soldier_entity.get<Soldier>().weapon;
-        auto& soldier_motion = soldier_entity.get<Motion>();
-        if (weapon.has<Motion>()) {
-            auto &motion = weapon.get<Motion>();
-            float rad = soldier_motion.angle;
-            bool hasTarget = true;
-            if (GameInstance::weaponAutoAim) {
-                hasTarget = false;
-                ECS::Entity cloestEnemy = SoldierAISystem::getCloestEnemy(soldier_motion);
-                if (ECS::registry<Motion>.has(cloestEnemy)) {
-                    auto &enemyMotion = ECS::registry<Motion>.get(cloestEnemy);
-                    auto dir = enemyMotion.position - motion.position;
-                    rad = atan2(dir.y, dir.x);
-                    hasTarget = true;
-                }
-            }
-            if (hasTarget) {
-                motion.offset_angle = rad - soldier_motion.angle;
-                Bullet::createBullet(motion.position, rad, {200, 0}, 0, W_AMMO, "ammo", 1800);
-                // Bullet::createBullet(motion.position, rad, {200, 0}, 0, "ammo");
+    Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path(config.soundEffect).c_str());
+    if (gun_fire == nullptr)
+        throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
+                                 audio_path(config.soundEffect));
 
-                // std::cout << "fire_ammo \n";
-                Mix_Chunk* gun_fire = Mix_LoadWAV(audio_path("ammo.wav").c_str());
-                if (gun_fire == nullptr)
-                    throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
-                        audio_path("ammo.wav"));
-
-                Mix_PlayChannel(-1, gun_fire, 0);
-                //Mix_FreeChunk(gun_fire);
-            }
-        }
-
-        weaponTicker = 0;
-    }
+    Mix_PlayChannel(-1, gun_fire, 0);
 }
 
 
