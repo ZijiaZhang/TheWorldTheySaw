@@ -36,6 +36,7 @@ endif()
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PUBLIC
     src/
+    src/gameplay
     src/core
     src/gameplay/ai
     src/gameplay/entities

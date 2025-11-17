@@ -13,15 +13,6 @@ std::unordered_map<AIAlgorithm, std::function<void(ECS::Entity, float)>> Soldier
         {A_STAR, a_star_to_closest_enemy}
 };
 
-std::unordered_map<WeaponType, WeaponFireConfig> SoldierAISystem::weaponConfigs = {
-        {W_BULLET, WeaponFireConfig{W_BULLET, BULLET_RELOAD, vec2{380.f, 0.f}, vec2{1.f, 1.f}, 1200.f, "bullet", "gun_fire.wav", false}},
-        {W_ROCKET, WeaponFireConfig{W_ROCKET, ROCKET_RELOAD, vec2{150.f, 0.f}, vec2{1.f, 1.f}, 2500.f, "rocket", "firework.wav", true}},
-        {W_LASER, WeaponFireConfig{W_LASER, LAZER_RELOAD, vec2{400.f, 0.f}, vec2{1.f, 1.f}, 750.f, "laser", "laser.wav", false}},
-        {W_AMMO, WeaponFireConfig{W_AMMO, AMMO_RELOAD, vec2{200.f, 0.f}, vec2{1.f, 1.f}, 1800.f, "ammo", "ammo.wav", false}}
-};
-
-std::unordered_map<std::string, BulletModifier> SoldierAISystem::bulletModifiers = {};
-
 float SoldierAISystem::pathTicker = 0.f;
 float SoldierAISystem::weaponTicker = 0.f;
 
@@ -44,39 +35,19 @@ void SoldierAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
         SoldierAISystem::underEffectControl(soldier, elapsed_ms);
 	}
 }
-void SoldierAISystem::registerWeaponConfig(const WeaponFireConfig& config) {
-    weaponConfigs[config.type] = config;
-}
-
-void SoldierAISystem::removeWeaponConfig(WeaponType type) {
-    weaponConfigs.erase(type);
-}
-
-void SoldierAISystem::registerBulletModifier(const std::string& id, const BulletModifier& modifier) {
-    bulletModifiers[id] = modifier;
-}
-
-void SoldierAISystem::unregisterBulletModifier(const std::string& id) {
-    bulletModifiers.erase(id);
-}
-
-void SoldierAISystem::clearBulletModifiers() {
-    bulletModifiers.clear();
-}
-
 void SoldierAISystem::handleWeaponFire(ECS::Entity soldier_entity, WeaponType weaponType) {
     if (!ECS::registry<Soldier>.has(soldier_entity) || !ECS::registry<Motion>.has(soldier_entity)) {
         return;
     }
 
-    auto configIt = weaponConfigs.find(weaponType);
-    if (configIt == weaponConfigs.end()) {
+    WeaponConfigRegistry::initializeDefaults();
+
+    const auto* config = WeaponConfigRegistry::getWeaponConfig(weaponType);
+    if (config == nullptr) {
         return;
     }
 
-    const auto& config = configIt->second;
-
-    if (weaponTicker <= config.reloadMs) {
+    if (weaponTicker <= config->reloadMs) {
         return;
     }
 
@@ -97,7 +68,7 @@ void SoldierAISystem::handleWeaponFire(ECS::Entity soldier_entity, WeaponType we
 
     weapon_motion.offset_angle = rad - soldier_motion.angle;
 
-    auto spawnConfig = makeSpawnConfig(config, weapon_motion.position, rad, soldier.teamID);
+    auto spawnConfig = makeSpawnConfig(*config, weapon_motion.position, rad, soldier.teamID);
 
     applyPreSpawnModifiers(spawnConfig);
 
@@ -107,7 +78,7 @@ void SoldierAISystem::handleWeaponFire(ECS::Entity soldier_entity, WeaponType we
     configureExplosionOnHit(bulletEntity, spawnConfig);
     applyPostSpawnModifiers(bulletEntity, spawnConfig);
 
-    playWeaponSound(config);
+    playWeaponSound(*config);
 
     weaponTicker = 0.f;
 }
@@ -179,7 +150,8 @@ void SoldierAISystem::configureExplosionOnHit(ECS::Entity bulletEntity, const Bu
 }
 
 void SoldierAISystem::applyPreSpawnModifiers(BulletSpawnConfig& config) {
-    for (auto& entry : bulletModifiers) {
+    const auto& modifiers = WeaponConfigRegistry::getBulletModifiers();
+    for (const auto& entry : modifiers) {
         if (entry.second.adjustSpawnConfig) {
             entry.second.adjustSpawnConfig(config);
         }
@@ -187,7 +159,8 @@ void SoldierAISystem::applyPreSpawnModifiers(BulletSpawnConfig& config) {
 }
 
 void SoldierAISystem::applyPostSpawnModifiers(ECS::Entity bulletEntity, const BulletSpawnConfig& config) {
-    for (auto& entry : bulletModifiers) {
+    const auto& modifiers = WeaponConfigRegistry::getBulletModifiers();
+    for (const auto& entry : modifiers) {
         if (entry.second.afterSpawn) {
             entry.second.afterSpawn(bulletEntity, config);
         }
