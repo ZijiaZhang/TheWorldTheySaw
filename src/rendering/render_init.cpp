@@ -161,7 +161,7 @@ void RenderSystem::createSprite(ShadedMesh& sprite, std::string texture_path, st
 	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
 
 	// Loading shaders
-	sprite.effect.load_from_file(shader_path(shader_name) + ".vs.glsl", shader_path(shader_name) + ".fs.glsl");
+	sprite.effect.load_from_file(shader_path(shader_name) + ".vertex.glsl", shader_path(shader_name) + ".fragment.glsl");
 }
 
 
@@ -232,7 +232,7 @@ void RenderSystem::createColoredMesh(ShadedMesh& texmesh, std::string shader_nam
 	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
 
 	// Loading shaders
-	texmesh.effect.load_from_file(shader_path(shader_name)+".vs.glsl", shader_path(shader_name)+".fs.glsl");
+	texmesh.effect.load_from_file(shader_path(shader_name)+".vertex.glsl", shader_path(shader_name)+".fragment.glsl");
 }
 
 // Initialize the screen texture from a standard sprite
