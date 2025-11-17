@@ -2,10 +2,7 @@
 #include "world.hpp"
 #include "physics.hpp"
 #include "debug.hpp"
-#include "turtle.hpp"
-#include "fish.hpp"
 #include "shield.hpp"
-#include "pebbles.hpp"
 #include "render_components.hpp"
 #include "tiny_ecs.hpp"
 #include "Bullet.hpp"
@@ -538,20 +535,6 @@ void WorldSystem::handle_collisions()
 		auto entity = registry.entities[i];
 		auto entity_other = registry.components[i].other;
 
-		// For now, we are only interested in collisions that involve the soldier
-		if (ECS::registry<Soldier>.has(entity))
-		{
-			// Checking Soldier - Turtle collisions
-			if (ECS::registry<Turtle>.has(entity_other))
-			{
-				// initiate death unless already dying
-				if (!ECS::registry<DeathTimer>.has(entity))
-				{
-					// Scream, reset timer, and make the soldier sink
-					ECS::registry<DeathTimer>.emplace(entity);
-				}
-			}
-		}
 	}
 
 	// Remove all collisions from this simulation step
