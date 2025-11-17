@@ -6,6 +6,7 @@
 #include <AiState.hpp>
 #include "health_bar.hpp"
 #include "Weapon.hpp"
+#include "WeaponConfig.hpp"
 #include "GameInstance.hpp"
 #include "render_components.hpp"
 #include "WeaponTimer.hpp"
@@ -77,7 +78,13 @@ public:
         // remove old weapon
         ECS::ContainerInterface::remove_all_components_of(self.get<Soldier>().weapon);
         // new weapon
-        std::string path = Weapon::weaponTexturePath[type];
+        WeaponConfigRegistry::initializeDefaults();
+        std::string path = "/soldier/weapon_heavy.png";
+        if (const auto* config = WeaponConfigRegistry::getWeaponConfig(type)) {
+            if (!config->weaponTexturePath.empty()) {
+                path = config->weaponTexturePath;
+            }
+        }
         ECS::Entity weapon = Weapon::createWeapon(vec2 {0,20.f}, 0, self, path);
         auto& children_entity = ECS::registry<ChildrenEntities>.get(self);
         children_entity.children.insert(weapon);

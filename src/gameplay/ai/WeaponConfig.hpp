@@ -37,8 +37,10 @@ struct WeaponFireConfig {
     vec2 scaleMultiplier = {1.f, 1.f};
     float lifetime_ms = -1.f;
     std::string texture;
+    std::string weaponTexturePath;
     std::string soundEffect;
     bool explodeOnHit = false;
+    float damage = 1.f;
 };
 
 class WeaponConfigRegistry {

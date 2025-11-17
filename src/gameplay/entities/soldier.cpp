@@ -100,7 +100,7 @@ void Soldier::soldier_bullet_hit_death(ECS::Entity self, const ECS::Entity e, Co
             // auto& bullet_indicator = e.get<Bullet>().velocity_indicator;
             // std::cout << bullet_indicator << "!!!!!";
             if(!ECS::registry<Soldier>.get(self).forcefield_on){
-               health.hp -= Bullet::bulletDamage[e.get<Bullet>().type];
+               health.hp -= e.get<Bullet>().damage;
                Particle::createParticle(c.vertex, { 50,50 }, 1000);
         }
             

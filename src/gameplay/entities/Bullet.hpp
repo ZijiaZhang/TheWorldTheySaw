@@ -105,7 +105,6 @@ public:
     WeaponType type;
     float damage = 1.0;
     float penetration_counter = 0;
-    static std::unordered_map<WeaponType, float> bulletDamage;
 };
 
 // A timer that will be associated to dying object

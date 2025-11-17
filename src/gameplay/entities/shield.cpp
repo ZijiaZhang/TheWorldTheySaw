@@ -88,7 +88,7 @@ ECS::Entity Shield::createShield(Motion m, Shield s, Health h, PhysicsObject po)
 void Shield::shield_bullet_hit_death(ECS::Entity self, const ECS::Entity e, CollisionResult) {
     if (e.has<Bullet>() && (e.get<Bullet>().teamID != self.get<Shield>().teamID) && !self.has<DeathTimer>()) {
         auto& health = self.get<Health>();
-        health.hp -= Bullet::bulletDamage[e.get<Bullet>().type];
+        health.hp -= e.get<Bullet>().damage;
         if (health.hp <= 0)
             self.emplace<DeathTimer>();
     }

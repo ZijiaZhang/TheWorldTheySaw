@@ -3,12 +3,7 @@
 //
 
 #include "Bullet.hpp"
-std::unordered_map<WeaponType, float> Bullet::bulletDamage {
-        {W_AMMO, 0.58},
-        {W_LASER, 0.73},
-        {W_BULLET, 1.1},
-        {W_ROCKET, 3.85}
-};
+#include "WeaponConfig.hpp"
 
 ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int teamID, WeaponType type, std::string texture_name, float lifetime,
                                  std::function<void(ECS::Entity)> callback){
@@ -78,7 +73,11 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     }
 
     bullet.type = type;
-    bullet.damage = Bullet::bulletDamage[type];
+    bullet.damage = 1.f;
+    WeaponConfigRegistry::initializeDefaults();
+    if (const auto* config = WeaponConfigRegistry::getWeaponConfig(type)) {
+        bullet.damage = config->damage;
+    }
 
     return entity;
 }

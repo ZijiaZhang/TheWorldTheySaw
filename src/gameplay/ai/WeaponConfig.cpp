@@ -19,16 +19,16 @@ void WeaponConfigRegistry::initializeDefaults() {
 
     registerWeaponConfig(
             WeaponFireConfig{W_BULLET, BULLET_RELOAD, vec2{380.f, 0.f}, vec2{1.f, 1.f}, 1200.f, "bullet",
-                             "gun_fire.wav", false});
+                             "/soldier/weapon_heavy.png", "gun_fire.wav", false, 1.1f});
     registerWeaponConfig(
             WeaponFireConfig{W_ROCKET, ROCKET_RELOAD, vec2{150.f, 0.f}, vec2{1.f, 1.f}, 2500.f, "rocket",
-                             "firework.wav", true});
+                             "/soldier/weapon_rocket.png", "firework.wav", true, 3.85f});
     registerWeaponConfig(
             WeaponFireConfig{W_LASER, LAZER_RELOAD, vec2{400.f, 0.f}, vec2{1.f, 1.f}, 750.f, "laser",
-                             "laser.wav", false});
+                             "/soldier/sword.png", "laser.wav", false, 0.73f});
     registerWeaponConfig(
             WeaponFireConfig{W_AMMO, AMMO_RELOAD, vec2{200.f, 0.f}, vec2{1.f, 1.f}, 1800.f, "ammo",
-                             "ammo.wav", false});
+                             "/soldier/weapon_frozen.png", "ammo.wav", false, 0.58f});
 
     defaultsInitialized = true;
 }
