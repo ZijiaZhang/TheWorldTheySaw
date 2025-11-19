@@ -6,16 +6,11 @@
 #include <Bullet.hpp>
 
 
-std::unordered_map<EnemyType,EnemyStat> EnemyStats = {
-        {STANDARD, {500, 100, 100}},
-        {SUICIDE, {1000, 50, 500}},
-        {ELITE, {1000, 100, 300}}
-};
-
-
 
 void EnemyAISystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
+    EnemyConfigRegistry::initializeDefaults();
+
 	timeTicker += elapsed_ms;
 	shoot_time += elapsed_ms;
     elite_shoot_time += elapsed_ms;
@@ -97,11 +92,16 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			ECS::Entity soldier = ECS::registry<Soldier>.entities[0];
 			auto& soldierMotion = ECS::registry<Motion>.get(soldier);
       
-            if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, EnemyStats[enemy.type].act_distance)) {
+            const auto* config = EnemyConfigRegistry::getMovementConfig(enemy.type);
+            if (!config) {
+                continue;
+            }
+
+            if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, config->act_distance)) {
 				enemy.enemyState = AiState::WALK_FORWARD;
                 if (enemy_entity.has<AIPath>()) {
-                    EnemyAISystem::shortestPathToSoldier(enemy_entity, elapsed_ms, soldierMotion.position, EnemyStats[enemy.type].path_accuracy);
-                    enemy_entity.get<AIPath>().desired_speed = { EnemyStats[enemy.type].speed , 0.f };
+                    EnemyAISystem::shortestPathToSoldier(enemy_entity, elapsed_ms, soldierMotion.position, config->path_accuracy);
+                    enemy_entity.get<AIPath>().desired_speed = { config->speed , 0.f };
                 }
                 
 
@@ -110,7 +110,7 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
 			else
 			{
 					enemy.enemyState = AiState::WANDER;
-					EnemyAISystem::walkRandom(enemy_motion);
+                    EnemyAISystem::walkRandom(enemy_motion, config->wander_speed);
 			}
 		}
 		else
@@ -149,7 +149,12 @@ void EnemyAISystem::walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMot
 	float distance = sqrt(pow(enemyPos.x - soldierPos.x, 2)) + sqrt(pow(enemyPos.y - soldierPos.y, 2));
 	vec2 normalized = vec2{ posDiff.x / distance, posDiff.y / distance };
 
-	enemyMotion.velocity = vec2{ normalized.x * -100.f, normalized.y * -100.f };
+    EnemyConfigRegistry::initializeDefaults();
+    float speed = 80.f;
+    if (const auto* config = EnemyConfigRegistry::getMovementConfig(STANDARD)) {
+        speed = config->backpedal_speed;
+    }
+	enemyMotion.velocity = vec2{ normalized.x * -speed, normalized.y * -speed };
 	// std::cout << enemyMotion.velocity.x << " ," << enemyMotion.velocity.y << "\n";
 
 	// soldierMotion.velocity = vec2{ -100.f, 0 };
@@ -163,9 +168,22 @@ void EnemyAISystem::walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMot
 	// std::cout << "backward: " << soldierMotion.velocity.x << ", " << soldierMotion.velocity.y << "\n";
 }
 
-void EnemyAISystem::walkRandom(Motion& enemyMotion)
+void EnemyAISystem::walkRandom(Motion& enemyMotion, float maxSpeed)
 {
-	enemyMotion.velocity = vec2{ rand() % 200 - 99, rand() % 200 - 99 };
+    float targetSpeed = maxSpeed;
+    if (targetSpeed <= 0.f) {
+        enemyMotion.velocity = vec2{0.f, 0.f};
+        return;
+    }
+
+    vec2 randomDir = vec2{ float(rand() % 200 - 99), float(rand() % 200 - 99) };
+    float magnitude = sqrt(randomDir.x * randomDir.x + randomDir.y * randomDir.y);
+    if (magnitude < 0.001f) {
+        enemyMotion.velocity = vec2{targetSpeed, 0.f};
+        return;
+    }
+    float scale = targetSpeed / magnitude;
+    enemyMotion.velocity = randomDir * scale;
 }
 
 void EnemyAISystem::shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest, float distance)

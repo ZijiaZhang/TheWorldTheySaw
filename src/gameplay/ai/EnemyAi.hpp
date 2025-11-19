@@ -4,17 +4,11 @@
 #include "tiny_ecs.hpp"
 #include "PhysicsObject.hpp"
 #include "ai.hpp"
+#include "EnemyConfig.hpp"
 
 #define ELITE_SHOOT_INTERVAL 1000.f
 #define SHOOT_INTERVAL 500.f
 #define ENEMY_MOVEMENT_REFRESH 30.f
-
-struct EnemyStat {
-    float act_distance;
-    float path_accuracy;
-    float speed;
-};
-
 
 class EnemyAISystem
 {
@@ -41,7 +35,7 @@ private:
 
     void walkBackwardAndShoot(Motion& enemyMotion, Motion& soldierMotion);
 
-    void walkRandom(Motion& enemyMotion);
+    void walkRandom(Motion& enemyMotion, float maxSpeed);
 
     void shortestPathToSoldier(ECS::Entity e, float elapsed_ms, vec2 dest, float distance);
 
