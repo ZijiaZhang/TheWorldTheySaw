@@ -20,6 +20,7 @@
 #include "GameInstance.hpp"
 #include "avatar.hpp"
 #include "DestructibleWall.hpp"
+#include "Building.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -51,6 +52,7 @@ std::vector<std::string> LevelLoader::existing_level = {
 	"level_11",
 	"level_12",
     "test_wall",
+    "test_building",
 	TUTORIAL_NAME
 };
 
@@ -367,9 +369,14 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 		MoveableWall::createMoveableWall(location, size, rotation, physics_callbacks["wall_scater"], Wall::wall_hit);
 	}
 	},
-    {"destructible_wall", [](vec2 location, vec2 size, float rotation,
+    {" destructible_wall", [](vec2 location, vec2 size, float rotation,
                         COLLISION_HANDLER overlap, COLLISION_HANDLER hit, const json&) {
         DestructibleWallSystem::createDestructibleWall(location, size, rotation);
+    }
+    },
+    {"building", [](vec2 location, vec2 size, float rotation,
+                        COLLISION_HANDLER overlap, COLLISION_HANDLER hit, const json&) {
+        BuildingSystem::createBuilding(location, size, rotation);
     }
     },
 	{"player", [](vec2 location, vec2 size, float rotation,
@@ -716,6 +723,12 @@ COLLISION_HANDLER,
 COLLISION_HANDLER, const json&)
 {
 return Button::createButton(ButtonIcon::TUTORIAL, location, select_button_overlap("test_wall"));
+} },
+    { "button_test_building", [](vec2 location, vec2 size, float rotation,
+COLLISION_HANDLER,
+COLLISION_HANDLER, const json&)
+{
+return Button::createButton(ButtonIcon::TUTORIAL, location, select_button_overlap("test_building"));
 } }
 };
 

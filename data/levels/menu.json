@@ -127,5 +127,13 @@
         "y": 875
       }
     }
+  ],
+  "button_test_building": [
+    {
+      "position": {
+        "x": 720,
+        "y": 875
+      }
+    }
   ]
 }

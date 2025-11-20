@@ -501,7 +501,7 @@ void WorldSystem::checkEndGame()
 	if (pendingRestart) {
 		return;
 	}
-    if (GameInstance::currentLevel == "test_wall") {
+    if (GameInstance::currentLevel == "test_wall" || GameInstance::currentLevel == "test_building") {
         return;
     }
 	if (GameInstance::isPlayableLevel()) {

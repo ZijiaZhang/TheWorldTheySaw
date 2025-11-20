@@ -1,6 +1,8 @@
 #include "SurvivalSystem.hpp"
 #include "Wall.hpp"
 #include "DestructibleWall.hpp"
+#include "Building.hpp"
+#include "Roof.hpp"
 #include "soldier.hpp"
 #include "Enemy.hpp"
 #include <iostream>
@@ -42,6 +44,9 @@ void SurvivalSystem::step(float elapsed_ms) {
     if (player_found) {
         vec2 player_pos = ECS::registry<Motion>.get(player).position;
         updateChunks(player_pos);
+        
+        // Update roof transparency based on player distance
+        RoofSystem::updateRoofTransparency(player_pos);
     }
 }
 
@@ -122,6 +127,31 @@ void SurvivalSystem::generateChunk(ivec2 grid_pos) {
         }
         
         new_chunk.entities.push_back(wall);
+    }
+
+    // Generate Buildings
+    int num_buildings = static_cast<int>(dist(chunk_rng) * 3 + 1); // 1 to 4 buildings per chunk
+    for (int i = 0; i < num_buildings; ++i) {
+        vec2 local_pos = {pos_dist(chunk_rng), pos_dist(chunk_rng)};
+        vec2 world_pos = chunk_origin + local_pos;
+        vec2 size = {scale_dist(chunk_rng) * 2.f, scale_dist(chunk_rng) * 2.f}; // Larger square buildings
+        float angle = 0.f; // Buildings are axis-aligned for now
+
+        // Avoid spawning on top of player
+        if (grid_pos.x == 0 && grid_pos.y == 0 && length(world_pos) < 300.f) {
+            continue; 
+        }
+
+        ECS::Entity building = BuildingSystem::createBuilding(world_pos, size, angle);
+        new_chunk.entities.push_back(building);
+        
+        // Also track the roof so it gets cleaned up
+        if (building.has<Building>()) {
+            auto& building_comp = building.get<Building>();
+            if (building_comp.roof.has<Roof>()) {
+                new_chunk.entities.push_back(building_comp.roof);
+            }
+        }
     }
 
     active_chunks[grid_pos] = new_chunk;
