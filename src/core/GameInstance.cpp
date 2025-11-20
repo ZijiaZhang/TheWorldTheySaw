@@ -40,7 +40,9 @@ static std::map<std::string, bool> playableLevelMap = {
         {"level_9", true},
         {"level_10", true},
         {"level_11", true},
-        {"level_12", true}
+        {"level_12", true},
+        {"survival", true},
+        {"test_wall", true}
 };
 
 
@@ -62,7 +64,9 @@ static std::map<std::string, bool> entered_level = {
         {"level_9", false},
         {"level_10", false},
         {"level_11", false},
-        {"level_12", false}
+        {"level_12", false},
+        {"survival", false},
+        {"test_wall", false}
 };
 
 

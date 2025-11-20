@@ -19,6 +19,7 @@
 #include "WeaponTimer.hpp"
 #include "mainMenu.hpp"
 #include "PhysicsObject.hpp"
+#include "DestructibleWall.hpp"
 
 // stlib
 #include <string.h>
@@ -342,6 +343,12 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			Soldier::switchWeapon(player_soldier, W_BULLET);
 		}
 	}
+
+    DestructibleWallSystem::updateDebris(elapsed_ms);
+
+    if (is_survival_mode) {
+        survival_system.step(elapsed_ms);
+    }
 }
 
 // Reset the world state to its initial state
@@ -350,6 +357,12 @@ void WorldSystem::restart(std::string level)
 	level_loader.set_level(level);
 	selecting = false;
     GameInstance::currentLevel = level;
+    
+    is_survival_mode = (level == "survival");
+    if (is_survival_mode) {
+        survival_system.restart();
+    }
+
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 
@@ -379,7 +392,21 @@ void WorldSystem::restart(std::string level)
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 	// load background, walls, enemies and player from level_loaders
-	level_loader.load_level();
+    if (!is_survival_mode) {
+	    level_loader.load_level();
+    } else {
+        // Create player for survival mode manually
+        if (GameInstance::isPlayableLevel()) { // "survival" should be considered playable
+             // Let's create a default player at 0,0
+             player_soldier = Soldier::createSoldier({0, 0});
+             ECS::registry<Soldier>.get(player_soldier).teamID = 0;
+             
+             // Add camera
+             ECS::Entity camera;
+             camera.insert(Camera({ 0,0 }, player_soldier));
+             prev_pl_pos = ECS::registry<Motion>.get(player_soldier).position;
+        }
+    }
 
 	auto soldiers = ECS::registry<Soldier>.entities;
 	bool needs_player = GameInstance::isPlayableLevel() || GameInstance::currentLevel == "settings";
@@ -474,6 +501,9 @@ void WorldSystem::checkEndGame()
 	if (pendingRestart) {
 		return;
 	}
+    if (GameInstance::currentLevel == "test_wall") {
+        return;
+    }
 	if (GameInstance::isPlayableLevel()) {
         bool enemies_remaining = !ECS::registry<Enemy>.entities.empty();
         bool player_alive = !ECS::registry<Soldier>.entities.empty();

@@ -19,6 +19,7 @@
 #include "Weapon.hpp"
 #include "GameInstance.hpp"
 #include "avatar.hpp"
+#include "DestructibleWall.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -49,6 +50,7 @@ std::vector<std::string> LevelLoader::existing_level = {
 	"level_10",
 	"level_11",
 	"level_12",
+    "test_wall",
 	TUTORIAL_NAME
 };
 
@@ -227,7 +229,7 @@ std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::physics_callback
 		{"enemy_bullet_hit_death", Enemy::enemy_bullet_hit_death},
         {"soldier_bullet_hit_death", Soldier::soldier_bullet_hit_death},
         {"wall_scater", Wall::wall_overlap},
-
+        {"destructible_wall_break", DestructibleWallSystem::onOverlap},
 };
 
 std::unordered_map<std::string, COLLISION_HANDLER> LevelLoader::default_hit_callback = {
@@ -365,6 +367,11 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 		MoveableWall::createMoveableWall(location, size, rotation, physics_callbacks["wall_scater"], Wall::wall_hit);
 	}
 	},
+    {"destructible_wall", [](vec2 location, vec2 size, float rotation,
+                        COLLISION_HANDLER overlap, COLLISION_HANDLER hit, const json&) {
+        DestructibleWallSystem::createDestructibleWall(location, size, rotation);
+    }
+    },
 	{"player", [](vec2 location, vec2 size, float rotation,
 			COLLISION_HANDLER overlap,
 			COLLISION_HANDLER hit, const json& additional) {
@@ -703,6 +710,12 @@ COLLISION_HANDLER,
 COLLISION_HANDLER, const json&)
 {
 return Button::createButton(ButtonIcon::SETTING, location, select_button_overlap("settings"));
+} },
+    { "button_test_wall", [](vec2 location, vec2 size, float rotation,
+COLLISION_HANDLER,
+COLLISION_HANDLER, const json&)
+{
+return Button::createButton(ButtonIcon::TUTORIAL, location, select_button_overlap("test_wall"));
 } }
 };
 

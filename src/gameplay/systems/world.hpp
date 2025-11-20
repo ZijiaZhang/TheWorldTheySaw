@@ -8,6 +8,7 @@
 #include "button.hpp"
 #include "health_bar.hpp"
 #include "GameInstance.hpp"
+#include "SurvivalSystem.hpp"
 
 // stlib
 #include <vector>
@@ -112,4 +113,8 @@ private:
 	bool pendingRestart = false;
 	float pendingRestartTimer = 0.f;
 	std::string pendingRestartLevel = "";
+
+    // Survival Mode
+    SurvivalSystem survival_system;
+    bool is_survival_mode = false;
 };
