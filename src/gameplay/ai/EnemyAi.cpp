@@ -94,7 +94,7 @@ void EnemyAISystem::makeDecision(ECS::Entity enemy_entity, float elapsed_ms)
       
             const auto* config = EnemyConfigRegistry::getMovementConfig(enemy.type);
             if (!config) {
-                continue;
+                return;
             }
 
             if (EnemyAISystem::isSoldierExistsInRange(enemy_motion, soldierMotion, config->act_distance)) {
