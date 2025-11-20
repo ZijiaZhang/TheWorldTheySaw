@@ -44,9 +44,6 @@ void SurvivalSystem::step(float elapsed_ms) {
     if (player_found) {
         vec2 player_pos = ECS::registry<Motion>.get(player).position;
         updateChunks(player_pos);
-        
-        // Update roof transparency based on player distance
-        RoofSystem::updateRoofTransparency(player_pos);
     }
 }
 

@@ -20,6 +20,7 @@
 #include "mainMenu.hpp"
 #include "PhysicsObject.hpp"
 #include "DestructibleWall.hpp"
+#include "Roof.hpp"
 
 // stlib
 #include <string.h>
@@ -345,6 +346,17 @@ void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 	}
 
     DestructibleWallSystem::updateDebris(elapsed_ms);
+
+    // Update roof transparency globally (for all game modes)
+    // Find player position
+    vec2 player_pos = {0, 0};
+    for (auto& entity : ECS::registry<Soldier>.entities) {
+        if (entity.has<Motion>()) {
+            player_pos = entity.get<Motion>().position;
+            break;
+        }
+    }
+    RoofSystem::updateRoofTransparency(player_pos);
 
     if (is_survival_mode) {
         survival_system.step(elapsed_ms);

@@ -21,28 +21,6 @@
                 "y": 200
             },
             "rotation": 0
-        },
-        {
-            "position": {
-                "x": -300,
-                "y": 200
-            },
-            "size": {
-                "x": 250,
-                "y": 250
-            },
-            "rotation": 0
-        },
-        {
-            "position": {
-                "x": 100,
-                "y": -300
-            },
-            "size": {
-                "x": 300,
-                "y": 200
-            },
-            "rotation": 0
         }
     ],
     "background": [

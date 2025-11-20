@@ -20,6 +20,7 @@
 #include <Particle.hpp>
 #include <MagicParticle.hpp>
 #include <highlight_circle.hpp>
+#include "Roof.hpp"
 #include <pop_up.hpp>
 #include <Enemy.hpp>
 
@@ -160,6 +161,20 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
         glUniform2fv(center_uloc, 1, (float*)&(center_loc));
     }
     gl_has_errors();
+    
+    // Pass opacity for roof transparency
+    GLint opacity_uloc = glGetUniformLocation(texmesh.effect.program, "opacity");
+    if (opacity_uloc >= 0) {
+        if (entity.has<Roof>()) {
+            float opacity = entity.get<Roof>().current_opacity;
+            glUniform1f(opacity_uloc, opacity);
+        } else {
+            // Default to fully opaque for non-roof entities
+            glUniform1f(opacity_uloc, 1.0f);
+        }
+    }
+    gl_has_errors();
+    
     // Drawing of num_indices/3 triangles specified in the index buffer
     glDrawElements(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, nullptr);
     glBindVertexArray(0);

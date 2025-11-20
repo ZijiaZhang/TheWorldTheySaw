@@ -2,6 +2,7 @@
 #include "render.hpp"
 #include "Building.hpp"
 #include <cmath>
+#include <iostream>
 
 ECS::Entity RoofSystem::createRoof(vec2 position, vec2 size, float rotation, ECS::Entity parent_building) {
     ECS::Entity entity = ECS::Entity();
@@ -16,32 +17,35 @@ ECS::Entity RoofSystem::createRoof(vec2 position, vec2 size, float rotation, ECS
     if (ZValuesMap.count("Roof")) {
         motion.zValue = ZValuesMap["Roof"];
     } else {
-        motion.zValue = 2.0f; // High Z to render above walls
+        motion.zValue = 0.9f; // High Z to render above walls (0.5), but < 1.0 to avoid clipping
     }
 
     // Add Roof component
     Roof& roof = entity.emplace<Roof>();
-    roof.parent_building = parent_building;
+   roof.parent_building = parent_building;
     roof.current_opacity = 1.0f;
 
-    // Add Rendering Components (same as wall, but with transparency)
+    // Add Rendering Components with transparent shader
     std::string key = "roof";
     ShadedMesh& resource = cache_resource(key);
     if (resource.mesh.vertices.empty()) {
         resource = ShadedMesh();
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{-0.5, 0.5, -0.02}, vec3{0.0, 0.0, 0.0}});
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, 0.5, -0.02}, vec3{0.0, 0.0, 0.0}});
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, -0.5, -0.02}, vec3{0.0, 0.0, 0.0}});
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{-0.5, -0.5, -0.02}, vec3{0.0, 0.0, 0.0}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{-0.5, 0.5, -0.02}, vec3{1.0, 1.0, 1.0}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, 0.5, -0.02}, vec3{1.0, 1.0, 1.0}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, -0.5, -0.02}, vec3{1.0, 1.0, 1.0}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{-0.5, -0.5, -0.02}, vec3{1.0, 1.0, 1.0}});
 
         resource.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
 
-        RenderSystem::createColoredMesh(resource, "mesh_flat_highlight");
+        RenderSystem::createColoredMesh(resource, "roof_transparent");
     }
     ECS::registry<ShadedMeshRef>.emplace(entity, resource);
     
-    // Reddish-brown color for roof (like terracotta)
-    resource.texture.color = {0.6f, 0.3f, 0.2f};
+    // Brown color for roof
+    resource.texture.color = {0.6f, 0.4f, 0.2f};
+    
+    std::cout << "Created roof at position (" << position.x << ", " << position.y << ") with size (" << size.x << ", " << size.y << "), zValue=" << motion.zValue << ", opacity=" << roof.current_opacity << std::endl;
+    std::cout << "Roof has Motion: " << entity.has<Motion>() << ", has Roof: " << entity.has<Roof>() << ", has ShadedMeshRef: " << entity.has<ShadedMeshRef>() << std::endl;
 
     return entity;
 }
@@ -49,7 +53,7 @@ ECS::Entity RoofSystem::createRoof(vec2 position, vec2 size, float rotation, ECS
 void RoofSystem::updateRoofTransparency(vec2 player_pos) {
     for (auto& entity : ECS::registry<Roof>.entities) {
         auto& roof = entity.get<Roof>();
-        
+
         // Check if parent building still exists
         if (!roof.parent_building.has<Building>() || !roof.parent_building.has<Motion>()) {
             continue;
@@ -59,8 +63,10 @@ void RoofSystem::updateRoofTransparency(vec2 player_pos) {
         vec2 building_pos = roof.parent_building.get<Motion>().position;
         
         // Calculate distance from player to building
+        std::cout << "player_pos" << player_pos.x << " " << player_pos.y << " " << building_pos.x << " " << building_pos.y << std::endl;
         float distance = length(player_pos - building_pos);
-        
+        std::cout << "Distance:" << distance  << std::endl;
+
         // Calculate opacity based on distance
         float new_opacity = 1.0f;
         if (distance < roof.transparency_distance) {
@@ -71,19 +77,11 @@ void RoofSystem::updateRoofTransparency(vec2 player_pos) {
             new_opacity = fade_factor;
         }
         
-        roof.current_opacity = new_opacity;
-        
-        // Update color alpha (this will be used by the shader if it supports it)
-        // For now, we can scale the color by opacity
-        if (entity.has<ShadedMeshRef>()) {
-            auto& mesh_ref = entity.get<ShadedMeshRef>();
-            // Store base color and multiply by opacity
-            // Note: This is a simple approach. A proper alpha channel would be better.
-            mesh_ref.reference_to_cache->texture.color = {
-                0.6f * new_opacity,
-                0.3f * new_opacity,
-                0.2f * new_opacity
-            };
+        if (std::abs(new_opacity - roof.current_opacity) > 0.01f) {
+            std::cout << "Roof opacity changed: " << roof.current_opacity << " -> " << new_opacity << " (distance=" << distance << ")" << std::endl;
         }
+        std::cout << "opacity=" << roof.current_opacity << " -> " << new_opacity << std::endl;
+        roof.current_opacity = new_opacity;
+        // Note: The opacity will be passed to the shader in the render system
     }
 }
