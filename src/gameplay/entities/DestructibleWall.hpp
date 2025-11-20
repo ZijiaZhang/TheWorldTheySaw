@@ -6,7 +6,7 @@
 
 struct DestructibleWall {
     // Configurable parameters
-    int debris_count = 20;
+    int debris_count = 5;
     float explosion_force = 200.f;
 };
 
@@ -27,4 +27,6 @@ public:
     static void updateDebris(float elapsed_ms);
 
     static void onOverlap(ECS::Entity self, const ECS::Entity e, CollisionResult collision);
+
+    static void wall_hit(ECS::Entity self, ECS::Entity e, CollisionResult collision);
 };

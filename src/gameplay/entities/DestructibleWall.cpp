@@ -25,6 +25,7 @@ ECS::Entity DestructibleWallSystem::createDestructibleWall(vec2 location, vec2 s
     physics.fixed = true;
     physics.mass = 1000;
     physics.attach(Overlap, DestructibleWallSystem::onOverlap);
+    physics.attach(Hit, DestructibleWallSystem::wall_hit);
 
     // Add DestructibleWall component
     entity.insert(DestructibleWall());
@@ -275,6 +276,7 @@ void DestructibleWallSystem::breakWall(ECS::Entity wall_entity, vec2 impact_poin
         debris_physics.mass = 10;
         debris_physics.vertex.clear();
         debris_physics.faces.clear();
+        debris_physics.attach(Hit, DestructibleWallSystem::wall_hit);
 
         // Use real polygon vertices for physics
         for (size_t i = 0; i < poly.vertices.size(); ++i) {
@@ -364,4 +366,8 @@ void DestructibleWallSystem::onOverlap(ECS::Entity self, const ECS::Entity e, Co
         breakWall(self, collision.vertex, impact_vel);
         ECS::ContainerInterface::remove_all_components_of(e);
     }
+}
+
+void DestructibleWallSystem::wall_hit(ECS::Entity self, ECS::Entity e, CollisionResult collision) {
+    PhysicsObject::handle_collision(self, e, collision);
 }

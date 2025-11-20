@@ -102,6 +102,7 @@ IntersectionResult find_intersection(vec2 position, vec2 vector, vec2 position2,
 }
 
 void Wall::wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult collision) {
+    std::cout << "Wall hit" << std::endl;
     Force force = PhysicsObject::handle_collision(self, e, collision);  
 }
 

@@ -92,6 +92,7 @@ public:
         auto f = calculate_force(self, other, collision);
         auto& p1 = self.get<PhysicsObject>();
         p1.force.push_back(f);
+        std::cout << "Force x:" << f.force.x << "y:" << f.force.y << std::endl;
         return f;
     }
     void add_force(Force f){
