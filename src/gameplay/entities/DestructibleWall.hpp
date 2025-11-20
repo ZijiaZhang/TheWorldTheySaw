@@ -6,20 +6,23 @@
 
 struct DestructibleWall {
     // Configurable parameters
-    int debris_count = 5;
+    int debris_count = 20;
     float explosion_force = 200.f;
 };
+
+struct ShadedMesh;
 
 struct Debris {
     float life_time = 1000.f; // ms
     float collision_disable_timer = 1000.f; // ms
+    ShadedMesh* custom_mesh = nullptr;
 };
 
 class DestructibleWallSystem {
 public:
     static ECS::Entity createDestructibleWall(vec2 location, vec2 size, float rotation);
     
-    static void breakWall(ECS::Entity wall_entity, vec2 impact_point);
+    static void breakWall(ECS::Entity wall_entity, vec2 impact_point, vec2 impact_velocity);
     
     static void updateDebris(float elapsed_ms);
 
