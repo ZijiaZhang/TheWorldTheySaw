@@ -6,7 +6,7 @@
 
 struct DestructibleWall {
     // Configurable parameters
-    int debris_count = 5;
+    int debris_count = 20;
     float explosion_force = 200.f;
 };
 

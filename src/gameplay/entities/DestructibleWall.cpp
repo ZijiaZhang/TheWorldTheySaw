@@ -216,20 +216,27 @@ void DestructibleWallSystem::breakWall(ECS::Entity wall_entity, vec2 impact_poin
 
         ECS::Entity debris = ECS::Entity();
 
-        // Calculate Bounding Box
+        // Calculate centroid (average of all vertices)
+        vec2 centroid = {0, 0};
+        for (auto& v : poly.vertices) {
+            centroid += v;
+        }
+        centroid /= (float)poly.vertices.size();
+
+        // Calculate bounding box relative to centroid
         float min_x = 1e9, max_x = -1e9, min_y = 1e9, max_y = -1e9;
         for (auto& v : poly.vertices) {
-            min_x = std::min(min_x, v.x);
-            max_x = std::max(max_x, v.x);
-            min_y = std::min(min_y, v.y);
-            max_y = std::max(max_y, v.y);
+            vec2 rel_v = v - centroid;
+            min_x = std::min(min_x, rel_v.x);
+            max_x = std::max(max_x, rel_v.x);
+            min_y = std::min(min_y, rel_v.y);
+            max_y = std::max(max_y, rel_v.y);
         }
 
         float width = max_x - min_x;
         float height = max_y - min_y;
-        vec2 center = {min_x + width / 2.f, min_y + height / 2.f};
 
-        // Transform center to world space
+        // Transform centroid to world space
         vec2 gap_center_local;
         if (split_y) {
              gap_center_local = {0, impact_pos}; 
@@ -237,7 +244,7 @@ void DestructibleWallSystem::breakWall(ECS::Entity wall_entity, vec2 impact_poin
              gap_center_local = {impact_pos, 0}; 
         }
 
-        vec2 poly_center_wall_local = gap_center_local + center;
+        vec2 poly_center_wall_local = gap_center_local + centroid;
 
         float wc = cos(motion_angle);
         float ws = sin(motion_angle);
@@ -268,22 +275,44 @@ void DestructibleWallSystem::breakWall(ECS::Entity wall_entity, vec2 impact_poin
         
         // Bias strongly towards impact velocity
         // Radial component reduced to 20%, Impact component increased to 80%
-        debris_motion.velocity = dir * (dw_explosion_force * dist / 100.f * 0.8f) + impact_velocity * 0.5f;
-
+        debris_motion.velocity = dir * (dw_explosion_force * dist / 20.f * 0.8f) + impact_velocity * 0.5f;
+        debris_motion.angular_velocity = length(dir) * 0.5f;
         // Physics
         PhysicsObject& debris_physics = debris.insert(PhysicsObject());
         debris_physics.object_type = MOVEABLEWALL; 
-        debris_physics.mass = 10;
+        debris_physics.mass = 100;
         debris_physics.vertex.clear();
         debris_physics.faces.clear();
         debris_physics.attach(Hit, DestructibleWallSystem::wall_hit);
 
-        // Use real polygon vertices for physics
+        // Ensure counter-clockwise winding order for physics
+        // Calculate signed area using shoelace formula
+        float signed_area = 0.f;
         for (size_t i = 0; i < poly.vertices.size(); ++i) {
-            vec2 v = poly.vertices[i];
-            vec2 norm_v = { (v.x - center.x) / width, (v.y - center.y) / height };
+            vec2 v1 = poly.vertices[i];
+            vec2 v2 = poly.vertices[(i + 1) % poly.vertices.size()];
+            signed_area += (v1.x * v2.y - v2.x * v1.y);
+        }
+        
+        // If signed area is negative, vertices are clockwise - reverse them
+        std::vector<vec2> ordered_vertices = poly.vertices;
+        if (signed_area < 0) {
+            std::reverse(ordered_vertices.begin(), ordered_vertices.end());
+        }
+
+        // Use real polygon vertices for physics (normalized relative to centroid)
+        std::cout << "Debris Physics Vertices: " << ordered_vertices.size() << std::endl;
+        for (size_t i = 0; i < ordered_vertices.size(); ++i) {
+            vec2 v = ordered_vertices[i];
+            vec2 norm_v = { (v.x - centroid.x) / width, (v.y - centroid.y) / height };
             debris_physics.vertex.push_back(PhysicsVertex{{norm_v.x, norm_v.y, -0.02}});
-            debris_physics.faces.push_back({(int)i, (int)((i + 1) % poly.vertices.size())});
+            debris_physics.faces.push_back({(int)i, (int)((i + 1) % ordered_vertices.size())});
+            std::cout << "  Vertex " << i << ": (" << norm_v.x << ", " << norm_v.y << ")" << std::endl;
+        }
+        
+        std::cout << "Debris Physics Faces: " << debris_physics.faces.size() << std::endl;
+        for (size_t i = 0; i < debris_physics.faces.size(); ++i) {
+            std::cout << "  Face " << i << ": (" << debris_physics.faces[i].first << ", " << debris_physics.faces[i].second << ")" << std::endl;
         }
 
         // Create Custom Mesh on Heap
@@ -293,13 +322,12 @@ void DestructibleWallSystem::breakWall(ECS::Entity wall_entity, vec2 impact_poin
             continue;
         }
 
-        // Normalize vertices to [-0.5, 0.5] relative to the bounding box center
+        // Normalize vertices to [-0.5, 0.5] relative to centroid
         // And create triangle fan indices
-        // Center of fan can be the first vertex, or the centroid.
         // Convex polygon: Fan from vertex 0 covers it.
         
         for (const auto& v : poly.vertices) {
-            vec2 norm_v = { (v.x - center.x) / width, (v.y - center.y) / height };
+            vec2 norm_v = { (v.x - centroid.x) / width, (v.y - centroid.y) / height };
             resource->mesh.vertices.emplace_back(ColoredVertex{vec3{norm_v.x, norm_v.y, -0.02}, vec3{0.0,0.0,0.0}});
         }
         
@@ -333,12 +361,14 @@ void DestructibleWallSystem::breakWall(ECS::Entity wall_entity, vec2 impact_poin
 void DestructibleWallSystem::updateDebris(float elapsed_ms) {
     for (auto& entity : ECS::registry<Debris>.entities) {
         auto& debris = entity.get<Debris>();
-        // debris.life_time -= elapsed_ms;
-        // debris.collision_disable_timer -= elapsed_ms;
+        debris.life_time -= elapsed_ms;
+        debris.collision_disable_timer -= elapsed_ms;
 
         if (entity.has<Motion>()) {
             auto& motion = entity.get<Motion>();
-            // motion.velocity *= 0.99f; // Strong decay
+            motion.velocity *= 0.95f; // Strong decay
+            motion.angular_velocity *= 0.95f; // Strong decay
+            motion.preserve_world_velocity *= 0.9f;
         }
 
         if (debris.collision_disable_timer <= 0) {
@@ -369,5 +399,6 @@ void DestructibleWallSystem::onOverlap(ECS::Entity self, const ECS::Entity e, Co
 }
 
 void DestructibleWallSystem::wall_hit(ECS::Entity self, ECS::Entity e, CollisionResult collision) {
+    std::cout << "DestructibleWallSystem::wall_hit" << std::endl;
     PhysicsObject::handle_collision(self, e, collision);
 }
