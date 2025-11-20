@@ -6,8 +6,8 @@
 struct Roof {
     ECS::Entity parent_building; // Reference to parent building
     float current_opacity = 1.0f;
-    float transparency_distance = 10.f; // Distance at which roof starts fading
-    float fade_range = 20.f; // Distance over which fade occurs
+    float transparency_distance = 200.f; // Distance at which roof starts fading
+    float fade_range = 50.f; // Distance over which fade occurs
 };
 
 class RoofSystem {

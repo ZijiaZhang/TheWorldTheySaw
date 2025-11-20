@@ -11,13 +11,13 @@ ECS::Entity RoofSystem::createRoof(vec2 position, vec2 size, float rotation, ECS
     Motion& motion = entity.emplace<Motion>();
     motion.position = position;
     motion.angle = rotation;
-    motion.scale = size * 1.1f; // 10% overhang
+    motion.scale = size; // 10% overhang
     
     // Set high Z value to render on top
     if (ZValuesMap.count("Roof")) {
         motion.zValue = ZValuesMap["Roof"];
     } else {
-        motion.zValue = 0.9f; // High Z to render above walls (0.5), but < 1.0 to avoid clipping
+        motion.zValue = 100; // High Z to render above walls (0.5), but < 1.0 to avoid clipping
     }
 
     // Add Roof component

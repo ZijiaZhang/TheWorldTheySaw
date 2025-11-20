@@ -733,6 +733,16 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
         gl_has_errors();
     }
 
+    auto roof_entities = ECS::registry<Roof>.entities;
+    for (ECS::Entity entity : roof_entities)
+    {
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity))
+            continue;
+        // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
+        drawTexturedMesh(entity, projection_2D);
+        gl_has_errors();
+    }
+
 
 	// Truely render to the screen
     drawLights(window_size_in_game_units);
