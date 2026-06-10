@@ -12,21 +12,13 @@
     ],
     "background": [{
         "position": {"x": 500, "y": 500},
-        "additionalProperties": {"name": "victory", "scale": 0.5}
+        "additionalProperties": {"name": "background", "scale": 1.0}
     }],
-    "next_to_level_select": [
-        {
-            "position": {
-                "x": 900,
-                "y": 800
-            }
-        }
-    ],
     "return_to_menu": [
         {
             "position": {
-                "x": 100,
-                "y": 800
+                "x": 485,
+                "y": 600
             }
         }
     ]

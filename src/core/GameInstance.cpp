@@ -23,46 +23,19 @@ bool GameInstance::weaponAutoAim = false;
 
 static std::map<std::string, bool> playableLevelMap = {
         {"menu", false},
-        {"level_select", false},
-        {"loadout", false},
-        {TUTORIAL_NAME, true},
         {"win", false},
         {"lose", false},
-        {"intro", false},
         {"level_1", true},
-        {"level_2", true},
-        {"level_3", true},
-        {"level_4", true},
-        {"level_5", true},
-        {"level_6", true},
-        {"level_7", true},
-        {"level_8", true},
-        {"level_9", true},
-        {"level_10", true},
-        {"level_11", true},
-        {"level_12", true}
+        {"settings", false}
 };
 
 
 static std::map<std::string, bool> entered_level = {
         {"menu", false},
-        {"level_select", false},
-        {"loadout", false},
         {"win", false},
         {"lose", false},
-        {"intro", false},
         {"level_1", false},
-        {"level_2", false},
-        {"level_3", false},
-        {"level_4", false},
-        {"level_5", false},
-        {"level_6", false},
-        {"level_7", false},
-        {"level_8", false},
-        {"level_9", false},
-        {"level_10", false},
-        {"level_11", false},
-        {"level_12", false}
+        {"settings", false}
 };
 
 

@@ -1,35 +1,41 @@
-# Team12
-The World They Saw
+# Game Template
 
-## M1
-Main functions:
+This repository is a reusable C++ game starter built around GLFW, OpenGL, SDL_mixer, a tiny ECS, JSON level loading, rendering helpers, simple physics, and AI/pathing examples.
 
-- press s to shoot bullet; bullet has animation;
+The old game's campaign data has been reduced to a neutral starter setup:
 
-- press left mouse button and draw a circle around the salmon to activate the shield
+- `data/levels/menu.json` is a minimal menu scene.
+- `data/levels/level_1.json` is a small playable sample level.
+- `data/levels/settings.json`, `win.json`, and `lose.json` are utility screens retained for the existing loop.
+- The previous game's authored level files and balance notes have been removed.
 
-- Mouse will be the dirction player moving
+## Build
 
-- Basic physics of enimy and player and wall.
+Use CMake to configure and build the project. On Windows, the repo includes the prebuilt GLFW and SDL libraries expected by `CMakeLists.txt`.
 
-- Observer pattern on collisions
+```powershell
+cmake -S . -B build
+cmake --build build
+```
 
-- New sound and textures.
+The build copies `data/` beside the executable after compilation.
 
-- Enemy will follow the player and will always face the player
+## Template Map
 
-- Texture layering
+- `src/core`: entry point, common math/path helpers, ECS, and global game state.
+- `src/rendering`: OpenGL rendering, shader setup, camera, backgrounds, particles, and visual components.
+- `src/gameplay/systems`: world loop, physics, level loading, timers.
+- `src/gameplay/entities`: sample entity implementations.
+- `src/gameplay/ai`: sample AI, pathing, and weapon configuration.
+- `src/ui`: reusable button/loading/menu UI components.
+- `data/levels`: JSON scenes that instantiate registered level objects.
+- `data/shaders`: shader programs used by the renderer.
+- `data/textures`, `data/audio`, `data/meshes`: assets to replace with your new game's content.
 
+## Starting A New Game
 
-## M2
-Main function
-- Add main menu
-- PLayer AI & Simple Enemy AI
-- To beat the level you need to call out shield by draw circles
-- Loadout selction by stpping on the desired weapon/ algorithm
-- There are currently two levels
-- Dynamic path finding. The enemy will navigate among moveable walls, but the spell that can move walls has not been crated yet, but the feature is there.
-- Parent and child system
-- Decition tree in Enemy
-- Help message in weapon selection page
-- Level loading with json files
+1. Rename the CMake project if you want a game-specific executable name.
+2. Replace the sample assets in `data/textures` and `data/audio`.
+3. Add or rename level object types in `LevelLoader::level_objects`.
+4. Replace the sample player/enemy/weapon entities with your new game's components and systems.
+5. Expand `GameInstance` only with state that must be shared across systems.

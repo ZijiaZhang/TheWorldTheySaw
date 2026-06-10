@@ -8,8 +8,7 @@
 #include "SoldierAi.hpp"
 
 #define MENU_NAME "menu"
-#define TUTORIAL_NAME "tutorial"
-#define WEAPON_SELECT_NAME "loadout"
+#define WEAPON_SELECT_NAME "level_1"
 
 
 class GameInstance {

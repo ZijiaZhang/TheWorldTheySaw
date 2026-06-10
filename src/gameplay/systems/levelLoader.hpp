@@ -1,6 +1,6 @@
 //
 //  levelLoader.hpp
-//  salmon
+//  game_template
 //
 //  Created by Haofeng Winter Feng on 2021-02-28.
 //

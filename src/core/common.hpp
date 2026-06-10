@@ -70,17 +70,6 @@ struct Health {
 
 static std::unordered_map<std::string, int> level_progression = {
     {"level_1", 1},
-    {"level_2", 0},
-    {"level_3", 0},
-    {"level_4", 0},
-    {"level_5", 0},
-    {"level_6", 0},
-    {"level_7", 0},
-    {"level_8", 0},
-    {"level_9", 0},
-    {"level_10", 0},
-    {"level_11", 0},
-    {"level_12", 0},
 };
 
 // For the order of drawing

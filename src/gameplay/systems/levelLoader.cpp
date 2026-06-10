@@ -1,6 +1,6 @@
 //
 //  levelLoader.cpp
-//  salmon
+//  game_template
 //
 //  Created by Haofeng Winter Feng on 2021-02-28.
 //
@@ -30,74 +30,20 @@
 using json = nlohmann::json;
 
 std::vector<std::string> LevelLoader::existing_level = {
-	"level_select",
-	"loadout",
 	"menu",
 	"win",
 	"lose",
 	"level_1",
-	"intro",
-    "settings",
-	"level_2",
-	"level_3",
-	"level_4",
-	"level_5",
-	"level_6",
-	"level_7",
-	"level_8",
-	"level_9",
-	"level_10",
-	"level_11",
-	"level_12",
-	TUTORIAL_NAME
+    "settings"
 };
-
-/*
-std::unordered_map<std::string, int> LevelLoader::level_progression = {
-	{"intro", 0},
-	{"level_2", -1},
-	{"level_3", -1},
-	{"level_4", -1},
-	{"level_5", -1},
-	{"level_6", -1},
-	{"level_7", -1},
-	{"level_8", -1},
-	{"level_9", -1},
-	{"level_10", -1}
-};
-*/
-
 
 std::vector<std::string> LevelLoader::level_order = {
-	"level_1",
-	"level_2",
-	"level_3",
-	"level_4",
-	"level_5",
-	"level_6",
-	"level_7",
-	"level_8",
-	"level_9",
-	"level_10",
-	"level_11",
-	"level_12"
+	"level_1"
 };
 
 std::unordered_map<std::string, LevelEntityState> LevelLoader::saved_level_states = {};
 std::unordered_map<std::string, bool> LevelLoader::saved_flag = {
-	{"level_1", false},
-	{"level_2", false},
-	{"level_2", false},
-	{"level_3", false},
-	{"level_4", false},
-	{"level_5", false},
-	{"level_6", false},
-	{"level_7", false},
-	{"level_8", false},
-	{"level_9", false},
-	{"level_10", false},
-	{"level_11", false},
-	{"level_12", false}
+	{"level_1", false}
 };
 
 std::string get_save_directory() {
@@ -190,16 +136,11 @@ auto select_level_button_overlap(const std::string& level) {
 		if (can_trigger_button(other) && std::count(LevelLoader::existing_level.begin(), LevelLoader::existing_level.end(), level)) {
 			WorldSystem::selected_level = level;
 			WorldSystem::reload_level = true;
-
-			std::string l = level;
-			if (level == "intro") {
-				l = "level_1";
-			}
-			if (LevelLoader::saved_flag[l]) {
-				WorldSystem::reload_level_name = l;
+			if (LevelLoader::saved_flag[level]) {
+				WorldSystem::reload_level_name = level;
 			}
 			else {
-				WorldSystem::reload_level_name = "loadout";
+				WorldSystem::reload_level_name = level;
 			}
 		}
 	};
@@ -218,7 +159,7 @@ auto select_continue() {
 		if (can_trigger_button(other)) {
 			load_level_data();
 			WorldSystem::reload_level = true;
-			WorldSystem::reload_level_name = "level_select";
+			WorldSystem::reload_level_name = "level_1";
 		}
 	};
 }
@@ -396,7 +337,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 				  COLLISION_HANDLER,
 				  COLLISION_HANDLER, const json&)
 				  {
-		return Button::createButton(ButtonIcon::START, location, select_button_overlap("level_select"));
+		return Button::createButton(ButtonIcon::START, location, select_button_overlap("level_1"));
 	}},
 		{"button_save", [](vec2 location, vec2 size, float rotation,
 				  COLLISION_HANDLER,
@@ -413,7 +354,7 @@ std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	{"button_setting", [](vec2 location, vec2 size, float rotation,
 						COLLISION_HANDLER,
 						COLLISION_HANDLER, const json&) {
-		return Button::createButton(ButtonIcon::LEVEL_SELECT, location, select_button_overlap("loadout")); }
+		return Button::createButton(ButtonIcon::LEVEL_SELECT, location, select_button_overlap("settings")); }
 	},
 	{"button_select_rocket", [](vec2 location, vec2 size, float rotation,
 							  COLLISION_HANDLER,
@@ -596,24 +537,12 @@ e.get<PhysicsObject>().mass = 100.f;
 					{
 						return Button::createButton(ButtonIcon::RETURN, location, select_button_overlap("menu"));
 					} },
-		{ "return_to_loadout", [](vec2 location, vec2 size, float rotation,
+		{ "retry_level", [](vec2 location, vec2 size, float rotation,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				{
-					return Button::createButton(ButtonIcon::RESTART, location, select_button_overlap("loadout"));
+					return Button::createButton(ButtonIcon::RESTART, location, select_button_overlap("level_1"));
 				} },
-		{ "return_to_level_select", [](vec2 location, vec2 size, float rotation,
-							COLLISION_HANDLER,
-							COLLISION_HANDLER, const json&)
-						{
-							return Button::createButton(ButtonIcon::RETURN, location, select_button_overlap("level_select"));
-						} },
-		{ "next_to_level_select", [](vec2 location, vec2 size, float rotation,
-						COLLISION_HANDLER,
-						COLLISION_HANDLER, const json&)
-					{
-						return Button::createButton(ButtonIcon::NEXT, location, select_button_overlap("level_select"));
-					} },
 		{ "next_to_level", [](vec2 location, vec2 size, float rotation,
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
@@ -624,80 +553,8 @@ e.get<PhysicsObject>().mass = 100.f;
 					COLLISION_HANDLER,
 					COLLISION_HANDLER, const json&)
 				 {
-					 return level_progression["level_1"] > 0 ? Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("intro")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
+					 return level_progression["level_1"] > 0 ? Button::createButton(ButtonIcon::LEVEL1, location, select_level_button_overlap("level_1")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
 				 }},
-		{ "select_level_2", [](vec2 location, vec2 size, float rotation,
-						COLLISION_HANDLER,
-						COLLISION_HANDLER, const json&)
-					{
-						return level_progression["level_2"] > 0 ? Button::createButton(ButtonIcon::LEVEL2, location, select_level_button_overlap("level_2")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-					} },
-		{ "select_level_3", [](vec2 location, vec2 size, float rotation,
-						COLLISION_HANDLER,
-						COLLISION_HANDLER, const json&)
-					{
-						return level_progression["level_3"] > 0 ? Button::createButton(ButtonIcon::LEVEL3, location, select_level_button_overlap("level_3")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-					} },
-		{ "select_level_4", [](vec2 location, vec2 size, float rotation,
-					COLLISION_HANDLER,
-					COLLISION_HANDLER, const json&)
-					{
-						return level_progression["level_4"] > 0 ? Button::createButton(ButtonIcon::LEVEL4, location, select_level_button_overlap("level_4")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-					} },
-		{ "select_level_5", [](vec2 location, vec2 size, float rotation,
-			COLLISION_HANDLER,
-			COLLISION_HANDLER, const json&)
-		{
-			return level_progression["level_5"] > 0 ? Button::createButton(ButtonIcon::LEVEL5, location, select_level_button_overlap("level_5")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-		} },
-		{ "select_level_6", [](vec2 location, vec2 size, float rotation,
-						COLLISION_HANDLER,
-						COLLISION_HANDLER, const json&)
-					{
-						return level_progression["level_6"] > 0 ? Button::createButton(ButtonIcon::LEVEL6, location, select_level_button_overlap("level_6")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-					} }, 
-		{ "select_level_7", [](vec2 location, vec2 size, float rotation,
-			COLLISION_HANDLER,
-			COLLISION_HANDLER, const json&)
-			{
-				return level_progression["level_7"] > 0 ? Button::createButton(ButtonIcon::LEVEL7, location, select_level_button_overlap("level_7")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-					} },
-		{ "select_level_8", [](vec2 location, vec2 size, float rotation,
-		COLLISION_HANDLER,
-		COLLISION_HANDLER, const json&)
-		{
-		return level_progression["level_8"] > 0 ? Button::createButton(ButtonIcon::LEVEL8, location, select_level_button_overlap("level_8")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-		} },
-		{ "select_level_9", [](vec2 location, vec2 size, float rotation,
-		COLLISION_HANDLER,
-		COLLISION_HANDLER, const json&)
-		{
-		return level_progression["level_9"] > 0 ? Button::createButton(ButtonIcon::LEVEL9, location, select_level_button_overlap("level_9")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-		} },
-		{ "select_level_10", [](vec2 location, vec2 size, float rotation,
-		COLLISION_HANDLER,
-		COLLISION_HANDLER, const json&)
-		{
-			return level_progression["level_10"] > 0 ? Button::createButton(ButtonIcon::LEVEL10, location, select_level_button_overlap("level_10")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-		} },
-		{ "select_level_11", [](vec2 location, vec2 size, float rotation,
-			COLLISION_HANDLER,
-			COLLISION_HANDLER, const json&)
-		{
-			return level_progression["level_11"] > 0 ? Button::createButton(ButtonIcon::LEVEL11, location, select_level_button_overlap("level_11")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-		} },
-		{ "select_level_12", [](vec2 location, vec2 size, float rotation,
-			COLLISION_HANDLER,
-			COLLISION_HANDLER, const json&)
-		{
-			return level_progression["level_12"] > 0 ? Button::createButton(ButtonIcon::LEVEL12, location, select_level_button_overlap("level_12")) : Button::createButton(ButtonIcon::LOCKED, location, select_button_overlap(""));
-		} },
-		{ "select_tutorial", [](vec2 location, vec2 size, float rotation, 
-	COLLISION_HANDLER,
-	COLLISION_HANDLER, const json&)
-{
-	return Button::createButton(ButtonIcon::TUTORIAL, location, select_button_overlap(TUTORIAL_NAME));
-} },
     { "select_setting", [](vec2 location, vec2 size, float rotation,
 COLLISION_HANDLER,
 COLLISION_HANDLER, const json&)

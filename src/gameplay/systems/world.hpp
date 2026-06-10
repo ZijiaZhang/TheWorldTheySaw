@@ -85,7 +85,7 @@ private:
 
 	void resetTimer();
 
-	// Number of fish eaten by the salmon, displayed in the window title
+	// Elapsed level timer state
 	unsigned int seconds;
 
 	// Game state

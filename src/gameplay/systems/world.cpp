@@ -59,7 +59,7 @@ bool WorldSystem::menuClickOverride = false;
 int KILL_SIZE = 3000;
 vec2 prev_pl_pos = {0,0};
 
-std::string WorldSystem::selected_level = "level_3";
+std::string WorldSystem::selected_level = "level_1";
 
 static float getDist(vec2 p1, vec2 p2)
 {
@@ -84,22 +84,22 @@ static float getDist(vec2 p1, vec2 p2)
 /*
  Dummy way
  split 360 degrees into even sections with DEGREE_SIZE, then
- check points are in the range between LOW_RANGE and HIGH_RANGE from salmon position, and
+ check points are in the range between LOW_RANGE and HIGH_RANGE from player position, and
  check there are SECTION_POINT_NUM in each section
 
  Change LOW_RANGE, HIGH_RANGE, DEGREE_SIZE AND SECTION_POINT_NUM to simulate the circle.
  */
-static bool checkCircle(ECS::Entity player_salmon)
+static bool checkCircle(ECS::Entity player_entity)
 {
-	auto motion = ECS::registry<Motion>.get(player_salmon);
-	vec2 salmonPos = motion.position;
+	auto motion = ECS::registry<Motion>.get(player_entity);
+	vec2 playerPos = motion.position;
 	std::vector<int> bucket;
 	bucket.resize(360 / DEGREE_SIZE);
 //	vec2 ori = { 1, 0 };
 
 	for (vec2 p : mouse_points)
 	{
-		float dist = getDist(p, salmonPos);
+		float dist = getDist(p, playerPos);
 		if (dist >= LOW_RANGE && dist <= HIGH_RANGE)
 		{
 			float angle = atan2(p.y, p.x);
@@ -216,10 +216,10 @@ void WorldSystem::init_audio()
 // Update our game world
 void WorldSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
-	// Updating window title with points
+	// Updating window title
 	std::stringstream title_ss;
 	//title_ss << "Time Remaining: " << seconds << "s";
-    title_ss << "The World They Saw";
+    title_ss << "Game Template";
 	glfwSetWindowTitle(window, title_ss.str().c_str());
 
 	if (screen != window_size_in_game_units) {
@@ -480,13 +480,8 @@ void WorldSystem::checkEndGame()
 
         if (!enemies_remaining) {
 			resetTimer();
-			if (GameInstance::currentLevel == TUTORIAL_NAME) {
-				pendingRestartLevel = MENU_NAME;
-			}
-			else {
-				level_loader.update_level_state(GameInstance::currentLevel, 1);
-				pendingRestartLevel = "win";
-			}
+			level_loader.update_level_state(GameInstance::currentLevel, 1);
+			pendingRestartLevel = "win";
 			pendingRestart = true;
 			pendingRestartTimer = END_SCREEN_DELAY_MS;
 			return;
@@ -494,7 +489,7 @@ void WorldSystem::checkEndGame()
 
         if (!player_alive) {
             resetTimer();
-            pendingRestartLevel = GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose";
+            pendingRestartLevel = "lose";
 			pendingRestart = true;
 			pendingRestartTimer = END_SCREEN_DELAY_MS;
             return;
@@ -502,7 +497,7 @@ void WorldSystem::checkEndGame()
 
 		if (endGameTimer > 90000.f && enemies_remaining) {
 			resetTimer();
-            pendingRestartLevel = GameInstance::currentLevel == TUTORIAL_NAME ? MENU_NAME : "lose";
+            pendingRestartLevel = "lose";
 			pendingRestart = true;
 			pendingRestartTimer = END_SCREEN_DELAY_MS;
 		}
@@ -669,7 +664,7 @@ void WorldSystem::on_key(int key, int, int action, int mod)
 
 	if (key == GLFW_KEY_Z && action == GLFW_RELEASE && GameInstance::isPlayableLevel(GameInstance::currentLevel)) {
 		level_loader.save_level_objects(GameInstance::currentLevel);
-		reload_level_name = "level_select";
+		reload_level_name = "level_1";
 		reload_level = true;
 	}
 

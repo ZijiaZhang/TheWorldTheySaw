@@ -2,12 +2,8 @@
   "player": [
     {
       "position": {
-        "x": 400,
+        "x": 500,
         "y": 500
-      },
-      "velocity": {
-        "X": 0,
-        "y": 0
       },
       "additionalProperties": {
         "light_intensity": 500
@@ -17,12 +13,12 @@
   "mainmenu": [
     {
       "position": {
-        "x": 300,
-        "y": 700
+        "x": 500,
+        "y": 500
       },
       "additionalProperties": {
-        "name": "backgroundScifi",
-        "scale": 0.85
+        "name": "background",
+        "scale": 1.0
       }
     }
   ],
@@ -80,22 +76,6 @@
       }
     }
   ],
-  "button_save": [
-    {
-      "position": {
-        "x": 485,
-        "y": 575
-      }
-    }
-  ],
-  "button_continue": [
-    {
-      "position": {
-        "x": 485,
-        "y": 650
-      }
-    }
-  ],
   "title": [
     {
       "position": {
@@ -104,22 +84,12 @@
       }
     }
   ],
-  "select_tutorial": [
-    {
-      "position": {
-        "x": 485,
-        "y": 800
-      }
-    }
-  ],
   "select_setting": [
     {
       "position": {
         "x": 485,
-        "y": 725
+        "y": 625
       }
     }
   ]
-
-
 }
