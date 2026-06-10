@@ -171,7 +171,9 @@ WorldSystem::WorldSystem(ivec2 window_size_px) :
 	//Mix_PlayMusic(background_music, -1);
 	// std::cout << "Loaded music\n";
 	
-	Mix_PlayMusic(background_music, -1);
+	if (background_music != nullptr) {
+		Mix_PlayMusic(background_music, -1);
+	}
 
 }
 
@@ -203,11 +205,9 @@ void WorldSystem::init_audio()
 	//gun_fire = Mix_LoadWAV(audio_path("gun_fire.wav").c_str());
 	//gun_reload = Mix_LoadWAV(audio_path("firework.mp3").c_str());
 
-	if (background_music == nullptr)
-		throw std::runtime_error("Failed to load sounds make sure the data directory is present: " +
-			audio_path("gun_background.wav") +
-			audio_path("gun_fire.wav") +
-			audio_path("gun_reload.wav"));
+	if (background_music == nullptr) {
+		std::cerr << "No background music found; starting without audio assets.\n";
+	}
 	Mix_ChannelFinished([](auto a) {Mix_FreeChunk(Mix_GetChunk(a)); });
 	Mix_Volume(-1, GameInstance::effect_volume);
 	Mix_VolumeMusic(GameInstance::volume);
@@ -379,7 +379,9 @@ void WorldSystem::restart(std::string level)
 	// Debugging for memory/component leaks
 	ECS::ContainerInterface::list_all_components();
 	// load background, walls, enemies and player from level_loaders
-	level_loader.load_level();
+	if (!level.empty()) {
+		level_loader.load_level();
+	}
 
 	auto soldiers = ECS::registry<Soldier>.entities;
 	bool needs_player = GameInstance::isPlayableLevel() || GameInstance::currentLevel == "settings";
