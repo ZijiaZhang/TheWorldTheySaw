@@ -1,0 +1,14 @@
+{
+  "background": [
+    {
+      "position": {
+        "x": 600,
+        "y": 400
+      },
+      "additionalProperties": {
+        "name": "background",
+        "scale": 1.4
+      }
+    }
+  ]
+}

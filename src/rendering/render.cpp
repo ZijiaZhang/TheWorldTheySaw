@@ -22,6 +22,7 @@
 #include <highlight_circle.hpp>
 #include <pop_up.hpp>
 #include <Enemy.hpp>
+#include <Weapon.hpp>
 
 namespace {
     constexpr float PLAYER_LIGHT_CONE_DEGREES = 90.f;
@@ -29,6 +30,62 @@ namespace {
     constexpr float PLAYER_LIGHT_INNER_SOFT_EDGE_RATIO = 0.35f;
     constexpr float PLAYER_LIGHT_INNER_SOFT_EDGE_MIN = 12.f;
     constexpr float PLAYER_LIGHT_FOV_SOFT_EDGE = 0.08f;
+
+    bool oblique_view_enabled() {
+        return GameInstance::isPlayableLevel();
+    }
+
+    bool is_ground_entity(ECS::Entity entity) {
+        if (entity.has<IsoGround>()) {
+            return true;
+        }
+        if (entity.has<Motion>()) {
+            return entity.get<Motion>().zValue <= ZValuesMap["Background"];
+        }
+        return false;
+    }
+
+    bool should_project_mesh_geometry(ECS::Entity entity) {
+        return entity.has<IsoGround>() || entity.has<Wall>() || entity.has<MoveableWall>();
+    }
+
+    float projected_angle_for_motion(const Camera& camera, float world_angle) {
+        vec2 direction = camera.world_delta_to_screen({ std::cos(world_angle), std::sin(world_angle) });
+        if (length(direction) < 0.0001f) {
+            return world_angle;
+        }
+        return std::atan2(direction.y, direction.x);
+    }
+
+    int directional_sprite_index(float world_angle) {
+        float angle = world_angle;
+        int index = static_cast<int>(std::round(angle / (PI / 4.f)));
+        index %= 8;
+        if (index < 0) {
+            index += 8;
+        }
+        return index;
+    }
+
+    ShadedMesh& directional_sprite_mesh(ECS::Entity entity) {
+        auto& directional = entity.get<DirectionalSprite>();
+        int index = directional_sprite_index(entity.get<Motion>().angle);
+        std::string key = directional.cache_prefix + "_" + std::to_string(index);
+        ShadedMesh& resource = cache_resource(key);
+        if (resource.effect.program.resource == 0) {
+            resource = ShadedMesh();
+            RenderSystem::createSprite(resource, textures_path(directional.texture_paths[index]), "sprite_textured");
+        }
+        return resource;
+    }
+
+    bool should_hide_directional_child_weapon(ECS::Entity entity) {
+        if (!entity.has<Weapon>() || !entity.has<ParentEntity>()) {
+            return false;
+        }
+        auto parent = entity.get<ParentEntity>().parent;
+        return parent.has<DirectionalSprite>();
+    }
 
     float compute_pixels_per_unit(vec2 window_size_in_game_units, ivec2 framebuffer_size) {
         float pixels_per_unit_x = static_cast<float>(framebuffer_size.x) / window_size_in_game_units.x;
@@ -48,7 +105,9 @@ namespace {
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen)
 {
 	auto& motion = ECS::registry<Motion>.get(entity);
-	auto& texmesh = *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
+	auto& texmesh = entity.has<DirectionalSprite>()
+        ? directional_sprite_mesh(entity)
+        : *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
     drawTexturedMesh(entity, projection, motion, texmesh, relative_to_screen);
 
 }
@@ -59,9 +118,29 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
     // Transformation code, see Rendering and Transformation in the template specification for more info
 // Incrementally updates transformation matrix, thus ORDER IS IMPORTANT
     Transform transform;
-    transform.translate(relative_to_screen? motion.position: (motion.position - camera.get_position()));
-    transform.rotate(motion.angle);
-    transform.scale(motion.scale);
+    if (relative_to_screen) {
+        transform.translate(motion.position);
+        transform.rotate(motion.angle);
+        transform.scale(motion.scale);
+    } else if (oblique_view_enabled() && should_project_mesh_geometry(entity)) {
+        Transform world_transform = getTransform(motion);
+        transform.mat = camera.get_world_to_screen_transform() * world_transform.mat;
+    } else if (oblique_view_enabled()) {
+        transform.translate(camera.world_to_screen(motion.position));
+        if (!entity.has<DirectionalSprite>()) {
+            transform.rotate(projected_angle_for_motion(camera, motion.angle));
+        }
+        vec2 scale = motion.scale;
+        if (entity.has<DirectionalSprite>()) {
+            scale *= entity.get<DirectionalSprite>().visual_scale;
+            scale.x = std::abs(scale.x);
+        }
+        transform.scale(scale);
+    } else {
+        transform.translate(motion.position - camera.get_position());
+        transform.rotate(motion.angle);
+        transform.scale(motion.scale);
+    }
     // !!! TODO A1: add rotation to the chain of transformations, mind the order of transformations
 
     // Setting shaders
@@ -156,7 +235,7 @@ void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3 &projection, 
     gl_has_errors();
     GLint center_uloc = glGetUniformLocation(texmesh.effect.program, "center");
     if (center_uloc >= 0) { 
-        vec2 center_loc = motion.position - camera.get_position();
+        vec2 center_loc = oblique_view_enabled() ? camera.world_to_screen(motion.position) : motion.position - camera.get_position();
         glUniform2fv(center_uloc, 1, (float*)&(center_loc));
     }
     gl_has_errors();
@@ -329,13 +408,18 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
         auto& player_motion = player_entity.get<Motion>();
         auto player_loc = player_motion.position;
         auto &camera = ECS::registry<Camera>.get(screen.camera);
-        auto camera_loc = camera.get_position();
-        vec2 player_loccation{(player_loc.x - camera_loc.x) /window_size_in_game_units.x, (player_loc.y - camera_loc.y) / window_size_in_game_units.y};
+        vec2 player_screen = oblique_view_enabled() ? camera.world_to_screen(player_loc) : player_loc - camera.get_position();
+        vec2 player_loccation{player_screen.x / window_size_in_game_units.x, player_screen.y / window_size_in_game_units.y};
         glUniform2fv(in_player, 1, (float*)&player_loccation);
         glUniform1f(light_intensity_loc, ECS::registry<Soldier>.components[0].light_intensity);
         player_inner_light_radius_pixels = compute_inner_radius_pixels(window_size_in_game_units, framebuffer_pixels);
         player_inner_light_soft_edge_pixels = compute_inner_soft_edge_pixels(player_inner_light_radius_pixels);
-        vec2 forward_dir{ std::cos(player_motion.angle), -std::sin(player_motion.angle) };
+        vec2 forward_dir = oblique_view_enabled()
+            ? camera.world_delta_to_screen({ std::cos(player_motion.angle), std::sin(player_motion.angle) })
+            : vec2{ std::cos(player_motion.angle), -std::sin(player_motion.angle) };
+        if (oblique_view_enabled()) {
+            forward_dir.y *= -1.f;
+        }
         float magnitude = std::sqrt(forward_dir.x * forward_dir.x + forward_dir.y * forward_dir.y);
         if (magnitude > 0.0001f) {
             player_forward = forward_dir / magnitude;
@@ -398,7 +482,7 @@ void RenderSystem::drawMenuScene(const mat3& projection_2D, ivec2 frame_buffer_s
 
     for (ECS::Entity entity : entities)
     {
-        if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui)
+        if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui || should_hide_directional_child_weapon(entity))
             continue;
         drawTexturedMesh(entity, projection_2D);
         gl_has_errors();
@@ -486,8 +570,8 @@ void RenderSystem::drawLights(vec2 window_size_in_game_units)
         auto& player_motion = player_entity.get<Motion>();
         auto player_loc = player_motion.position;
         auto &camera = ECS::registry<Camera>.get(screen.camera);
-        auto camera_loc = camera.get_position();
-        vec2 player_loccation{(player_loc.x - camera_loc.x) / window_size_in_game_units.x, (player_loc.y - camera_loc.y) / window_size_in_game_units.y};
+        vec2 player_screen = oblique_view_enabled() ? camera.world_to_screen(player_loc) : player_loc - camera.get_position();
+        vec2 player_loccation{player_screen.x / window_size_in_game_units.x, player_screen.y / window_size_in_game_units.y};
         glUniform2fv(in_player, 1, (float *) &player_loccation);
     }
     gl_has_errors();
@@ -643,7 +727,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     // Clearing backbuffer
     glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
     glDepthRange(0.00001, 10);
-    glClearColor(0, 0, 0, 1.0);
+    glClearColor(0.035f, 0.055f, 0.06f, 1.0f);
     glClearDepth(1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gl_has_errors();
@@ -651,17 +735,31 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     glClearColor(1, 1, 1, 0);
     gl_has_errors();
 
-    // Draw all textured meshes that have a position and size component
-    // Draw by the order of motion zValue, the smaller zValue, draw earlier
+    // Draw all textured meshes that have a position and size component.
+    // Ground draws first; the rest are depth-sorted along the oblique floor.
     auto entities = ECS::registry<ShadedMeshRef>.entities;
-    sort(entities.begin(), entities.end(), [](const ECS::Entity e1, const ECS::Entity e2)
+    sort(entities.begin(), entities.end(), [&](const ECS::Entity e1, const ECS::Entity e2)
     {
-        return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
+        auto& m1 = ECS::registry<Motion>.get(e1);
+        auto& m2 = ECS::registry<Motion>.get(e2);
+        if (oblique_view_enabled()) {
+            bool e1_ground = is_ground_entity(e1);
+            bool e2_ground = is_ground_entity(e2);
+            if (e1_ground != e2_ground) {
+                return e1_ground;
+            }
+            float d1 = camera.depth_for_world_position(m1.position);
+            float d2 = camera.depth_for_world_position(m2.position);
+            if (std::abs(d1 - d2) > 0.001f) {
+                return d1 < d2;
+            }
+        }
+        return m1.zValue < m2.zValue;
     });
 
     for (ECS::Entity entity : entities)
     {
-        if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui)
+        if (!ECS::registry<Motion>.has(entity) || entity.get<ShadedMeshRef>().is_ui || should_hide_directional_child_weapon(entity))
             continue;
         // Note, its not very efficient to access elements indirectly via the entity albeit iterating through all Sprites in sequence
         drawTexturedMesh(entity, projection_2D);

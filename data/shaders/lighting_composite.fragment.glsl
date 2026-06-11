@@ -27,7 +27,7 @@ const float light_visibility_threshold = 0.05;
 const float inner_circle_soft_edge_ratio = 0.35;
 const float inner_circle_soft_edge_min = 8.0;
 const vec4 full_dark = vec4(0.0, 0.0, 0.0, 1.0);
-const vec4 soft_dark = vec4(0.2, 0.2, 0.2, 1.0);
+const vec4 soft_dark = vec4(0.72, 0.72, 0.72, 1.0);
 
 layout(location = 0) out vec4 color;
 

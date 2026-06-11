@@ -32,8 +32,20 @@ ECS::Entity Bullet::createBullet(vec2 position, float angle, vec2 velocity, int 
     motion.velocity = velocity;
     motion.position = position;
 
-    // Setting initial values, scale is negative to make it face the opposite way
-    motion.scale = vec2({ 0.1f, 0.1f }) * static_cast<vec2>(resource.texture.size);
+    switch (type) {
+        case W_ROCKET:
+            motion.scale = { 36.f, 20.f };
+            break;
+        case W_LASER:
+            motion.scale = { 42.f, 10.f };
+            break;
+        case W_AMMO:
+            motion.scale = { 26.f, 18.f };
+            break;
+        default:
+            motion.scale = { 24.f, 10.f };
+            break;
+    }
     motion.zValue = ZValuesMap["Fish"];
     // printf("%lu\n", ECS::registry<Motion>.entities.size());
     ECS::registry<Motion>.emplace(entity, motion);

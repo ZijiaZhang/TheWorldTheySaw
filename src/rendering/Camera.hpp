@@ -16,9 +16,19 @@ class Camera {
         ECS::Entity binding;
 
     vec2 get_position() const;
+    vec2 get_focus_position() const;
+    vec2 world_to_screen(vec2 world_position) const;
+    vec2 screen_to_world(vec2 screen_position) const;
+    vec2 screen_delta_to_world_delta(vec2 screen_delta) const;
+    vec2 world_delta_to_screen(vec2 world_delta) const;
+    float depth_for_world_position(vec2 world_position) const;
+    mat3 get_world_to_screen_transform() const;
 
     vec2 screen_size{};
 
     void set_screen_size(vec2 size);
+
+    static constexpr float OBLIQUE_X_SCALE = 0.72f;
+    static constexpr float OBLIQUE_Y_SCALE = 0.36f;
 };
 

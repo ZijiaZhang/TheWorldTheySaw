@@ -27,7 +27,7 @@ ECS::Entity Shield::createShield(vec2 position,  int teamID, float hp)
 	motion.velocity = { 0, 0 };
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ -0.09f, 0.09f }) * static_cast<vec2>(resource.texture.size);
+	motion.scale = { -78.f, 78.f };
     motion.zValue = ZValuesMap["Shield"];
 
     auto& physics = entity.emplace<PhysicsObject>();

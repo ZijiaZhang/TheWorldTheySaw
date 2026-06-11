@@ -367,7 +367,7 @@ void WorldSystem::restart(std::string level)
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());
 
 	if (GameInstance::isPlayableLevel()) {
-		Avatar::createAvatar(screen / 2.f, AvatarType::AVATAR);
+		// Avatar::createAvatar(screen / 2.f, AvatarType::AVATAR);
 	}
 
 	SHIELDUP = false;
@@ -742,21 +742,30 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
 //        if(!(ECS::registry<MainMenu>.has(player_soldier) || ECS::registry<Start>.has(player_soldier) || ECS::registry<Button>.components[1].buttonType == ButtonIcon::START)){
 //            mouse_pos = getWorldMousePosition(mouse_pos);
 //        }
-        mouse_pos = getWorldMousePosition(mouse_pos);
-        float disY = mouse_pos.y - motion.position.y;
-        float disX = mouse_pos.x - motion.position.x;
-        float longestL = sqrt(pow(disY, 2) + pow(disX, 2));
-
-        float sinV = asin(disY / longestL);
-        float cosV = acos(disX / longestL);
-        auto dir = mouse_pos - motion.position;
+        vec2 world_mouse_pos = getWorldMousePosition(mouse_pos);
+        auto dir = world_mouse_pos - motion.position;
+        if (GameInstance::isPlayableLevel() && !ECS::registry<Camera>.entities.empty()) {
+            auto& camera_entity = ECS::registry<Camera>.entities[0];
+            if (camera_entity.has<Camera>()) {
+                auto& camera = camera_entity.get<Camera>();
+                vec2 player_screen = camera.world_to_screen(motion.position);
+                vec2 screen_dir = mouse_pos - player_screen;
+                if (length(screen_dir) > 0.001f) {
+                    dir = camera.screen_delta_to_world_delta(screen_dir);
+                }
+            }
+        }
+        if (length(dir) < 0.001f) {
+            return;
+        }
+        float disY = dir.y;
+        float disX = dir.x;
+        vec2 dir_norm = normalize(dir);
         // printf("%f,%f\n",mouse_pos.x, mouse_pos.y);
         float rad = atan2(dir.y, dir.x);
-        if (player_soldier.has<AIPath>() && player_soldier.get<AIPath>().path.path.empty()) {
-            motion.angle = rad;
-        }
+        motion.angle = rad;
         if (SHIELDUP && !hasShield) {
-            shield = Shield::createShield({ motion.position.x + 300 * cosV, motion.position.y + 300 * sinV }, 0);
+            shield = Shield::createShield(motion.position + 300.f * dir_norm, 0);
             hasShield = true;
         }
 
@@ -771,7 +780,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_pos)
             if (mouse_points.size() >= MOUSE_POINTS_COUNT) {
                 mouse_points.pop_front();
             }
-            mouse_points.push_back(mouse_pos - motion.position);
+            mouse_points.push_back(world_mouse_pos - motion.position);
         }
     }
 }
@@ -780,8 +789,11 @@ vec2 WorldSystem::getWorldMousePosition(vec2 mouse_pos) const {
     if (!ECS::registry<Camera>.entities.empty()) {
         auto& camera = ECS::registry<Camera>.entities[0];
         if (camera.has<Camera>()) {
-            vec2 camera_pos = camera.get<Camera>().get_position();
-            mouse_pos += camera_pos;
+            auto& camera_component = camera.get<Camera>();
+            if (GameInstance::isPlayableLevel()) {
+                return camera_component.screen_to_world(mouse_pos);
+            }
+            mouse_pos += camera_component.get_position();
         }
     }
     return mouse_pos;

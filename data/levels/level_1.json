@@ -1,0 +1,1953 @@
+{
+  "floor_tile": [
+    {
+      "position": {
+        "x": -600,
+        "y": -600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -600,
+        "y": -450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -600,
+        "y": -300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -600,
+        "y": -150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -600,
+        "y": 0
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -600,
+        "y": 150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -600,
+        "y": 300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -600,
+        "y": 450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -600,
+        "y": 600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -450,
+        "y": -600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -450,
+        "y": -450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -450,
+        "y": -300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -450,
+        "y": -150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -450,
+        "y": 0
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -450,
+        "y": 150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -450,
+        "y": 300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -450,
+        "y": 450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -450,
+        "y": 600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -300,
+        "y": -600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -300,
+        "y": -450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -300,
+        "y": -300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -300,
+        "y": -150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -300,
+        "y": 0
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -300,
+        "y": 150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -300,
+        "y": 300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -300,
+        "y": 450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -300,
+        "y": 600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -150,
+        "y": -600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -150,
+        "y": -450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -150,
+        "y": -300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -150,
+        "y": -150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -150,
+        "y": 0
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -150,
+        "y": 150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -150,
+        "y": 300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -150,
+        "y": 450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": -150,
+        "y": 600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": -600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": -450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": -300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": -150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": -600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": -450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": -300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": -150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": 0
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": 150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": 300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": 450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 150,
+        "y": 600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": -600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": -450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": -300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": -150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": 0
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": 150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": 300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": 450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 300,
+        "y": 600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": -600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": -450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": -300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": -150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": 0
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": 150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": 300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": 450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 450,
+        "y": 600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": -600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": -450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": -300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": -150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": 0
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": 150
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": 300
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": 450
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.28,
+          "y": 0.38,
+          "z": 0.36
+        },
+        "edge_color": {
+          "x": 0.18,
+          "y": 0.25,
+          "z": 0.25
+        }
+      }
+    },
+    {
+      "position": {
+        "x": 600,
+        "y": 600
+      },
+      "size": {
+        "x": 148,
+        "y": 148
+      },
+      "additionalProperties": {
+        "color": {
+          "x": 0.33,
+          "y": 0.43,
+          "z": 0.41
+        },
+        "edge_color": {
+          "x": 0.22999999999999998,
+          "y": 0.3,
+          "z": 0.3
+        }
+      }
+    }
+  ],
+  "player": [
+    {
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "additionalProperties": {
+        "light_intensity": 650
+      }
+    }
+  ],
+  "enemy": [
+    {
+      "position": {
+        "x": 360,
+        "y": 160
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "standard"
+      }
+    },
+    {
+      "position": {
+        "x": -330,
+        "y": 270
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "elite"
+      }
+    },
+    {
+      "position": {
+        "x": 180,
+        "y": -360
+      },
+      "overlap": "enemy_bullet_hit_death",
+      "additionalProperties": {
+        "enemy_type": "suicide"
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "position": {
+        "x": 120,
+        "y": 120
+      },
+      "size": {
+        "x": 300,
+        "y": 54
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": -210,
+        "y": -80
+      },
+      "size": {
+        "x": 54,
+        "y": 300
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": 350,
+        "y": -220
+      },
+      "size": {
+        "x": 230,
+        "y": 54
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": -420,
+        "y": 150
+      },
+      "size": {
+        "x": 54,
+        "y": 240
+      },
+      "rotation": 0
+    }
+  ],
+  "borders": [
+    {
+      "position": {
+        "x": 0,
+        "y": -680
+      },
+      "size": {
+        "x": 1300,
+        "y": 60
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": 0,
+        "y": 680
+      },
+      "size": {
+        "x": 1300,
+        "y": 60
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": -680,
+        "y": 0
+      },
+      "size": {
+        "x": 60,
+        "y": 1300
+      },
+      "rotation": 0
+    },
+    {
+      "position": {
+        "x": 680,
+        "y": 0
+      },
+      "size": {
+        "x": 60,
+        "y": 1300
+      },
+      "rotation": 0
+    }
+  ],
+  "prop": [
+    {
+      "position": {
+        "x": -120,
+        "y": 310
+      },
+      "additionalProperties": {
+        "texture": "/props/crystal.png",
+        "scale": 0.9
+      }
+    },
+    {
+      "position": {
+        "x": 430,
+        "y": 330
+      },
+      "additionalProperties": {
+        "texture": "/props/crystal.png",
+        "scale": 0.7
+      }
+    },
+    {
+      "position": {
+        "x": -430,
+        "y": -300
+      },
+      "additionalProperties": {
+        "texture": "/props/crystal.png",
+        "scale": 0.65
+      }
+    }
+  ]
+}

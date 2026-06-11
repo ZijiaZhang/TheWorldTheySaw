@@ -35,7 +35,7 @@ ECS::Entity MagicParticle::createMagicParticle(vec2 position,
     motion.position = position;
 
     // Setting initial values, scale is negative to make it face the opposite way
-    motion.scale = vec2({ -0.1f, 0.1f }) * static_cast<vec2>(resource.texture.size);
+    motion.scale = { -38.f, 38.f };
     motion.zValue = ZValuesMap["MagicParticle"];
     // printf("%lu\n", ECS::registry<Motion>.entities.size());
     ECS::registry<Motion>.emplace(entity, motion);

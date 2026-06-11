@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <map>
 #include <set>
+#include <array>
 // glfw (OpenGL)
 #define NOMINMAX
 #include <gl3w.h>
@@ -66,6 +67,15 @@ struct Health {
     float hp = 0.f;
     float max_hp = 0.f;
     vec2 health_bar_offset = {0,-50};
+};
+
+struct IsoGround {
+};
+
+struct DirectionalSprite {
+    std::array<std::string, 8> texture_paths;
+    std::string cache_prefix;
+    float visual_scale = 1.f;
 };
 
 static std::unordered_map<std::string, int> level_progression = {

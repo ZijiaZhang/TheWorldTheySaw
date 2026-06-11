@@ -1,0 +1,14 @@
+{
+  "mainmenu": [
+    {
+      "position": {
+        "x": 600,
+        "y": 400
+      },
+      "additionalProperties": {
+        "name": "mainmenu",
+        "scale": 1.4
+      }
+    }
+  ]
+}

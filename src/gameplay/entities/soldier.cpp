@@ -7,10 +7,21 @@
 #include "Weapon.hpp"
 #include "Bullet.hpp"
 
-std::string Soldier::ori_texture_path = "/soldier/soldier_basic.png";
+std::string Soldier::ori_texture_path = "/soldier/directions/down.png";
 std::string Soldier::field_texture_path = "/soldier/forcefield.png";
 std::string Soldier::ori_shader_name = "sprite_textured";
 std::string Soldier::field_shader_name = "forcefield_pulse";
+
+namespace {
+    constexpr float PLAYER_OBLIQUE_SCALE = 50.f;
+
+    void apply_player_oblique_scale(Motion& motion) {
+        motion.scale = {
+            motion.scale.x < 0.f ? -PLAYER_OBLIQUE_SCALE : PLAYER_OBLIQUE_SCALE,
+            PLAYER_OBLIQUE_SCALE
+        };
+    }
+}
 
 ECS::Entity Soldier::createSoldier(vec2 position,
                                    COLLISION_HANDLER overlap,
@@ -34,9 +45,22 @@ ECS::Entity Soldier::createSoldier(vec2 position,
 	motion.position = position;
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = entity.get<ShadedMeshRef>().reference_to_cache->mesh.original_size * 70.f;
-	motion.scale.x *= -1; // point front to the right
+	motion.scale = { -PLAYER_OBLIQUE_SCALE, PLAYER_OBLIQUE_SCALE };
     motion.zValue = ZValuesMap["Soldier"];
+    entity.emplace<DirectionalSprite>(DirectionalSprite{
+        {
+            "/soldier/directions/right.png",
+            "/soldier/directions/down_right.png",
+            "/soldier/directions/down.png",
+            "/soldier/directions/down_left.png",
+            "/soldier/directions/left.png",
+            "/soldier/directions/up_left.png",
+            "/soldier/directions/up.png",
+            "/soldier/directions/up_right.png"
+        },
+        "soldier_directional",
+        1.f
+    });
 
 	PhysicsObject physicsObject;
 	physicsObject.mass = 100;
@@ -84,6 +108,21 @@ ECS::Entity Soldier::createSoldier(Motion m, Soldier s, Health h, AIPath ai, Phy
     children_entity.children.insert(weapon);
 
     e.emplace<Motion>(m);
+    apply_player_oblique_scale(e.get<Motion>());
+    e.emplace<DirectionalSprite>(DirectionalSprite{
+        {
+            "/soldier/directions/right.png",
+            "/soldier/directions/down_right.png",
+            "/soldier/directions/down.png",
+            "/soldier/directions/down_left.png",
+            "/soldier/directions/left.png",
+            "/soldier/directions/up_left.png",
+            "/soldier/directions/up.png",
+            "/soldier/directions/up_right.png"
+        },
+        "soldier_directional",
+        1.f
+    });
     e.emplace<Soldier>(s).weapon = weapon;
     e.emplace<Health>(h);
     e.emplace<AIPath>(ai);

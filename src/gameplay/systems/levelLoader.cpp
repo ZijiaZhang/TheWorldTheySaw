@@ -19,6 +19,7 @@
 #include "Weapon.hpp"
 #include "GameInstance.hpp"
 #include "avatar.hpp"
+#include "render.hpp"
 #include <fstream>
 #include <string.h>
 #include <cassert>
@@ -182,6 +183,9 @@ COLLISION_HANDLER get_default_hit_callback(const std::string& key) {
 	return PhysicsObject::handle_collision;
 }
 
+static ECS::Entity createIsoFloorTile(vec2 location, vec2 size, const json& additional);
+static ECS::Entity createIsoProp(vec2 location, const json& additional);
+
 COLLISION_HANDLER get_slider_callback(float val_min, float val_max, float x_min, float x_max, float y_min, float y_max) {
 	return [val_min, val_max, x_min, x_max, y_min, y_max](ECS::Entity self, ECS::Entity e, CollisionResult) mutable {
 		if (self.has<Motion>() && e.has<Motion>()) {
@@ -291,6 +295,16 @@ COLLISION_HANDLER get_volume_call_back(float val_min, float val_max, float x_min
 
 std::unordered_map<std::string, std::function<void(vec2, vec2, float,
 	COLLISION_HANDLER, COLLISION_HANDLER, json)>> LevelLoader::level_objects = {
+	{"floor_tile", [](vec2 location, vec2 size, float,
+					   COLLISION_HANDLER, COLLISION_HANDLER, const json& additional) {
+		createIsoFloorTile(location, size, additional);
+	}
+	},
+	{"prop", [](vec2 location, vec2, float,
+					   COLLISION_HANDLER, COLLISION_HANDLER, const json& additional) {
+		createIsoProp(location, additional);
+	}
+	},
 	{"blocks", [](vec2 location, vec2 size, float rotation,
 					   COLLISION_HANDLER overlap, COLLISION_HANDLER, const json&) {
 		Wall::createWall(location, size, rotation, physics_callbacks["wall_scater"], Wall::wall_hit);
@@ -581,6 +595,61 @@ static json readLevelJsonFile(std::string level) {
 
 static vec2 getVec2FromJson(json j) {
 	return vec2(j["x"], j["y"]);
+}
+
+static vec3 getVec3FromJson(json j, vec3 fallback) {
+	if (!j.contains("x") || !j.contains("y") || !j.contains("z")) {
+		return fallback;
+	}
+	return vec3(j["x"], j["y"], j["z"]);
+}
+
+static ECS::Entity createIsoFloorTile(vec2 location, vec2 size, const json& additional) {
+	vec3 base = getVec3FromJson(additional.value("color", json{}), { 0.34f, 0.43f, 0.41f });
+	vec3 edge = getVec3FromJson(additional.value("edge_color", json{}), base * 0.72f);
+	std::string key = "iso_floor_" +
+		std::to_string(static_cast<int>(base.x * 255.f)) + "_" +
+		std::to_string(static_cast<int>(base.y * 255.f)) + "_" +
+		std::to_string(static_cast<int>(base.z * 255.f));
+
+	ShadedMesh& resource = cache_resource(key);
+	if (resource.mesh.vertices.empty()) {
+		resource = ShadedMesh();
+		resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{ -0.5f,  0.5f, -0.03f }, edge });
+		resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{  0.5f,  0.5f, -0.03f }, base });
+		resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{  0.5f, -0.5f, -0.03f }, edge });
+		resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{ -0.5f, -0.5f, -0.03f }, base });
+		resource.mesh.vertex_indices = std::vector<uint16_t>({ 0, 2, 1, 0, 3, 2 });
+		RenderSystem::createColoredMesh(resource, "mesh_flat_color");
+	}
+
+	ECS::Entity entity;
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = location;
+	motion.scale = size;
+	motion.zValue = ZValuesMap["Background"];
+	entity.emplace<IsoGround>();
+	return entity;
+}
+
+static ECS::Entity createIsoProp(vec2 location, const json& additional) {
+	std::string texture = additional.value("texture", "/props/crystal.png");
+	float scale = additional.value("scale", 1.f);
+	std::string key = "prop_" + texture;
+	ShadedMesh& resource = cache_resource(key);
+	if (resource.effect.program.resource == 0) {
+		resource = ShadedMesh();
+		RenderSystem::createSprite(resource, textures_path(texture), "sprite_textured");
+	}
+
+	ECS::Entity entity;
+	ECS::registry<ShadedMeshRef>.emplace(entity, resource);
+	auto& motion = ECS::registry<Motion>.emplace(entity);
+	motion.position = location;
+	motion.scale = vec2{ scale, scale } * 72.f;
+	motion.zValue = ZValuesMap["Enemy"];
+	return entity;
 }
 
 void LevelLoader::load_level() {
