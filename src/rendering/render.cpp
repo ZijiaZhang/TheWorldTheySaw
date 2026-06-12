@@ -136,10 +136,6 @@ namespace {
 
 void RenderSystem::drawWallPrism(ECS::Entity entity, const mat3& projection, const Camera& camera, Motion& motion) {
     const bool mask_pass = rendering_wall_surface_mask;
-    const vec3 top_color = mask_pass ? vec3{ 1.f, 1.f, 1.f } : vec3{ 0.82f, 0.92f, 0.94f };
-    const vec3 lit_side_color = mask_pass ? vec3{ 1.f, 1.f, 1.f } : vec3{ 0.48f, 0.61f, 0.66f };
-    const vec3 shadow_side_color = mask_pass ? vec3{ 1.f, 1.f, 1.f } : vec3{ 0.16f, 0.22f, 0.26f };
-
     vec2 center = camera.world_to_screen(motion.position);
     vec2 half_x = camera.world_delta_to_screen(rotate_vec({ motion.scale.x * 0.5f, 0.f }, motion.angle));
     vec2 half_y = camera.world_delta_to_screen(rotate_vec({ 0.f, motion.scale.y * 0.5f }, motion.angle));
@@ -157,6 +153,26 @@ void RenderSystem::drawWallPrism(ECS::Entity entity, const mat3& projection, con
     vec2 base2 = center + half_x + half_y + drop;
     vec2 base3 = center - half_x + half_y + drop;
 
+    bool include_x_side = true;
+    bool include_y_side = true;
+    if (mask_pass && !ECS::registry<Soldier>.entities.empty() && ECS::registry<Soldier>.entities[0].has<Motion>()) {
+        vec2 player_world = ECS::registry<Soldier>.entities[0].get<Motion>().position;
+        vec2 x_side_normal = rotate_vec({ 1.f, 0.f }, motion.angle);
+        vec2 y_side_normal = rotate_vec({ 0.f, 1.f }, motion.angle);
+        vec2 x_side_world = motion.position + rotate_vec({ motion.scale.x * 0.5f, 0.f }, motion.angle);
+        vec2 y_side_world = motion.position + rotate_vec({ 0.f, motion.scale.y * 0.5f }, motion.angle);
+        float wall_thickness = std::min(std::abs(motion.scale.x), std::abs(motion.scale.y));
+        float front_tolerance = -0.2f * wall_thickness;
+        include_x_side = dot(player_world - x_side_world, x_side_normal) > front_tolerance;
+        include_y_side = dot(player_world - y_side_world, y_side_normal) > front_tolerance;
+    }
+
+    const vec3 wall_light_allowed = vec3{ 0.f, 1.f, 0.f };
+    const vec3 wall_light_blocked = vec3{ 1.f, 0.f, 0.f };
+    const vec3 top_color = mask_pass ? wall_light_blocked : vec3{ 0.82f, 0.92f, 0.94f };
+    const vec3 lit_side_color = mask_pass ? (include_y_side ? wall_light_allowed : wall_light_blocked) : vec3{ 0.48f, 0.61f, 0.66f };
+    const vec3 shadow_side_color = mask_pass ? (include_x_side ? wall_light_allowed : wall_light_blocked) : vec3{ 0.16f, 0.22f, 0.26f };
+
     std::vector<ColoredVertex> vertices = {
         { { top0.x, top0.y, -0.02f }, top_color },
         { { top1.x, top1.y, -0.02f }, top_color },
@@ -171,11 +187,18 @@ void RenderSystem::drawWallPrism(ECS::Entity entity, const mat3& projection, con
         { { base2.x, base2.y, -0.02f }, lit_side_color * 0.7f },
         { { base3.x, base3.y, -0.02f }, lit_side_color * 0.82f }
     };
-    std::vector<uint16_t> indices = {
-        0, 3, 1, 1, 3, 2,
-        4, 7, 5, 5, 7, 6,
-        8, 11, 9, 9, 11, 10
+    std::vector<uint16_t> indices;
+    auto add_quad = [&indices](uint16_t a, uint16_t b, uint16_t c, uint16_t d) {
+        indices.emplace_back(a);
+        indices.emplace_back(b);
+        indices.emplace_back(c);
+        indices.emplace_back(c);
+        indices.emplace_back(b);
+        indices.emplace_back(d);
     };
+    add_quad(0, 3, 1, 2);
+    add_quad(4, 7, 5, 6);
+    add_quad(8, 11, 9, 10);
 
     ShadedMesh& resource = wall_prism_mesh();
     resource.mesh.vertices = vertices;

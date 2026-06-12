@@ -27,7 +27,7 @@ const float accuracy = 255.0;
 const float light_visibility_threshold = 0.05;
 const float inner_circle_soft_edge_ratio = 0.35;
 const float inner_circle_soft_edge_min = 8.0;
-const float wall_surface_light_allowance = 170.0;
+const float wall_surface_light_allowance = 72.0;
 const vec4 full_dark = vec4(0.08, 0.10, 0.11, 1.0);
 const vec4 soft_dark = vec4(0.72, 0.72, 0.72, 1.0);
 
@@ -60,7 +60,7 @@ void main()
     vec4 lit_color = vec4(intensity,intensity,intensity,intensity) * in_color;
     vec4 darkness = enable_full_black ? full_dark : soft_dark;
     bool inner_circle_ray = (player_inner_light_radius > 0.0) && (distance <= player_inner_light_radius);
-    float wall_surface = texture(wall_surface_texture, texcoord).a;
+    vec4 wall_surface = texture(wall_surface_texture, texcoord);
 
     vec2 facing_dir = player_forward_direction;
     float forward_dot = 1.0;
@@ -71,8 +71,11 @@ void main()
     float fov_soft_edge = max(player_light_fov_soft_edge, 0.0001);
     float fov_blend = smoothstep(player_light_cos_half_angle, player_light_cos_half_angle + fov_soft_edge, forward_dot);
 
-    bool wall_surface_ray = wall_surface > 0.5 && ray_len + wall_surface_light_allowance >= distance;
-    bool has_light = (ray_len >= distance || wall_surface_ray) && (intensity >= light_visibility_threshold || inner_circle_ray || fov_blend > 0.0 );
+    bool wall_surface_pixel = wall_surface.a > 0.5;
+    bool wall_surface_can_receive_light = wall_surface.g > 0.5;
+    bool regular_ray = ray_len >= distance;
+    bool wall_surface_ray = wall_surface_pixel && wall_surface_can_receive_light && ray_len + wall_surface_light_allowance >= distance;
+    bool has_light = (wall_surface_pixel ? wall_surface_ray : regular_ray) && (intensity >= light_visibility_threshold || inner_circle_ray || fov_blend > 0.0 );
 
 	// Blend depending on whether we are inside the inner bubble or the FOV cone
 	if(has_light){
