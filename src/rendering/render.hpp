@@ -8,6 +8,7 @@
 
 struct InstancedMesh;
 struct ShadedMesh;
+class Camera;
 
 const std::string fragment_shader_animation = "#version 330\n"
                                               "\n"
@@ -59,6 +60,7 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen = false);
     void drawTexturedMesh(ECS::Entity entity, const mat3 &projection, Motion &motion, const ShadedMesh &texmesh, bool relative_to_screen = false);
+    void drawWallPrism(ECS::Entity entity, const mat3& projection, const Camera& camera, Motion& motion);
 
 	void drawInstanced(const mat3& projection, Particle& particle);
 
@@ -73,6 +75,7 @@ private:
 	GLuint ui_buffer;
 	GLuint light_frame_buffer;
 	GLuint wall_frame_buffer;
+	GLuint wall_surface_frame_buffer;
 
 	ShadedMesh screen_sprite;
 	ShadedMesh health_bar;
@@ -82,6 +85,7 @@ private:
 
 	Texture light_frame_texture;
 	Texture ui_texture;
+	Texture wall_surface_texture;
 
 	GLResource<RENDER_BUFFER> depth_render_buffer_id;
 	ECS::Entity screen_state_entity;

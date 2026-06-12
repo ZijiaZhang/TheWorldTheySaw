@@ -6,6 +6,7 @@ uniform sampler2D ui_texture;               // UI buffer to composite over the s
 uniform float time;
 uniform float darken_screen_factor;
 uniform sampler2D lighting_texture;         // Light rays rendered in RenderSystem::drawLights
+uniform sampler2D wall_surface_texture;     // Visible oblique wall faces rendered as a mask
 uniform vec2 player_position;               // Player center in normalized coordinates
 uniform float texture_size;                 // Width/height of the square lighting texture
 uniform vec2 world_size;                    // Screen size in pixels
@@ -26,7 +27,8 @@ const float accuracy = 255.0;
 const float light_visibility_threshold = 0.05;
 const float inner_circle_soft_edge_ratio = 0.35;
 const float inner_circle_soft_edge_min = 8.0;
-const vec4 full_dark = vec4(0.0, 0.0, 0.0, 1.0);
+const float wall_surface_light_allowance = 170.0;
+const vec4 full_dark = vec4(0.08, 0.10, 0.11, 1.0);
 const vec4 soft_dark = vec4(0.72, 0.72, 0.72, 1.0);
 
 layout(location = 0) out vec4 color;
@@ -58,6 +60,7 @@ void main()
     vec4 lit_color = vec4(intensity,intensity,intensity,intensity) * in_color;
     vec4 darkness = enable_full_black ? full_dark : soft_dark;
     bool inner_circle_ray = (player_inner_light_radius > 0.0) && (distance <= player_inner_light_radius);
+    float wall_surface = texture(wall_surface_texture, texcoord).a;
 
     vec2 facing_dir = player_forward_direction;
     float forward_dot = 1.0;
@@ -68,7 +71,8 @@ void main()
     float fov_soft_edge = max(player_light_fov_soft_edge, 0.0001);
     float fov_blend = smoothstep(player_light_cos_half_angle, player_light_cos_half_angle + fov_soft_edge, forward_dot);
 
-    bool has_light = ray_len >= distance && (intensity >= light_visibility_threshold || inner_circle_ray || fov_blend > 0.0 );
+    bool wall_surface_ray = wall_surface > 0.5 && ray_len + wall_surface_light_allowance >= distance;
+    bool has_light = (ray_len >= distance || wall_surface_ray) && (intensity >= light_visibility_threshold || inner_circle_ray || fov_blend > 0.0 );
 
 	// Blend depending on whether we are inside the inner bubble or the FOV cone
 	if(has_light){

@@ -19,10 +19,10 @@ ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rot
     if (resource.mesh.vertices.empty())
     {
         resource = ShadedMesh();
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3 {-0.5, 0.5, -0.02}, vec3{0.0,0.0,0.0}});
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, 0.5, -0.02}, vec3{0.0,0.0,0.0}});
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, -0.5, -0.02}, vec3{0.0,0.0,0.0}});
-        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{-0.5, -0.5, -0.02}, vec3{0.0,0.0,0.0}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3 {-0.5, 0.5, -0.02}, vec3{0.72,0.86,0.92}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, 0.5, -0.02}, vec3{0.58,0.72,0.78}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{0.5, -0.5, -0.02}, vec3{0.32,0.43,0.48}});
+        resource.mesh.vertices.emplace_back(ColoredVertex{vec3{-0.5, -0.5, -0.02}, vec3{0.46,0.59,0.64}});
 
         resource.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
 
@@ -50,7 +50,7 @@ ECS::Entity MoveableWall::createMoveableWall(vec2 location, vec2 size, float rot
     //motion.box = size;
     // Create and (empty) Salmon component to be able to refer to all turtles
     ECS::registry<MoveableWall>.emplace(entity);
-    resource.texture.color = {0,0,1};
+    resource.texture.color = {0.55f,0.68f,0.72f};
     return entity;
 }
 
@@ -161,10 +161,10 @@ ECS::Entity MoveableWall::createMoveableWall(Motion m, MoveableWall mw, PhysicsO
     if (resource.mesh.vertices.empty())
     {
         resource = ShadedMesh();
-        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3 {-0.5, 0.5, -0.02}, vec3{0.0,0.0,0.0} });
-        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{0.5, 0.5, -0.02}, vec3{0.0,0.0,0.0} });
-        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{0.5, -0.5, -0.02}, vec3{0.0,0.0,0.0} });
-        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{-0.5, -0.5, -0.02}, vec3{0.0,0.0,0.0} });
+        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3 {-0.5, 0.5, -0.02}, vec3{0.72,0.86,0.92} });
+        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{0.5, 0.5, -0.02}, vec3{0.58,0.72,0.78} });
+        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{0.5, -0.5, -0.02}, vec3{0.32,0.43,0.48} });
+        resource.mesh.vertices.emplace_back(ColoredVertex{ vec3{-0.5, -0.5, -0.02}, vec3{0.46,0.59,0.64} });
 
         resource.mesh.vertex_indices = std::vector<uint16_t>({ 0, 2, 1, 0, 3, 2 });
 
@@ -173,7 +173,7 @@ ECS::Entity MoveableWall::createMoveableWall(Motion m, MoveableWall mw, PhysicsO
 
     // Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
     ECS::registry<ShadedMeshRef>.emplace(e, resource);
-    resource.texture.color = { 0,0,1 };
+    resource.texture.color = { 0.55f,0.68f,0.72f };
 
     e.emplace<Motion>(m);
     e.emplace<MoveableWall>(mw);

@@ -19,6 +19,7 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 	// Create a frame buffer
 	frame_buffer = 0;
 	ui_buffer = 0;
+    wall_surface_frame_buffer = 0;
 	glGenFramebuffers(1, &frame_buffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
@@ -50,11 +51,15 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
     RenderSystem::createColoredMesh(health_bar_background, "mesh_flat_highlight");
 
     // Initialize the screen texture and its state
-     glGenFramebuffers(1, &wall_frame_buffer);
+    glGenFramebuffers(1, &wall_frame_buffer);
     glBindFramebuffer(GL_FRAMEBUFFER, wall_frame_buffer);
     createSprite(wall_screen_sprite, "", "lighting_raycast");
 
     wall_screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
+
+    glGenFramebuffers(1, &wall_surface_frame_buffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, wall_surface_frame_buffer);
+    wall_surface_texture.create_from_screen(&window, depth_render_buffer_id.data());
 
     create_light_texture(32);
 
@@ -115,6 +120,9 @@ RenderSystem::~RenderSystem()
 { 
 	// delete allocated resources
 	glDeleteFramebuffers(1, &frame_buffer);
+    glDeleteFramebuffers(1, &wall_frame_buffer);
+    glDeleteFramebuffers(1, &wall_surface_frame_buffer);
+    glDeleteFramebuffers(1, &ui_buffer);
 
 	// remove all entities created by the render system
 	while (ECS::registry<Motion>.entities.size() > 0)

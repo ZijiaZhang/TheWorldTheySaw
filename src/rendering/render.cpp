@@ -30,6 +30,8 @@ namespace {
     constexpr float PLAYER_LIGHT_INNER_SOFT_EDGE_RATIO = 0.35f;
     constexpr float PLAYER_LIGHT_INNER_SOFT_EDGE_MIN = 12.f;
     constexpr float PLAYER_LIGHT_FOV_SOFT_EDGE = 0.08f;
+    bool rendering_wall_blockers = false;
+    bool rendering_wall_surface_mask = false;
 
     bool oblique_view_enabled() {
         return GameInstance::isPlayableLevel();
@@ -57,8 +59,8 @@ namespace {
         return std::atan2(direction.y, direction.x);
     }
 
-    int directional_sprite_index(float world_angle) {
-        float angle = world_angle;
+    int directional_sprite_index(const Camera& camera, float world_angle) {
+        float angle = projected_angle_for_motion(camera, world_angle);
         int index = static_cast<int>(std::round(angle / (PI / 4.f)));
         index %= 8;
         if (index < 0) {
@@ -67,9 +69,9 @@ namespace {
         return index;
     }
 
-    ShadedMesh& directional_sprite_mesh(ECS::Entity entity) {
+    ShadedMesh& directional_sprite_mesh(ECS::Entity entity, const Camera& camera) {
         auto& directional = entity.get<DirectionalSprite>();
-        int index = directional_sprite_index(entity.get<Motion>().angle);
+        int index = directional_sprite_index(camera, entity.get<Motion>().angle);
         std::string key = directional.cache_prefix + "_" + std::to_string(index);
         ShadedMesh& resource = cache_resource(key);
         if (resource.effect.program.resource == 0) {
@@ -100,13 +102,108 @@ namespace {
     float compute_inner_soft_edge_pixels(float radius_pixels) {
         return std::max(radius_pixels * PLAYER_LIGHT_INNER_SOFT_EDGE_RATIO, PLAYER_LIGHT_INNER_SOFT_EDGE_MIN);
     }
+
+    vec2 rotate_vec(vec2 value, float angle) {
+        float ca = std::cos(angle);
+        float sa = std::sin(angle);
+        return {
+            value.x * ca - value.y * sa,
+            value.x * sa + value.y * ca
+        };
+    }
+
+    bool should_render_wall_prism(ECS::Entity entity) {
+        return oblique_view_enabled() && !rendering_wall_blockers && (entity.has<Wall>() || entity.has<MoveableWall>());
+    }
+
+    ShadedMesh& wall_prism_mesh() {
+        ShadedMesh& resource = cache_resource("wall_prism_dynamic");
+        if (resource.effect.program.resource == 0) {
+            resource = ShadedMesh();
+            resource.mesh.vertices = {
+                ColoredVertex{ {0.f, 0.f, -0.02f}, {1.f, 1.f, 1.f} },
+                ColoredVertex{ {1.f, 0.f, -0.02f}, {1.f, 1.f, 1.f} },
+                ColoredVertex{ {0.f, 1.f, -0.02f}, {1.f, 1.f, 1.f} }
+            };
+            resource.mesh.vertex_indices = { 0, 1, 2 };
+            resource.texture.color = { 1.f, 1.f, 1.f };
+            RenderSystem::createColoredMesh(resource, "mesh_flat_highlight");
+        }
+        return resource;
+    }
+
+}
+
+void RenderSystem::drawWallPrism(ECS::Entity entity, const mat3& projection, const Camera& camera, Motion& motion) {
+    const bool mask_pass = rendering_wall_surface_mask;
+    const vec3 top_color = mask_pass ? vec3{ 1.f, 1.f, 1.f } : vec3{ 0.82f, 0.92f, 0.94f };
+    const vec3 lit_side_color = mask_pass ? vec3{ 1.f, 1.f, 1.f } : vec3{ 0.48f, 0.61f, 0.66f };
+    const vec3 shadow_side_color = mask_pass ? vec3{ 1.f, 1.f, 1.f } : vec3{ 0.16f, 0.22f, 0.26f };
+
+    vec2 center = camera.world_to_screen(motion.position);
+    vec2 half_x = camera.world_delta_to_screen(rotate_vec({ motion.scale.x * 0.5f, 0.f }, motion.angle));
+    vec2 half_y = camera.world_delta_to_screen(rotate_vec({ 0.f, motion.scale.y * 0.5f }, motion.angle));
+    bool x_is_thin_axis = std::abs(motion.scale.x) < std::abs(motion.scale.y);
+    vec2 top_half_x = half_x * (x_is_thin_axis ? 0.62f : 0.96f);
+    vec2 top_half_y = half_y * (x_is_thin_axis ? 0.96f : 0.62f);
+    float wall_height = std::clamp(1.1f * std::min(std::abs(motion.scale.x), std::abs(motion.scale.y)), 46.f, 150.f);
+    vec2 drop = { 0.f, wall_height };
+
+    vec2 top0 = center - top_half_x - top_half_y;
+    vec2 top1 = center + top_half_x - top_half_y;
+    vec2 top2 = center + top_half_x + top_half_y;
+    vec2 top3 = center - top_half_x + top_half_y;
+    vec2 base1 = center + half_x - half_y + drop;
+    vec2 base2 = center + half_x + half_y + drop;
+    vec2 base3 = center - half_x + half_y + drop;
+
+    std::vector<ColoredVertex> vertices = {
+        { { top0.x, top0.y, -0.02f }, top_color },
+        { { top1.x, top1.y, -0.02f }, top_color },
+        { { top2.x, top2.y, -0.02f }, top_color * 0.92f },
+        { { top3.x, top3.y, -0.02f }, top_color * 0.95f },
+        { { top1.x, top1.y, -0.02f }, shadow_side_color },
+        { { top2.x, top2.y, -0.02f }, shadow_side_color },
+        { { base2.x, base2.y, -0.02f }, shadow_side_color * 0.62f },
+        { { base1.x, base1.y, -0.02f }, shadow_side_color * 0.72f },
+        { { top3.x, top3.y, -0.02f }, lit_side_color },
+        { { top2.x, top2.y, -0.02f }, lit_side_color },
+        { { base2.x, base2.y, -0.02f }, lit_side_color * 0.7f },
+        { { base3.x, base3.y, -0.02f }, lit_side_color * 0.82f }
+    };
+    std::vector<uint16_t> indices = {
+        0, 3, 1, 1, 3, 2,
+        4, 7, 5, 5, 7, 6,
+        8, 11, 9, 9, 11, 10
+    };
+
+    ShadedMesh& resource = wall_prism_mesh();
+    resource.mesh.vertices = vertices;
+    resource.mesh.vertex_indices = indices;
+    resource.texture.color = { 1.f, 1.f, 1.f };
+    glBindBuffer(GL_ARRAY_BUFFER, resource.mesh.vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ColoredVertex) * resource.mesh.vertices.size(), resource.mesh.vertices.data(), GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, resource.mesh.ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * resource.mesh.vertex_indices.size(), resource.mesh.vertex_indices.data(), GL_DYNAMIC_DRAW);
+
+    Motion screen_motion{};
+    screen_motion.position = { 0.f, 0.f };
+    screen_motion.scale = { 1.f, 1.f };
+    screen_motion.angle = 0.f;
+    drawTexturedMesh(entity, projection, screen_motion, resource, true);
 }
 
 void RenderSystem::drawTexturedMesh(ECS::Entity entity, const mat3& projection, bool relative_to_screen)
 {
-	auto& motion = ECS::registry<Motion>.get(entity);
+    auto& motion = ECS::registry<Motion>.get(entity);
+    auto& screen = screen_state_entity.get<ScreenState>();
+    auto& camera = ECS::registry<Camera>.get(screen.camera);
+    if (should_render_wall_prism(entity) && !relative_to_screen) {
+        drawWallPrism(entity, projection, camera, motion);
+        return;
+    }
 	auto& texmesh = entity.has<DirectionalSprite>()
-        ? directional_sprite_mesh(entity)
+        ? directional_sprite_mesh(entity, camera)
         : *ECS::registry<ShadedMeshRef>.get(entity).reference_to_cache;
     drawTexturedMesh(entity, projection, motion, texmesh, relative_to_screen);
 
@@ -445,9 +542,11 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
     GLint normal_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "screen_texture");
     GLint ui_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "ui_texture");
     GLint light_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "lighting_texture");
+    GLint wall_surface_texture_loc = glGetUniformLocation(screen_sprite.effect.program, "wall_surface_texture");
     glUniform1i(normal_texture_loc, 0);
     glUniform1i(ui_texture_loc,  1);
     glUniform1i(light_texture_loc, 2);
+    glUniform1i(wall_surface_texture_loc, 3);
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
@@ -457,6 +556,8 @@ void RenderSystem::drawToScreen(vec2 window_size_in_game_units)
     glBindTexture(GL_TEXTURE_2D, ui_texture.texture_id);
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, light_frame_texture.texture_id);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, wall_surface_texture.texture_id);
 
 	// Draw
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr); // two triangles = 6 vertices; nullptr indicates that there is no offset from the bound index buffer
@@ -797,6 +898,7 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     gl_has_errors();
     // Draw all textured meshes that have a position and size component
     // Draw by the order of motion zValue, the smaller zValue, draw earlier
+    rendering_wall_blockers = true;
     auto wall_entities = ECS::registry<Wall>.entities;
     for (ECS::Entity entity : wall_entities)
     {
@@ -815,12 +917,37 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
         drawTexturedMesh(entity, projection_2D);
         gl_has_errors();
     }
+    rendering_wall_blockers = false;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, wall_surface_frame_buffer);
+    glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    glDepthRange(0.00001, 10);
+    glClearColor(0, 0, 0, 0);
+    glClearDepth(1.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    rendering_wall_surface_mask = true;
+    for (ECS::Entity entity : wall_entities)
+    {
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity))
+            continue;
+        drawTexturedMesh(entity, projection_2D);
+        gl_has_errors();
+    }
+    for (ECS::Entity entity : moveable_wall_entities)
+    {
+        if (!ECS::registry<Motion>.has(entity) || !ECS::registry<ShadedMeshRef>.has(entity))
+            continue;
+        drawTexturedMesh(entity, projection_2D);
+        gl_has_errors();
+    }
+    rendering_wall_surface_mask = false;
 
 
 	// Truely render to the screen
     drawLights(window_size_in_game_units);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
     gl_has_errors();
 	drawToScreen(window_size_in_game_units);
     glfwSwapInterval( 0 );
