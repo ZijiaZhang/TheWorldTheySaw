@@ -5,14 +5,14 @@
 #include "Particle.hpp"
 #include <render.hpp>
 
-ECS::Entity Particle::createParticle(vec2 position, vec2 size, float lifetime){
+ECS::Entity Particle::createParticle(vec2 position, vec2 size, float lifetime, const std::string& texture_path){
     auto entity = ECS::Entity();
 
     // Setting initial motion values
     Motion& motion = ECS::registry<Motion>.emplace(entity);
     motion.position = position;
     motion.scale = size;
-    motion.zValue = ZValuesMap["Enemy"];
+    motion.zValue = ZValuesMap["Particle"];
 
     auto& deathTimer = entity.emplace<DeathTimer>();
     deathTimer.counter_ms = lifetime;
@@ -29,9 +29,7 @@ ECS::Entity Particle::createParticle(vec2 position, vec2 size, float lifetime){
 
     particle.mesh.mesh.vertex_indices = std::vector<uint16_t>({ 0, 2, 1, 0, 3, 2 });
 
-    // RenderSystem::createColoredMesh(particle.mesh, "particle_billboard");
-    //RenderSystem::createSpriteAnimation(particle.mesh, textures_path("/enemy/cannon/alien.png"), 4);
-    RenderSystem::createSprite(particle.mesh, textures_path("/explosion/blood5.png"), "particle_billboard");
+    RenderSystem::createSprite(particle.mesh, texture_path.empty() ? "" : textures_path(texture_path), "particle_billboard");
 
     for (int x = 0; x < 10; x++) {
         Motion m;

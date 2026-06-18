@@ -62,82 +62,32 @@ struct Motion {
     vec2 offset_move = {0.f,0.f};
 };
 
-struct Health {
-    float shield = 0.f;
-    float hp = 0.f;
-    float max_hp = 0.f;
-    vec2 health_bar_offset = {0,-50};
-};
-
-struct IsoGround {
-};
-
-struct DirectionalSprite {
-    std::array<std::string, 8> texture_paths;
-    std::string cache_prefix;
-    float visual_scale = 1.f;
-};
-
-static std::unordered_map<std::string, int> level_progression = {
-    {"level_1", 1},
-};
-
-// For the order of drawing
+// Draw-order lookup keyed by a small set of generic layer names. Replace or
+// extend with the layers your game needs; entities default to zValue 0.
 static std::map<std::string, int> ZValuesMap = {
-        {"Start", 6},
-        {"MagicParticle", 12},
-    {"Weapon", 11},
-    {"Soldier", 10},
-    {"Turtle", 9},
-    {"Shield",20},
-    {"Fish", 8},
-    {"Enemy", 7},
-    {"Wall",6},
-    {"Background", 5}
-
+    {"Background", 0},
+    {"Wall", 6},
+    {"Particle", 12},
+    {"Button", 15},
+    {"UI", 20},
 };
 
+// Generic collision layers. Add your own and update PhysicsObject::getCollisionType
+// to control which pairs collide, overlap, or ignore one another.
 typedef enum
 {
     COLLISION_DEFAULT,
-    PLAYER,
-    ENEMY,
-    BULLET,
     WALL,
     MOVEABLEWALL,
-    WEAPON,
     BUTTON,
-    SHIELD,
-    EXPLOSION,
-    MAGIC,
     LAST
 
 } CollisionObjectType;
-
-typedef enum{
-    FIREBALL,
-    FIELD
-}MagicWeapon;
-
 
 struct PhysicsVertex
 {
     vec3 position;
 };
-
-struct Path_with_heuristics{
-    std::vector<std::pair<int,int>> path;
-    float cost;
-    float heuristic;
-};
-
-struct AIPath{
-    bool active = true;
-    Path_with_heuristics path;
-    vec2 desired_speed = {0.f, 0.f};
-    int progress = 0;
-};
-
 
 inline float cross(vec2 x, vec2 y){
     return (x.x * y.y - y.x* x.y);
@@ -145,4 +95,3 @@ inline float cross(vec2 x, vec2 y){
 
 
 Transform getTransform(const Motion &m1);
-

@@ -11,7 +11,7 @@
 class Particle {
 
 public:
-    static ECS::Entity createParticle(vec2 position, vec2 size, float lifetime);
+    static ECS::Entity createParticle(vec2 position, vec2 size, float lifetime, const std::string& texture_path = "");
 
     GLResource<BUFFER> motion_buffer;
     GLResource<BUFFER> speed_buffer;

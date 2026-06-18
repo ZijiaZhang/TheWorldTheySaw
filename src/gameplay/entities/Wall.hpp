@@ -9,6 +9,7 @@
 #include "tiny_ecs.hpp"
 #include "PhysicsObject.hpp"
 
+// A generic static, solid rectangular body.
 class Wall {
 public:
     static ECS::Entity createWall(vec2 location, vec2 size, float rotation,
@@ -17,8 +18,4 @@ public:
     static ECS::Entity createWall(Motion m, Wall w, PhysicsObject po);
 
     static void wall_hit(ECS::Entity self, const ECS::Entity e, CollisionResult collision);
-
-    static void wall_overlap(ECS::Entity self, const ECS::Entity e, CollisionResult collision);
-
 };
-

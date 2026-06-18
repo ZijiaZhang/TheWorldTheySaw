@@ -2,29 +2,19 @@
 
 // internal
 #include "common.hpp"
-#include "soldier.hpp"
-#include "Enemy.hpp"
 #include "Camera.hpp"
-#include "button.hpp"
-#include "health_bar.hpp"
 #include "GameInstance.hpp"
 
 // stlib
-#include <vector>
+#include <string>
 #include <random>
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <levelLoader.hpp>
-#include <button.hpp>
 
-enum class ControlState {
-	NORMAL,
-	USING_MAGIC
-};
-
-// Container for all our entities and game logic. Individual rendering / update is 
+// Container for all our entities and game logic. Individual rendering / update is
 // deferred to the relative update() methods
 class WorldSystem
 {
@@ -35,81 +25,51 @@ public:
 	// Releases all associated resources
 	~WorldSystem();
 
-	// restart level
+	// (Re)load a level by name
 	void restart(std::string level);
 
 	// Steps the game ahead by ms milliseconds
 	void step(float elapsed_ms, vec2 window_size_in_game_units);
 
-
-
-	// Check for collisions
+	// Dispatch queued collision events
 	void handle_collisions();
-
-
-	// Renders our scene
-	void draw();
 
 	// Should the game be over ?
 	bool is_over() const;
 
-	bool aiControl = false;
-
 	// OpenGL window handle
 	GLFWwindow* window;
 
-	static std::map<ButtonIcon, std::function<void()>> buttonCallbacks;
-    static bool reload_level;
+	// Request a deferred level switch from anywhere (e.g. a button callback)
+	static bool reload_level;
+	static std::string reload_level_name;
+
+	// Set true while a UI click is being dispatched, so button callbacks can gate on it
 	static bool selecting;
-	static bool pause;
 	static bool menuClickOverride;
-    static std::string reload_level_name;
-    static std::string selected_level;
-	static bool SHIELDUP;
-	static bool hasShield;
-	static ECS::Entity shield;
+
 	vec2 screen;
-    static vec2 menuCameraTarget;
 
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
+	void on_mouse(int key, int action, int mod);
 	void on_mouse_move(vec2 mouse_pos);
 
-	// Loads the audio
+	// Loads the audio device (no bundled audio assets in the template)
 	void init_audio();
 
-	void checkEndGame();
+	vec2 getWorldMousePosition(vec2 mouse_pos) const;
+	bool tryClickButton(vec2 mouse_pos);
 
-	void runTimer(float elapsed_ms);
-
-	void resetTimer();
-
-	// Elapsed level timer state
-	unsigned int seconds;
-
-	// Game state
-	float current_speed;
-
-	float endGameTimer;
-	ECS::Entity player_soldier;
+	// Currently loaded level name (used by the restart hotkey)
+	std::string current_level;
 
 	// music references
 	Mix_Music* background_music = nullptr;
 
 	// C++ random number generator
 	std::default_random_engine rng;
-	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
 	vec2 last_mouse_pos;
-	ControlState control_state = ControlState::NORMAL;
-	bool show_ability_tutorial = false;
-	void on_mouse(int key, int action, int mod);
-
-    vec2 getWorldMousePosition(vec2 mouse_pos) const;
-	bool tryClickButton(vec2 mouse_pos, bool includePlayableLevels = false);
-
-	bool pendingRestart = false;
-	float pendingRestartTimer = 0.f;
-	std::string pendingRestartLevel = "";
 };

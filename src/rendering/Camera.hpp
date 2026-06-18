@@ -28,7 +28,9 @@ class Camera {
 
     void set_screen_size(vec2 size);
 
-    static constexpr float OBLIQUE_X_SCALE = 0.72f;
-    static constexpr float OBLIQUE_Y_SCALE = 0.36f;
+    // Projection scales for world_to_screen / screen_to_world. Default (1, 1)
+    // gives a plain axis-aligned view; set these for an oblique/dimetric camera.
+    float oblique_x_scale = 1.f;
+    float oblique_y_scale = 1.f;
 };
 

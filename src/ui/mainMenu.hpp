@@ -3,7 +3,7 @@
 #include "common.hpp"
 #include "tiny_ecs.hpp"
 
-// Salmon food
+// A fullscreen background-image entity, handy for menu/title screens.
 struct MainMenu
 {
 	// Creates all the associated render resources and default transform

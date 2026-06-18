@@ -4,11 +4,6 @@
 #include "debug.hpp"
 #include "float.h"
 #include "PhysicsObject.hpp"
-#include "Bullet.hpp"
-#include "Enemy.hpp"
-#include "Weapon.hpp"
-#include "Wall.hpp"
-#include <soldier.hpp>
 #include <iostream>
 
 std::unordered_map<std::string, std::pair<std::vector<std::vector<std::pair<int, int>>>, std::vector<int>>> PhysicsSystem::decomposed_non_convex{};
@@ -251,36 +246,6 @@ CollisionResult PhysicsSystem::collision(ECS::Entity e1, ECS::Entity e2) {
 void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 {
 	float step_seconds = elapsed_ms / 1000.f;
-	for (auto& entity : ECS::registry<AIPath>.entities) {
-		if (entity.has<Motion>()) {
-
-			auto& motion = entity.get<Motion>();
-			auto& aiPath = entity.get<AIPath>();
-			if (!aiPath.active)
-				continue;
-			if (aiPath.path.path.empty()) {
-				motion.velocity = vec2{ 0.f,0.f };
-				continue;
-			}
-			while (aiPath.progress < aiPath.path.path.size() &&
-				length(AISystem::get_grid_location(aiPath.path.path[aiPath.progress]) - motion.position) < AISystem::GRID_SIZE * 0.2) {
-				aiPath.progress++;
-			}
-			if (aiPath.progress < aiPath.path.path.size()) {
-				auto target = aiPath.path.path[aiPath.progress];
-				auto target_position = AISystem::get_grid_location(target);
-				auto dir = target_position - motion.position;
-				// Enemy will always face the player
-				motion.angle = atan2(dir.y, dir.x);
-			}
-			else {
-				aiPath.desired_speed = { 0.f, 0.f };
-				aiPath.path.path.clear();
-				aiPath.progress = 0;
-			}
-			motion.velocity -= (motion.velocity - aiPath.desired_speed) * elapsed_ms / 1000.f;
-		}
-	}
 
 	// Move entities based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
@@ -315,13 +280,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 		}
 		physics.force.clear();
 	}
-
-	for (auto& player : ECS::registry<Soldier>.entities) {
-		player.get<Motion>().preserve_world_velocity *= 0.9;
-		player.get<Motion>().angular_velocity *= 0.9;
-	}
-
-
 
 	for (auto& motion : ECS::registry<Motion>.components)
 	{
@@ -381,18 +339,6 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			DebugSystem::createLine(m.position, { 10.f, 10.f });
 		}
 
-		for (auto& e : ECS::registry<AIPath>.components) {
-
-			for (auto& grid : e.path.path) {
-				// draw a cross at the position of all objects
-				auto scale_vertical_line = vec2{ 10.f, 10.f };
-				DebugSystem::createLine(
-					{ grid.first * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2, grid.second * AISystem::GRID_SIZE + AISystem::GRID_SIZE / 2 },
-					scale_vertical_line);
-
-			}
-		}
-
 	}
 
 
@@ -415,12 +361,7 @@ void PhysicsSystem::step(float elapsed_ms, vec2 window_size_in_game_units)
 			{
 				// Create a collision event
 				 // Note, we are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity, hence, emplace_with_duplicates
-				CollisionType result = advanced_collision(entity_i, entity_j);
-
-				//                if(entity_j.has<Soldier>() || entity_i.has<Soldier>()){
-				//                    printf("Soldier collide with %d, %d\n", entity_i.get<PhysicsObject>().object_type, result);
-				//                }
-
+				advanced_collision(entity_i, entity_j);
 			}
 		}
 	}

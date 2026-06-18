@@ -24,8 +24,8 @@ vec2 Camera::get_focus_position() const {
 
 vec2 Camera::world_delta_to_screen(vec2 world_delta) const {
     return {
-        (world_delta.x - world_delta.y) * OBLIQUE_X_SCALE,
-        (world_delta.x + world_delta.y) * OBLIQUE_Y_SCALE
+        (world_delta.x - world_delta.y) * oblique_x_scale,
+        (world_delta.x + world_delta.y) * oblique_y_scale
     };
 }
 
@@ -39,8 +39,8 @@ vec2 Camera::screen_to_world(vec2 screen_position) const {
 }
 
 vec2 Camera::screen_delta_to_world_delta(vec2 delta) const {
-    float x_minus_y = delta.x / OBLIQUE_X_SCALE;
-    float x_plus_y = delta.y / OBLIQUE_Y_SCALE;
+    float x_minus_y = delta.x / oblique_x_scale;
+    float x_plus_y = delta.y / oblique_y_scale;
     return {
         (x_plus_y + x_minus_y) * 0.5f,
         (x_plus_y - x_minus_y) * 0.5f
@@ -55,12 +55,12 @@ mat3 Camera::get_world_to_screen_transform() const {
     vec2 focus = get_focus_position();
     vec2 center = screen_size / 2.f;
 
-    float tx = center.x - OBLIQUE_X_SCALE * focus.x + OBLIQUE_X_SCALE * focus.y;
-    float ty = center.y - OBLIQUE_Y_SCALE * focus.x - OBLIQUE_Y_SCALE * focus.y;
+    float tx = center.x - oblique_x_scale * focus.x + oblique_x_scale * focus.y;
+    float ty = center.y - oblique_y_scale * focus.x - oblique_y_scale * focus.y;
 
     return {
-        { OBLIQUE_X_SCALE, OBLIQUE_Y_SCALE, 0.f },
-        { -OBLIQUE_X_SCALE, OBLIQUE_Y_SCALE, 0.f },
+        { oblique_x_scale, oblique_y_scale, 0.f },
+        { -oblique_x_scale, oblique_y_scale, 0.f },
         { tx, ty, 1.f }
     };
 }

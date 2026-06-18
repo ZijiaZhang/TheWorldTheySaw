@@ -16,114 +16,14 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 	gl3w_init();
     if(renderSystem)
         throw std::runtime_error("Should not create second RenderSystem");
-	// Create a frame buffer
-	frame_buffer = 0;
-	ui_buffer = 0;
-    wall_surface_frame_buffer = 0;
-	glGenFramebuffers(1, &frame_buffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, frame_buffer);
 
 	initScreenTexture();
-    glGenFramebuffers(1, &ui_buffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, ui_buffer);
-    ui_texture.create_from_screen(&window, depth_render_buffer_id.data());
 
-
-    health_bar = ShadedMesh(); 
-    health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    health_bar.mesh.vertices.emplace_back(ColoredVertex{vec3{0, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
-
-    health_bar.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
-    health_bar.texture.color = vec3{1,0,0};
-    RenderSystem::createColoredMesh(health_bar, "mesh_flat_highlight");
-
-
-    health_bar_background = ShadedMesh();
-    health_bar_background.mesh.vertices.emplace_back(ColoredVertex{vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    health_bar_background.mesh.vertices.emplace_back(ColoredVertex{vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    health_bar_background.mesh.vertices.emplace_back(ColoredVertex{vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
-    health_bar_background.mesh.vertices.emplace_back(ColoredVertex{vec3{0, -0.5, -0.02}, vec3{1.0,1.0,1.0}});
-
-    health_bar_background.mesh.vertex_indices = std::vector<uint16_t>({0, 2, 1, 0, 3, 2});
-    health_bar_background.texture.color = vec3{0.1,0.1,0.1};
-    RenderSystem::createColoredMesh(health_bar_background, "mesh_flat_highlight");
-
-    // Initialize the screen texture and its state
-    glGenFramebuffers(1, &wall_frame_buffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, wall_frame_buffer);
-    createSprite(wall_screen_sprite, "", "lighting_raycast");
-
-    wall_screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
-
-    glGenFramebuffers(1, &wall_surface_frame_buffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, wall_surface_frame_buffer);
-    wall_surface_texture.create_from_screen(&window, depth_render_buffer_id.data());
-
-    create_light_texture(32);
-
-    weaponTimerMask = ShadedMesh();
-    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{ vec3 {0, 0.5, -0.02}, vec3{1.0,1.0,1.0} });
-    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{ vec3{1, 0.5, -0.02}, vec3{1.0,1.0,1.0} });
-    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{ vec3{1, -0.5, -0.02}, vec3{1.0,1.0,1.0} });
-    weaponTimerMask.mesh.vertices.emplace_back(ColoredVertex{ vec3{0, -0.5, -0.02}, vec3{1.0,1.0,1.0} });
-    weaponTimerMask.mesh.vertex_indices = std::vector<uint16_t>({ 0, 2, 1, 0, 3, 2 });
-    weaponTimerMask.texture.color = vec3{ 0.2,.8,0.2 };
-    RenderSystem::createColoredMesh(weaponTimerMask, "mesh_flat_highlight");
-
-    renderSystem = this;
-}
-
-void RenderSystem::create_light_texture(float quality){
-    glGenFramebuffers(1, &light_frame_buffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, light_frame_buffer);
-    light_frame_texture.create_from_screen(&window, depth_render_buffer_id.data());
-
-    glGenTextures(1, light_frame_texture.texture_id.data());
-    glBindTexture(GL_TEXTURE_2D, light_frame_texture.texture_id);
-
-    light_frame_texture.size.x = int(quality);
-    light_frame_texture.size.y = int(quality);
-    //printf("%d, %d \n", x, y);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, light_frame_texture.size.x, light_frame_texture.size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    // Generate the render buffer with the depth buffer
-    glGenRenderbuffers(1, depth_render_buffer_id.data());
-    glBindRenderbuffer(GL_RENDERBUFFER, *depth_render_buffer_id.data());
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, light_frame_texture.size.x, light_frame_texture.size.y);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *depth_render_buffer_id.data());
-
-    // Set id as colour attachement #0
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, light_frame_texture.texture_id, 0);
-
-    // Set the list of draw buffers
-    GLenum draw_buffers[1] = { GL_COLOR_ATTACHMENT0 };
-    glDrawBuffers(1, draw_buffers); // "1" is the size of DrawBuffers
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        throw std::runtime_error("glCheckFramebufferStatus(GL_FRAMEBUFFER)");
-
-    gl_has_errors();
-
-}
-
-void RenderSystem::recreate_light_texture(float quality) {
-    glDeleteTextures(1, light_frame_texture.texture_id.data());
-    glDeleteFramebuffers(1, &light_frame_buffer);
-    create_light_texture(quality);
+	renderSystem = this;
 }
 
 RenderSystem::~RenderSystem()
-{ 
-	// delete allocated resources
-	glDeleteFramebuffers(1, &frame_buffer);
-    glDeleteFramebuffers(1, &wall_frame_buffer);
-    glDeleteFramebuffers(1, &wall_surface_frame_buffer);
-    glDeleteFramebuffers(1, &ui_buffer);
-
+{
 	// remove all entities created by the render system
 	while (ECS::registry<Motion>.entities.size() > 0)
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());
@@ -232,29 +132,16 @@ void RenderSystem::createColoredMesh(ShadedMesh& texmesh, std::string shader_nam
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint16_t) * texmesh.mesh.vertex_indices.size(), texmesh.mesh.vertex_indices.data(), GL_STATIC_DRAW);
 	gl_has_errors();
 
-	// Note, one could set vertex attributes here...
-	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	// glEnableVertexAttribArray(0);
-	// glBindBuffer(GL_ARRAY_BUFFER, 0); // Note that this is allowed, the call to glVertexAttribPointer registered VBO as the currently bound vertex buffer object so afterwards we can safely unbind
-
 	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
 
 	// Loading shaders
 	texmesh.effect.load_from_file(shader_path(shader_name)+".vertex.glsl", shader_path(shader_name)+".fragment.glsl");
 }
 
-// Initialize the screen texture from a standard sprite
+// Set up the shared screen state (holds the active camera for the draw loop)
 void RenderSystem::initScreenTexture()
 {
-	// Create a sprite withour loading a texture
-    createSprite(screen_sprite, "", "lighting_composite");
-
-	// Initialize the screen texture and its state
-	screen_sprite.texture.create_from_screen(&window, depth_render_buffer_id.data());
 	ECS::registry<ScreenState>.emplace(screen_state_entity);
-
-
-
 }
 
 RenderSystem* RenderSystem::renderSystem = nullptr;

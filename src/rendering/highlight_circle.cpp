@@ -20,7 +20,6 @@ ECS::Entity HighLightCircle::createHighLightCircle(vec2 position, float radius, 
 	auto& mesh = ECS::registry<ShadedMeshRef>.emplace(entity, resource);
 	mesh.is_ui = true;
 
-	// Create and (empty) Fish component to be able to refer to all fish
 	auto& highlight = ECS::registry<HighLightCircle>.emplace(entity);
 	auto& motion = entity.emplace<Motion>();
 	motion.position = position;

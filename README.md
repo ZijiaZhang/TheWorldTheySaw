@@ -1,17 +1,30 @@
 # Game Template
 
-This repository is a reusable C++ game starter built around GLFW, OpenGL, SDL_mixer, a tiny ECS, JSON level loading, rendering helpers, simple physics, and AI/pathing examples.
+A bare C++ 2D game starter. It boots to an empty window and gives you the
+reusable engine plumbing to build on — no game-specific content included.
 
-The old game's campaign data has been reduced to a neutral starter setup:
+## What's included
 
-- `data/levels/menu.json` is a minimal menu scene.
-- `data/levels/level_1.json` is a small playable sample level.
-- `data/levels/settings.json`, `win.json`, and `lose.json` are utility screens retained for the existing loop.
-- The previous game's authored level files and balance notes have been removed.
+- **Window / input** — GLFW + OpenGL 3.3 core context, keyboard and mouse callbacks.
+- **ECS** — a tiny entity-component-system (`tiny_ecs`).
+- **Rendering** — a plain 2D pipeline: textured sprites, colored meshes, sprite-sheet
+  animation, and instanced particles, drawn through an orthographic camera.
+- **Physics** — SAT collision detection and impulse resolution for convex rigid bodies,
+  with static (`Wall`) and dynamic (`MoveableWall`) sample bodies.
+- **Level loading** — a data-driven JSON loader (`LevelLoader`) that maps level-file
+  keys to spawner functions you register.
+- **UI** — reusable clickable `Button`, `PopUP` dialog, `HighLightCircle`, and a
+  fullscreen `MainMenu` helper.
+- **Audio** — SDL_mixer is initialized and ready; no audio assets are bundled.
+
+The starting scene (`data/levels/template.json`) is intentionally empty, so the app
+opens to a cleared window. Press `O` to toggle debug draw, `P` for profiling output,
+and `R` to reload the current level.
 
 ## Build
 
-Use CMake to configure and build the project. On Windows, the repo includes the prebuilt GLFW and SDL libraries expected by `CMakeLists.txt`.
+Use CMake to configure and build the project. On Windows, the repo includes the
+prebuilt GLFW and SDL libraries expected by `CMakeLists.txt`.
 
 ```powershell
 cmake -S . -B build
@@ -20,22 +33,23 @@ cmake --build build
 
 The build copies `data/` beside the executable after compilation.
 
-## Template Map
+## Project layout
 
-- `src/core`: entry point, common math/path helpers, ECS, and global game state.
-- `src/rendering`: OpenGL rendering, shader setup, camera, backgrounds, particles, and visual components.
-- `src/gameplay/systems`: world loop, physics, level loading, timers.
-- `src/gameplay/entities`: sample entity implementations.
-- `src/gameplay/ai`: sample AI, pathing, and weapon configuration.
-- `src/ui`: reusable button/loading/menu UI components.
-- `data/levels`: JSON scenes that instantiate registered level objects.
-- `data/shaders`: shader programs used by the renderer.
-- `data/textures`, `data/audio`, `data/meshes`: assets to replace with your new game's content.
+- `src/core`: entry point and main loop, ECS, shared math/components, global state, debug draw.
+- `src/rendering`: OpenGL rendering, camera, render components, particles.
+- `src/gameplay/systems`: world loop, physics, JSON level loader.
+- `src/gameplay/entities`: sample physics bodies (`Wall`, `MoveableWall`).
+- `src/ui`: reusable button / popup / menu UI components.
+- `data/levels`: JSON scenes (`template.json` is the empty starting scene).
+- `data/shaders`: the generic shader programs used by the renderer.
+- `data/textures`, `data/audio`: add your game's assets here (empty by default).
 
-## Starting A New Game
+## Starting a new game
 
-1. Rename the CMake project if you want a game-specific executable name.
-2. Replace the sample assets in `data/textures` and `data/audio`.
-3. Add or rename level object types in `LevelLoader::level_objects`.
-4. Replace the sample player/enemy/weapon entities with your new game's components and systems.
+1. Rename the CMake project (`project(game_template)`) if you want a different executable name.
+2. Add your art to `data/textures` and sounds to `data/audio`.
+3. Define your own entities/components and systems under `src/gameplay`.
+4. Register spawners in `LevelLoader::level_objects` (keyed by a level-file type name)
+   and author scenes as JSON under `data/levels`, then start one from `main.cpp`
+   (`start_level`).
 5. Expand `GameInstance` only with state that must be shared across systems.

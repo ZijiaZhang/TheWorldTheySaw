@@ -45,18 +45,11 @@ public:
         }
     };
 
-    // Which object type is ignored
-
-    static std::map<CollisionObjectType, std::set<CollisionObjectType>> ignore_collision_of_type;
-    static std::map<CollisionObjectType, std::set<CollisionObjectType>> only_overlap_of_type;
-
+    // Decide how a pair of collision layers interacts. By default everything
+    // physically collides (Hit); buttons act as triggers (Overlap) so UI clicks
+    // do not push objects around. Extend this for your game's collision matrix.
     static CollisionType getCollisionType(CollisionObjectType c1, CollisionObjectType c2){
-        if (PhysicsObject::ignore_collision_of_type[c1].find(c2) != PhysicsObject::ignore_collision_of_type[c1].end()
-        || PhysicsObject::ignore_collision_of_type[c2].find(c1) != PhysicsObject::ignore_collision_of_type[c2].end()){
-            return NoCollision;
-        }
-        if (PhysicsObject::only_overlap_of_type[c1].find(c2) != PhysicsObject::only_overlap_of_type[c1].end()
-        ||PhysicsObject::only_overlap_of_type[c2].find(c1) != PhysicsObject::only_overlap_of_type[c2].end()){
+        if (c1 == BUTTON || c2 == BUTTON){
             return Overlap;
         }
         return Hit;

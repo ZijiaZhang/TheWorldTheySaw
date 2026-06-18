@@ -7,7 +7,6 @@
 #include <cassert>
 #include <functional>
 #include <iostream>
-#include "Point.hpp"
 #include <set>
 
 typedef enum{

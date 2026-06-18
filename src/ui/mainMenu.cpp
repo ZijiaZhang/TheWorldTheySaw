@@ -31,7 +31,6 @@ ECS::Entity MainMenu::createMainMenu(vec2 position, std::string name, float dept
 	motion.scale = vec2({ size, size }) * static_cast<vec2>(resource.texture.size);
     motion.zValue = ZValuesMap["Background"];
 
-	// Create and (empty) Fish component to be able to refer to all fish
     auto& bg = ECS::registry<MainMenu>.emplace(entity);
     bg.depth = depth;
 

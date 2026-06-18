@@ -59,7 +59,7 @@ struct GLResource
 	};
 };
 
-// Single Vertex Buffer element for non-textured meshes (mesh_flat_color.vertex.glsl & mesh_flat_color_legacy.vertex.glsl)
+// Single Vertex Buffer element for non-textured meshes (mesh_flat_color.vertex.glsl)
 struct ColoredVertex
 {
 	vec3 position;

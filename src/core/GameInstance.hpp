@@ -5,39 +5,21 @@
 #pragma once
 
 #include "common.hpp"
-#include "SoldierAi.hpp"
 
-#define MENU_NAME "menu"
-#define WEAPON_SELECT_NAME "level_1"
-
-
+// Global, system-wide game state. Keep this small: only values that genuinely
+// must be shared across systems (timing, speed, and audio levels) live here.
 class GameInstance {
     public:
-        static std::string currentLevel;
-        static WeaponType selectedWeapon;
-        static AIAlgorithm algorithm;
-        static MagicWeapon selectedMagic;
-        static int charges_left;
-        static float light_quality;
         static float frame_time;
         static float game_time;
         static float volume;
         static float effect_volume;
-        static bool weaponAutoAim;
 
-        // Game speed overrides
+        // Game speed overrides (multiplied together by get_current_speed())
         static float global_speed;
         static float popup_speed;
         static float pause_speed;
         static float ability_speed;
 
-    static bool isPlayableLevel(std::string level);
-
-    static bool isPlayableLevel();
-    static int getDefaultChargeOfMagic(MagicWeapon m);
-
-    static bool fist_enter_level(std::string level);
-    static void set_enter_level(std::string level);
     static float get_current_speed();
 };
-
