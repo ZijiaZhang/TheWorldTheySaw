@@ -247,11 +247,18 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     camera.set_screen_size(window_size_in_game_units);
 
-    // Aim the flashlight at the cursor (screen+height space; gl_FragCoord origin is bottom-left).
+    // Aim the flashlight at the cursor. Iso (world-space lighting): unproject the mouse to a
+    // world ground position and float the light at lightWorldHeight. Legacy: screen+height px.
     double mx = 0.0, my = 0.0;
     glfwGetCursorPos(&window, &mx, &my);
-    deferred.lights.flashlight.pos.x = static_cast<float>(mx);
-    deferred.lights.flashlight.pos.y = static_cast<float>(frame_buffer_size.y) - static_cast<float>(my);
+    if (camera.isoEnabled) {
+        deferred.lights.flashlight.pos =
+            camera.ground_world_from_mouse(mx, my, deferred.lights.flashlight.lightWorldHeight);
+        deferred.lights.flashlight.spotDirWorld = vec3(0.f, 0.f, -1.f);
+    } else {
+        deferred.lights.flashlight.pos.x = static_cast<float>(mx);
+        deferred.lights.flashlight.pos.y = static_cast<float>(frame_buffer_size.y) - static_cast<float>(my);
+    }
 
     // Number keys 0-8 switch the composite debug view (0 = full pipeline).
     for (int k = 0; k <= 8; k++) {
@@ -269,10 +276,24 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
 
     // Draw all textured meshes that have a position and size component, painter-sorted by zValue.
     auto entities = ECS::registry<ShadedMeshRef>.entities;
-    std::sort(entities.begin(), entities.end(), [&](const ECS::Entity e1, const ECS::Entity e2)
-    {
-        return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
-    });
+    if (camera.isoEnabled) {
+        // Iso: back-to-front by iso depth (x + y ascending), zValue as tie-break,
+        // matching the deferred geometry pass so occluders and overlays interleave.
+        std::sort(entities.begin(), entities.end(), [&](const ECS::Entity e1, const ECS::Entity e2)
+        {
+            auto& m1 = ECS::registry<Motion>.get(e1);
+            auto& m2 = ECS::registry<Motion>.get(e2);
+            float d1 = m1.position.x + m1.position.y;
+            float d2 = m2.position.x + m2.position.y;
+            if (d1 != d2) return d1 < d2;
+            return m1.zValue < m2.zValue;
+        });
+    } else {
+        std::sort(entities.begin(), entities.end(), [&](const ECS::Entity e1, const ECS::Entity e2)
+        {
+            return ECS::registry<Motion>.get(e1).zValue < ECS::registry<Motion>.get(e2).zValue;
+        });
+    }
 
     for (ECS::Entity entity : entities)
     {

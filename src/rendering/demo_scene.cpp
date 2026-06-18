@@ -73,6 +73,18 @@ Texture domeNormal() {
     });
 }
 
+// Vertical elevation ramp: r = 0 at the foot (v=0) -> 1 at the crown (v=1). Fed as a
+// wall's height map so GBuffer2 holds the TRUE world elevation up the standing face
+// (foot at wz=0, top at wz=heightRange). World-space lighting unprojects each face
+// pixel back to its true (wx,wy,wz) from this — the foot and crown share one (wx,wy).
+Texture verticalRampHeight() {
+    return makeProcTexture(4, 64, GL_LINEAR, [](float u, float v, unsigned char out[4]) {
+        (void)u;
+        unsigned char b = toByte(v);
+        out[0] = b; out[1] = b; out[2] = b; out[3] = 255;
+    });
+}
+
 // Flat normal (0,0,1) for the ground.
 Texture flatNormalTex() {
     return makeProcTexture(4, 4, GL_NEAREST, [](float, float, unsigned char out[4]) {
@@ -106,6 +118,16 @@ ECS::Entity makeLit(vec2 pos, vec2 scale, int z, LitSprite&& lit) {
 } // namespace
 
 void setupLightingDemo() {
+    // Present the scene as isometric pseudo-3D. A camera already exists (created at
+    // the end of WorldSystem::restart, just before this runs); flip it into iso mode.
+    if (!ECS::registry<Camera>.entities.empty()) {
+        auto& cam = ECS::registry<Camera>.entities[0].get<Camera>();
+        cam.isoEnabled      = true;
+        cam.oblique_x_scale = 1.0f;
+        cam.oblique_y_scale = 0.5f;   // 2:1 iso diamond
+        cam.zScale          = 1.0f;   // 1 screen px of rise per world height unit
+    }
+
     // Floor: large flat receiver, not an occluder, ground height 0.
     {
         LitSprite lit;
@@ -114,7 +136,8 @@ void setupLightingDemo() {
         lit.baseHeight = 0.f;
         lit.roughness = 1.f;
         lit.isOccluder = false;
-        makeLit(vec2(0, 0), vec2(1300, 900), 0, std::move(lit));
+        lit.isoMode = LitSprite::IsoMode::Ground;   // square skews into the iso diamond
+        makeLit(vec2(0, 0), vec2(1400, 1400), 0, std::move(lit));
     }
 
     // Rounded "stud" occluders at a moderate height — these cast height shadows and
@@ -132,22 +155,30 @@ void setupLightingDemo() {
         lit.baseHeight = 60.f;
         lit.roughness = 0.6f;
         lit.isOccluder = true;
+        lit.elevation = 0.f;    // foot-anchored: the ball sits on the ground
         makeLit(b.pos, vec2(b.r, b.r), 6, std::move(lit));
     }
 
-    // Tall thin walls — high occluders that throw long shadows (the 3D-feel cue).
+    // Standing wall slabs — upright billboards that rise from the ground (their
+    // bottom edge is foot-anchored at the iso ground point) and cast wall shadows.
+    // scale = (length on screen, height on screen); height also drives the shadow.
     struct Wall { vec2 pos; vec2 scale; };
     Wall walls[] = {
-        { { -120, 170 }, { 240, 44 } },
-        { {  240, 210 }, { 44, 200 } },
+        { { -120, 150 }, { 230, 150 } },
+        { {  240, 190 }, { 120, 185 } },
     };
     for (const Wall& w : walls) {
         LitSprite lit;
         lit.albedo = solidDiscAlbedo(vec3(0.62f, 0.64f, 0.68f), false);
-        lit.normal = flatNormalTex();
-        lit.baseHeight = 95.f;
+        lit.normal = flatNormalTex();                    // flat tangent normal; orientation via the TBN
+        lit.normalToSurface = Camera::wall_surface_tbn(); // bakes it to a world-horizontal wall face
+        lit.height = verticalRampHeight();               // true elevation 0..heightRange up the face
+        lit.hasHeightMap = true;
+        lit.heightRange = w.scale.y;                     // wall world height == on-screen px (zScale 1)
+        lit.baseHeight = 0.f;                            // foot rests on the ground
         lit.roughness = 0.8f;
         lit.isOccluder = true;
+        lit.elevation = 0.f;                             // foot-anchored; the slab rises up-screen
         makeLit(w.pos, w.scale, 6, std::move(lit));
     }
 
@@ -160,6 +191,7 @@ void setupLightingDemo() {
         lit.hasEmissive = true;
         lit.baseHeight = 25.f;
         lit.isOccluder = true; // emitters must be occluders so RC rays can hit & gather them
+        lit.elevation = 40.f;  // float the glow slightly above the ground
         makeLit(vec2(-330, 210), vec2(120, 120), 12, std::move(lit));
     }
 }

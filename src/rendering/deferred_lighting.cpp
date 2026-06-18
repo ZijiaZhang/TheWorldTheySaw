@@ -266,7 +266,7 @@ void DirectLightPass::create(ivec2 size) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     fx.load_from_file(shader_path("fullscreen") + ".vertex.glsl", shader_path("direct_light") + ".fragment.glsl");
 }
-void DirectLightPass::render(const GBuffer& gbuffer, const Spotlight& f) {
+void DirectLightPass::render(const GBuffer& gbuffer, const Spotlight& f, const Camera& cam) {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -276,9 +276,30 @@ void DirectLightPass::render(const GBuffer& gbuffer, const Spotlight& f) {
 
     glUseProgram(fx.program);
     GLuint p = fx.program;
+
+    // World-space lighting (iso) needs the unprojection constants + the light's screen
+    // position for the shadow march. Legacy keeps f.pos.xy (already screen px, y-up).
+    const bool worldSpace = cam.isoEnabled;
+    vec2 lightFrag;
+    if (worldSpace) {
+        vec2 g = cam.world_to_screen(vec2(f.pos.x, f.pos.y)); // ground projection (game-unit, y-down)
+        g.y -= f.pos.z * cam.zScale;                          // raise by the light's world height
+        lightFrag = vec2(g.x, (float)dim.y - g.y);            // -> gl_FragCoord (y-up)
+    } else {
+        lightFrag = vec2(f.pos.x, f.pos.y);
+    }
+
     bindTex(1, gbuffer.normalMat()); uInt(p, "uGNormal", 1);
     bindTex(2, gbuffer.height());    uInt(p, "uGHeight", 2);
     uV2(p, "uResolution", { (float)dim.x, (float)dim.y });
+    uFlt(p, "uWorldSpace", worldSpace ? 1.0f : 0.0f);
+    uFlt(p, "uOx", cam.oblique_x_scale);
+    uFlt(p, "uOy", cam.oblique_y_scale);
+    uFlt(p, "uZScale", cam.zScale);
+    uV2(p, "uCenter", { (float)dim.x * 0.5f, (float)dim.y * 0.5f });
+    uV2(p, "uFocus", cam.get_focus_position());
+    uV2(p, "uLightFrag", lightFrag);
+    uV3(p, "uSpotDirWorld", normalize(f.spotDirWorld));
     uV3(p, "uLightPos", f.pos);
     uV2(p, "uSpotDir", normalize(f.dir));
     uFlt(p, "uCosInner", f.cosInner);
@@ -304,7 +325,7 @@ void CompositePass::create() {
     fx.load_from_file(shader_path("fullscreen") + ".vertex.glsl", shader_path("composite") + ".fragment.glsl");
 }
 void CompositePass::render(const GBuffer& gbuffer, GLuint giTex, GLuint directTex, GLuint sdfTex,
-                           ivec2 screenSize, int debugMode, float exposure) {
+                           ivec2 screenSize, int debugMode, float exposure, bool worldSpace) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, screenSize.x, screenSize.y);
     glDisable(GL_DEPTH_TEST);
@@ -320,6 +341,7 @@ void CompositePass::render(const GBuffer& gbuffer, GLuint giTex, GLuint directTe
     bindTex(7, giTex);                uInt(p, "uGI", 7);
     bindTex(8, directTex);            uInt(p, "uDirect", 8);
     uFlt(p, "uExposure", exposure);
+    uFlt(p, "uWorldSpace", worldSpace ? 1.0f : 0.0f);
     uInt(p, "uDebugMode", debugMode);
     uFlt(p, "uHeightDebugScale", 64.0f);
     uFlt(p, "uSdfDebugScale", 64.0f);
@@ -370,7 +392,7 @@ void DeferredRenderer::init(ivec2 framebufferSize, const RadianceCascades::Param
     lights.flashlight.cosOuter = -1.001f;
     lights.flashlight.k1       = 0.0f;
     lights.flashlight.k2       = 2.0e-5f;
-    lights.flashlight.pos.z    = 150.0f;
+    lights.flashlight.pos.z    = 300.0f;   // raised for the iso scene (taller than the walls)
     lights.flashlight.shadowStepLen   = 3.0f;
     lights.flashlight.shadowSteps     = 200;
     lights.flashlight.shadowBias      = 1.5f;
@@ -397,11 +419,29 @@ void DeferredRenderer::geometryPass(const Camera& camera, const mat3& projection
     GLuint prog = gbufferFx.program;
     glUseProgram(prog);
 
-    // Painter-sort lit sprites by zValue (same convention as the forward path).
+    // Draw order. Iso mode: ground sprites first (always behind), then billboards
+    // back-to-front by iso depth (x + y ascending), zValue as the final tie-break.
+    // Non-iso: the legacy zValue painter sort.
     auto entities = ECS::registry<LitSprite>.entities;
-    std::sort(entities.begin(), entities.end(), [](const ECS::Entity a, const ECS::Entity b) {
-        return ECS::registry<Motion>.get(a).zValue < ECS::registry<Motion>.get(b).zValue;
-    });
+    if (camera.isoEnabled) {
+        std::sort(entities.begin(), entities.end(), [](const ECS::Entity a, const ECS::Entity b) {
+            auto& la = ECS::registry<LitSprite>.get(a);
+            auto& lb = ECS::registry<LitSprite>.get(b);
+            int ga = (la.isoMode == LitSprite::IsoMode::Ground) ? 0 : 1;
+            int gb = (lb.isoMode == LitSprite::IsoMode::Ground) ? 0 : 1;
+            if (ga != gb) return ga < gb;                 // ground layer always behind
+            auto& ma = ECS::registry<Motion>.get(a);
+            auto& mb = ECS::registry<Motion>.get(b);
+            float da = ma.position.x + ma.position.y;
+            float db = mb.position.x + mb.position.y;
+            if (da != db) return da < db;                 // far-first (ascending x + y)
+            return ma.zValue < mb.zValue;
+        });
+    } else {
+        std::sort(entities.begin(), entities.end(), [](const ECS::Entity a, const ECS::Entity b) {
+            return ECS::registry<Motion>.get(a).zValue < ECS::registry<Motion>.get(b).zValue;
+        });
+    }
 
     GLint in_position_loc = glGetAttribLocation(prog, "in_position");
     GLint in_texcoord_loc = glGetAttribLocation(prog, "in_texcoord");
@@ -412,11 +452,19 @@ void DeferredRenderer::geometryPass(const Camera& camera, const mat3& projection
         auto& motion = ECS::registry<Motion>.get(e);
         auto& lit = ECS::registry<LitSprite>.get(e);
 
-        Transform t;
-        t.translate(motion.position - camera.get_position());
-        t.rotate(motion.angle);
-        t.scale(motion.scale);
-        uM3(prog, "transform", t.mat);
+        mat3 transformMat;
+        if (camera.isoEnabled) {
+            transformMat = (lit.isoMode == LitSprite::IsoMode::Ground)
+                ? camera.iso_ground_transform(motion)
+                : camera.iso_billboard_transform(motion, lit.elevation);
+        } else {
+            Transform t;
+            t.translate(motion.position - camera.get_position());
+            t.rotate(motion.angle);
+            t.scale(motion.scale);
+            transformMat = t.mat;
+        }
+        uM3(prog, "transform", transformMat);
         if (projection_uloc >= 0) glUniformMatrix3fv(projection_uloc, 1, GL_FALSE, (const float*)&projection_2D);
 
         // Always bind a valid texture to every source unit (§ integrator note 1).
@@ -432,6 +480,7 @@ void DeferredRenderer::geometryPass(const Camera& camera, const mat3& projection
         uFlt(prog, "uHasHeightMap", (lit.hasHeightMap && lit.height.is_valid()) ? 1.0f : 0.0f);
         uFlt(prog, "uHasEmissive",  (lit.hasEmissive  && lit.emissive.is_valid()) ? 1.0f : 0.0f);
         uM3 (prog, "uNormalToSurface", lit.normalToSurface);
+        uFlt(prog, "uWorldSpace", camera.isoEnabled ? 1.0f : 0.0f);
 
         glBindVertexArray(quad.mesh.vao);
         glBindBuffer(GL_ARRAY_BUFFER, quad.mesh.vbo);
@@ -463,9 +512,9 @@ void DeferredRenderer::draw(const Camera& camera, ivec2 window_size, const mat3&
     geometryPass(camera, projection_2D);   // Pass 1
     sdf.generate(gbuffer);                  // Pass 2
     rc.compute(sdf, gbuffer);               // Pass 3
-    direct.render(gbuffer, lights.flashlight); // Pass 4 + 5
+    direct.render(gbuffer, lights.flashlight, camera); // Pass 4 + 5
     composite.render(gbuffer, rc.giResult(), direct.result(), sdf.sdfTexture(),
-                     window_size, debugMode);  // Pass 6
+                     window_size, debugMode, 1.0f, camera.isoEnabled);  // Pass 6
 
     // Leave a clean state for any forward overlays drawn afterward.
     glUseProgram(0);

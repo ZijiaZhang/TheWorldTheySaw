@@ -65,6 +65,7 @@ uniform sampler2D uGHeight;      // unit 2 (debug: height field)     - bound onl
 uniform sampler2D uSDF;          // unit 5 (debug: signed distance)  - bound only for DEBUG_SDF
 uniform float uHeightDebugScale; // world-units mapped to white in DEBUG_HEIGHT (default 64.0)
 uniform float uSdfDebugScale;    // pixels mapped to full color in DEBUG_SDF   (default 64.0)
+uniform float uWorldSpace;       // 1.0 = gbuffer normal is full-xyz world space (DEBUG_NORMAL decode)
 
 // Narkowicz 2015 ACES filmic fit. Operates per-channel; clamps to [0,1].
 // a=2.51, b=0.03, c=2.43, d=0.59, e=0.14  (contract ::4.10).
@@ -94,7 +95,9 @@ void main()
         if (uDebugMode == 1) {                       // DEBUG_ALBEDO
             oColor = vec4(texture(uGAlbedo, vUV).rgb, 1.0);
         } else if (uDebugMode == 2) {                // DEBUG_NORMAL
-            vec3 N = decodeNormal(texture(uGNormal, vUV).rg);
+            vec3 N = (uWorldSpace > 0.5)
+                ? normalize(texture(uGNormal, vUV).rgb * 2.0 - 1.0)  // full-xyz world normal
+                : decodeNormal(texture(uGNormal, vUV).rg);
             oColor = vec4(N * 0.5 + 0.5, 1.0);       // remap [-1,1] -> [0,1]
         } else if (uDebugMode == 3) {                // DEBUG_HEIGHT
             float h = texture(uGHeight, vUV).r;

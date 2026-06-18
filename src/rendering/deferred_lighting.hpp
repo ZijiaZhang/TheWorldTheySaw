@@ -23,6 +23,14 @@ struct LitSprite {
     bool    hasHeightMap = false; // -> uHasHeightMap
     bool    hasEmissive  = false; // -> uHasEmissive
     mat3    normalToSurface = mat3(1.0f); // -> uNormalToSurface (identity = ground-aligned)
+
+    // Isometric pseudo-3D placement (consulted only when Camera::isoEnabled).
+    // Ground  = the square quad is skewed into the iso diamond (floors/tiles).
+    // Billboard = upright quad whose center is iso-projected and raised up-screen
+    // by `elevation` (world units; Phase 1 set it equal to baseHeight).
+    enum class IsoMode { Billboard, Ground };
+    IsoMode isoMode   = IsoMode::Billboard;
+    float   elevation = 0.0f;
 };
 
 // Draws the shared full-screen triangle (binds a lazily-created dummy VAO and issues
@@ -112,7 +120,7 @@ struct Spotlight; // fwd
 class DirectLightPass {
 public:
     void create(ivec2 size);
-    void render(const GBuffer& gbuffer, const Spotlight& flashlight);
+    void render(const GBuffer& gbuffer, const Spotlight& flashlight, const Camera& camera);
     GLuint result() const { return directResult; }
     void destroy();
     ~DirectLightPass() { destroy(); }
@@ -127,7 +135,7 @@ class CompositePass {
 public:
     void create();                // no owned target (renders to FBO 0)
     void render(const GBuffer& gbuffer, GLuint giTex, GLuint directTex, GLuint sdfTex, ivec2 screenSize,
-                int debugMode = 0, float exposure = 1.0f);
+                int debugMode = 0, float exposure = 1.0f, bool worldSpace = false);
     void destroy();
     ~CompositePass() { destroy(); }
 private:
@@ -137,8 +145,10 @@ private:
 // ---- lights ---------------------------------------------------------------------------------
 // Flashlight hero light. All positional data in "screen + height" space (px, px, world height).
 struct Spotlight {
-    vec3  pos      = {0, 0, 64};   // (px, px, height)
-    vec2  dir      = {1, 0};       // screen-plane aim (will be normalized)
+    vec3  pos      = {0, 0, 64};   // WORLD (wx,wy,wz) in iso mode; (px,px,height) in legacy
+    vec2  dir      = {1, 0};       // legacy screen-plane aim (will be normalized)
+    vec3  spotDirWorld = {0, 0, -1}; // world aim direction (iso path)
+    float lightWorldHeight = 300.f;  // world elevation the flashlight floats at (iso path)
     float cosInner = 0.96f;        // ~16 deg half-angle
     float cosOuter = 0.86f;        // ~30 deg half-angle
     vec3  color    = {1, 1, 1};    // linear intensity

@@ -31,7 +31,8 @@ uniform float uBaseHeight;       // world units
 uniform float uHeightRange;      // world units multiplied by heightmap.r
 uniform float uHasHeightMap;     // 1.0 if uHeightMap bound, else 0.0
 uniform float uHasEmissive;      // 1.0 if uEmissiveMap bound, else 0.0
-uniform mat3  uNormalToSurface;  // reorients tangent-space normal into screen+height space
+uniform mat3  uNormalToSurface;  // tangent->surface; world-space path: tangent->WORLD (surface TBN)
+uniform float uWorldSpace;       // 1.0 = store full-xyz WORLD normal; else legacy screen+height
 
 void main()
 {
@@ -46,15 +47,16 @@ void main()
     float hmap = (uHasHeightMap > 0.5) ? texture(uHeightMap, vUV).r : 0.0;
 
     oAlbedoMask = vec4(alb.rgb, uIsOccluder);
-    // Flip normal Y to match the lighting pass's gl_FragCoord space (Y up).
-    // The world->screen projection (render.cpp: sy = 2/(top-bottom) < 0) reflects
-    // local +Y to screen-DOWN, so a standard OpenGL +Y-up tangent-space normal
-    // (e.g. demo_scene's domeNormal) must have its Y negated here; otherwise the
-    // lit cap mirrors and orbits opposite to the light. n.x is correct (sx > 0),
-    // and flat normals (n.y = 0) plus nz = sqrt(1 - dot(nxy,nxy)) are sign-invariant.
-    // Applied after uNormalToSurface so per-sprite rotation (set uNormalToSurface =
-    // the sprite's rotation matrix) still composes correctly.
-    oNormalMat  = vec4(vec2(n.x, -n.y) * 0.5 + 0.5, uRoughness, 0.0);
+    // Normal encode. WORLD-space path (uWorldSpace): uNormalToSurface is the per-sprite
+    // tangent->WORLD surface TBN (ground sprites bake the flat normal to world +Z, wall
+    // sprites to world-horizontal; design 3.2), so n is already the world normal — store
+    // its full xyz (z is kept, not reconstructed: near-horizontal wall normals are unstable
+    // under z-reconstruct). LEGACY pseudo-world path keeps the screen+height encode with Y
+    // negated for projection_2D sy<0.
+    if (uWorldSpace > 0.5)
+        oNormalMat = vec4(n * 0.5 + 0.5, uRoughness);
+    else
+        oNormalMat = vec4(vec2(n.x, -n.y) * 0.5 + 0.5, uRoughness, 0.0);
     oHeight     = uBaseHeight + hmap * uHeightRange;
     oEmissive   = (uHasEmissive > 0.5) ? texture(uEmissiveMap, vUV) : vec4(0.0);
 }
