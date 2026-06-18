@@ -8,6 +8,7 @@
 // stlib
 #include <string>
 #include <random>
+#include <functional>
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
@@ -47,6 +48,10 @@ public:
 	// Set true while a UI click is being dispatched, so button callbacks can gate on it
 	static bool selecting;
 	static bool menuClickOverride;
+
+	// Optional hook run at the end of every restart() (after the level is loaded). Lets the
+	// app (re)populate programmatic scene content — e.g. the lighting demo — so it survives R.
+	static std::function<void()> post_restart;
 
 	vec2 screen;
 

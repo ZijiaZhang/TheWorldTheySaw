@@ -21,6 +21,7 @@ bool WorldSystem::reload_level = false;
 std::string WorldSystem::reload_level_name = "template";
 bool WorldSystem::selecting = false;
 bool WorldSystem::menuClickOverride = false;
+std::function<void()> WorldSystem::post_restart = nullptr;
 
 WorldSystem::WorldSystem(ivec2 window_size_px)
 {
@@ -158,6 +159,9 @@ void WorldSystem::restart(std::string level)
 	// A camera is required by the renderer
 	ECS::Entity camera;
 	camera.insert(Camera({ 0, 0 }));
+
+	// Let the app repopulate programmatic content (e.g. the lighting demo scene).
+	if (post_restart) post_restart();
 }
 
 // Dispatch queued collision events

@@ -14,6 +14,7 @@
 #include "physics.hpp"
 #include "debug.hpp"
 #include "GameInstance.hpp"
+#include "demo_scene.hpp"
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -41,6 +42,8 @@ int main()
 	PhysicsSystem physics;
 
 	world.screen = window_size_in_game_units;
+	// Repopulate the lighting demo scene on every (re)start, including the R hotkey.
+	WorldSystem::post_restart = setupLightingDemo;
 	// Set all states to default
 	world.restart(start_level);
 	auto t = Clock::now();

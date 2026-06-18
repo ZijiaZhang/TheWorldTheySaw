@@ -247,13 +247,24 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     auto& camera = ECS::registry<Camera>.get(screen.camera);
     camera.set_screen_size(window_size_in_game_units);
 
-    // Render straight to the back buffer
+    // Aim the flashlight at the cursor (screen+height space; gl_FragCoord origin is bottom-left).
+    double mx = 0.0, my = 0.0;
+    glfwGetCursorPos(&window, &mx, &my);
+    deferred.lights.flashlight.pos.x = static_cast<float>(mx);
+    deferred.lights.flashlight.pos.y = static_cast<float>(frame_buffer_size.y) - static_cast<float>(my);
+
+    // Number keys 0-8 switch the composite debug view (0 = full pipeline).
+    for (int k = 0; k <= 8; k++) {
+        if (glfwGetKey(&window, GLFW_KEY_0 + k) == GLFW_PRESS) deferred.debugMode = k;
+    }
+
+    // Pass 1..6: deferred lit scene composited straight to the back buffer.
+    deferred.draw(camera, frame_buffer_size, projection_2D);
+
+    // Forward overlays drawn on top of the composited scene (no clear): legacy non-lit
+    // sprites, particles, and UI.
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
-    glDepthRange(0.00001, 10);
-    glClearColor(0.035f, 0.055f, 0.06f, 1.0f);
-    glClearDepth(1.f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gl_has_errors();
 
     // Draw all textured meshes that have a position and size component, painter-sorted by zValue.

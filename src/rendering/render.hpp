@@ -4,6 +4,7 @@
 #include "tiny_ecs.hpp"
 #include "render_components.hpp"
 #include "Particle.hpp"
+#include "deferred_lighting.hpp"
 
 struct InstancedMesh;
 struct ShadedMesh;
@@ -48,6 +49,9 @@ public:
 	static void createColoredMesh(ShadedMesh& mesh_container, std::string shader_name);
     static void createSpriteAnimation(ShadedMesh &sprite, std::string texture_path, int number_of_frames);
     static RenderSystem* renderSystem;
+
+	// Dynamic deferred lighting pipeline (lit scene); forward path handles UI overlays.
+	DeferredRenderer deferred;
 private:
 	// Set up the shared screen state (camera holder)
 	void initScreenTexture();

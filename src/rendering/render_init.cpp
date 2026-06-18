@@ -20,6 +20,11 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 	initScreenTexture();
 
 	renderSystem = this;
+
+	// Bring up the deferred lighting pipeline sized to the framebuffer.
+	ivec2 fb;
+	glfwGetFramebufferSize(&window, &fb.x, &fb.y);
+	deferred.init(fb);
 }
 
 RenderSystem::~RenderSystem()
