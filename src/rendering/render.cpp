@@ -7,6 +7,7 @@
 #include "highlight_circle.hpp"
 #include "pop_up.hpp"
 #include "Particle.hpp"
+#include "lighting/LightingDemo.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -255,6 +256,31 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
     glClearDepth(1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     gl_has_errors();
+
+    // Pseudo-3D deferred lighting: fills the back buffer with the lit world
+    // (G-buffer -> SDF -> Radiance Cascades -> spotlight+shadows -> composite).
+    // Forward-rendered overlays (UI, particles) still draw on top afterwards.
+    if (LightingDemo::active) {
+        if (!deferred_ready_) {
+            deferred_.init(frame_buffer_size.x, frame_buffer_size.y);
+            deferred_ready_ = true;
+        }
+        deferred_.projection() = LightingDemo::projection;
+        deferred_.cascades().bilinearFix = LightingDemo::bilinearFixToggle;
+
+        vec2 focus = camera.get_focus_position();
+        vec2 screen = vec2((float)frame_buffer_size.x, (float)frame_buffer_size.y);
+
+        double mx = 0.0, my = 0.0;
+        glfwGetCursorPos(&window, &mx, &my);
+        LightingDemo::update(vec2((float)mx, (float)my), focus, screen, deferred_.projection());
+
+        deferred_.render(focus, screen, LightingDemo::debugMode);
+
+        // Restore back-buffer state for the forward overlay passes below.
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, frame_buffer_size.x, frame_buffer_size.y);
+    }
 
     // Draw all textured meshes that have a position and size component, painter-sorted by zValue.
     auto entities = ECS::registry<ShadedMeshRef>.entities;

@@ -24,6 +24,10 @@ RenderSystem::RenderSystem(GLFWwindow& window) :
 
 RenderSystem::~RenderSystem()
 {
+	// Release deferred lighting GL resources while the context is still current.
+	if (deferred_ready_)
+		deferred_.destroy();
+
 	// remove all entities created by the render system
 	while (ECS::registry<Motion>.entities.size() > 0)
 		ECS::ContainerInterface::remove_all_components_of(ECS::registry<Motion>.entities.back());

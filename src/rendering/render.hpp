@@ -4,6 +4,7 @@
 #include "tiny_ecs.hpp"
 #include "render_components.hpp"
 #include "Particle.hpp"
+#include "lighting/DeferredLighting.hpp"
 
 struct InstancedMesh;
 struct ShadedMesh;
@@ -64,4 +65,8 @@ private:
 	ECS::Entity screen_state_entity;
 
     static const std::string build_anim_vertex_shader(int frames);
+
+    // Pseudo-3D deferred lighting pipeline (active in the lighting demo).
+    DeferredLighting deferred_;
+    bool deferred_ready_ = false;
 };

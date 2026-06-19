@@ -21,6 +21,17 @@ The starting scene (`data/levels/template.json`) is intentionally empty, so the 
 opens to a cleared window. Press `O` to toggle debug draw, `P` for profiling output,
 and `R` to reload the current level.
 
+## Pseudo-3D deferred lighting
+
+This branch adds a full pseudo-3D oblique-view dynamic lighting system — deferred
+rendering with world-space normal maps, a height channel, a dynamic spotlight with
+height-field 3D shadows, and 2D Radiance Cascades global illumination (compute
+shaders, OpenGL 4.3). On launch it spawns a demo scene: **move the mouse** to aim a
+shadow-casting flashlight, press **number keys 0–8** for G-buffer/SDF/GI/light debug
+views, and **B** to toggle the Radiance Cascades bilinear fix. See
+[docs/LIGHTING.md](docs/LIGHTING.md) for the architecture and tuning guide; the code
+lives in `src/rendering/lighting/` and `data/shaders/lighting/`.
+
 ## Build
 
 Use CMake to configure and build the project. On Windows, the repo includes the

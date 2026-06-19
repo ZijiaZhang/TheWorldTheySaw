@@ -7,6 +7,7 @@
 #include "PhysicsObject.hpp"
 #include "button.hpp"
 #include "pop_up.hpp"
+#include "lighting/LightingDemo.hpp"
 
 // stlib
 #include <string.h>
@@ -36,8 +37,11 @@ WorldSystem::WorldSystem(ivec2 window_size_px)
 
 	//-------------------------------------------------------------------------
 	// GLFW / OGL Initialization, needs to be set before glfwCreateWindow
-	// Core Opengl 3.
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	// Core OpenGL 4.3: required for the deferred lighting pipeline's compute
+	// shaders (JFA SDF + Radiance Cascades) and image load/store. 4.3 core is
+	// backwards compatible, so the legacy "#version 330" forward shaders still
+	// compile and run under this context.
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
@@ -158,6 +162,11 @@ void WorldSystem::restart(std::string level)
 	// A camera is required by the renderer
 	ECS::Entity camera;
 	camera.insert(Camera({ 0, 0 }));
+
+	// The entity reset above wipes the lighting demo's lit sprites (they carry a
+	// Motion); rebuild the scene so an R-reload doesn't leave it empty.
+	if (LightingDemo::active)
+		LightingDemo::respawn();
 }
 
 // Dispatch queued collision events
@@ -176,6 +185,9 @@ bool WorldSystem::is_over() const
 // On key callback
 void WorldSystem::on_key(int key, int, int action, int mod)
 {
+	// Lighting demo: number keys pick a debug view, B toggles the RC bilinear fix.
+	LightingDemo::onKey(key, action);
+
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R)
 	{

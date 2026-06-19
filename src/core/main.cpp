@@ -14,6 +14,7 @@
 #include "physics.hpp"
 #include "debug.hpp"
 #include "GameInstance.hpp"
+#include "lighting/LightingDemo.hpp"
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -43,6 +44,12 @@ int main()
 	world.screen = window_size_in_game_units;
 	// Set all states to default
 	world.restart(start_level);
+
+	// Spawn the pseudo-3D deferred lighting demo scene (floor, walls, props,
+	// emissive lamps, and a mouse-aimed flashlight). Move the mouse to aim the
+	// flashlight; number keys 0-8 switch debug views; B toggles the RC fix.
+	LightingDemo::setup(window_size_in_game_units);
+
 	auto t = Clock::now();
 	// Variable timestep loop
 	while (!world.is_over())

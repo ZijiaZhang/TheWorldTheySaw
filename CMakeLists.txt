@@ -42,6 +42,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     src/gameplay/entities
     src/gameplay/systems
     src/rendering
+    src/rendering/lighting
     src/ui
 )
 
