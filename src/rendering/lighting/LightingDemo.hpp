@@ -1,9 +1,9 @@
 #pragma once
 //
-// A self-contained demo scene that exercises the deferred lighting pipeline:
-// a textured floor, brick walls and rounded props (occluders with height), an
-// emissive lamp feeding the Radiance Cascades, plus a mouse-driven flashlight
-// spotlight that casts height-field shadows.
+// A self-contained pseudo-3D oblique forest-checkpoint scene built from reusable
+// generated sprite assets. It exercises the deferred lighting pipeline with
+// authored albedo sprites, sprite occluders, practical lights, and a movable
+// player character carrying the mouse-aimed flashlight.
 //
 // Activated from main(); RenderSystem drives update()/the projection each frame.
 //
@@ -19,7 +19,8 @@ public:
     // sprites (clears existing demo lights first so they don't accumulate).
     static void respawn();
 
-    // Aim the flashlight at the mouse (mouse in GLFW top-left pixel coords).
+    // Move the player and aim the flashlight at the mouse (mouse in GLFW
+    // top-left pixel coords).
     static void update(vec2 mouseTopLeft, vec2 focus, vec2 screenSize, const ObliqueProjection& proj);
 
     // Number keys 0..8 pick a debug view; B toggles the RC bilinear fix.

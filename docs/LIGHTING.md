@@ -69,16 +69,47 @@ apart, each owning an `s_c × s_c` block = `4^(c+1)` directions. Merge runs top-
 with a **bilinear probe weight** (Bilinear Fix, Osborne & Sannikov 2024) to kill ring
 artifacts; `resolve` integrates C0 over direction into a per-pixel irradiance texture.
 
+### Sprite placement — upright vs. world quad ("fake 3D")
+
+A `LitSprite` has a `Placement`:
+
+* **`Upright`** (default): a screen-aligned billboard — the quad is positioned at the
+  sprite's projected anchor and scaled in pixels. For tall, camera-facing things
+  (characters, trees, signs). Elevation comes from the height channel.
+* **`WorldQuad`**: the 4 corners are transformed into world space (`worldCenter` +
+  `orientation` columns × `worldSize`) and oblique-projected individually, so the quad
+  **foreshortens** with the camera. The geometry pass writes each pixel's true world-z
+  (`vWorldZ`) to the height channel, so the deferred unprojection — and therefore
+  lighting and shadows — stay registered to the surface. For flat ground decals/blob
+  shadows, angled walls/ramps, and tumbling props.
+
+`orientation` columns are the quad's world right/up/normal and double as the surface
+TBN, so the lit normal always matches the visible plane. Build one with
+`groundQuadBasis()`, `surfaceQuadBasis(normal, upHint)`, or `rampQuadBasis(tilt, yaw)`
+(animate `tilt`/`yaw` for tumbling). General free 3D rotation is intentionally **not**
+offered — painted sprites foreshorten badly; **directional facing** (a character facing
+N/E/S/W) is done by swapping the albedo/normal frame per heading in game code, not by
+rotating geometry. The demo's spinning coin, ground rug, blob shadow, tilted ramp, and
+heading-driven compass exercise each case.
+
 ## Demo controls
 
-The demo scene (floor, brick walls, rounded props, two emissive lamps, a mouse-aimed
-flashlight) is spawned from `main()` via `LightingDemo::setup`.
+The demo scene (a forest checkpoint: mud/road ground, sprite props, emissive lamps, a
+player carrying a flashlight, plus the fake-3D placement showcase) is spawned from
+`main()` via `LightingDemo::setup`.
 
-* **Move the mouse** — aim the flashlight (a shadow-casting spotlight).
+* **WASD / arrow keys** — move the player (the flashlight follows).
+* **Move the mouse** — aim the flashlight (a shadow-casting spotlight); also drives the
+  directional-facing compass.
 * **Number keys 0–8** — debug views:
   `0` final · `1` albedo · `2` world normal · `3` height · `4` SDF ·
   `5` GI (Radiance Cascades) · `6` direct light · `7` emissive · `8` occluder mask.
 * **B** — toggle the RC bilinear fix (watch the ring artifacts appear/disappear).
+
+Verify the placement work with view `2` (a flat decal reads constant +Z; the ramp a
+constant tilt; the coin's normal sweeps as it tumbles), view `3` (the ramp shows a
+world-z gradient, flat decals ≈ 0), and view `6` (sweep the flashlight — the
+height-field shadow must land on the geometry, not offset).
 
 ## Tuning
 

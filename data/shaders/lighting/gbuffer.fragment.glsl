@@ -6,6 +6,7 @@
 // outward). Emissive alpha doubles as a 1-bit coverage flag for later passes.
 //
 in vec2 vUV;
+noperspective in float vWorldZ;
 
 layout(location = 0) out vec4  oAlbedoMask; // rgb albedo, a occluder mask
 layout(location = 1) out vec4  oNormalMat;  // rgb world normal (encoded), a roughness
@@ -17,6 +18,7 @@ uniform sampler2D uNormal;
 uniform sampler2D uHeight;
 uniform sampler2D uEmissive;
 
+uniform int   uPlacement;     // 0 = Upright, 1 = WorldQuad
 uniform mat3  uSurfaceTBN;     // tangent space -> world space
 uniform float uRoughness;
 uniform float uBaseHeight;
@@ -32,7 +34,12 @@ void main() {
     vec3 nT = texture(uNormal, vUV).xyz * 2.0 - 1.0;
     vec3 nW = normalize(uSurfaceTBN * nT);
 
-    float h = uBaseHeight + texture(uHeight, vUV).r * uHeightRange;
+    // WorldQuad: height is the quad plane's true world-z (interpolated; affine
+    // projection makes this exact) plus optional height-map relief. Upright: the
+    // height channel encodes elevation on a screen-aligned billboard.
+    float h = (uPlacement == 1)
+        ? vWorldZ + texture(uHeight, vUV).r * uHeightRange
+        : uBaseHeight + texture(uHeight, vUV).r * uHeightRange;
     vec3  emis = texture(uEmissive, vUV).rgb * uEmissiveColor;
 
     oAlbedoMask = vec4(alb.rgb * uTint, uIsOccluder);

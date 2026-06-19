@@ -9,12 +9,23 @@
 #include "common.hpp"
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
+#include <cmath>
 
 // How a flat sprite is oriented in the world. This drives the surface TBN that
 // rotates tangent-space normals into world space in the geometry pass (§3.2).
 enum class SurfaceType {
     Floor, // lies flat on the ground; world normal points up (+Z)
     Wall   // stands vertical; world normal points outward/front (horizontal)
+};
+
+// How a lit sprite's quad is placed. Upright is the default screen-aligned
+// billboard (tall, camera-facing things: characters, trees, signs). WorldQuad
+// transforms the 4 corners into world space and oblique-projects them, so the
+// quad foreshortens with the camera — for flat ground decals/shadows, angled
+// walls/ramps, and tumbling props. See docs/LIGHTING.md "fake-3D placement".
+enum class Placement {
+    Upright,
+    WorldQuad
 };
 
 // A sprite that participates in the deferred lighting pipeline. Pairs with a
@@ -49,6 +60,18 @@ struct LitSprite {
 
     // Painter sort key; higher draws later (on top) in the G-buffer.
     int   sortKey = 0;
+
+    // --- Optional world-space placement (Placement::WorldQuad) ---
+    // When WorldQuad, the geometry pass ignores Motion.scale/position and instead
+    // builds the quad from worldCenter + orientation + worldSize, writing the true
+    // per-pixel world-z to the height channel so deferred unprojection stays exact.
+    Placement placement = Placement::Upright;
+    // Columns = the quad's world right (T), up (B), and normal (N) unit vectors.
+    // Doubles as the surface TBN, so the lit normal always matches the visible
+    // plane. Identity = a flat ground quad facing +Z.
+    mat3 orientation = mat3(1.f);
+    vec3 worldCenter = {0.f, 0.f, 0.f}; // quad center in world (wx, wy, wz)
+    vec2 worldSize   = {0.f, 0.f};      // quad extents in WORLD units (not pixels)
 };
 
 // A dynamic light, fully described in world space (§9). Point and spot share the
@@ -110,3 +133,35 @@ struct ObliqueProjection {
         return { focus.x + ex, focus.y + ey };
     }
 };
+
+// --- World-quad orientation helpers (fake-3D placement) ---
+// Each returns a basis whose columns are the quad's world right/up/normal; assign
+// it to LitSprite::orientation. The normal (column 2) also drives lighting.
+
+// A flat quad lying in the ground plane, normal +Z. For decals, blob shadows,
+// rugs, AoE rings, item drops (case 1).
+inline mat3 groundQuadBasis() {
+    return mat3(vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1));
+}
+
+// A quad oriented by an explicit world normal, with `upHint` choosing the
+// in-plane axes. For arbitrary surfaces.
+inline mat3 surfaceQuadBasis(vec3 normal, vec3 upHint = vec3(0, 0, 1)) {
+    vec3 N = normalize(normal);
+    vec3 R = cross(upHint, N);
+    if (dot(R, R) < 1e-6f) R = vec3(1, 0, 0); // degenerate: upHint parallel to N
+    R = normalize(R);
+    vec3 U = cross(N, R);
+    return mat3(R, U, N);
+}
+
+// A ground quad yawed by `yawRad` about +Z, then tilted up by `tiltRad` about its
+// right axis. tilt 0 => flat; tilt -> pi flips it over (case 2 ramps, case 3
+// tumbling props with an animated angle).
+inline mat3 rampQuadBasis(float tiltRad, float yawRad) {
+    vec3 R = vec3(std::cos(yawRad), std::sin(yawRad), 0.f);          // right (in ground plane)
+    vec3 flatUp = vec3(-std::sin(yawRad), std::cos(yawRad), 0.f);    // up before tilt
+    vec3 U = normalize(flatUp * std::cos(tiltRad) + vec3(0, 0, 1) * std::sin(tiltRad));
+    vec3 N = normalize(cross(R, U));
+    return mat3(R, U, N);
+}

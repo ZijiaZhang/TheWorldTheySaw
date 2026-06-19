@@ -22,6 +22,12 @@ mat3 computeSurfaceTBN(const LitSprite& s) {
     return mat3(T, B, N);
 }
 
+// The world-space basis used both to place the quad (WorldQuad) and to orient
+// the lit normal. For Upright sprites it falls back to the surface-type TBN.
+mat3 surfaceBasis(const LitSprite& s) {
+    return s.placement == Placement::WorldQuad ? s.orientation : computeSurfaceTBN(s);
+}
+
 GLuint makeSolidTexture(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
     GLuint tex = 0;
     glGenTextures(1, &tex);
@@ -136,14 +142,29 @@ void DeferredLighting::geometryPass(vec2 focus, vec2 screenSize) {
         const LitSprite& s = e.get<LitSprite>();
         const Motion& m = e.get<Motion>();
 
-        vec2 anchor = proj_.project(vec3(m.position, 0.f), focus, screenSize);
-        vec2 size = {std::abs(m.scale.x), std::abs(m.scale.y)};
+        const bool worldQuad = (s.placement == Placement::WorldQuad);
+        glUniform1i(glGetUniformLocation(geomProgram_, "uPlacement"), worldQuad ? 1 : 0);
 
-        glUniform2f(glGetUniformLocation(geomProgram_, "uAnchorScreen"), anchor.x, anchor.y);
-        glUniform2f(glGetUniformLocation(geomProgram_, "uSpriteSize"), size.x, size.y);
-        glUniform1f(glGetUniformLocation(geomProgram_, "uAngle"), m.angle);
+        if (worldQuad) {
+            // Corners are built in world space and oblique-projected in the shader.
+            vec3 right = vec3(s.orientation[0]) * s.worldSize.x;
+            vec3 up    = vec3(s.orientation[1]) * s.worldSize.y;
+            glUniform3fv(glGetUniformLocation(geomProgram_, "uWorldCenter"), 1, &s.worldCenter.x);
+            glUniform3fv(glGetUniformLocation(geomProgram_, "uQuadRight"), 1, &right.x);
+            glUniform3fv(glGetUniformLocation(geomProgram_, "uQuadUp"), 1, &up.x);
+            glUniform2f(glGetUniformLocation(geomProgram_, "uFocus"), focus.x, focus.y);
+            glUniform1f(glGetUniformLocation(geomProgram_, "uKx"), proj_.kx());
+            glUniform1f(glGetUniformLocation(geomProgram_, "uKy"), proj_.ky());
+            glUniform1f(glGetUniformLocation(geomProgram_, "uKz"), proj_.kz());
+        } else {
+            vec2 anchor = proj_.project(vec3(m.position, 0.f), focus, screenSize);
+            vec2 size = {std::abs(m.scale.x), std::abs(m.scale.y)};
+            glUniform2f(glGetUniformLocation(geomProgram_, "uAnchorScreen"), anchor.x, anchor.y);
+            glUniform2f(glGetUniformLocation(geomProgram_, "uSpriteSize"), size.x, size.y);
+            glUniform1f(glGetUniformLocation(geomProgram_, "uAngle"), m.angle);
+        }
 
-        mat3 tbn = computeSurfaceTBN(s);
+        mat3 tbn = surfaceBasis(s);
         glUniformMatrix3fv(glGetUniformLocation(geomProgram_, "uSurfaceTBN"), 1, GL_FALSE, &tbn[0][0]);
         glUniform1f(glGetUniformLocation(geomProgram_, "uRoughness"), s.roughness);
         glUniform1f(glGetUniformLocation(geomProgram_, "uBaseHeight"), s.baseHeight);

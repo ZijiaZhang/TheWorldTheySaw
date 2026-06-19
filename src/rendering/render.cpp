@@ -267,6 +267,11 @@ void RenderSystem::draw(vec2 window_size_in_game_units)
         }
         deferred_.projection() = LightingDemo::projection;
         deferred_.cascades().bilinearFix = LightingDemo::bilinearFixToggle;
+        deferred_.ambient = {0.18f, 0.19f, 0.21f};
+        deferred_.background = {0.025f, 0.038f, 0.04f};
+        deferred_.aoRadius = 7.0f;
+        deferred_.specStrength = 0.18f;
+        deferred_.shadowBias = 1.25f;
 
         vec2 focus = camera.get_focus_position();
         vec2 screen = vec2((float)frame_buffer_size.x, (float)frame_buffer_size.y);
