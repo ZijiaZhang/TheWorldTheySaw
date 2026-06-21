@@ -16,8 +16,15 @@ upright surface, and lights use the existing height-field shadow pipeline.
 - Player movement with WASD or arrow keys.
 - Occluder masks for large upright sprites so the existing SDF and shadow passes
   can treat them as blockers.
-- Neutral fallback normals for image-tool sprites. This avoids the incorrect
-  result of treating a complex painted prop as one single vertical wall plane.
+- Upright wall normals with per-prop lift for the booth, bus, signs, barrier,
+  player, and markers. This gives tall painted cutouts light interaction without
+  flattening them into the ground plane.
+- Generated multi-face sprite assemblies for the bus and guard booth. Each visible
+  rear/front/side/roof face is a reusable transparent sprite placed as an oriented
+  `WorldQuad`, so close-range lights hit the correct face normal.
+- The large forest warning sign is a regenerated single flat sprite placed as one
+  vertical `WorldQuad`, so the board and posts stay on the same plane with no
+  thickness.
 - Runtime silhouette height masks derived from sprite alpha, so props can cast
   approximate object-shaped height-field shadows.
 
@@ -26,9 +33,12 @@ upright surface, and lights use the existing height-field shadow pipeline.
 - True planar reflections. Puddle and wet-road highlights are painted into the
   sprite art; the renderer does not mirror scene geometry or lights across water.
 - Per-sprite authored normal and height maps from the image tool. The current
-  scene uses generated albedo sprites plus the renderer's flat +Z normal fallback
-  and alpha-derived silhouette height. Adding authored material maps would improve
+  scene uses generated albedo sprites plus renderer-authored fallback normals and
+  alpha-derived silhouette height. Adding authored material maps would improve
   grazing light, contact detail, and shadow shape.
+- Multi-plane lighting inside one painted prop that has not been split yet. The
+  booth and bus are now split into face sprites, but future complex props still need
+  the same treatment or authored normal maps.
 - Bottom-anchored sprite placement. `LitSprite` anchors quads at their center, so
   large upright props need hand-tuned world positions and scale. A bottom-anchor
   option would make reusable character/prop placement easier.

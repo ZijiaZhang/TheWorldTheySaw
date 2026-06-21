@@ -89,27 +89,34 @@ TBN, so the lit normal always matches the visible plane. Build one with
 (animate `tilt`/`yaw` for tumbling). General free 3D rotation is intentionally **not**
 offered — painted sprites foreshorten badly; **directional facing** (a character facing
 N/E/S/W) is done by swapping the albedo/normal frame per heading in game code, not by
-rotating geometry. The demo's spinning coin, ground rug, blob shadow, tilted ramp, and
-heading-driven compass exercise each case.
+rotating geometry. The forest checkpoint demo uses this path for the mud, road, and
+puddle surfaces while keeping tall painted objects as upright cutouts. Upright wall
+cutouts can set `normalLift` to tilt their default normal toward +Z, which helps
+single-sprite oblique props like a booth or vehicle interact with light until authored
+normal maps or separate roof/front/side sprites exist.
+
+For close-range player lights, prefer separate face sprites over one lifted cutout:
+place each visible side as a `WorldQuad` with the matching `surfaceQuadBasis` or
+`groundQuadBasis`. The forest checkpoint bus and guard booth use this pattern for
+their rear/front, side, and roof planes.
 
 ## Demo controls
 
-The demo scene (a forest checkpoint: mud/road ground, sprite props, emissive lamps, a
-player carrying a flashlight, plus the fake-3D placement showcase) is spawned from
+The demo scene (a forest checkpoint: mud/road ground, sprite props, emissive lamps, and
+a player carrying a flashlight) is spawned from
 `main()` via `LightingDemo::setup`.
 
 * **WASD / arrow keys** — move the player (the flashlight follows).
-* **Move the mouse** — aim the flashlight (a shadow-casting spotlight); also drives the
-  directional-facing compass.
+* **Move the mouse** — aim the flashlight (a shadow-casting spotlight).
 * **Number keys 0–8** — debug views:
   `0` final · `1` albedo · `2` world normal · `3` height · `4` SDF ·
   `5` GI (Radiance Cascades) · `6` direct light · `7` emissive · `8` occluder mask.
 * **B** — toggle the RC bilinear fix (watch the ring artifacts appear/disappear).
 
-Verify the placement work with view `2` (a flat decal reads constant +Z; the ramp a
-constant tilt; the coin's normal sweeps as it tumbles), view `3` (the ramp shows a
-world-z gradient, flat decals ≈ 0), and view `6` (sweep the flashlight — the
-height-field shadow must land on the geometry, not offset).
+Verify the placement work with view `2` (ground/puddles read +Z while lifted upright
+props face the viewer with a small upward component), view `3` (road/puddles write true
+world-z while tall props use silhouette height), and view `6` (sweep the flashlight —
+the height-field shadow must land on the geometry, not offset).
 
 ## Tuning
 

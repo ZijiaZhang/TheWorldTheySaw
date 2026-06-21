@@ -43,6 +43,10 @@ struct LitSprite {
     // For walls: facing direction in the ground plane, radians. 0 => faces -Y
     // (toward the bottom of the screen / the viewer). Unused for floors.
     float facingAngle = 0.f;
+    // For upright wall cutouts, raise the default outward normal toward +Z.
+    // This approximates painted oblique props that include a roof/top plane in a
+    // single reusable sprite. 0 = vertical wall, 0.5 = noticeably top-facing.
+    float normalLift = 0.f;
 
     vec3  tint      = {1.f, 1.f, 1.f};
     float roughness = 0.6f;

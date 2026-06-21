@@ -16,9 +16,9 @@ mat3 computeSurfaceTBN(const LitSprite& s) {
         return mat3(vec3(1, 0, 0), vec3(0, 1, 0), vec3(0, 0, 1));
     }
     float a = s.facingAngle;
-    vec3 N = vec3(std::sin(a), -std::cos(a), 0.f); // outward, horizontal
+    vec3 N = normalize(vec3(std::sin(a), -std::cos(a), std::max(0.f, s.normalLift)));
     vec3 T = vec3(std::cos(a),  std::sin(a), 0.f); // along the wall, horizontal
-    vec3 B = vec3(0, 0, 1);                         // up
+    vec3 B = normalize(cross(N, T));               // up along the tilted face
     return mat3(T, B, N);
 }
 
